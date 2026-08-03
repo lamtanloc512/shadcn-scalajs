@@ -1,0 +1,180 @@
+# Card
+
+<Preview class="w-full max-w-sm">
+<div class="card">
+  <header>
+    <h2>Login to your account</h2>
+    <p>Enter your email below to login to your account</p>
+    <div class="card-action">
+      <button type="button" class="btn" data-variant="link">Sign Up</button>
+    </div>
+  </header>
+  <section>
+    <form class="grid gap-6">
+      <div class="grid gap-2">
+        <label class="label" for="demo-card-email">Email</label>
+        <input class="input" type="email" id="demo-card-email" placeholder="m@example.com" required />
+      </div>
+      <div class="grid gap-2">
+        <div class="flex items-center">
+          <label class="label" for="demo-card-password">Password</label>
+          <a href="#" class="ms-auto inline-block text-sm underline-offset-4 hover:underline">Forgot your password?</a>
+        </div>
+        <input class="input" type="password" id="demo-card-password" required />
+      </div>
+    </form>
+  </section>
+  <footer class="flex-col gap-2">
+    <button type="button" class="btn w-full">Login</button>
+    <button type="button" class="btn w-full" data-variant="outline">Login with Google</button>
+  </footer>
+</div>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Card component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/card.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your card HTML">
+
+```html
+<div class="card">
+  <header>
+    <h2>Card Title</h2>
+    <p>Card Description</p>
+    <div class="card-action">Card Action</div>
+  </header>
+  <section> <p>Card Content</p></section>
+  <footer>
+    <p>Card Footer</p>
+  </footer>
+</div>
+```
+
+  </Step>
+</Steps>
+
+## HTML structure
+
+<dl>
+  <dt><code>&lt;div class="card"&gt;</code></dt>
+  <dd>
+    The card container. Use <code>data-size="sm"</code> for a denser layout.
+    <dl>
+      <dt><code>&lt;header&gt;</code></dt>
+      <dd>
+        The card header.
+        <dl>
+          <dt><code>&lt;h2&gt;</code> or <code>&lt;h3&gt;</code></dt>
+          <dd>The card title.</dd>
+          <dt><code>&lt;p&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+          <dd>The card description.</dd>
+          <dt><code>&lt;div class="card-action"&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+          <dd>Action or metadata placed in the top-right of the header. Use <code>&lt;menu class="card-action"&gt;</code> when the content is a list of commands.</dd>
+        </dl>
+      </dd>
+      <dt><code>&lt;section&gt;</code></dt>
+      <dd>The main card content.</dd>
+      <dt><code>&lt;footer&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+      <dd>Footer actions or secondary content at the bottom of the card.</dd>
+    </dl>
+  </dd>
+</dl>
+
+## Examples
+
+### Size
+
+Use `data-size="sm"` to set the size of the card to small. The small size variant uses smaller spacing.
+
+<Preview class="w-full max-w-sm">
+<div class="card" data-size="sm">
+  <header>
+    <h2>Small Card</h2>
+    <p>This card uses the small size variant.</p>
+    <div class="card-action">
+      <button type="button" class="btn" data-size="sm" data-variant="outline">Action</button>
+    </div>
+  </header>
+  <section> <p>The card component supports a size attribute that can be set to <code>sm</code> for a more compact appearance.</p></section>
+</div>
+</Preview>
+
+### Image
+
+Add an image before the card header to create a card with an image.
+
+<Preview class="w-full max-w-sm">
+<div class="card">
+  <img
+    alt="Event cover"
+    class="aspect-video w-full object-cover"
+    src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200&auto=format&fit=crop&q=80"
+  />
+  <header>
+    <h2>Design systems meetup</h2>
+    <p>A practical talk on component APIs, accessibility, and shipping faster.</p>
+    <div class="card-action">
+      <span class="badge" data-variant="secondary">Featured</span>
+    </div>
+  </header>
+  <footer>
+    <button type="button" class="btn w-full">View Event</button>
+  </footer>
+</div>
+</Preview>
+
+## RTL
+
+Add `dir="rtl"` to the card or an ancestor.
+
+<Preview class="w-full max-w-sm">
+<div class="card" dir="rtl">
+  <header>
+    <h2>تسجيل الدخول إلى حسابك</h2>
+    <p>أدخل بريدك الإلكتروني أدناه لتسجيل الدخول إلى حسابك</p>
+    <div class="card-action">
+      <button type="button" class="btn" data-variant="link">إنشاء حساب</button>
+    </div>
+  </header>
+  <section>
+    <form class="grid gap-6">
+      <div class="grid gap-2">
+        <label class="label" for="demo-card-rtl-email">البريد الإلكتروني</label>
+        <input class="input" type="email" id="demo-card-rtl-email" placeholder="m@example.com" required />
+      </div>
+      <div class="grid gap-2">
+        <div class="flex items-center">
+          <label class="label" for="demo-card-rtl-password">كلمة المرور</label>
+          <a href="#" class="ms-auto inline-block text-sm underline-offset-4 hover:underline">نسيت كلمة المرور؟</a>
+        </div>
+        <input class="input" type="password" id="demo-card-rtl-password" required />
+      </div>
+    </form>
+  </section>
+  <footer class="flex-col gap-2">
+    <button type="button" class="btn w-full">تسجيل الدخول</button>
+    <button type="button" class="btn w-full" data-variant="outline">تسجيل الدخول باستخدام Google</button>
+  </footer>
+</div>
+</Preview>

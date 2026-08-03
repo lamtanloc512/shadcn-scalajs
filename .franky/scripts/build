@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# franky-adapter: compile Scala.js modules and the CLI.
+set -euo pipefail
+cd "$(dirname "$0")/../.."
+
+export PATH="$PATH:/Users/locgorilla/Library/Application Support/Coursier/bin"
+
+echo "build: sbt compile (core, ui, webcomponents, site) + Scala.js link"
+sbt "core/compile" "ui/compile" "webcomponents/compile" "site/compile" \
+    "ui/fastLinkJS" "webcomponents/fastLinkJS" "site/fastLinkJS"
+
+echo "build: packages/cli (tsc)"
+(cd packages/cli && npm run build)

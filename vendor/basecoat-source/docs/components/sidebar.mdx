@@ -1,0 +1,158 @@
+# Sidebar
+
+## Usage
+
+<Callout title="Template macros available" icon="code" action={{ label: "More", href: "/templates#sidebar" }}>
+  This component ships a `sidebar()` macro for Jinja and Nunjucks.
+</Callout>
+
+Sidebar uses a native `<aside>` next to your page content. Basecoat owns the fixed positioning, overlay behavior, active states, nested lists, and `details` submenu styling. Your app still owns the navigation data and current route.
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Sidebar component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/sidebar.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Include JavaScript">
+
+Copy or serve the full Basecoat JavaScript bundle.
+
+```html
+<script src="/assets/js/all.min.js" defer></script>
+```
+
+Or copy or serve the Basecoat runtime and Sidebar script.
+
+```html
+<script src="/assets/js/basecoat.min.js" defer></script>
+<script src="/assets/js/sidebar.min.js" defer></script>
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your sidebar HTML">
+```html
+<aside id="sidebar" class="sidebar" data-side="left">
+  <nav aria-label="Sidebar navigation">
+    <section class="scrollbar-sm">
+      <div role="group" aria-labelledby="group-label-content-1">
+        <h3 id="group-label-content-1">Getting started</h3>
+        <ul>
+          <li>
+            <a href="#">
+              <svg class="lucide lucide-square-terminal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 11 2-2-2-2" /><path d="M11 13h4" /><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /></svg>
+              <span>Playground</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg class="lucide lucide-bot" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
+              <span>Models</span>
+            </a>
+          </li>
+          <li>
+            <details id="submenu-content-1-3">
+              <summary aria-controls="submenu-content-1-3-content"><svg class="lucide lucide-settings" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" /></svg>
+                <span>Settings</span>
+              </summary>
+              <ul id="submenu-content-1-3-content">
+                <li><a href="#"><span>General</span></a></li>
+                <li><a href="#"><span>Team</span></a></li>
+                <li><a href="#"><span>Billing</span></a></li>
+                <li><a href="#"><span>Limits</span></a></li>
+              </ul>
+            </details>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </nav>
+</aside>
+<main>
+  <button type="button" onclick="document.getElementById('sidebar')?.toggle()">Toggle sidebar</button>
+  <h1>Content</h1>
+</main>
+```
+  </Step>
+</Steps>
+
+### RTL
+
+Set `dir="rtl"` on the sidebar or a parent element. Logical spacing, nested borders, and item content follow document direction. `data-side` is physical: `left` and `right` refer to viewport sides.
+
+<Callout type="warning" title="Differences with shadcn/ui" icon="triangle-alert">
+  Basecoat intentionally supports the stable HTML sidebar surface: fixed left/right sidebars, mobile overlay behavior, grouped navigation, active states, and native `details` submenus. It does not expose shadcn/ui's React provider, rail, inset/floating variants, icon-only collapse mode, menu actions, menu badges, or menu skeleton API.
+</Callout>
+
+### HTML structure
+
+Basecoat maps shadcn/ui's sidebar composition to regular navigation HTML: an `<aside>` root, one `<nav>`, optional header/footer regions, grouped lists, item controls, and native `<details>` for nested menus.
+
+<dl>
+  <dt><code>&lt;aside class="sidebar"&gt;</code></dt>
+  <dd>
+    Sidebar root. Supports <code>id</code>, <code>data-side="left|right"</code>, <code>data-initial-open="false"</code>, <code>data-initial-mobile-open="true"</code>, and <code>data-breakpoint</code>. JavaScript manages <code>aria-hidden</code>, <code>inert</code>, and the internal <code>data-sidebar-initialized</code> flag.
+    <dl>
+      <dt><code>&lt;nav aria-label="..."&gt;</code></dt>
+      <dd>
+        Navigation landmark inside the sidebar.
+        <dl>
+          <dt><code>&lt;header&gt;</code></dt>
+          <dd>Optional header for branding, workspace controls, user controls, or persistent actions.</dd>
+          <dt><code>&lt;section&gt;</code></dt>
+          <dd>
+            Scrollable content region between the optional header and footer.
+            <dl>
+              <dt><code>&lt;div role="group" aria-labelledby="..."&gt;</code></dt>
+              <dd>Named navigation group. Use a heading element as the group label.</dd>
+              <dt><code>&lt;ul&gt;</code> + <code>&lt;li&gt;</code></dt>
+              <dd>
+                Menu and menu item structure. Top-level lists and nested submenu lists receive different spacing and borders.
+                <dl>
+                  <dt><code>&lt;a&gt;</code> / <code>&lt;button&gt;</code></dt>
+                  <dd>Menu item control. Use links for navigation and buttons for actions. Supports <code>data-variant="default|outline"</code>, <code>data-size="default|sm|lg"</code>, <code>data-active="true"</code>, <code>disabled</code> on buttons, and <code>aria-disabled="true"</code> on custom-disabled controls. For links, prefer <code>&lt;a aria-current="page"&gt;</code> for the current page. Add <code>data-keep-mobile-sidebar-open</code> on a clicked link, button, or ancestor when that control should not close the mobile sidebar.</dd>
+                  <dt><code>&lt;details&gt;</code> / <code>&lt;summary&gt;</code></dt>
+                  <dd>Native disclosure for collapsible submenus. Put the nested <code>&lt;ul&gt;</code> directly after <code>&lt;summary&gt;</code>. The <code>&lt;summary&gt;</code> supports the same active, variant, and size attributes as menu item controls. Add <code>id</code> and <code>aria-controls</code> when the relationship is not obvious from nearby markup.</dd>
+                  <dt><code>&lt;hr role="separator"&gt;</code></dt>
+                  <dd>Optional separator between groups or menu sections.</dd>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt><code>&lt;footer&gt;</code></dt>
+          <dd>Optional footer for account controls, status, or persistent actions.</dd>
+        </dl>
+      </dd>
+    </dl>
+  </dd>
+  <dt><code>&lt;main&gt;</code></dt>
+  <dd>Sibling content wrapper. The desktop margin applies to the sibling immediately after the sidebar.</dd>
+</dl>
+
+Set `--sidebar-width` and `--sidebar-mobile-width` on `:root` or the sidebar root to override the default `16rem` desktop width and `18rem` mobile width.
+
+### JavaScript API
+
+| API | Type | Description |
+| --- | --- | --- |
+| `sidebar.open()` | Method | Opens the sidebar. |
+| `sidebar.close()` | Method | Closes the sidebar. |
+| `sidebar.toggle()` | Method | Toggles the sidebar. |

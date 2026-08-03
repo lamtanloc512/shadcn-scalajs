@@ -1,0 +1,2 @@
+- Prefers thorough project orientation before any action — read/document the full codebase, structure, dependencies, and architecture before proposing or making changes. Confidence: 0.85
+- When building or porting UI components from an upstream project, keep the upstream's full source (CSS, JS, docs, examples) locally available alongside the working codebase for easy reference during development. Confidence: 0.70

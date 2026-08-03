@@ -1,0 +1,128 @@
+# Native Select
+
+<Preview>
+<select class="select w-full" aria-label="Fruit">
+  <option value="">Select a fruit</option>
+  <option value="apple">Apple</option>
+  <option value="banana">Banana</option>
+  <option value="blueberry">Blueberry</option>
+  <option value="pineapple">Pineapple</option>
+</select>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Native Select component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/native-select.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your native select HTML">
+
+Add `class="select"` to a native `<select>`. Use standard `<option>` and `<optgroup>` elements.
+
+```html
+<select class="select" aria-label="Fruit">
+  <option value="">Select a fruit</option>
+  <option value="apple">Apple</option>
+  <option value="banana">Banana</option>
+  <option value="blueberry">Blueberry</option>
+  <option value="pineapple">Pineapple</option>
+</select>
+```
+
+  </Step>
+</Steps>
+
+Use Native Select for native browser behavior, form integration, and mobile-optimized pickers. Use [Select](/components/select/) for custom option content, multi-select behavior, or JavaScript APIs.
+
+## Examples
+
+### Groups
+
+<Preview>
+<select class="select w-full" aria-label="Food">
+  <option value="">Select food</option>
+  <optgroup label="Fruits">
+    <option value="apple">Apple</option>
+    <option value="banana">Banana</option>
+    <option value="blueberry">Blueberry</option>
+  </optgroup>
+  <optgroup label="Vegetables">
+    <option value="carrot">Carrot</option>
+    <option value="potato">Potato</option>
+    <option value="tomato">Tomato</option>
+  </optgroup>
+</select>
+</Preview>
+
+### Disabled
+
+<Preview>
+<select class="select w-full" aria-label="Fruit" disabled>
+  <option value="">Select a fruit</option>
+  <option value="apple">Apple</option>
+  <option value="banana">Banana</option>
+</select>
+</Preview>
+
+### Invalid
+
+<Preview>
+<div role="group" class="field" data-invalid="true">
+  <label for="native-select-invalid">Fruit</label>
+  <select id="native-select-invalid" class="select w-full" aria-invalid="true" aria-describedby="native-select-invalid-error">
+    <option value="">Select a fruit</option>
+    <option value="apple">Apple</option>
+    <option value="banana">Banana</option>
+  </select>
+  <p id="native-select-invalid-error" role="alert">Select a fruit to continue.</p>
+</div>
+</Preview>
+
+### Size
+
+<Preview>
+<div class="flex flex-wrap items-center gap-3">
+  <select class="select w-42" aria-label="Default size">
+    <option>Default</option>
+    <option>Apple</option>
+    <option>Banana</option>
+  </select>
+  <select class="select w-42" data-size="sm" aria-label="Small size">
+    <option>Small</option>
+    <option>Apple</option>
+    <option>Banana</option>
+  </select>
+</div>
+</Preview>
+
+### RTL
+
+Set `dir="rtl"` on the select or a parent element.
+
+<Preview>
+<select dir="rtl" class="select w-full" aria-label="الفاكهة">
+  <option value="">اختر فاكهة</option>
+  <option value="apple">تفاح</option>
+  <option value="banana">موز</option>
+  <option value="blueberry">توت</option>
+</select>
+</Preview>

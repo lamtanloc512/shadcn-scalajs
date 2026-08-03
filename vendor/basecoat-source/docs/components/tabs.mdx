@@ -1,0 +1,307 @@
+# Tabs
+
+<Preview class="max-w-[400px] w-full">
+<div class="tabs w-full" id="demo-tabs-with-panels">
+  <nav role="tablist" aria-orientation="horizontal" class="w-full">
+    <button type="button" role="tab" id="demo-tabs-with-panels-tab-1" aria-controls="demo-tabs-with-panels-panel-1" aria-selected="true" tabindex="0">Account</button>
+    <button type="button" role="tab" id="demo-tabs-with-panels-tab-2" aria-controls="demo-tabs-with-panels-panel-2" aria-selected="false" tabindex="-1">Password</button>
+  </nav>
+  <div role="tabpanel" id="demo-tabs-with-panels-panel-1" aria-labelledby="demo-tabs-with-panels-tab-1" tabindex="-1" aria-selected="true">
+    <div class="card">
+      <header>
+        <h2>Account</h2>
+        <p>Make changes to your account here. Click save when you're done.</p>
+      </header>
+      <section>
+        <form class="grid gap-4">
+          <div role="group" class="field">
+            <label for="demo-tabs-account-name">Name</label>
+            <input type="text" id="demo-tabs-account-name" value="Pedro Duarte" />
+          </div>
+          <div role="group" class="field">
+            <label for="demo-tabs-account-username">Username</label>
+            <input type="text" id="demo-tabs-account-username" value="@peduarte" />
+          </div>
+        </form>
+      </section>
+      <footer>
+        <button type="button" class="btn">Save changes</button>
+      </footer>
+    </div>
+  </div>
+  <div role="tabpanel" id="demo-tabs-with-panels-panel-2" aria-labelledby="demo-tabs-with-panels-tab-2" tabindex="-1" aria-selected="false" hidden>
+    <div class="card">
+      <header>
+        <h2>Password</h2>
+        <p>Change your password here. After saving, you'll be logged out.</p>
+      </header>
+      <section>
+        <form class="grid gap-4">
+          <div role="group" class="field">
+            <label for="demo-tabs-password-current">Current password</label>
+            <input type="password" id="demo-tabs-password-current" />
+          </div>
+          <div role="group" class="field">
+            <label for="demo-tabs-password-new">New password</label>
+            <input type="password" id="demo-tabs-password-new" />
+          </div>
+        </form>
+      </section>
+      <footer>
+        <button type="button" class="btn">Save password</button>
+      </footer>
+    </div>
+  </div>
+</div>
+</Preview>
+
+## Usage
+
+<Callout title="Template macros available" icon="code" action={{ label: "More", href: "/templates#tabs" }}>
+  This component ships a `tabs()` macro for Jinja and Nunjucks.
+</Callout>
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Tabs component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/tabs.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Include JavaScript">
+
+Copy or serve the full Basecoat JavaScript bundle.
+
+```html
+<script src="/assets/js/all.min.js" defer></script>
+```
+
+Or copy or serve the Basecoat runtime and Tabs script.
+
+```html
+<script src="/assets/js/basecoat.min.js" defer></script>
+<script src="/assets/js/tabs.min.js" defer></script>
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your tabs HTML">
+
+```html
+<div class="tabs w-full" id="demo-tabs-with-panels">
+  <nav role="tablist" aria-orientation="horizontal" class="w-full">
+    <button type="button" role="tab" id="demo-tabs-with-panels-tab-1" aria-controls="demo-tabs-with-panels-panel-1" aria-selected="true" tabindex="0">Account</button>
+    <button type="button" role="tab" id="demo-tabs-with-panels-tab-2" aria-controls="demo-tabs-with-panels-panel-2" aria-selected="false" tabindex="-1">Password</button>
+  </nav>
+  <div role="tabpanel" id="demo-tabs-with-panels-panel-1" aria-labelledby="demo-tabs-with-panels-tab-1" tabindex="-1" aria-selected="true">
+    <div class="card">
+      <header>
+        <h2>Account</h2>
+        <p>Make changes to your account here. Click save when you're done.</p>
+      </header>
+      <section>
+        <form class="grid gap-4">
+          <div role="group" class="field">
+            <label for="demo-tabs-account-name">Name</label>
+            <input type="text" id="demo-tabs-account-name" value="Pedro Duarte" />
+          </div>
+          <div role="group" class="field">
+            <label for="demo-tabs-account-username">Username</label>
+            <input type="text" id="demo-tabs-account-username" value="@peduarte" />
+          </div>
+        </form>
+      </section>
+      <footer>
+        <button type="button" class="btn">Save changes</button>
+      </footer>
+    </div>
+  </div>
+  <div role="tabpanel" id="demo-tabs-with-panels-panel-2" aria-labelledby="demo-tabs-with-panels-tab-2" tabindex="-1" aria-selected="false" hidden>
+    <div class="card">
+      <header>
+        <h2>Password</h2>
+        <p>Change your password here. After saving, you'll be logged out.</p>
+      </header>
+      <section>
+        <form class="grid gap-4">
+          <div role="group" class="field">
+            <label for="demo-tabs-password-current">Current password</label>
+            <input type="password" id="demo-tabs-password-current" />
+          </div>
+          <div role="group" class="field">
+            <label for="demo-tabs-password-new">New password</label>
+            <input type="password" id="demo-tabs-password-new" />
+          </div>
+        </form>
+      </section>
+      <footer>
+        <button type="button" class="btn">Save password</button>
+      </footer>
+    </div>
+  </div>
+</div>
+```
+
+  </Step>
+</Steps>
+
+### HTML structure
+
+<dl>
+  <dt><code>&lt;div class="tabs"&gt;</code></dt>
+  <dd>
+    Root tabs container. It becomes horizontal or vertical based on the child tablist's <code>aria-orientation</code>.
+    <dl>
+      <dt><code>&lt;nav role="tablist" aria-orientation="horizontal"&gt;</code></dt>
+      <dd>
+        Tablist containing tab buttons. Set <code>aria-orientation="vertical"</code> for vertical tabs and <code>data-variant="line"</code> for the line style.
+        <dl>
+          <dt><code>&lt;button role="tab" id="&#123; TAB_ID &#125;" aria-controls="&#123; PANEL_ID &#125;" aria-selected="true" tabindex="0"&gt;</code></dt>
+          <dd>Tab trigger. The active tab has <code>aria-selected="true"</code> and <code>tabindex="0"</code>. Inactive tabs use <code>tabindex="-1"</code>. Disabled tabs use <code>disabled</code> or <code>aria-disabled="true"</code>.</dd>
+        </dl>
+      </dd>
+      <dt><code>&lt;div role="tabpanel" id="&#123; PANEL_ID &#125;" aria-labelledby="&#123; TAB_ID &#125;"&gt;</code></dt>
+      <dd>Panel controlled by a tab. Inactive panels are hidden.</dd>
+    </dl>
+  </dd>
+</dl>
+
+### JavaScript API
+
+| API | Type | Description |
+| --- | --- | --- |
+| `tabs.select(tab)` | Method | Selects a tab button in the tablist. |
+| `tabs.refresh()` | Method | Rescans tabs and panels after children change inside the existing tablist/panel structure. |
+
+## Examples
+
+### Line
+
+<Preview>
+<div class="tabs" id="tabs-line">
+  <nav role="tablist" aria-orientation="horizontal" data-variant="line">
+    <button type="button" role="tab" id="tabs-line-tab-overview" aria-controls="tabs-line-panel-overview" aria-selected="true" tabindex="0">Overview</button>
+    <button type="button" role="tab" id="tabs-line-tab-analytics" aria-controls="tabs-line-panel-analytics" aria-selected="false" tabindex="-1">Analytics</button>
+    <button type="button" role="tab" id="tabs-line-tab-reports" aria-controls="tabs-line-panel-reports" aria-selected="false" tabindex="-1">Reports</button>
+  </nav>
+  <div role="tabpanel" id="tabs-line-panel-overview" aria-labelledby="tabs-line-tab-overview" tabindex="-1">Overview content.</div>
+  <div role="tabpanel" id="tabs-line-panel-analytics" aria-labelledby="tabs-line-tab-analytics" tabindex="-1" hidden>Analytics content.</div>
+  <div role="tabpanel" id="tabs-line-panel-reports" aria-labelledby="tabs-line-tab-reports" tabindex="-1" hidden>Reports content.</div>
+</div>
+</Preview>
+
+### Vertical
+
+<Preview>
+<div class="tabs" id="tabs-vertical">
+  <nav role="tablist" aria-orientation="vertical">
+    <button type="button" role="tab" id="tabs-vertical-tab-account" aria-controls="tabs-vertical-panel-account" aria-selected="true" tabindex="0">Account</button>
+    <button type="button" role="tab" id="tabs-vertical-tab-password" aria-controls="tabs-vertical-panel-password" aria-selected="false" tabindex="-1">Password</button>
+    <button type="button" role="tab" id="tabs-vertical-tab-notifications" aria-controls="tabs-vertical-panel-notifications" aria-selected="false" tabindex="-1">Notifications</button>
+  </nav>
+  <div role="tabpanel" id="tabs-vertical-panel-account" aria-labelledby="tabs-vertical-tab-account" tabindex="-1">Account content.</div>
+  <div role="tabpanel" id="tabs-vertical-panel-password" aria-labelledby="tabs-vertical-tab-password" tabindex="-1" hidden>Password content.</div>
+  <div role="tabpanel" id="tabs-vertical-panel-notifications" aria-labelledby="tabs-vertical-tab-notifications" tabindex="-1" hidden>Notifications content.</div>
+</div>
+</Preview>
+
+### Disabled
+
+<Preview>
+<div class="tabs" id="tabs-disabled">
+  <nav role="tablist" aria-orientation="horizontal">
+    <button type="button" role="tab" id="tabs-disabled-tab-home" aria-controls="tabs-disabled-panel-home" aria-selected="true" tabindex="0">Home</button>
+    <button type="button" role="tab" id="tabs-disabled-tab-settings" aria-controls="tabs-disabled-panel-settings" aria-selected="false" tabindex="-1" disabled>Disabled</button>
+  </nav>
+  <div role="tabpanel" id="tabs-disabled-panel-home" aria-labelledby="tabs-disabled-tab-home" tabindex="-1">Home content.</div>
+  <div role="tabpanel" id="tabs-disabled-panel-settings" aria-labelledby="tabs-disabled-tab-settings" tabindex="-1" hidden>Settings content.</div>
+</div>
+</Preview>
+
+### Icons
+
+<Preview>
+<div class="tabs" id="tabs-with-icons">
+  <nav role="tablist" aria-orientation="horizontal">
+    <button type="button" role="tab" id="tabs-with-icons-tab-preview" aria-controls="tabs-with-icons-panel-preview" aria-selected="true" tabindex="0"><svg class="lucide lucide-app-window" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M10 4v4" /><path d="M2 8h20" /><path d="M6 4v4" /></svg> Preview</button>
+    <button type="button" role="tab" id="tabs-with-icons-tab-code" aria-controls="tabs-with-icons-panel-code" aria-selected="false" tabindex="-1"><svg class="lucide lucide-code" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6" /><path d="m8 6-6 6 6 6" /></svg> Code</button>
+  </nav>
+  <div role="tabpanel" id="tabs-with-icons-panel-preview" aria-labelledby="tabs-with-icons-tab-preview" tabindex="-1">Preview content.</div>
+  <div role="tabpanel" id="tabs-with-icons-panel-code" aria-labelledby="tabs-with-icons-tab-code" tabindex="-1" hidden>Code content.</div>
+</div>
+</Preview>
+
+## RTL
+
+To enable RTL support, set `dir="rtl"` on the tabs root or a parent element.
+
+<Preview>
+<div class="tabs w-full max-w-sm" id="tabs-rtl" dir="rtl">
+  <nav role="tablist" aria-orientation="horizontal" dir="rtl">
+    <button type="button" role="tab" id="tabs-rtl-tab-overview" aria-controls="tabs-rtl-panel-overview" aria-selected="true" tabindex="0">نظرة عامة</button>
+    <button type="button" role="tab" id="tabs-rtl-tab-analytics" aria-controls="tabs-rtl-panel-analytics" aria-selected="false" tabindex="-1">التحليلات</button>
+    <button type="button" role="tab" id="tabs-rtl-tab-reports" aria-controls="tabs-rtl-panel-reports" aria-selected="false" tabindex="-1">التقارير</button>
+    <button type="button" role="tab" id="tabs-rtl-tab-settings" aria-controls="tabs-rtl-panel-settings" aria-selected="false" tabindex="-1">الإعدادات</button>
+  </nav>
+  <div role="tabpanel" id="tabs-rtl-panel-overview" aria-labelledby="tabs-rtl-tab-overview" tabindex="-1">
+    <div class="card">
+      <header>
+        <h2>نظرة عامة</h2>
+        <p>عرض مقاييسك الرئيسية وأنشطة المشروع الأخيرة. تتبع التقدم عبر جميع مشاريعك النشطة.</p>
+      </header>
+      <section>
+        <p class="text-muted-foreground text-sm">لديك ١٢ مشروعًا نشطًا و٣ مهام معلقة.</p>
+      </section>
+    </div>
+  </div>
+  <div role="tabpanel" id="tabs-rtl-panel-analytics" aria-labelledby="tabs-rtl-tab-analytics" tabindex="-1" hidden>
+    <div class="card">
+      <header>
+        <h2>التحليلات</h2>
+        <p>تتبع مقاييس الأداء ومشاركة المستخدمين. راقب الاتجاهات وحدد فرص النمو.</p>
+      </header>
+      <section>
+        <p class="text-muted-foreground text-sm">زادت مشاهدات الصفحة بنسبة ٢٥٪ مقارنة بالشهر الماضي.</p>
+      </section>
+    </div>
+  </div>
+  <div role="tabpanel" id="tabs-rtl-panel-reports" aria-labelledby="tabs-rtl-tab-reports" tabindex="-1" hidden>
+    <div class="card">
+      <header>
+        <h2>التقارير</h2>
+        <p>إنشاء وتنزيل تقاريرك التفصيلية. تصدير البيانات بتنسيقات متعددة للتحليل.</p>
+      </header>
+      <section>
+        <p class="text-muted-foreground text-sm">لديك ٥ تقارير جاهزة ومتاحة للتصدير.</p>
+      </section>
+    </div>
+  </div>
+  <div role="tabpanel" id="tabs-rtl-panel-settings" aria-labelledby="tabs-rtl-tab-settings" tabindex="-1" hidden>
+    <div class="card">
+      <header>
+        <h2>الإعدادات</h2>
+        <p>إدارة تفضيلات حسابك وخياراته. تخصيص تجربتك لتناسب احتياجاتك.</p>
+      </header>
+      <section>
+        <p class="text-muted-foreground text-sm">تكوين الإشعارات والأمان والسمات.</p>
+      </section>
+    </div>
+  </div>
+</div>
+</Preview>

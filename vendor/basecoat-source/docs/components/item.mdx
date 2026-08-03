@@ -1,0 +1,374 @@
+# Item
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-6">
+  <article class="item" data-variant="outline">
+    <section>
+      <h3>Basic Item</h3>
+      <p>A simple item with title and description.</p>
+    </section>
+    <aside>
+      <button class="btn" data-variant="outline" data-size="sm">Action</button>
+    </aside>
+  </article>
+  <a href="#" class="item" data-variant="outline" data-size="sm">
+    <figure><svg class="lucide lucide-badge-check size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></figure>
+    <section><h3>Your profile has been verified.</h3></section>
+    <aside><svg class="lucide lucide-chevron-right size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></aside>
+  </a>
+</div>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, the component CSS files it composes, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/item.css";
+@import "basecoat-css/components/button.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Item composes Button styles when actions are rendered as buttons.
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your item HTML">
+
+Add `class="item"` to a semantic element such as `<article>` or `<a>`. Use `class="item-group"` when listing multiple items.
+
+```html
+<article class="item" data-variant="outline">
+  <section>
+    <h3>Basic Item</h3>
+    <p>A simple item with title and description.</p>
+  </section>
+  <aside>
+    <button class="btn" data-variant="outline" data-size="sm">Action</button>
+  </aside>
+</article>
+```
+
+  </Step>
+</Steps>
+
+#### HTML structure
+
+<dl>
+  <dt><code>&lt;article class="item"&gt;</code> or <code>&lt;a class="item"&gt;</code></dt>
+  <dd>
+    The item root. Use <code>data-variant="outline|muted"</code> and <code>data-size="sm|xs"</code> when needed.
+    <dl>
+      <dt><code>&lt;figure&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+      <dd>Media: icon, avatar, or image.</dd>
+      <dt><code>&lt;section&gt;</code></dt>
+      <dd>
+        Primary content. Headings and paragraphs are styled automatically.
+        <dl>
+          <dt><code>&lt;h2&gt;</code>, <code>&lt;h3&gt;</code>, or <code>&lt;h4&gt;</code></dt>
+          <dd>The item title.</dd>
+          <dt><code>&lt;p&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+          <dd>The item description.</dd>
+        </dl>
+      </dd>
+      <dt><code>&lt;aside&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+      <dd>Actions or trailing metadata.</dd>
+      <dt><code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+      <dd>Full-width item regions.</dd>
+    </dl>
+  </dd>
+  <dt><code>&lt;div class="item-group" role="list"&gt;</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+  <dd>Groups related items. Use <code>role="listitem"</code> on child items when they are not native list items.</dd>
+</dl>
+
+### Item vs Field
+
+Use `field` for form controls and validation. Use `item` for display content, actions, and navigation rows.
+
+### Variant
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-6">
+  <article class="item">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Default Variant</h3>
+      <p>Transparent background with no border.</p>
+    </section>
+  </article>
+  <article class="item" data-variant="outline">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Outline Variant</h3>
+      <p>Outlined style with a visible border.</p>
+    </section>
+  </article>
+  <article class="item" data-variant="muted">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Muted Variant</h3>
+      <p>Muted background for secondary content.</p>
+    </section>
+  </article>
+</div>
+</Preview>
+
+### Size
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-6">
+  <article class="item" data-variant="outline">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Default Size</h3>
+      <p>The standard size for most use cases.</p>
+    </section>
+  </article>
+  <article class="item" data-variant="outline" data-size="sm">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Small Size</h3>
+      <p>A compact size for dense layouts.</p>
+    </section>
+  </article>
+  <article class="item" data-variant="outline" data-size="xs">
+    <figure><svg class="lucide lucide-inbox" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg></figure>
+    <section>
+      <h3>Extra Small Size</h3>
+      <p>The most compact size available.</p>
+    </section>
+  </article>
+</div>
+</Preview>
+
+## Examples
+
+### Icon
+
+<Preview class="w-full max-w-lg">
+<div class="flex w-full flex-col gap-6">
+  <article class="item" data-variant="outline">
+    <figure><svg class="lucide lucide-shield-alert" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></figure>
+    <section>
+      <h3>Security Alert</h3>
+      <p>New login detected from unknown device.</p>
+    </section>
+    <aside><button class="btn" data-variant="outline" data-size="sm">Review</button></aside>
+  </article>
+</div>
+</Preview>
+
+### Avatar
+
+<Preview class="w-full max-w-lg">
+<div class="flex w-full flex-col gap-6">
+  <article class="item" data-variant="outline">
+    <figure>
+      <span class="avatar" data-size="lg"><img src="https://github.com/evilrabbit.png" alt="Evil Rabbit" /></span>
+    </figure>
+    <section>
+      <h3>Evil Rabbit</h3>
+      <p>Last seen 5 months ago</p>
+    </section>
+    <aside>
+      <button class="btn rounded-full" data-variant="outline" data-size="icon-sm" aria-label="Invite Evil Rabbit"><svg class="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+    </aside>
+  </article>
+  <article class="item" data-variant="outline">
+    <figure>
+      <span class="avatar-group">
+        <span class="avatar hidden sm:flex"><img class="grayscale" src="https://github.com/shadcn.png" alt="@shadcn" /></span>
+        <span class="avatar hidden sm:flex"><img class="grayscale" src="https://github.com/maxleiter.png" alt="@maxleiter" /></span>
+        <span class="avatar"><img class="grayscale" src="https://github.com/evilrabbit.png" alt="@evilrabbit" /></span>
+      </span>
+    </figure>
+    <section>
+      <h3>No Team Members</h3>
+      <p>Invite your team to collaborate on this project.</p>
+    </section>
+    <aside><button class="btn" data-variant="outline" data-size="sm">Invite</button></aside>
+  </article>
+</div>
+</Preview>
+
+### Image
+
+<Preview class="w-full max-w-md">
+<div class="item-group gap-4" role="list">
+  <a href="#" class="item" data-variant="outline" role="listitem">
+    <figure><img class="grayscale" src="https://avatar.vercel.sh/Midnight City Lights" alt="Midnight City Lights" /></figure>
+    <section><h3>Midnight City Lights - <span class="text-muted-foreground">Electric Nights</span></h3><p>Neon Dreams</p></section>
+    <section><p>3:45</p></section>
+  </a>
+  <a href="#" class="item" data-variant="outline" role="listitem">
+    <figure><img class="grayscale" src="https://avatar.vercel.sh/Coffee Shop Conversations" alt="Coffee Shop Conversations" /></figure>
+    <section><h3>Coffee Shop Conversations - <span class="text-muted-foreground">Urban Stories</span></h3><p>The Morning Brew</p></section>
+    <section><p>4:05</p></section>
+  </a>
+  <a href="#" class="item" data-variant="outline" role="listitem">
+    <figure><img class="grayscale" src="https://avatar.vercel.sh/Digital Rain" alt="Digital Rain" /></figure>
+    <section><h3>Digital Rain - <span class="text-muted-foreground">Binary Beats</span></h3><p>Cyber Symphony</p></section>
+    <section><p>3:30</p></section>
+  </a>
+</div>
+</Preview>
+
+### Group
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-6">
+  <div class="item-group" role="list">
+    <article class="item" role="listitem">
+      <figure><span class="avatar"><img class="grayscale" src="https://github.com/shadcn.png" alt="@shadcn" /></span></figure>
+      <section><h3>shadcn</h3><p>shadcn@vercel.com</p></section>
+      <aside>
+        <button class="btn rounded-full" data-variant="ghost" data-size="icon" aria-label="Add shadcn"><svg class="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      </aside>
+    </article>
+    <article class="item" role="listitem">
+      <figure><span class="avatar"><img class="grayscale" src="https://github.com/maxleiter.png" alt="@maxleiter" /></span></figure>
+      <section><h3>maxleiter</h3><p>maxleiter@vercel.com</p></section>
+      <aside>
+        <button class="btn rounded-full" data-variant="ghost" data-size="icon" aria-label="Add maxleiter"><svg class="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      </aside>
+    </article>
+    <article class="item" role="listitem">
+      <figure><span class="avatar"><img class="grayscale" src="https://github.com/evilrabbit.png" alt="@evilrabbit" /></span></figure>
+      <section><h3>evilrabbit</h3><p>evilrabbit@vercel.com</p></section>
+      <aside>
+        <button class="btn rounded-full" data-variant="ghost" data-size="icon" aria-label="Add evilrabbit"><svg class="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      </aside>
+    </article>
+  </div>
+</div>
+</Preview>
+
+### Header
+
+<Preview class="w-full max-w-xl">
+<div class="item-group grid grid-cols-1 gap-4 sm:grid-cols-3" role="list">
+  <article class="item" data-variant="outline" role="listitem">
+    <header><img class="aspect-square w-full rounded-sm object-cover grayscale" src="https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop" alt="v0-1.5-sm" /></header>
+    <section><h3>v0-1.5-sm</h3><p>Everyday tasks and UI generation.</p></section>
+  </article>
+  <article class="item" data-variant="outline" role="listitem">
+    <header><img class="aspect-square w-full rounded-sm object-cover grayscale" src="https://images.unsplash.com/photo-1610280777472-54133d004c8c?q=80&w=640&auto=format&fit=crop" alt="v0-1.5-lg" /></header>
+    <section><h3>v0-1.5-lg</h3><p>Advanced thinking or reasoning.</p></section>
+  </article>
+  <article class="item" data-variant="outline" role="listitem">
+    <header><img class="aspect-square w-full rounded-sm object-cover grayscale" src="https://images.unsplash.com/photo-1602146057681-08560aee8cde?q=80&w=640&auto=format&fit=crop" alt="v0-2.0-mini" /></header>
+    <section><h3>v0-2.0-mini</h3><p>Open Source model for everyone.</p></section>
+  </article>
+</div>
+</Preview>
+
+### Link
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-4">
+  <a href="#" class="item">
+    <section>
+      <h3>Visit our documentation</h3>
+      <p>Learn how to get started with our components.</p>
+    </section>
+    <aside><svg class="lucide lucide-chevron-right size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></aside>
+  </a>
+  <a href="#" target="_blank" rel="noopener noreferrer" class="item" data-variant="outline">
+    <section>
+      <h3>External resource</h3>
+      <p>Opens in a new tab with security attributes.</p>
+    </section>
+    <aside><svg class="lucide lucide-external-link size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></aside>
+  </a>
+</div>
+</Preview>
+
+### Dropdown
+
+<Preview class="w-full max-w-md">
+<div class="flex min-h-64 w-full items-center justify-center">
+  <div id="item-dropdown" class="dropdown-menu">
+    <button type="button" id="item-dropdown-trigger" aria-haspopup="menu" aria-controls="item-dropdown-menu" aria-expanded="false" class="btn w-fit" data-variant="outline">
+      Select
+      <svg class="lucide lucide-chevron-down" data-icon="inline-end" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="item-dropdown-popover" data-popover data-align="end" aria-hidden="true" class="w-48">
+      <div role="menu" id="item-dropdown-menu" aria-labelledby="item-dropdown-trigger">
+        <button type="button" role="menuitem">
+          <span class="item border-0 p-0 shadow-none" data-size="xs">
+            <figure>
+              <span class="avatar" data-size="sm">
+                <img class="grayscale" src="https://github.com/shadcn.png" alt="@shadcn" />
+              </span>
+            </figure>
+            <section class="gap-0">
+              <h3>shadcn</h3>
+              <p class="leading-none" aria-label="shadcn@vercel.com">shadcn<span aria-hidden="true">@</span>vercel.com</p>
+            </section>
+          </span>
+        </button>
+        <button type="button" role="menuitem">
+          <span class="item border-0 p-0 shadow-none" data-size="xs">
+            <figure>
+              <span class="avatar" data-size="sm">
+                <img class="grayscale" src="https://github.com/maxleiter.png" alt="@maxleiter" />
+              </span>
+            </figure>
+            <section class="gap-0">
+              <h3>maxleiter</h3>
+              <p class="leading-none" aria-label="maxleiter@vercel.com">maxleiter<span aria-hidden="true">@</span>vercel.com</p>
+            </section>
+          </span>
+        </button>
+        <button type="button" role="menuitem">
+          <span class="item border-0 p-0 shadow-none" data-size="xs">
+            <figure>
+              <span class="avatar" data-size="sm">
+                <img class="grayscale" src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
+              </span>
+            </figure>
+            <section class="gap-0">
+              <h3>evilrabbit</h3>
+              <p class="leading-none" aria-label="evilrabbit@vercel.com">evilrabbit<span aria-hidden="true">@</span>vercel.com</p>
+            </section>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</Preview>
+
+### RTL
+
+<Preview class="w-full max-w-md">
+<div class="flex w-full flex-col gap-6" dir="rtl">
+  <article class="item" data-variant="outline">
+    <section>
+      <h3>عنصر أساسي</h3>
+      <p>عنصر بسيط يحتوي على عنوان ووصف.</p>
+    </section>
+    <aside>
+      <button class="btn" data-variant="outline" data-size="sm">إجراء</button>
+    </aside>
+  </article>
+  <a href="#" class="item" data-variant="outline" data-size="sm">
+    <figure><svg class="lucide lucide-badge-check size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></figure>
+    <section><h3>تم التحقق من ملفك الشخصي.</h3></section>
+    <aside><svg class="lucide lucide-chevron-right size-4 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></aside>
+  </a>
+</div>
+</Preview>

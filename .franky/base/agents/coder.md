@@ -4,7 +4,7 @@ Execute one subtask from the planner handoff. Stay in scope.
 
 Rules:
 - Re-read spec and PROGRESS.md before editing
-- Use scripts/* and franky commands — do not improvise build/test
+- Use .franky/scripts/* and franky commands — do not improvise build/test
 - Run `franky verify` after changes
 - Update `.franky/memory/PROGRESS.md`
 - If verification exposes stale or incomplete project coverage, update the

@@ -13,6 +13,9 @@
 - `AGENTS.md`/`specs/PROJECT.md` updated with concrete architecture, commands, and gotchas for future agents.
 - franky re-bootstrapped after a franky update: real `scripts/{setup,build,lint,test,serve}` wired to sbt/npm (previously no-ops), `.scalafmt.conf` added and all Scala sources formatted once, `.franky/scripts.toml` updated to match, hooks installed (`franky hooks install --all`). `franky verify` passes all 4 steps for real (not just executable checks). Note: `franky init --refresh-adapters` overwrote the hand-written scripts with self-calling stubs (`./scripts/setup` invoking itself) despite docs saying root-level scripts "win" — had to restore them by hand afterward; re-check this if refresh-adapters runs again.
 - Added `vendor/basecoat-lyra.cdn.min.css` (compiled + minified + `:root`→`:host`-patched) after `modules/site/index.html` was switched to reference it — same patch as Vega but on a one-line minified selector (`:root{--radius:` → `:root,:host{--radius:`), documented in `vendor/NOTICE.md`.
+- Upgraded `modules/site` from Vite 5 to Vite 8.2.0 and refreshed its npm lockfile. Production build and the Vite dev server both serve the Scala.js bundle successfully after restarting stale pre-upgrade processes.
+- Reworked the native Laminar site into a Basecoat-inspired documentation landing page using the Lyra pack: sticky navigation, hero, bento overview, live component showcase, CLI installation section, theme toggle, and Web Component cross-link. Added `modules/site/public/site.css` for the responsive docs shell.
+- Switched the site shell typography to the variable Inter family via the Lyra site stylesheet override.
 
 ## Next
 

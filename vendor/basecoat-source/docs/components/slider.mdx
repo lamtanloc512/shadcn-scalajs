@@ -1,0 +1,115 @@
+# Slider
+
+<Preview class="w-full max-w-sm">
+<input
+  type="range"
+  class="input w-full"
+  min="0"
+  max="100"
+  value="50"
+/>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Slider component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/range.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Slider uses the Range component CSS.
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Include JavaScript">
+
+Copy or serve the full Basecoat JavaScript bundle.
+
+```html
+<script src="/assets/js/all.min.js" defer></script>
+```
+
+Or copy or serve the Basecoat runtime and Slider script.
+
+```html
+<script src="/assets/js/basecoat.min.js" defer></script>
+<script src="/assets/js/range.min.js" defer></script>
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your slider HTML">
+
+Use a native `<input type="range" class="input">`. Include `range.js` so Basecoat can keep the filled track in sync with the input value.
+
+```html
+<input type="range" class="input w-full" min="0" max="100" value="50" />
+```
+
+  </Step>
+</Steps>
+
+### HTML structure
+
+<dl>
+  <dt><code>&lt;input type="range" class="input"&gt;</code></dt>
+  <dd>Native range input styled as a slider. Width utilities such as <code>w-full</code> can be added directly.</dd>
+</dl>
+  
+Basecoat intentionally uses the native range input. Unlike shadcn/ui's Base UI slider, it does not support multiple thumbs or vertical orientation.
+
+## Examples
+
+### Default
+
+<Preview class="w-full max-w-sm">
+<input type="range" class="input w-full" min="0" max="100" value="50" />
+</Preview>
+
+### Label
+
+<Preview class="w-full max-w-sm">
+<div class="grid w-full gap-1 max-w-sm">
+  <div class="flex items-center justify-between gap-2">
+    <label class="label" for="temperature">Temperature</label>
+    <output class="text-sm text-muted-foreground" for="temperature">50</output>
+  </div>
+  <input
+    id="temperature"
+    type="range"
+    class="input w-full"
+    min="0"
+    max="100"
+    value="50"
+    oninput="this.previousElementSibling.querySelector('output').value = this.value"
+  />
+</div>
+</Preview>
+
+### Disabled
+
+<Preview class="w-full max-w-sm">
+<input type="range" class="input w-full" min="0" max="100" value="50" disabled />
+</Preview>
+
+### RTL
+
+<Preview class="w-full max-w-sm">
+<input type="range" class="input w-full" min="0" max="100" value="50" dir="rtl" />
+</Preview>

@@ -1,0 +1,198 @@
+---
+import vegaUrl from "../docs/assets/styles/style-vega.css?url";
+import novaUrl from "../docs/assets/styles/style-nova.css?url";
+import maiaUrl from "../docs/assets/styles/style-maia.css?url";
+import lyraUrl from "../docs/assets/styles/style-lyra.css?url";
+import miraUrl from "../docs/assets/styles/style-mira.css?url";
+import lumaUrl from "../docs/assets/styles/style-luma.css?url";
+import seraUrl from "../docs/assets/styles/style-sera.css?url";
+import rheaUrl from "../docs/assets/styles/style-rhea.css?url";
+import demoInteractionsUrl from "../scripts/demo-interactions.js?url";
+import htmxUrl from "htmx.org/dist/htmx.min.js?url";
+
+const styleUrls = {
+  vega: vegaUrl,
+  nova: novaUrl,
+  maia: maiaUrl,
+  lyra: lyraUrl,
+  mira: miraUrl,
+  luma: lumaUrl,
+  sera: seraUrl,
+  rhea: rheaUrl,
+};
+---
+
+<style is:inline>
+  @font-face {
+    font-family: "Geist Sans";
+    src: url("/assets/fonts/geist/geist-sans-latin-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Sans";
+    src: url("/assets/fonts/geist/geist-sans-latin-500-normal.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Sans";
+    src: url("/assets/fonts/geist/geist-sans-latin-600-normal.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Sans";
+    src: url("/assets/fonts/geist/geist-sans-latin-700-normal.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Mono";
+    src: url("/assets/fonts/geist/geist-mono-latin-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Mono";
+    src: url("/assets/fonts/geist/geist-mono-latin-500-normal.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Mono";
+    src: url("/assets/fonts/geist/geist-mono-latin-600-normal.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Geist Mono";
+    src: url("/assets/fonts/geist/geist-mono-latin-700-normal.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
+
+<style id="docs-style-gate" is:inline>
+  html[data-style-pending] body {
+    visibility: hidden;
+  }
+</style>
+
+<script is:inline define:vars={{ styleUrls }}>
+  (() => {
+    const styleGateId = "docs-style-gate";
+    const styleLinkId = "docs-style-variant";
+    const clearStylePending = () => {
+      document.documentElement.removeAttribute("data-style-pending");
+      document.getElementById(styleGateId)?.remove();
+    };
+    const getStoredStyle = () => {
+      try {
+        return localStorage.getItem("styleVariant") || "vega";
+      } catch (_) {
+        return "vega";
+      }
+    };
+    const getStyleHref = (style) => {
+      const href = styleUrls[style];
+      return href?.startsWith("/src/docs/assets/styles/") ? `${href}?direct` : href;
+    };
+
+    const style = getStoredStyle();
+    const nextStyle = Object.prototype.hasOwnProperty.call(styleUrls, style) ? style : "vega";
+    const href = getStyleHref(nextStyle);
+
+    document.documentElement.dataset.styleVariant = nextStyle;
+
+    if (!href) return;
+
+    document.documentElement.setAttribute("data-style-pending", "");
+
+    const existing = document.getElementById("docs-style-variant");
+    if (existing?.getAttribute("href") === href) {
+      clearStylePending();
+      return;
+    }
+
+    if (!existing && document.currentScript) {
+      document.write(
+        `<link id="${styleLinkId}" rel="stylesheet" href="${href}" onload="document.documentElement.removeAttribute('data-style-pending');document.getElementById('${styleGateId}')?.remove()" onerror="document.documentElement.removeAttribute('data-style-pending');document.getElementById('${styleGateId}')?.remove()">`,
+      );
+      return;
+    }
+
+    const link = existing || document.createElement("link");
+    link.id = styleLinkId;
+    link.rel = "stylesheet";
+    link.addEventListener("load", clearStylePending, { once: true });
+    link.addEventListener("error", clearStylePending, { once: true });
+    link.href = href;
+    if (!existing) document.head.appendChild(link);
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    const key = (href) => {
+      const url = new URL(href, window.location.origin);
+      return `${url.pathname.replace(/\/$/, "")}${url.search}`;
+    };
+
+    const syncSidebar = () => {
+      for (const link of document.querySelectorAll("#sidebar a[href]")) {
+        const isCurrent = key(link.href) === key(window.location.href);
+        if (isCurrent) {
+          link.setAttribute("aria-current", "page");
+          link.closest("details")?.setAttribute("open", "");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      }
+    };
+
+    const clearSerializedRuntimeState = (root) => {
+      for (const element of root.querySelectorAll?.("*") || []) {
+        delete element.dataset.basecoatComponent;
+        for (const attribute of Array.from(element.attributes)) {
+          if (/^data-[a-z0-9-]+-initialized$/.test(attribute.name)) {
+            element.removeAttribute(attribute.name);
+          }
+        }
+      }
+    };
+
+    const cleanHistoryItem = (event) => {
+      const item = event.detail?.item;
+      if (typeof item?.content !== "string") return;
+
+      const template = document.createElement("template");
+      template.innerHTML = item.content;
+      clearSerializedRuntimeState(template.content);
+      item.content = template.innerHTML;
+    };
+
+    document.addEventListener("DOMContentLoaded", syncSidebar);
+    document.addEventListener("htmx:historyItemCreated", cleanHistoryItem);
+    document.addEventListener("htmx:historyRestore", () => {
+      window.basecoat?.initAll?.({ force: true });
+      syncSidebar();
+    });
+    document.addEventListener("htmx:afterSettle", () => {
+      window.basecoat?.initAll?.();
+      syncSidebar();
+    });
+    window.addEventListener("popstate", syncSidebar);
+  })();
+</script>
+
+<script src={htmxUrl} defer></script>
+<script type="module" src={demoInteractionsUrl}></script>

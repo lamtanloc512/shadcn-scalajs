@@ -1,0 +1,149 @@
+# Switch
+
+<Preview>
+<div role="group" class="field" data-orientation="horizontal">
+  <input type="checkbox" id="airplane-mode" role="switch" class="input" />
+  <label for="airplane-mode">Airplane Mode</label>
+</div>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Switch component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/switch.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your switch HTML">
+
+Add `class="input"` and `role="switch"` to a native checkbox. Use a native `<label>` or `aria-label` for accessible naming.
+
+```html
+<input type="checkbox" role="switch" class="input" />
+```
+
+  </Step>
+</Steps>
+
+### HTML structure
+
+<dl>
+  <dt><code>&lt;input type="checkbox" role="switch" class="input"&gt;</code></dt>
+  <dd>The switch control. Use native checkbox state: add <code>checked</code> for an initially enabled switch, <code>disabled</code> for a disabled switch, and <code>aria-invalid="true"</code> for invalid state.</dd>
+  <dt><code>data-size="sm"</code> <span class="badge" data-variant="secondary">Optional</span></dt>
+  <dd>Renders the smaller switch size.</dd>
+</dl>
+
+## Examples
+
+### Description
+
+<Preview class="w-full max-w-sm">
+<div role="group" class="field" data-orientation="horizontal">
+  <section>
+    <label for="switch-focus-mode">Share across devices</label>
+    <p id="switch-focus-mode-description">Focus is shared across devices, and turns off when you leave the app.</p>
+  </section>
+  <input type="checkbox" id="switch-focus-mode" role="switch" class="input" aria-describedby="switch-focus-mode-description" />
+</div>
+</Preview>
+
+### Choice card
+
+Use a wrapping `<label>` when the whole card should toggle the switch.
+
+<Preview class="w-full max-w-sm">
+<div role="group" class="grid w-full gap-3" aria-label="Focus settings">
+  <label>
+    <div role="group" class="field" data-orientation="horizontal">
+      <section>
+        <h3>Share across devices</h3>
+        <p>Focus is shared across devices, and turns off when you leave the app.</p>
+      </section>
+      <input type="checkbox" role="switch" class="input" />
+    </div>
+  </label>
+  <label>
+    <div role="group" class="field" data-orientation="horizontal">
+      <section>
+        <h3>Enable notifications</h3>
+        <p>Receive notifications when focus mode changes.</p>
+      </section>
+      <input type="checkbox" role="switch" class="input" checked />
+    </div>
+  </label>
+</div>
+</Preview>
+
+### Disabled
+
+Add `disabled` to the switch and `data-disabled="true"` to the field wrapper when the surrounding field should use disabled styling.
+
+<Preview>
+<div role="group" class="field" data-orientation="horizontal" data-disabled="true">
+  <input type="checkbox" id="switch-disabled-unchecked" role="switch" class="input" disabled />
+  <label for="switch-disabled-unchecked">Disabled</label>
+</div>
+</Preview>
+
+### Invalid
+
+Add `aria-invalid="true"` to the switch and `data-invalid="true"` to the field wrapper.
+
+<Preview class="w-full max-w-sm">
+<div role="group" class="field" data-orientation="horizontal" data-invalid="true">
+  <section>
+    <label for="switch-invalid">Accept terms and conditions.</label>
+    <p>You must accept the terms and conditions to continue.</p>
+  </section>
+  <input type="checkbox" id="switch-invalid" role="switch" class="input" aria-invalid="true" />
+</div>
+</Preview>
+
+### Size
+
+Use `data-size="sm"` to render the smaller switch size.
+
+<Preview class="w-full max-w-[10rem]">
+<div role="group" class="grid w-full gap-4" aria-label="Switch sizes">
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="checkbox" id="switch-size-sm" role="switch" class="input" data-size="sm" />
+    <label for="switch-size-sm">Small</label>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="checkbox" id="switch-size-default" role="switch" class="input" />
+    <label for="switch-size-default">Default</label>
+  </div>
+</div>
+</Preview>
+
+## RTL
+
+Switch field layout uses document direction. Set `dir="rtl"` on the field or an ancestor.
+
+<Preview class="w-full max-w-sm">
+<div dir="rtl" role="group" class="field" data-orientation="horizontal">
+  <section>
+    <label for="switch-rtl">المشاركة عبر الأجهزة</label>
+    <p id="switch-rtl-description">يتم مشاركة التركيز عبر الأجهزة، ويتم إيقاف تشغيله عند مغادرة التطبيق.</p>
+  </section>
+  <input type="checkbox" id="switch-rtl" role="switch" class="input" aria-describedby="switch-rtl-description" checked />
+</div>
+</Preview>

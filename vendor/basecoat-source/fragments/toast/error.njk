@@ -1,0 +1,6 @@
+{% from "toast.njk" import toast %}
+{{ toast(
+  category="error",
+  title="Event has not been created",
+  cancel={ label: "Dismiss", click: "close()" }
+) }}

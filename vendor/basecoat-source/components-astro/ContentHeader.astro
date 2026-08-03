@@ -1,0 +1,119 @@
+---
+import vegaUrl from "../docs/assets/styles/style-vega.css?url";
+import novaUrl from "../docs/assets/styles/style-nova.css?url";
+import maiaUrl from "../docs/assets/styles/style-maia.css?url";
+import lyraUrl from "../docs/assets/styles/style-lyra.css?url";
+import miraUrl from "../docs/assets/styles/style-mira.css?url";
+import lumaUrl from "../docs/assets/styles/style-luma.css?url";
+import seraUrl from "../docs/assets/styles/style-sera.css?url";
+import rheaUrl from "../docs/assets/styles/style-rhea.css?url";
+
+const styleUrls = {
+  vega: vegaUrl,
+  nova: novaUrl,
+  maia: maiaUrl,
+  lyra: lyraUrl,
+  mira: miraUrl,
+  luma: lumaUrl,
+  sera: seraUrl,
+  rhea: rheaUrl,
+};
+---
+
+<nav class="hidden items-center gap-2 sm:flex">
+  <select id="style-variant-select" class="select h-8 w-28 text-sm leading-none" aria-label="Style pack">
+    <option value="vega">Vega</option>
+    <option value="nova">Nova</option>
+    <option value="maia">Maia</option>
+    <option value="lyra">Lyra</option>
+    <option value="mira">Mira</option>
+    <option value="luma">Luma</option>
+    <option value="sera">Sera</option>
+    <option value="rhea">Rhea</option>
+  </select>
+</nav>
+
+<script is:inline define:vars={{ styleUrls }}>
+  (() => {
+    const styleSelect = document.getElementById("style-variant-select");
+    const styleLinkId = "docs-style-variant";
+    const pendingStyleLinkId = "docs-style-variant-pending";
+    const styleGateId = "docs-style-gate";
+
+    const getStyleLink = () => document.getElementById(styleLinkId);
+    const clearStylePending = () => {
+      document.documentElement.removeAttribute("data-style-pending");
+      document.getElementById(styleGateId)?.remove();
+    };
+    const getStyleHref = (style) => {
+      const href = styleUrls[style];
+      return href?.startsWith("/src/docs/assets/styles/") ? `${href}?direct` : href;
+    };
+
+    const applyStyle = (style) => {
+      const nextStyle = Object.prototype.hasOwnProperty.call(styleUrls, style) ? style : "vega";
+      const href = getStyleHref(nextStyle);
+      const link = getStyleLink();
+
+      if (!href) {
+        link?.remove();
+        document.getElementById(pendingStyleLinkId)?.remove();
+        clearStylePending();
+        return;
+      }
+
+      const sameHref = link?.getAttribute("href") === href;
+      if (sameHref || link?.sheet) {
+        clearStylePending();
+      }
+      if (sameHref) return;
+
+      document.getElementById(pendingStyleLinkId)?.remove();
+
+      const pendingLink = document.createElement("link");
+      pendingLink.id = pendingStyleLinkId;
+      pendingLink.rel = "stylesheet";
+      pendingLink.addEventListener(
+        "load",
+        () => {
+          link?.remove();
+          pendingLink.id = styleLinkId;
+          document.documentElement.dataset.styleVariant = nextStyle;
+          clearStylePending();
+          document.dispatchEvent(new CustomEvent("basecoat:stylechange", { detail: { style: nextStyle } }));
+        },
+        { once: true },
+      );
+      pendingLink.addEventListener(
+        "error",
+        () => {
+          pendingLink.remove();
+          clearStylePending();
+        },
+        { once: true },
+      );
+      pendingLink.href = href;
+      document.head.appendChild(pendingLink);
+    };
+
+    const getStoredStyle = () => {
+      try {
+        return localStorage.getItem("styleVariant") || "vega";
+      } catch (_) {
+        return "vega";
+      }
+    };
+
+    const initialStyle = getStoredStyle();
+    if (styleSelect) styleSelect.value = initialStyle;
+    applyStyle(initialStyle);
+
+    styleSelect?.addEventListener("change", () => {
+      const nextStyle = styleSelect.value || "vega";
+      applyStyle(nextStyle);
+      try {
+        localStorage.setItem("styleVariant", nextStyle);
+      } catch (_) {}
+    });
+  })();
+</script>

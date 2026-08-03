@@ -1,0 +1,225 @@
+# Radio Group
+
+<Preview>
+<div role="radiogroup" aria-label="View density" data-slot="radio-group" class="w-fit">
+  <div class="flex items-center gap-3">
+    <input type="radio" id="r1" name="radio-demo" value="default" class="input" />
+    <label for="r1">Default</label>
+  </div>
+  <div class="flex items-center gap-3">
+    <input type="radio" id="r2" name="radio-demo" value="comfortable" class="input" checked />
+    <label for="r2">Comfortable</label>
+  </div>
+  <div class="flex items-center gap-3">
+    <input type="radio" id="r3" name="radio-demo" value="compact" class="input" />
+    <label for="r3">Compact</label>
+  </div>
+</div>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Radio Group component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/field.css";
+@import "basecoat-css/components/radio.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Radio Group uses Radio styles and composes Field styles in the richer examples.
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your radio group HTML">
+
+Add `class="input"` to radio inputs. Use a shared `name` attribute for mutually exclusive options, and wrap related options in a semantic `<fieldset>` or an element with `role="radiogroup"`.
+
+```html
+<input type="radio" name="plan" class="input" />
+```
+
+  </Step>
+</Steps>
+
+## Examples
+
+### Description
+
+Radio group items with a description using the `Field` component.
+
+<Preview>
+<div role="radiogroup" aria-label="View density" data-slot="radio-group" class="w-fit">
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="desc-r1" name="radio-description" value="default" class="input" />
+    <section>
+      <label for="desc-r1">Default</label>
+      <p>Standard spacing for most use cases.</p>
+    </section>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="desc-r2" name="radio-description" value="comfortable" class="input" checked />
+    <section>
+      <label for="desc-r2">Comfortable</label>
+      <p>More space between elements.</p>
+    </section>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="desc-r3" name="radio-description" value="compact" class="input" />
+    <section>
+      <label for="desc-r3">Compact</label>
+      <p>Minimal spacing for dense layouts.</p>
+    </section>
+  </div>
+</div>
+</Preview>
+
+### Choice Card
+
+Use a native `<label>` to wrap the entire `.field` for a clickable card-style selection.
+
+<Preview class="w-full max-w-sm">
+<div role="radiogroup" aria-label="Plans" data-slot="radio-group" class="w-full max-w-md">
+  <label for="plus-plan">
+    <div role="group" class="field" data-orientation="horizontal">
+      <section>
+        <h3>Plus</h3>
+        <p>For individuals and small teams.</p>
+      </section>
+      <input type="radio" id="plus-plan" name="choice-plan" value="plus" class="input" checked />
+    </div>
+  </label>
+  <label for="pro-plan">
+    <div role="group" class="field" data-orientation="horizontal">
+      <section>
+        <h3>Pro</h3>
+        <p>For growing businesses.</p>
+      </section>
+      <input type="radio" id="pro-plan" name="choice-plan" value="pro" class="input" />
+    </div>
+  </label>
+  <label for="enterprise-plan">
+    <div role="group" class="field" data-orientation="horizontal">
+      <section>
+        <h3>Enterprise</h3>
+        <p>For large teams and enterprises.</p>
+      </section>
+      <input type="radio" id="enterprise-plan" name="choice-plan" value="enterprise" class="input" />
+    </div>
+  </label>
+</div>
+</Preview>
+
+### Fieldset
+
+Use a native `<fieldset>` and `<legend>` to group radio items with a label and description.
+
+<Preview>
+<fieldset class="fieldset">
+  <legend data-variant="label">Subscription Plan</legend>
+  <p>Yearly and lifetime plans offer significant savings.</p>
+  <div role="radiogroup" aria-label="Subscription plan" data-slot="radio-group">
+    <div role="group" class="field" data-orientation="horizontal">
+      <input type="radio" id="plan-monthly" name="subscription-plan" value="monthly" class="input" checked />
+      <label for="plan-monthly" class="font-normal">Monthly ($9.99/month)</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal">
+      <input type="radio" id="plan-yearly" name="subscription-plan" value="yearly" class="input" />
+      <label for="plan-yearly" class="font-normal">Yearly ($99.99/year)</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal">
+      <input type="radio" id="plan-lifetime" name="subscription-plan" value="lifetime" class="input" />
+      <label for="plan-lifetime" class="font-normal">Lifetime ($299.99)</label>
+    </div>
+  </div>
+</fieldset>
+</Preview>
+
+### Disabled
+
+Use the `disabled` attribute to disable individual items.
+
+<Preview>
+<div role="radiogroup" aria-label="Disabled options" data-slot="radio-group" class="w-fit">
+  <div role="group" class="field" data-orientation="horizontal" data-disabled>
+    <input type="radio" id="disabled-1" name="radio-disabled" value="option1" class="input" disabled />
+    <label for="disabled-1" class="font-normal">Disabled</label>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="disabled-2" name="radio-disabled" value="option2" class="input" checked />
+    <label for="disabled-2" class="font-normal">Option 2</label>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="disabled-3" name="radio-disabled" value="option3" class="input" />
+    <label for="disabled-3" class="font-normal">Option 3</label>
+  </div>
+</div>
+</Preview>
+
+### Invalid
+
+Use `aria-invalid="true"` on radio inputs and `data-invalid` on fields to show validation errors.
+
+<Preview>
+<fieldset class="fieldset">
+  <legend data-variant="label">Notification Preferences</legend>
+  <p>Choose how you want to receive notifications.</p>
+  <div role="radiogroup" aria-label="Notification preferences" data-slot="radio-group">
+    <div role="group" class="field" data-orientation="horizontal" data-invalid>
+      <input type="radio" id="invalid-email" name="notification-preference" value="email" class="input" aria-invalid="true" checked />
+      <label for="invalid-email" class="font-normal">Email only</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal" data-invalid>
+      <input type="radio" id="invalid-sms" name="notification-preference" value="sms" class="input" aria-invalid="true" />
+      <label for="invalid-sms" class="font-normal">SMS only</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal" data-invalid>
+      <input type="radio" id="invalid-both" name="notification-preference" value="both" class="input" aria-invalid="true" />
+      <label for="invalid-both" class="font-normal">Both Email & SMS</label>
+    </div>
+  </div>
+</fieldset>
+</Preview>
+
+## RTL
+
+Set `dir="rtl"` on the radio group or an ancestor.
+
+<Preview>
+<div dir="rtl" role="radiogroup" aria-label="كثافة العرض" data-slot="radio-group" class="w-fit">
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="r1-rtl" name="radio-rtl" value="default" class="input" />
+    <section>
+      <label for="r1-rtl">افتراضي</label>
+      <p>تباعد قياسي لمعظم حالات الاستخدام.</p>
+    </section>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="r2-rtl" name="radio-rtl" value="comfortable" class="input" checked />
+    <section>
+      <label for="r2-rtl">مريح</label>
+      <p>مساحة أكبر بين العناصر.</p>
+    </section>
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input type="radio" id="r3-rtl" name="radio-rtl" value="compact" class="input" />
+    <section>
+      <label for="r3-rtl">مضغوط</label>
+      <p>تباعد أدنى للتخطيطات الكثيفة.</p>
+    </section>
+  </div>
+</div>
+</Preview>

@@ -1,0 +1,454 @@
+# Field
+
+<Preview class="w-full max-w-md">
+<form>
+  <div role="group" aria-label="Checkout fields" class="fieldset">
+    <fieldset class="fieldset">
+      <legend>Payment Method</legend>
+      <p>All transactions are secure and encrypted</p>
+      <div role="group" aria-label="Payment method fields">
+        <div role="group" class="field">
+          <label for="checkout-card-name">Name on Card</label>
+          <input id="checkout-card-name" type="text" placeholder="Evil Rabbit" required />
+        </div>
+        <div role="group" class="field">
+          <label for="checkout-card-number">Card Number</label>
+          <input id="checkout-card-number" type="text" placeholder="1234 5678 9012 3456" aria-describedby="checkout-card-number-description" required />
+          <p id="checkout-card-number-description">Enter your 16-digit card number</p>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div role="group" class="field">
+            <label for="checkout-exp-month">Month</label>
+            <select id="checkout-exp-month" class="select w-full">
+              <option value="">MM</option>
+              <option value="01">01</option>
+              <option value="02">02</option>
+              <option value="03">03</option>
+              <option value="04">04</option>
+              <option value="05">05</option>
+              <option value="06">06</option>
+              <option value="07">07</option>
+              <option value="08">08</option>
+              <option value="09">09</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div role="group" class="field">
+            <label for="checkout-exp-year">Year</label>
+            <select id="checkout-exp-year" class="select w-full">
+              <option value="">YYYY</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+            </select>
+          </div>
+          <div role="group" class="field">
+            <label for="checkout-cvv">CVV</label>
+            <input id="checkout-cvv" type="text" placeholder="123" required />
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <div class="field-separator">
+      <hr role="separator" />
+    </div>
+    <fieldset class="fieldset">
+      <legend>Billing Address</legend>
+      <p>The billing address associated with your payment method</p>
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="checkout-same-as-shipping" type="checkbox" checked />
+        <label for="checkout-same-as-shipping" class="font-normal">Same as shipping address</label>
+      </div>
+    </fieldset>
+    <fieldset class="fieldset">
+      <div role="group" class="field">
+        <label for="checkout-comments">Comments</label>
+        <textarea id="checkout-comments" placeholder="Add any additional comments" rows="3"></textarea>
+      </div>
+    </fieldset>
+    <div role="group" class="field" data-orientation="horizontal">
+      <button type="submit" class="btn">Submit</button>
+      <button type="button" class="btn" data-variant="outline">Cancel</button>
+    </div>
+  </div>
+</form>
+</Preview>
+
+## Usage
+
+<Steps>
+  <Step title="Include CSS">
+
+Import Tailwind and one full Basecoat style bundle.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/vega.css";
+```
+
+Or import only the base CSS, Field component CSS, and one style pack.
+
+```css
+@import "tailwindcss";
+@import "basecoat-css/base.css";
+@import "basecoat-css/components/field.css";
+@import "basecoat-css/styles/vega.css";
+```
+
+Using CDN or bundler imports? See the [Installation page](/installation).
+
+  </Step>
+  <Step title="Add your field HTML">
+
+Use `class="field"` for one control and `class="fieldset"` for related controls. Use a native `<fieldset>` when the group needs a `<legend>`; otherwise use a labelled `role="group"`.
+
+```html
+<fieldset class="fieldset">
+  <legend>Profile</legend>
+  <p>This appears on invoices and emails.</p>
+  <div role="group" aria-label="Profile fields">
+    <div role="group" class="field">
+      <label for="name">Full name</label>
+      <input id="name" autocomplete="off" placeholder="Evil Rabbit" />
+      <p>This appears on invoices and emails.</p>
+    </div>
+    <div role="group" class="field" data-invalid>
+      <label for="username">Username</label>
+      <input id="username" autocomplete="off" aria-invalid="true" aria-describedby="username-error" />
+      <p id="username-error" role="alert">Choose another username.</p>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal">
+      <input id="newsletter" type="checkbox" role="switch" />
+      <label for="newsletter">Subscribe to the newsletter</label>
+    </div>
+  </div>
+</fieldset>
+```
+
+  </Step>
+</Steps>
+
+### HTML structure
+
+<dl>
+  <dt><code>&lt;fieldset class="fieldset"&gt;</code></dt>
+  <dd>Native group for related fields. Use <code>&lt;legend&gt;</code> for the label and a following <code>&lt;p&gt;</code> for description.</dd>
+  <dt><code>&lt;div role="group" class="fieldset"&gt;</code></dt>
+  <dd>Structural group when <code>&lt;fieldset&gt;</code> is not appropriate. Add <code>aria-label</code> or <code>aria-labelledby</code>.</dd>
+  <dt><code>&lt;div role="group" class="field"&gt;</code></dt>
+  <dd>Single field wrapper. Add <code>data-orientation</code> when needed.</dd>
+  <dt><code>&lt;label&gt;</code></dt>
+  <dd>Label for the control. Use <code>for</code> when the control has an <code>id</code>.</dd>
+  <dt><code>&lt;input&gt;</code>, <code>&lt;select&gt;</code>, <code>&lt;textarea&gt;</code></dt>
+  <dd>Native form control. Put <code>aria-invalid="true"</code> on the invalid control, not only on the wrapper.</dd>
+  <dt><code>&lt;section&gt;</code></dt>
+  <dd>Optional content wrapper for label and description when the control sits beside text.</dd>
+  <dt><code>&lt;p&gt;</code></dt>
+  <dd>Helper text or error text. Use <code>role="alert"</code> for validation errors and connect it with <code>aria-describedby</code>.</dd>
+</dl>
+
+## Examples
+
+### Input
+
+<Preview class="w-full max-w-xs">
+<fieldset class="fieldset">
+  <div role="group" aria-label="Account credentials">
+    <div role="group" class="field">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="Max Leiter" aria-describedby="username-description" />
+      <p id="username-description">Choose a unique username for your account.</p>
+    </div>
+    <div role="group" class="field">
+      <label for="password">Password</label>
+      <p id="password-description">Must be at least 8 characters long.</p>
+      <input id="password" type="password" placeholder="••••••••" aria-describedby="password-description" />
+    </div>
+  </div>
+</fieldset>
+</Preview>
+
+### Textarea
+
+<Preview class="w-full max-w-xs">
+<fieldset class="fieldset">
+  <div role="group" class="field">
+    <label for="feedback">Feedback</label>
+    <textarea id="feedback" placeholder="Your feedback helps us improve..." rows="4" aria-describedby="feedback-description"></textarea>
+    <p id="feedback-description">Share your thoughts about our service.</p>
+  </div>
+</fieldset>
+</Preview>
+
+### Select
+
+<Preview class="w-full max-w-xs">
+<div role="group" class="field">
+  <label for="department">Department</label>
+  <select id="department" class="select w-full" aria-describedby="department-description">
+    <option value="">Choose department</option>
+    <option value="engineering">Engineering</option>
+    <option value="design">Design</option>
+    <option value="marketing">Marketing</option>
+    <option value="sales">Sales</option>
+    <option value="support">Customer Support</option>
+    <option value="hr">Human Resources</option>
+    <option value="finance">Finance</option>
+    <option value="operations">Operations</option>
+  </select>
+  <p id="department-description">Select your department or area of work.</p>
+</div>
+</Preview>
+
+### Slider
+
+<Preview class="w-full max-w-xs">
+<div role="group" class="field">
+  <label for="price-range">Price Range</label>
+  <p id="price-range-description">Set your maximum budget <span id="price-range-output">(up to $800)</span>.</p>
+  <input id="price-range" type="range" min="0" max="1000" step="10" value="800" aria-describedby="price-range-description" class="input" />
+</div>
+</Preview>
+
+### Fieldset
+
+<Preview class="w-full max-w-sm">
+<fieldset class="fieldset">
+  <legend>Address Information</legend>
+  <p>We need your address to deliver your order.</p>
+  <div role="group" aria-label="Address fields">
+    <div role="group" class="field">
+      <label for="street">Street Address</label>
+      <input id="street" type="text" placeholder="123 Main St" />
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div role="group" class="field">
+        <label for="city">City</label>
+        <input id="city" type="text" placeholder="New York" />
+      </div>
+      <div role="group" class="field">
+        <label for="zip">Postal Code</label>
+        <input id="zip" type="text" placeholder="90502" />
+      </div>
+    </div>
+  </div>
+</fieldset>
+</Preview>
+
+### Checkbox
+
+<Preview class="w-full max-w-xs">
+<div role="group" aria-label="Finder preferences" class="fieldset">
+  <fieldset class="fieldset">
+    <legend data-variant="label">Show these items on the desktop</legend>
+    <p>Select the items you want to show on the desktop.</p>
+    <div role="group" aria-label="Desktop items">
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="finder-hard-disks" type="checkbox" />
+        <label for="finder-hard-disks" class="font-normal">Hard disks</label>
+      </div>
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="finder-external-disks" type="checkbox" />
+        <label for="finder-external-disks" class="font-normal">External disks</label>
+      </div>
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="finder-cds" type="checkbox" />
+        <label for="finder-cds" class="font-normal">CDs, DVDs, and iPods</label>
+      </div>
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="finder-connected-servers" type="checkbox" />
+        <label for="finder-connected-servers" class="font-normal">Connected servers</label>
+      </div>
+    </div>
+  </fieldset>
+  <div class="field-separator">
+    <hr role="separator" />
+  </div>
+  <div role="group" class="field" data-orientation="horizontal">
+    <input id="sync-folders" type="checkbox" checked />
+    <section>
+      <label for="sync-folders">Sync Desktop & Documents folders</label>
+      <p>Your Desktop & Documents folders are being synced with iCloud Drive. You can access them from other devices.</p>
+    </section>
+  </div>
+</div>
+</Preview>
+
+### Radio
+
+<Preview class="w-full max-w-xs">
+<fieldset class="fieldset">
+  <legend data-variant="label">Subscription Plan</legend>
+  <p>Yearly and lifetime plans offer significant savings.</p>
+  <div role="radiogroup" aria-label="Subscription plan">
+    <div role="group" class="field" data-orientation="horizontal">
+      <input id="plan-monthly" type="radio" name="plan" value="monthly" checked />
+      <label for="plan-monthly" class="font-normal">Monthly ($9.99/month)</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal">
+      <input id="plan-yearly" type="radio" name="plan" value="yearly" />
+      <label for="plan-yearly" class="font-normal">Yearly ($99.99/year)</label>
+    </div>
+    <div role="group" class="field" data-orientation="horizontal">
+      <input id="plan-lifetime" type="radio" name="plan" value="lifetime" />
+      <label for="plan-lifetime" class="font-normal">Lifetime ($299.99)</label>
+    </div>
+  </div>
+</fieldset>
+</Preview>
+
+### Switch
+
+<Preview class="w-full max-w-sm">
+<div role="group" class="field" data-orientation="horizontal">
+  <section>
+    <label for="multi-factor-authentication">Multi-factor authentication</label>
+    <p>Enable multi-factor authentication. If you do not have a two-factor device, you can use a one-time code sent to your email.</p>
+  </section>
+  <input id="multi-factor-authentication" type="checkbox" role="switch" />
+</div>
+</Preview>
+
+### Choice card
+
+Wrap a `.field` inside a `<label>` to create selectable field cards. This works with radio, checkbox, and switch controls.
+
+<Preview class="w-full max-w-xs">
+<fieldset class="fieldset">
+  <legend data-variant="label">Compute Environment</legend>
+  <p>Select the compute environment for your cluster.</p>
+  <div role="radiogroup" aria-label="Compute environment">
+    <label for="compute-kubernetes">
+      <div role="group" class="field" data-orientation="horizontal">
+        <section>
+          <h3>Kubernetes</h3>
+          <p>Run GPU workloads on a K8s cluster.</p>
+        </section>
+        <input id="compute-kubernetes" type="radio" name="compute" value="kubernetes" checked />
+      </div>
+    </label>
+    <label for="compute-vm">
+      <div role="group" class="field" data-orientation="horizontal">
+        <section>
+          <h3>Virtual Machine</h3>
+          <p>Access a cluster to run GPU workloads.</p>
+        </section>
+        <input id="compute-vm" type="radio" name="compute" value="vm" />
+      </div>
+    </label>
+  </div>
+</fieldset>
+</Preview>
+
+### Field group
+
+Stack fields inside a group and use `.field-separator` to divide sections.
+
+<Preview class="w-full max-w-xs">
+<div role="group" aria-label="Notification preferences" class="fieldset">
+  <fieldset class="fieldset">
+    <legend data-variant="label">Responses</legend>
+    <p>Get notified when ChatGPT responds to requests that take time, like research or image generation.</p>
+    <div role="group" aria-label="Response notifications">
+      <div role="group" class="field" data-orientation="horizontal" data-disabled="true">
+        <input id="push-responses" type="checkbox" checked disabled />
+        <label for="push-responses" class="font-normal">Push notifications</label>
+      </div>
+    </div>
+  </fieldset>
+  <div class="field-separator">
+    <hr role="separator" />
+  </div>
+  <fieldset class="fieldset">
+    <legend data-variant="label">Tasks</legend>
+    <p>Get notified when tasks you've created have updates. <a href="#">Manage tasks</a></p>
+    <div role="group" aria-label="Task notifications">
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="push-tasks" type="checkbox" />
+        <label for="push-tasks" class="font-normal">Push notifications</label>
+      </div>
+      <div role="group" class="field" data-orientation="horizontal">
+        <input id="email-tasks" type="checkbox" />
+        <label for="email-tasks" class="font-normal">Email notifications</label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+</Preview>
+
+### Responsive layout
+
+Use `data-orientation="responsive"` to stack by default and switch to horizontal in wider containers.
+
+<Preview class="w-full max-w-4xl">
+<form>
+  <fieldset class="fieldset">
+    <legend>Profile</legend>
+    <p>Fill in your profile information.</p>
+    <div class="field-separator">
+      <hr role="separator" />
+    </div>
+    <div role="group" aria-label="Profile fields">
+      <div role="group" class="field" data-orientation="responsive">
+        <section>
+          <label for="responsive-name">Name</label>
+          <p id="responsive-name-description">Provide your full name for identification</p>
+        </section>
+        <input id="responsive-name" placeholder="Evil Rabbit" aria-describedby="responsive-name-description" required />
+      </div>
+      <div class="field-separator">
+        <hr role="separator" />
+      </div>
+      <div role="group" class="field" data-orientation="responsive">
+        <section>
+          <label for="responsive-message">Message</label>
+          <p id="responsive-message-description">You can write your message here. Keep it short, preferably under 100 characters.</p>
+        </section>
+        <textarea id="responsive-message" placeholder="Hello, world!" rows="4" aria-describedby="responsive-message-description" required class="min-h-[100px] resize-none sm:min-w-[300px]"></textarea>
+      </div>
+      <div class="field-separator">
+        <hr role="separator" />
+      </div>
+      <div role="group" class="field" data-orientation="responsive">
+        <button type="submit" class="btn">Submit</button>
+        <button type="button" class="btn" data-variant="outline">Cancel</button>
+      </div>
+    </div>
+  </fieldset>
+</form>
+</Preview>
+
+### Validation and errors
+
+Add `data-invalid` to `.field` and `aria-invalid="true"` to the invalid control.
+
+<Preview class="w-full max-w-xs">
+<div role="group" class="field" data-invalid>
+  <label for="invalid-email">Email</label>
+  <input id="invalid-email" type="email" value="wrong-email" aria-invalid="true" aria-describedby="invalid-email-error" />
+  <p id="invalid-email-error" role="alert">Enter a valid email address.</p>
+</div>
+</Preview>
+
+### RTL
+
+Add `dir="rtl"` to the field, fieldset, or an ancestor.
+
+<Preview class="w-full max-w-xs">
+<fieldset class="fieldset" dir="rtl">
+  <legend>الملف الشخصي</legend>
+  <p>تظهر هذه المعلومات في حسابك.</p>
+  <div role="group" aria-label="حقول الملف الشخصي">
+    <div role="group" class="field">
+      <label for="field-rtl-name">الاسم الكامل</label>
+      <input id="field-rtl-name" type="text" placeholder="أرنب شرير" />
+      <p>اكتب اسمك الأول والأخير.</p>
+    </div>
+  </div>
+</fieldset>
+</Preview>
