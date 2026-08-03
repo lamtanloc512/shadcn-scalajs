@@ -8,8 +8,7 @@ import shadcnscalajs.ui.Badge
 
 import scala.scalajs.js
 
-/** `<sc-badge variant="outline">New</sc-badge>` — Web Component export of
-  * shadcnscalajs.ui.Badge.
+/** `<sc-badge variant="outline">New</sc-badge>` — Web Component export of shadcnscalajs.ui.Badge.
   */
 class ScBadge extends ScElementBase:
 
@@ -34,6 +33,6 @@ object ScBadge:
     case "secondary"   => Badge.Variant.Secondary
     case "outline"     => Badge.Variant.Outline
     case "destructive" => Badge.Variant.Destructive
-    case "ghost"        => Badge.Variant.Ghost
+    case "ghost"       => Badge.Variant.Ghost
     case "link"        => Badge.Variant.Link
   }

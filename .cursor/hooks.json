@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".franky/hooks/egress_guard.sh",
+        "matcher": "Shell"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": ".franky/hooks/path_guard.sh",
+        "matcher": "Write|Edit"
+      },
+      {
+        "command": ".franky/hooks/secret_scan.sh",
+        "matcher": "Write|Edit"
+      },
+      {
+        "command": ".franky/hooks/lint_gate.sh",
+        "matcher": "Write|Edit"
+      }
+    ]
+  },
+  "version": 1
+}

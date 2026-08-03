@@ -6,11 +6,10 @@ import shadcnscalajs.ui.Accordion
 
 import scala.scalajs.js
 
-/** `<sc-accordion sections='[{"title":"Q1","content":"A1"}]'></sc-accordion>` —
-  * Web Component export of shadcnscalajs.ui.Accordion. Sections are plain
-  * text title/content pairs passed as a JSON attribute, since custom-element
-  * attributes are strings; the native Laminar `Accordion` (shadcnscalajs.ui)
-  * still accepts arbitrary rich `Modifier` content for direct Scala.js use.
+/** `<sc-accordion sections='[{"title":"Q1","content":"A1"}]'></sc-accordion>` — Web Component export of
+  * shadcnscalajs.ui.Accordion. Sections are plain text title/content pairs passed as a JSON attribute, since
+  * custom-element attributes are strings; the native Laminar `Accordion` (shadcnscalajs.ui) still accepts arbitrary
+  * rich `Modifier` content for direct Scala.js use.
   */
 class ScAccordion extends ScElementBase:
 

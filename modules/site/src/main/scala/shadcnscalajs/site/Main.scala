@@ -4,9 +4,8 @@ import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 import shadcnscalajs.ui.*
 
-/** Docs/demo app: dogfoods `modules/ui` directly via native Laminar usage
-  * (as opposed to the `webcomponents` module's custom-element wrappers,
-  * demonstrated separately by `public/plain-html-demo.html`).
+/** Docs/demo app: dogfoods `modules/ui` directly via native Laminar usage (as opposed to the `webcomponents` module's
+  * custom-element wrappers, demonstrated separately by `public/plain-html-demo.html`).
   */
 object Main:
 
@@ -22,7 +21,6 @@ object Main:
       idAttr := "demo",
       h1("shadcn-scalajs"),
       p("Native Laminar usage of modules/ui. See plain-html-demo.html for the Web Component version."),
-
       h2("Button"),
       div(
         Button.of(_.variant(Button.Variant.Primary), _ => "Primary"),
@@ -31,14 +29,12 @@ object Main:
         " ",
         Button.of(_.variant(Button.Variant.Destructive), _.size(Button.Size.Sm), _ => "Delete")
       ),
-
       h2("Badge"),
       div(
         Badge.of(_.variant(Badge.Variant.Primary), _ => "New"),
         " ",
         Badge.of(_.variant(Badge.Variant.Outline), _ => "Beta")
       ),
-
       h2("Dialog"),
       Button(onClick --> { _ => dialogOpenVar.set(true) }, "Open dialog"),
       Dialog(dialogOpenVar)(
@@ -47,14 +43,13 @@ object Main:
           Button(onClick --> { _ => dialogOpenVar.set(false) }, "Close")
         )
       ),
-
       h2("Accordion"),
       Accordion(
         accordionOpenVar,
         Accordion.Section("What is shadcn-scalajs?", "A Scala.js + Laminar port of shadcn/ui, styled with basecoat."),
-        Accordion.Section("Is it a Web Component too?", "Yes — every component also compiles to a standalone custom element.")
+        Accordion
+          .Section("Is it a Web Component too?", "Yes — every component also compiles to a standalone custom element.")
       ),
-
       h2("Dropdown Menu"),
       DropdownMenu("Open menu")(
         DropdownMenu.Item("Profile", () => dom.console.log("Profile selected")),

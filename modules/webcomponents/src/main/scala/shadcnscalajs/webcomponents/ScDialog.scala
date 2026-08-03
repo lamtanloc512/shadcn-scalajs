@@ -7,11 +7,9 @@ import shadcnscalajs.ui.Dialog
 
 import scala.scalajs.js
 
-/** `<sc-dialog open>...</sc-dialog>` — Web Component export of
-  * shadcnscalajs.ui.Dialog. The `open` attribute is the source of truth in
-  * both directions: setting/removing it opens/closes the dialog, and the
-  * element reflects it back (e.g. after Escape or a backdrop click) plus
-  * fires a `close` CustomEvent so a plain JS caller can observe it via
+/** `<sc-dialog open>...</sc-dialog>` — Web Component export of shadcnscalajs.ui.Dialog. The `open` attribute is the
+  * source of truth in both directions: setting/removing it opens/closes the dialog, and the element reflects it back
+  * (e.g. after Escape or a backdrop click) plus fires a `close` CustomEvent so a plain JS caller can observe it via
   * `el.addEventListener("close", ...)`.
   */
 class ScDialog extends ScElementBase:

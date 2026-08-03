@@ -1,1 +1,4 @@
 # decisions log
+
+- 2026-08-03: franky's own `scripts/lint`/`scripts/test` heuristics can't infer commands for an sbt/Scala.js stack, so scripts/{setup,build,lint,test,serve} are hand-written (sbt compile/fastLinkJS, npm installs, scalafmt+tsc for lint, CLI registry/add smoke test for test) rather than franky-generated. `franky init --refresh-adapters` overwrote these with self-referential stubs once despite the "root scripts/<name> wins" doc guarantee — restored by hand. If refresh-adapters runs again, diff scripts/* afterward before trusting it.
+- 2026-08-03: `scripts/test` intentionally does not run the full publishLocal+throwaway-sbt-project compile check (proven once manually, see AGENTS.md) — too slow for routine `franky verify`; it only asserts the CLI writes the expected files. Re-run the full check by hand before shipping anything registry/CLI-shaped.

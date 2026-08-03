@@ -3,15 +3,12 @@ package shadcnscalajs.ui
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 
-/** Laminar port of basecoat's Dialog (basecoat/src/css/components/dialog.css +
-  * site/src/docs/components/dialog.mdx). Native-element-only tier: modality,
-  * focus handling, and inert background are entirely delegated to the browser's
-  * native `<dialog>` + `showModal()`/`close()` — basecoat ships no dialog.js at
-  * all for this, and neither do we.
+/** Laminar port of basecoat's Dialog (basecoat/src/css/components/dialog.css + site/src/docs/components/dialog.mdx).
+  * Native-element-only tier: modality, focus handling, and inert background are entirely delegated to the browser's
+  * native `<dialog>` + `showModal()`/`close()` — basecoat ships no dialog.js at all for this, and neither do we.
   *
-  * `isOpenVar` is the single source of truth; toggling it imperatively calls
-  * showModal()/close() (dialog state can't be driven by the `open` attribute
-  * alone — only showModal() gets you the backdrop + focus trap + inert page).
+  * `isOpenVar` is the single source of truth; toggling it imperatively calls showModal()/close() (dialog state can't be
+  * driven by the `open` attribute alone — only showModal() gets you the backdrop + focus trap + inert page).
   */
 object Dialog:
 

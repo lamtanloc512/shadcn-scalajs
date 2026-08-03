@@ -1,6 +1,24 @@
 {
   "mode": "adopt",
   "created": [
+    ".franky/memory/summaries/",
+    ".franky/AGENTS.franky.md",
+    ".franky/specs/",
+    ".franky/specs/PROJECT.md",
+    ".franky/scripts.toml",
+    "scripts/setup",
+    "scripts/build",
+    "scripts/lint",
+    "scripts/test",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
+    ".franky/hooks.claude.md",
+    ".devcontainer/devcontainer.json",
+    "scripts/visual"
+  ],
+  "skipped": [
     ".franky/config.toml",
     ".franky/scope.toml",
     ".franky/memory/PROGRESS.md",
@@ -8,77 +26,61 @@
     ".franky/memory/decisions.log",
     ".franky/hooks.enabled",
     ".franky/targets.toml",
-    ".franky/memory/summaries/",
     ".franky/base/instructions.md",
     ".franky/franky.lock",
     ".franky/AGENT-GUIDE.md",
-    ".franky/BOOTSTRAP.md",
     ".franky/bootstrap.json",
     ".cursor/skills/franky/SKILL.md",
-    "AGENTS.md",
-    "specs/",
-    "specs/PROJECT.md",
     ".franky/commands.toml",
-    ".franky/scripts.toml",
-    "scripts/lint",
     ".franky/tools/mcp.base.json",
     ".franky/tools/mcp.json",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
-    ".franky/hooks.claude.md",
     ".franky/environments/local.toml",
     ".franky/environments/sandbox.toml",
     ".franky/base/agents/planner.md",
     ".franky/base/agents/coder.md",
     ".franky/base/agents/reviewer.md",
     ".franky/container/Dockerfile.base",
-    ".devcontainer/devcontainer.json",
-    "scripts/visual",
     ".franky/visual-runner.mjs"
   ],
-  "skipped": [],
   "merged": [],
   "needs_manual": [
-    "scripts/build",
-    "scripts/test"
+    "AGENTS.md"
   ],
   "actions": [
     {
       "path": ".franky/config.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/scope.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/memory/PROGRESS.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/workspace.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/memory/decisions.log",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/hooks.enabled",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/targets.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/memory/summaries/",
@@ -87,53 +89,53 @@
     },
     {
       "path": ".franky/base/instructions.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/franky.lock",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/AGENT-GUIDE.md",
-      "action": "create",
-      "note": null
-    },
-    {
-      "path": ".franky/BOOTSTRAP.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/bootstrap.json",
-      "action": "create",
-      "note": "pending — run franky bootstrap"
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".cursor/skills/franky/SKILL.md",
+      "action": "skip",
+      "note": "exists"
+    },
+    {
+      "path": ".franky/AGENTS.franky.md",
       "action": "create",
       "note": null
     },
     {
       "path": "AGENTS.md",
+      "action": "needs_manual",
+      "note": "append franky block from .franky/AGENTS.franky.md"
+    },
+    {
+      "path": ".franky/specs/",
       "action": "create",
       "note": null
     },
     {
-      "path": "specs/",
-      "action": "create",
-      "note": null
-    },
-    {
-      "path": "specs/PROJECT.md",
+      "path": ".franky/specs/PROJECT.md",
       "action": "create",
       "note": null
     },
     {
       "path": ".franky/commands.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/scripts.toml",
@@ -141,9 +143,14 @@
       "note": null
     },
     {
+      "path": "scripts/setup",
+      "action": "create",
+      "note": null
+    },
+    {
       "path": "scripts/build",
-      "action": "needs_manual",
-      "note": "no command inferred"
+      "action": "create",
+      "note": null
     },
     {
       "path": "scripts/lint",
@@ -152,18 +159,18 @@
     },
     {
       "path": "scripts/test",
-      "action": "needs_manual",
-      "note": "no command inferred"
+      "action": "create",
+      "note": null
     },
     {
       "path": ".franky/tools/mcp.base.json",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/tools/mcp.json",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
@@ -192,33 +199,33 @@
     },
     {
       "path": ".franky/environments/local.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/environments/sandbox.toml",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/base/agents/planner.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/base/agents/coder.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/base/agents/reviewer.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".franky/container/Dockerfile.base",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": ".devcontainer/devcontainer.json",
@@ -232,8 +239,8 @@
     },
     {
       "path": ".franky/visual-runner.mjs",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     }
   ]
 }

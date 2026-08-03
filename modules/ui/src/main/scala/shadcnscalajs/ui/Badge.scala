@@ -3,9 +3,8 @@ package shadcnscalajs.ui
 import com.raquo.laminar.api.L.*
 import shadcnscalajs.core.DataAttrs.*
 
-/** Laminar port of basecoat's `.badge` component (basecoat/src/css/components/badge.css
-  * + basecoat/src/css/styles/vega.css:292-317 — `data-variant` only, no `data-size`).
-  * Pure CSS/no-JS tier.
+/** Laminar port of basecoat's `.badge` component (basecoat/src/css/components/badge.css +
+  * basecoat/src/css/styles/vega.css:292-317 — `data-variant` only, no `data-size`). Pure CSS/no-JS tier.
   */
 object Badge:
 

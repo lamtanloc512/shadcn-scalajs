@@ -6,7 +6,7 @@ import org.scalajs.dom
 
 object Tags:
 
-  /** Not predefined in Laminar's HtmlTags. Used by webcomponents wrappers to
-    * project a custom element's light-DOM children into its shadow tree.
+  /** Not predefined in Laminar's HtmlTags. Used by webcomponents wrappers to project a custom element's light-DOM
+    * children into its shadow tree.
     */
   val slotTag: HtmlTag[dom.HTMLElement] = htmlTag("slot")

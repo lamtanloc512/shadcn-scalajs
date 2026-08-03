@@ -7,12 +7,10 @@ import shadcnscalajs.ui.DropdownMenu
 
 import scala.scalajs.js
 
-/** `<sc-dropdown-menu items='[{"label":"Profile"},{"label":"Log out"}]'>
-  *   <button slot="trigger">Open</button>
-  * </sc-dropdown-menu>` — Web Component export of shadcnscalajs.ui.DropdownMenu.
-  * The trigger is the element's light-DOM children (projected via the default
-  * slot); items are a JSON attribute since attributes are plain strings.
-  * Selecting an item fires a `select` CustomEvent with `detail: <index>`.
+/** `<sc-dropdown-menu items='[{"label":"Profile"},{"label":"Log out"}]'> <button slot="trigger">Open</button>
+  * </sc-dropdown-menu>` — Web Component export of shadcnscalajs.ui.DropdownMenu. The trigger is the element's light-DOM
+  * children (projected via the default slot); items are a JSON attribute since attributes are plain strings. Selecting
+  * an item fires a `select` CustomEvent with `detail: <index>`.
   */
 class ScDropdownMenu extends ScElementBase:
 
@@ -30,7 +28,10 @@ class ScDropdownMenu extends ScElementBase:
         val disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
         DropdownMenu.Item(
           label = label,
-          onSelect = () => this.dispatchEvent(new dom.CustomEvent("select", js.Dynamic.literal(detail = idx).asInstanceOf[dom.CustomEventInit])),
+          onSelect = () =>
+            this.dispatchEvent(
+              new dom.CustomEvent("select", js.Dynamic.literal(detail = idx).asInstanceOf[dom.CustomEventInit])
+            ),
           disabled = disabled
         )
       })

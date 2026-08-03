@@ -6,13 +6,11 @@ import shadcnscalajs.core.CommonAttrs.openAttr
 
 import scala.scalajs.js
 
-/** Laminar port of basecoat's Accordion (basecoat/src/css/components/accordion.css +
-  * basecoat/src/js/accordion.js). Native-element tier: open/close itself is free
-  * from native `<details>`/`<summary>` semantics. basecoat's own JS here only (a)
-  * closes sibling sections to enforce single-open, and (b) blocks toggling disabled
-  * sections — both reimplemented declaratively below via `openIndexVar` (single
-  * source of truth) instead of imperative DOM listening, since Laminar's
-  * `children <-- signal` re-render gives us single-open-for-free.
+/** Laminar port of basecoat's Accordion (basecoat/src/css/components/accordion.css + basecoat/src/js/accordion.js).
+  * Native-element tier: open/close itself is free from native `<details>`/`<summary>` semantics. basecoat's own JS here
+  * only (a) closes sibling sections to enforce single-open, and (b) blocks toggling disabled sections — both
+  * reimplemented declaratively below via `openIndexVar` (single source of truth) instead of imperative DOM listening,
+  * since Laminar's `children <-- signal` re-render gives us single-open-for-free.
   */
 object Accordion:
 

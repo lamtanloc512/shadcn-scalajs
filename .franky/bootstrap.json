@@ -1,6 +1,6 @@
 {
-  "status": "pending",
-  "summary": "",
+  "status": "complete",
+  "summary": "Wired real scripts/{setup,build,lint,test,serve} for the Scala.js/Laminar + Vite + Node monorepo (sbt compile/fastLinkJS, npm installs, scalafmt check + tsc typecheck, CLI init/add smoke test against the real built registry). Added .scalafmt.conf and formatted all Scala sources. Updated .franky/scripts.toml to match. AGENTS.md project rules already had full architecture/commands/gotchas from prior work this session.",
   "updated_files": [],
-  "completed_at": null
+  "completed_at": "2026-08-03T14:47:58.109853+00:00"
 }

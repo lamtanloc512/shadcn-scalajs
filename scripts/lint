@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-# franky-adapter: regenerate with `franky init --refresh-adapters`
+# franky-adapter: static analysis.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-echo 'lint: no-op'
+
+export PATH="$PATH:/Users/locgorilla/Library/Application Support/Coursier/bin"
+
+echo "lint: scalafmt check"
+sbt scalafmtCheckAll
+
+echo "lint: packages/cli typecheck"
+(cd packages/cli && npx tsc --noEmit)

@@ -8,10 +8,9 @@ import shadcnscalajs.ui.Button
 
 import scala.scalajs.js
 
-/** `<sc-button variant="outline" size="sm">Save</sc-button>` — Web Component
-  * export of shadcnscalajs.ui.Button, so plain JS/React/Vue/HTML consumers
-  * can use it without a Scala toolchain (see implementation plan's Web
-  * Component export layer section).
+/** `<sc-button variant="outline" size="sm">Save</sc-button>` — Web Component export of shadcnscalajs.ui.Button, so
+  * plain JS/React/Vue/HTML consumers can use it without a Scala toolchain (see implementation plan's Web Component
+  * export layer section).
   */
 class ScButton extends ScElementBase:
 

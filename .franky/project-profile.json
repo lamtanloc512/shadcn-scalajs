@@ -2,9 +2,16 @@
   "project_name": "shadcn-scalajs",
   "mode": "adopt",
   "stacks": [],
-  "instruction_files": [],
+  "instruction_files": [
+    "AGENTS.md"
+  ],
   "mcp_files": [],
-  "existing_scripts": [],
+  "existing_scripts": [
+    "setup",
+    "build",
+    "lint",
+    "test"
+  ],
   "makefile_targets": [],
   "package_manager": null,
   "npm_scripts": {

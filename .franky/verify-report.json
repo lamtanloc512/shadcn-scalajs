@@ -1,0 +1,27 @@
+{
+  "version": "1",
+  "passed": true,
+  "steps": [
+    {
+      "name": "setup",
+      "exit_code": 0,
+      "duration_ms": 1396
+    },
+    {
+      "name": "build",
+      "exit_code": 0,
+      "duration_ms": 12899
+    },
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "duration_ms": 10270
+    },
+    {
+      "name": "test",
+      "exit_code": 0,
+      "duration_ms": 10880
+    }
+  ],
+  "generated_at": "2026-08-03T14:53:12.611640+00:00"
+}

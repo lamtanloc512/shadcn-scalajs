@@ -39,3 +39,24 @@ sed -i '' 's/^:root {$/:root, :host {/' vendor/basecoat-vega.cdn.css
 
 (Native Laminar/light-DOM usage in `modules/site` is unaffected either way,
 since `:root` already matches there.)
+
+## Other style packs
+
+`basecoat-lyra.cdn.min.css` is the same idea, minified, for the "Lyra" style
+pack (`modules/site/index.html` currently links this one). Regenerate with:
+
+```
+cd basecoat && npx tailwindcss -i src/css/basecoat-lyra.cdn.css -o ../shadcn-scalajs/vendor/basecoat-lyra.cdn.min.css --minify
+```
+
+Minification strips whitespace, so the `:root`/`:host` patch above doesn't
+match as written — the token block becomes `:root{--radius:...}` (no space
+before `{`, no `:host`) on one line. Patch with:
+
+```
+sed -i '' 's/:root{--radius:/:root,:host{--radius:/' vendor/basecoat-lyra.cdn.min.css
+```
+
+Only Vega has been patched+committed as the non-minified variant; add the
+same pair of files (`basecoat-<name>.cdn.css` and/or `.cdn.min.css`, patched)
+for any other style pack before referencing it from a page or `ScElementBase`.

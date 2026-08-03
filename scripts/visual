@@ -28,8 +28,9 @@ if [[ ! -f "$RUNNER" ]]; then
   exit 1
 fi
 
-# Ensure dev server if scripts/serve exists
+# Ensure dev server if scripts/serve exists (native root, or franky's own)
 SERVE="scripts/serve"
+[[ -x "$SERVE" ]] || SERVE=".franky/scripts/serve"
 PORT=$(grep -E '^port\s*=' "$TARGETS" | head -1 | grep -oE '[0-9]+' || echo 3000)
 if [[ -x "$SERVE" ]]; then
   if ! curl -sf "http://127.0.0.1:${PORT}/" >/dev/null 2>&1; then
