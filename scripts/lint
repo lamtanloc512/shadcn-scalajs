@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# franky-adapter: regenerate with `franky init --refresh-adapters`
+set -euo pipefail
+cd "$(dirname "$0")/.."
+echo 'lint: no-op'

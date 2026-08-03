@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>shadcn-scalajs — plain HTML / Web Component demo</title>
+</head>
+<body>
+  <!--
+    No Scala.js entry point, no Vite, no Laminar import on this page at all —
+    just the compiled Web Component bundle loaded like any other JS library
+    (Shoelace, UI5, etc). Proves the "any frontend project can use it" story:
+    <sc-button>/<sc-badge>/<sc-dialog>/<sc-accordion>/<sc-dropdown-menu> work
+    from plain HTML/JS with zero Scala toolchain on this page.
+  -->
+  <h1>shadcn-scalajs Web Components</h1>
+  <p>This page has no Scala.js runtime beyond <code>sc-components.js</code>.</p>
+
+  <sc-button variant="primary">Primary</sc-button>
+  <sc-button variant="outline" size="sm">Outline</sc-button>
+  <sc-badge variant="destructive">New</sc-badge>
+
+  <p>
+    <button id="open-dialog" type="button">Open dialog</button>
+  </p>
+  <sc-dialog id="dialog">
+    <p>Opened from plain JS via <code>el.setAttribute('open', '')</code>, closed natively.</p>
+  </sc-dialog>
+
+  <sc-accordion
+    sections='[{"title":"What is this?","content":"A Web Component, compiled from Scala.js + Laminar."},{"title":"Any framework?","content":"Yes — React, Vue, Svelte, or plain HTML, no Scala toolchain required."}]'
+  ></sc-accordion>
+
+  <sc-dropdown-menu id="menu" items='[{"label":"Profile"},{"label":"Log out"}]'>
+    <button slot="trigger" type="button">Open menu</button>
+  </sc-dropdown-menu>
+
+  <script type="module" src="./sc-components.js"></script>
+  <script type="module">
+    document.getElementById('open-dialog').addEventListener('click', () => {
+      document.getElementById('dialog').setAttribute('open', '');
+    });
+    document.getElementById('menu').addEventListener('select', (ev) => {
+      console.log('selected index', ev.detail);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+target/
+project/project/
+project/target/
+project/metals.sbt
+.bloop/
+.metals/
+.bsp/
+node_modules/
+dist/
+modules/site/public/sc-components.js
+modules/site/public/sc-components.css

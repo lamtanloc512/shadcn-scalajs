@@ -1,0 +1,7 @@
+{
+  "name": "button",
+  "title": "Button",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Button.scala", "type": "scala:ui" }]
+}

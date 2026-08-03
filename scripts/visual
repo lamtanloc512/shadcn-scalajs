@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# franky visual verify — Playwright capture + baseline diff
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+TARGETS=".franky/targets.toml"
+if [[ ! -f "$TARGETS" ]]; then
+  echo "visual: no targets.toml" >&2
+  exit 1
+fi
+
+ENABLED=$(grep -E '^enabled\s*=' "$TARGETS" | head -1 | grep -oE 'true|false' || echo false)
+if [[ "$ENABLED" != "true" ]]; then
+  echo "visual: disabled in targets.toml" >&2
+  exit 0
+fi
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "visual: npx not found" >&2
+  exit 1
+fi
+
+mkdir -p .franky/visual .franky/baselines
+
+RUNNER=".franky/visual-runner.mjs"
+if [[ ! -f "$RUNNER" ]]; then
+  echo "visual: missing $RUNNER — run franky init or franky update" >&2
+  exit 1
+fi
+
+# Ensure dev server if scripts/serve exists
+SERVE="scripts/serve"
+PORT=$(grep -E '^port\s*=' "$TARGETS" | head -1 | grep -oE '[0-9]+' || echo 3000)
+if [[ -x "$SERVE" ]]; then
+  if ! curl -sf "http://127.0.0.1:${PORT}/" >/dev/null 2>&1; then
+    echo "visual: starting dev server on port $PORT"
+    "$SERVE" >/dev/null 2>&1 &
+    SERVE_PID=$!
+    trap 'kill $SERVE_PID 2>/dev/null || true' EXIT
+    for _ in $(seq 1 30); do
+      curl -sf "http://127.0.0.1:${PORT}/" >/dev/null 2>&1 && break
+      sleep 1
+    done
+  fi
+fi
+
+if ! npx playwright --version >/dev/null 2>&1; then
+  echo "visual: install Playwright — npm i -D @playwright/test && npx playwright install chromium" >&2
+  exit 1
+fi
+
+UPDATE=""
+[[ "${FRANKY_VISUAL_UPDATE:-}" == "1" || "${1:-}" == "--update-baseline" ]] && UPDATE="--update-baseline"
+
+exec node "$RUNNER" $UPDATE

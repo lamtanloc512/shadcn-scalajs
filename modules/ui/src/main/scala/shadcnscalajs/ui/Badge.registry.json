@@ -1,0 +1,7 @@
+{
+  "name": "badge",
+  "title": "Badge",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Badge.scala", "type": "scala:ui" }]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "dropdown-menu",
+  "title": "Dropdown Menu",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "DropdownMenu.scala", "type": "scala:ui" }]
+}

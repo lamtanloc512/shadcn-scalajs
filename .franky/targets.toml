@@ -1,0 +1,10 @@
+# Web/mobile targets (Phase 6)
+
+[web]
+enabled = false
+dev_server = "scripts/serve"
+port = 3000
+routes = ["/"]
+
+[mobile]
+enabled = false

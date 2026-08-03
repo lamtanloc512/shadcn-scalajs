@@ -1,0 +1,25 @@
+# Franky base image — web + common build tools
+FROM eclipse-temurin:21-jdk AS jdk
+
+FROM rust:1-bookworm
+
+COPY --from=jdk /opt/java/openjdk /opt/java/openjdk
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH=${JAVA_HOME}/bin:${PATH}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl jq nodejs npm python3 bubblewrap \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g bun
+
+RUN ln -sf "${JAVA_HOME}/bin/java" /usr/local/bin/java \
+    && ln -sf "${JAVA_HOME}/bin/javac" /usr/local/bin/javac \
+    && ln -sf "${JAVA_HOME}/bin/jar" /usr/local/bin/jar \
+    && ln -sf "${JAVA_HOME}/bin/keytool" /usr/local/bin/keytool
+
+RUN useradd -m -s /bin/bash franky
+WORKDIR /workspace
+USER franky
+
+ENV FRANKY_ROOT=/workspace

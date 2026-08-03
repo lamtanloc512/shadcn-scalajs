@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "button",
+  "title": "Button",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.core.DataAttrs.*\n\n/** Laminar port of basecoat's `.btn` component (basecoat/src/css/components/button.css\n  * + basecoat/src/css/styles/vega.css:20-80 for the `data-variant`/`data-size` contract).\n  * Pure CSS/no-JS tier: all visual variants come from the vendored basecoat CSS bundle —\n  * this file only emits the right element/class/attributes.\n  */\nobject Button:\n\n  enum Variant derives CanEqual:\n    case Primary, Secondary, Outline, Ghost, Destructive, Link\n\n  enum Size derives CanEqual:\n    case Default, Xs, Sm, Lg, Icon, IconXs, IconSm, IconLg\n\n  /** Direct usage: `Button(cls := \"w-full\", onClick --> observer, \"Click me\")` */\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    button(typ := \"button\", cls := \"btn\", mods)\n\n  /** Builder-style usage mirroring the `Component.of(_.prop := value, ...)` pattern\n    * already proven by laminar-shoelace / web-components-ui5 in this workspace:\n    *   Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => \"Save\")\n    */\n  def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =\n    apply(mods.map(_(ButtonApi))*)\n\n  object ButtonApi:\n    def variant(value: Variant): Modifier[HtmlElement] = dataVariant := kebabCase(value.toString)\n    def size(value: Size): Modifier[HtmlElement] = dataSize := kebabCase(value.toString)\n",
+      "type": "scala:ui",
+      "target": "ui/Button.scala"
+    }
+  ]
+}

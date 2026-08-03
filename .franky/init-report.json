@@ -1,0 +1,239 @@
+{
+  "mode": "adopt",
+  "created": [
+    ".franky/config.toml",
+    ".franky/scope.toml",
+    ".franky/memory/PROGRESS.md",
+    ".franky/workspace.toml",
+    ".franky/memory/decisions.log",
+    ".franky/hooks.enabled",
+    ".franky/targets.toml",
+    ".franky/memory/summaries/",
+    ".franky/base/instructions.md",
+    ".franky/franky.lock",
+    ".franky/AGENT-GUIDE.md",
+    ".franky/BOOTSTRAP.md",
+    ".franky/bootstrap.json",
+    ".cursor/skills/franky/SKILL.md",
+    "AGENTS.md",
+    "specs/",
+    "specs/PROJECT.md",
+    ".franky/commands.toml",
+    ".franky/scripts.toml",
+    "scripts/lint",
+    ".franky/tools/mcp.base.json",
+    ".franky/tools/mcp.json",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
+    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
+    ".franky/hooks.claude.md",
+    ".franky/environments/local.toml",
+    ".franky/environments/sandbox.toml",
+    ".franky/base/agents/planner.md",
+    ".franky/base/agents/coder.md",
+    ".franky/base/agents/reviewer.md",
+    ".franky/container/Dockerfile.base",
+    ".devcontainer/devcontainer.json",
+    "scripts/visual",
+    ".franky/visual-runner.mjs"
+  ],
+  "skipped": [],
+  "merged": [],
+  "needs_manual": [
+    "scripts/build",
+    "scripts/test"
+  ],
+  "actions": [
+    {
+      "path": ".franky/config.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/scope.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/memory/PROGRESS.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/workspace.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/memory/decisions.log",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/hooks.enabled",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/targets.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/memory/summaries/",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/base/instructions.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/franky.lock",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/AGENT-GUIDE.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/BOOTSTRAP.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/bootstrap.json",
+      "action": "create",
+      "note": "pending — run franky bootstrap"
+    },
+    {
+      "path": ".cursor/skills/franky/SKILL.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "AGENTS.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "specs/",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "specs/PROJECT.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/commands.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/scripts.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "scripts/build",
+      "action": "needs_manual",
+      "note": "no command inferred"
+    },
+    {
+      "path": "scripts/lint",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "scripts/test",
+      "action": "needs_manual",
+      "note": "no command inferred"
+    },
+    {
+      "path": ".franky/tools/mcp.base.json",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/tools/mcp.json",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
+      "action": "create",
+      "note": "hook"
+    },
+    {
+      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
+      "action": "create",
+      "note": "hook"
+    },
+    {
+      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
+      "action": "create",
+      "note": "hook"
+    },
+    {
+      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
+      "action": "create",
+      "note": "hook"
+    },
+    {
+      "path": ".franky/hooks.claude.md",
+      "action": "create",
+      "note": "Claude Code hook install guide"
+    },
+    {
+      "path": ".franky/environments/local.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/environments/sandbox.toml",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/base/agents/planner.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/base/agents/coder.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/base/agents/reviewer.md",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".franky/container/Dockerfile.base",
+      "action": "create",
+      "note": null
+    },
+    {
+      "path": ".devcontainer/devcontainer.json",
+      "action": "create",
+      "note": "written after workspace manifest"
+    },
+    {
+      "path": "scripts/visual",
+      "action": "create",
+      "note": "starter"
+    },
+    {
+      "path": ".franky/visual-runner.mjs",
+      "action": "create",
+      "note": null
+    }
+  ]
+}

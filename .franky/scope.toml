@@ -1,0 +1,10 @@
+# Default-deny permission scope — widen per session/task as needed.
+
+env = "sandbox"
+egress = []
+secrets = []
+actions = ["edit", "run_tests"]
+
+[repos]
+read = []
+write = []

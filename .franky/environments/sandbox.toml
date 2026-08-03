@@ -1,0 +1,5 @@
+name = "sandbox"
+
+endpoints = []
+secrets = []
+egress = ["registry.npmjs.org", "crates.io"]

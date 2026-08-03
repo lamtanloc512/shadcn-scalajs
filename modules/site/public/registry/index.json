@@ -1,0 +1,32 @@
+[
+  {
+    "name": "accordion",
+    "title": "Accordion",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "badge",
+    "title": "Badge",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "button",
+    "title": "Button",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "dialog",
+    "title": "Dialog",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "dropdown-menu",
+    "title": "Dropdown Menu",
+    "type": "scala:ui",
+    "registryDependencies": []
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "badge",
+  "title": "Badge",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.core.DataAttrs.*\n\n/** Laminar port of basecoat's `.badge` component (basecoat/src/css/components/badge.css\n  * + basecoat/src/css/styles/vega.css:292-317 — `data-variant` only, no `data-size`).\n  * Pure CSS/no-JS tier.\n  */\nobject Badge:\n\n  enum Variant derives CanEqual:\n    case Primary, Secondary, Outline, Destructive, Ghost, Link\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    span(cls := \"badge\", mods)\n\n  def of(mods: (BadgeApi.type => Modifier[HtmlElement])*): HtmlElement =\n    apply(mods.map(_(BadgeApi))*)\n\n  object BadgeApi:\n    def variant(value: Variant): Modifier[HtmlElement] = dataVariant := kebabCase(value.toString)\n",
+      "type": "scala:ui",
+      "target": "ui/Badge.scala"
+    }
+  ]
+}

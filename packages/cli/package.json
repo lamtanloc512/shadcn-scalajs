@@ -1,0 +1,20 @@
+{
+  "name": "shadcn-scalajs",
+  "version": "0.1.0",
+  "description": "CLI for adding shadcn-scalajs components (Scala.js + Laminar) to a project.",
+  "type": "module",
+  "bin": {
+    "shadcn-scalajs": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  }
+}

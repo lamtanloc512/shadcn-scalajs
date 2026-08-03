@@ -1,0 +1,15 @@
+# Multi-repo workspace — backend + frontend, microservices in one folder.
+# franky init --workspace  |  franky workspace discover  |  franky verify --all
+
+name = "shadcn-scalajs"
+
+# Workspace root for project paths (relative to this file, or absolute)
+root = ".."
+
+# [[projects]]
+# name = "backend"
+# path = "backend"
+# role = "service"
+# verify = true
+# git = "https://github.com/org/backend.git"
+# branch = "main"
