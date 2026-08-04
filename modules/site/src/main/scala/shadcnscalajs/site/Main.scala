@@ -1194,11 +1194,12 @@ object Main:
     val drawerOpen = Var(false)
     val dialogOpen = Var(false)
     val switchOn = Var(true)
-    val accordionOpen = Var(Option.empty[Int])
+    val previewTheme = Var(ThemeSwitcher.Theme.System)
     val pathParts = dom.window.location.pathname.stripPrefix("/components").stripPrefix("/").split("/").toList
     val componentName = pathParts.find(_.nonEmpty).getOrElse("drawer")
     val componentTitle = componentName.split("-").map(_.capitalize).mkString(" ")
     val componentDescription = componentName match
+      case "accordion" => "A vertically stacked set of interactive headings that each reveal a section of content."
       case "drawer" => "A mobile-first drawer component for Laminar."
       case "dialog" => "A modal dialog built with the native HTML dialog element."
       case "button" => "A reusable action button with shadcn/ui variants."
@@ -1252,11 +1253,25 @@ object Main:
 
     def liveExample(): HtmlElement = componentName match
       case "accordion" =>
+        val previewOpen = Var(Option(0))
         previewCanvas(
-          Accordion(
-            accordionOpen,
-            Accordion.Section("What is Laminar?", "A reactive Scala.js UI library."),
-            Accordion.Section("Does it use React?", "No.")
+          div(
+            cls := "w-full max-w-sm",
+            Accordion(
+              previewOpen,
+              Accordion.Section(
+                "What are your shipping options?",
+                "We offer standard (5-7 days), express (2-3 days), and overnight shipping. Free shipping on international orders."
+              ),
+              Accordion.Section(
+                "What is your return policy?",
+                "You can return items within 30 days of delivery. Items must be unused and in their original packaging."
+              ),
+              Accordion.Section(
+                "How can I contact customer support?",
+                "Email support@example.com or use live chat during business hours."
+              )
+            )
           )
         )
       case "alert" =>
@@ -1402,14 +1417,41 @@ object Main:
       case "native-select" =>
         previewCanvas(NativeSelect(cls := "max-w-sm", option("Choose a plan"), option("Pro"), option("Team")))
       case "popover"  => previewCanvas(Popover(Popover.trigger("Open popover"), Popover.content("Popover content")))
+      case "pagination" =>
+        previewCanvas(
+          Pagination(
+            Pagination.list(
+              Pagination.item(Pagination.link("#", false, "←")),
+              Pagination.item(Pagination.link("#", true, "1")),
+              Pagination.item(Pagination.link("#", false, "2")),
+              Pagination.item(Pagination.link("#", false, "→"))
+            )
+          )
+        )
       case "progress" => previewCanvas(Progress(68, cls := "w-full max-w-sm"))
       case "radio"    => previewCanvas(Radio("plan", checked := true), Label("Pro"), Radio("plan"), Label("Team"))
+      case "radio-group" =>
+        previewCanvas(
+          RadioGroup(
+            Label(RadioGroup.item("plan", checked := true), "Pro"),
+            Label(RadioGroup.item("plan"), "Team")
+          )
+        )
       case "range"    => previewCanvas(Range(value := "50", cls := "max-w-sm"))
       case "scrollbar" =>
         previewCanvas(
           Scrollbar(
             cls := "h-32 w-full max-w-sm rounded-md border p-3",
             p("Scrollable content"),
+            div(styleAttr := "height:12rem"),
+            p("End")
+          )
+        )
+      case "scroll-area" =>
+        previewCanvas(
+          ScrollArea(
+            cls := "h-32 w-full max-w-sm border p-3",
+            p("Scrollable content rendered by the Laminar primitive."),
             div(styleAttr := "height:12rem"),
             p("End")
           )
@@ -1424,6 +1466,8 @@ object Main:
           )
         )
       case "skeleton" => previewCanvas(Skeleton(cls := "h-20 w-full max-w-sm"))
+      case "slider"   => previewCanvas(Slider(value := "50", cls := "w-full max-w-sm"))
+      case "spinner"  => previewCanvas(Spinner())
       case "switch" =>
         previewCanvas(
           Switch(switchOn),
@@ -1445,6 +1489,7 @@ object Main:
       case "tabs" =>
         previewCanvas(Tabs(Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")), Tabs.content("Tab content")))
       case "textarea" => previewCanvas(Textarea(placeholder := "Write a message…", cls := "max-w-sm"))
+      case "theme-switcher" => previewCanvas(ThemeSwitcher(previewTheme))
       case "toast" =>
         previewCanvas(
           Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))
@@ -1460,6 +1505,14 @@ object Main:
         )
 
     val usageSource = componentName match
+      case "accordion" =>
+        """val openItem = Var(Option(0))
+
+Accordion(
+  openItem,
+  Accordion.Section("Is it accessible?", "Yes. It uses native disclosure semantics."),
+  Accordion.Section("Multiple items?", "Use Accordion.multiple with a Var[Set[Int]].")
+)"""
       case "drawer" =>
         """val isOpen = Var(false)
 
@@ -1531,7 +1584,7 @@ Switch(enabled)"""
         )
       ),
       div(
-        cls := "mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-[14rem_minmax(0,44rem)] xl:grid-cols-[14rem_minmax(0,44rem)_13rem]",
+        cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
         asideTag(
           cls := "hidden border-r lg:block",
           navTag(
@@ -1557,7 +1610,6 @@ Switch(enabled)"""
               "Card",
               "Chart",
               "Checkbox",
-              "Collapsible",
               "Combobox",
               "Command",
               "Dialog",
@@ -1565,32 +1617,34 @@ Switch(enabled)"""
               "Dropdown Menu",
               "Empty",
               "Field",
-              "Form",
               "Input",
               "Input Group",
               "Item",
               "Kbd",
               "Label",
               "Native Select",
+              "Pagination",
               "Popover",
               "Progress",
-              "Radio",
-              "Range",
-              "Scrollbar",
+              "Radio Group",
               "Select",
+              "Scroll Area",
               "Sidebar",
               "Skeleton",
+              "Slider",
+              "Spinner",
               "Switch",
               "Table",
               "Tabs",
               "Textarea",
+              "Theme Switcher",
               "Toast",
               "Tooltip"
             ).map(navLink)
           )
         ),
         mainTag(
-          cls := "min-w-0 px-5 py-10 sm:px-10 lg:px-12",
+          cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
           articleTag(
             cls := "mx-auto max-w-2xl",
             div(

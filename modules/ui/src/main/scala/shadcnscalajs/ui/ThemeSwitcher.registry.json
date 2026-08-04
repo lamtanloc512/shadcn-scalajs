@@ -1,0 +1,7 @@
+{
+  "name": "theme-switcher",
+  "title": "Theme Switcher",
+  "registryDependencies": ["native-select"],
+  "scalaDependencies": [],
+  "files": [{ "path": "ThemeSwitcher.scala", "type": "scala:ui" }]
+}

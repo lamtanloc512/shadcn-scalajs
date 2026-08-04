@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "radio-group",
+  "title": "Radio Group",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "radio"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject RadioGroup:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(role := \"radiogroup\", dataAttr(\"slot\") := \"radio-group\", mods)\n\n  def item(name: String = \"\", mods: Modifier[HtmlElement]*): HtmlElement = Radio(name, mods*)\n\n",
+      "type": "scala:ui",
+      "target": "ui/RadioGroup.scala"
+    }
+  ]
+}

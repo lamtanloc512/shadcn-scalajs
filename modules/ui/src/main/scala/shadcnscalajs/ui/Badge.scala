@@ -20,10 +20,14 @@ object Badge:
   )
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    span(cls := base, mods)
+    span(cls := s"badge cn-badge $base", mods)
 
   def of(mods: (BadgeApi.type => Modifier[HtmlElement])*): HtmlElement =
     apply(mods.map(_(BadgeApi))*)
 
   object BadgeApi:
-    def variant(value: Variant): Modifier[HtmlElement] = cls(variantClasses(value))
+    def variant(value: Variant): Modifier[HtmlElement] =
+      val name = value.toString.toLowerCase match
+        case "primary" => "primary"
+        case other     => other
+      Seq(dataAttr("variant") := name, cls(s"cn-badge-variant-$name"), cls(variantClasses(value)))

@@ -39,7 +39,7 @@ object DropdownMenu:
       }
 
     div(
-      cls := "relative inline-flex",
+      cls := "dropdown-menu relative inline-flex",
       onMountBind { ctx =>
         documentEvents(_.onMouseDown) --> { (ev: dom.MouseEvent) =>
           if isOpenVar.now() && compPath(ev).indexOf(ctx.thisNode.ref) == -1 then isOpenVar.set(false)

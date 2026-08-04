@@ -1,0 +1,7 @@
+{
+  "name": "radio-group",
+  "title": "Radio Group",
+  "registryDependencies": ["radio"],
+  "scalaDependencies": [],
+  "files": [{ "path": "RadioGroup.scala", "type": "scala:ui" }]
+}

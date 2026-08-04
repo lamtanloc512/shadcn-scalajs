@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport com.raquo.laminar.codecs.StringAsIsCodec\n\nobject Tooltip:\n  private val titleAttr = htmlAttr(\"title\", StringAsIsCodec)\n  def apply(text: String, mods: Modifier[HtmlElement]*): HtmlElement =\n    span(titleAttr := text, cls := \"cursor-help\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport com.raquo.laminar.codecs.StringAsIsCodec\n\nobject Tooltip:\n  private val titleAttr = htmlAttr(\"title\", StringAsIsCodec)\n  def apply(text: String, mods: Modifier[HtmlElement]*): HtmlElement =\n    span(titleAttr := text, dataAttr(\"tooltip\") := text, cls := \"cn-tooltip cursor-help\", mods)\n",
       "type": "scala:ui",
       "target": "ui/Tooltip.scala"
     }

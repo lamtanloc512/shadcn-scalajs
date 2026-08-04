@@ -9,9 +9,11 @@ import org.scalajs.dom
 object Dialog:
 
   def apply(isOpenVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement =
+    element(isOpenVar, "dialog")(mods*)
+
+  private[ui] def element(isOpenVar: Var[Boolean], rootClass: String)(mods: Modifier[HtmlElement]*): HtmlElement =
     dialogTag(
-      cls := "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 sm:max-w-lg",
-      styleAttr <-- isOpenVar.signal.map(open => if open then "display:grid" else "display:none"),
+      cls := rootClass,
       onMountBind { ctx =>
         isOpenVar.signal --> { (open: Boolean) =>
           val el = ctx.thisNode.ref
@@ -22,5 +24,5 @@ object Dialog:
       onClick --> { (ev: dom.MouseEvent) =>
         if ev.target == ev.currentTarget then isOpenVar.set(false)
       },
-      mods
+      div(mods)
     )

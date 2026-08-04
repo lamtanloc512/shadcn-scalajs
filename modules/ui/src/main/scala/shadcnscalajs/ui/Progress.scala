@@ -9,8 +9,8 @@ object Progress:
       aria.valueMin := 0d,
       aria.valueMax := 100d,
       aria.valueNow := value.toDouble,
-      cls := "relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
-      div(
+      cls := "progress cn-progress relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
+      span(
         cls := "h-full w-full flex-1 bg-primary transition-all",
         styleAttr := s"transform:translateX(-${100 - value}%)"
       ),

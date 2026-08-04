@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Empty:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"flex min-h-40 w-full flex-col items-center justify-center gap-6 rounded-lg border border-dashed p-6 text-center\",\n      mods\n    )\n  def header(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex max-w-sm flex-col items-center gap-2 text-center\", mods)\n  def title(mods: Modifier[HtmlElement]*): HtmlElement = h3(cls := \"text-lg font-semibold\", mods)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := \"text-sm text-muted-foreground\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Empty:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"empty flex min-h-40 w-full flex-col items-center justify-center gap-6 rounded-lg border border-dashed p-6 text-center\",\n      mods\n    )\n  def header(mods: Modifier[HtmlElement]*): HtmlElement =\n    headerTag(cls := \"flex max-w-sm flex-col items-center gap-2 text-center\", mods)\n  def title(mods: Modifier[HtmlElement]*): HtmlElement = h3(cls := \"text-lg font-semibold\", mods)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := \"text-sm text-muted-foreground\", mods)\n",
       "type": "scala:ui",
       "target": "ui/Empty.scala"
     }

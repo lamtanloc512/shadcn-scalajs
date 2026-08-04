@@ -1,11 +1,27 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./basecoat.generated.css";
+@import "./shadcn-presets.generated.css";
 
 @custom-variant dark (&:is(.dark *));
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 @theme inline {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading-token);
+  --font-mono: var(--font-code);
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,6 +64,11 @@
 }
 
 :root {
+  /* shadcn font tokens. Inter remains the default body font, while each
+     preset can override body/heading/code independently. */
+  --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading-token: var(--font-body);
+  --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0% 0 0);
@@ -87,6 +108,14 @@
    pack is scoped to the Laminar root, so changing the select updates every
    component without rebuilding the page. */
 [data-style-pack] {
+  --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading-token: var(--font-body);
+  --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-body);
+  font-size: var(--style-font-size);
+  line-height: var(--style-line-height);
+  --style-font-size: 0.875rem;
+  --style-line-height: 1.5;
   --style-card-radius: var(--radius-xl);
   --style-control-radius: var(--radius-md);
   --style-card-shadow: var(--tw-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
@@ -101,6 +130,8 @@
   --style-card-shadow: none;
   --style-card-border: 1px;
   --style-control-height: 2.125rem;
+  --style-font-size: 0.75rem;
+  --style-line-height: 1.4;
 }
 
 [data-style-pack="vega"] {
@@ -129,6 +160,8 @@
   --style-control-radius: 0.25rem;
   --style-card-shadow: none;
   --style-control-height: 2rem;
+  --style-font-size: 0.75rem;
+  --style-line-height: 1.4;
 }
 
 [data-style-pack="luma"] {
@@ -144,6 +177,8 @@
   --style-control-radius: 0.125rem;
   --style-card-shadow: none;
   --style-control-height: 2rem;
+  --style-font-size: 0.875rem;
+  --style-line-height: 1.5;
 }
 
 [data-style-pack="rhea"] {
@@ -151,6 +186,29 @@
   --style-card-radius: 1.25rem;
   --style-control-radius: 0.875rem;
   --style-card-shadow: 0 0 0 1px var(--border), 0 8px 20px rgb(0 0 0 / 0.08);
+}
+
+/* Sera is the editorial preset in shadcn v4: Noto Sans for UI copy and
+   Playfair Display for headings. */
+[data-style-pack="sera"] {
+  --font-body: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading-token: "Playfair Display Variable", "Playfair Display", Georgia, serif;
+}
+
+/* The canonical presets use the heading token explicitly. Keep editorial
+   Sera headings faithful while allowing the other packs to inherit the body
+   face. */
+[data-style-pack="sera"] h1,
+[data-style-pack="sera"] h2,
+[data-style-pack="sera"] h3,
+[data-style-pack="sera"] h4,
+[data-style-pack="sera"] h5,
+[data-style-pack="sera"] h6 {
+  font-family: var(--font-heading-token);
+}
+
+@utility font-heading {
+  font-family: var(--font-heading-token);
 }
 
 /* These selectors intentionally match the utility combinations used by the
@@ -220,6 +278,7 @@
     @apply bg-background text-foreground;
     margin: 0;
     min-width: 320px;
+    font-family: var(--font-body);
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
   }
@@ -236,5 +295,137 @@
 
   dialog::backdrop {
     background: rgb(0 0 0 / 0.45);
+  }
+}
+
+/* Basecoat component contracts. Components expose these semantic class names so
+   their structure, behavior, and style-pack treatment match basecoatui.com. */
+@layer components {
+  /* Variant utilities include a transparent base border. Keep the outline
+     variant visibly outlined across every style pack. */
+  [data-style-pack] .badge[data-variant="outline"] {
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--border) !important;
+    background-color: transparent;
+  }
+
+  .accordion {
+    @apply flex w-full flex-col;
+  }
+
+  .accordion > details > summary {
+    @apply relative flex w-full flex-1 cursor-pointer list-none items-start justify-between border border-transparent transition-all outline-none;
+  }
+
+  .accordion > details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .accordion > details > summary > svg:last-child {
+    @apply pointer-events-none shrink-0 transition-transform;
+  }
+
+  .accordion > details[open] > summary > svg:last-child {
+    @apply rotate-180;
+  }
+
+  .accordion > details[aria-disabled="true"] > summary,
+  .accordion > details > summary[aria-disabled="true"] {
+    @apply pointer-events-none opacity-50;
+  }
+
+  .accordion > details > :not(summary) {
+    @apply overflow-hidden;
+  }
+
+  [data-style-pack="lyra"] .accordion > details,
+  [data-style-pack="vega"] .accordion > details,
+  [data-style-pack="nova"] .accordion > details,
+  [data-style-pack="sera"] .accordion > details {
+    @apply not-last:border-b;
+  }
+
+  [data-style-pack="lyra"] .accordion > details > summary {
+    @apply focus-visible:ring-ring/50 focus-visible:border-ring rounded-none py-2.5 text-left text-xs font-medium hover:underline focus-visible:ring-1;
+  }
+
+  [data-style-pack="lyra"] .accordion > details > :not(summary) {
+    @apply pt-0 pb-2.5 text-xs;
+  }
+
+  [data-style-pack="vega"] .accordion > details > summary {
+    @apply focus-visible:ring-ring/50 focus-visible:border-ring rounded-md py-4 text-left text-sm font-medium hover:underline focus-visible:ring-3;
+  }
+
+  [data-style-pack="vega"] .accordion > details > :not(summary) {
+    @apply pt-0 pb-4 text-sm;
+  }
+
+  [data-style-pack="nova"] .accordion > details > summary {
+    @apply focus-visible:ring-ring/50 focus-visible:border-ring rounded-lg py-2.5 text-left text-sm font-medium hover:underline focus-visible:ring-3;
+  }
+
+  [data-style-pack="nova"] .accordion > details > :not(summary) {
+    @apply pt-0 pb-2.5 text-sm;
+  }
+
+  [data-style-pack="sera"] .accordion > details > summary {
+    @apply focus-visible:ring-ring/30 focus-visible:border-ring rounded-none gap-6 py-4 text-left text-sm font-semibold hover:underline focus-visible:ring-2;
+  }
+
+  [data-style-pack="sera"] .accordion > details > summary > svg:last-child {
+    @apply size-3.5;
+  }
+
+  [data-style-pack="sera"] .accordion > details > :not(summary) {
+    @apply pt-0 pb-4 text-sm;
+  }
+
+  [data-style-pack="lyra"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="vega"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="nova"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="maia"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="mira"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="luma"] .accordion > details > summary > svg:last-child,
+  [data-style-pack="rhea"] .accordion > details > summary > svg:last-child {
+    @apply text-muted-foreground ms-auto size-4;
+  }
+
+  [data-style-pack="maia"] .accordion,
+  [data-style-pack="luma"] .accordion,
+  [data-style-pack="rhea"] .accordion {
+    @apply overflow-hidden rounded-2xl border;
+  }
+
+  [data-style-pack="mira"] .accordion {
+    @apply overflow-hidden rounded-md border;
+  }
+
+  [data-style-pack="maia"] .accordion > details,
+  [data-style-pack="mira"] .accordion > details,
+  [data-style-pack="luma"] .accordion > details,
+  [data-style-pack="rhea"] .accordion > details {
+    @apply open:bg-muted/50 not-last:border-b;
+  }
+
+  [data-style-pack="maia"] .accordion > details > summary,
+  [data-style-pack="luma"] .accordion > details > summary,
+  [data-style-pack="rhea"] .accordion > details > summary {
+    @apply gap-6 p-4 text-left text-sm font-medium hover:underline;
+  }
+
+  [data-style-pack="maia"] .accordion > details > :not(summary),
+  [data-style-pack="luma"] .accordion > details > :not(summary),
+  [data-style-pack="rhea"] .accordion > details > :not(summary) {
+    @apply px-4 pt-0 pb-4 text-sm;
+  }
+
+  [data-style-pack="mira"] .accordion > details > summary {
+    @apply gap-6 p-2 text-left text-xs/relaxed font-medium hover:underline;
+  }
+
+  [data-style-pack="mira"] .accordion > details > :not(summary) {
+    @apply px-2 pt-0 pb-4 text-xs/relaxed;
   }
 }

@@ -1,0 +1,7 @@
+{
+  "name": "scroll-area",
+  "title": "Scroll Area",
+  "registryDependencies": ["scrollbar"],
+  "scalaDependencies": [],
+  "files": [{ "path": "ScrollArea.scala", "type": "scala:ui" }]
+}

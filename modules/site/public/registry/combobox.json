@@ -9,7 +9,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Combobox:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = Popover(mods*)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = button(\n    typ := \"button\",\n    cls := \"flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm\",\n    mods\n  )\n  def content(mods: Modifier[HtmlElement]*): HtmlElement = Popover.content(mods*)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Combobox:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = Popover(cls := \"combobox\", mods)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = button(\n    typ := \"button\",\n    cls := \"combobox-trigger flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm\",\n    mods\n  )\n  def content(mods: Modifier[HtmlElement]*): HtmlElement = Popover.content(mods*)\n",
       "type": "scala:ui",
       "target": "ui/Combobox.scala"
     }

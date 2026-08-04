@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Kbd:\n  private val kbdTag = htmlTag(\"kbd\")\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    kbdTag(\n      cls := \"pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground\",\n      mods\n    )\n  def group(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex items-center gap-1\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Kbd:\n  private val kbdTag = htmlTag(\"kbd\")\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    kbdTag(\n      cls := \"kbd pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground\",\n      mods\n    )\n  def group(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex items-center gap-1\", mods)\n",
       "type": "scala:ui",
       "target": "ui/Kbd.scala"
     }

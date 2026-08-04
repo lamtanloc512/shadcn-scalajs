@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "theme-switcher",
+  "title": "Theme Switcher",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "native-select"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject ThemeSwitcher:\n  enum Theme(val value: String) derives CanEqual:\n    case Light extends Theme(\"light\")\n    case Dark extends Theme(\"dark\")\n    case System extends Theme(\"system\")\n\n  def apply(themeVar: Var[Theme], mods: Modifier[HtmlElement]*): HtmlElement =\n    select(\n      cls := \"select theme-switcher\",\n      aria.label := \"Theme\",\n      value <-- themeVar.signal.map(_.value),\n      onChange.mapToValue --> { value =>\n        themeVar.set(Theme.values.find(_.value == value).getOrElse(Theme.System))\n      },\n      option(value := Theme.Light.value, \"Light\"),\n      option(value := Theme.Dark.value, \"Dark\"),\n      option(value := Theme.System.value, \"System\"),\n      mods\n    )\n\n",
+      "type": "scala:ui",
+      "target": "ui/ThemeSwitcher.scala"
+    }
+  ]
+}

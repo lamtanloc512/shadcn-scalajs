@@ -1,0 +1,7 @@
+{
+  "name": "slider",
+  "title": "Slider",
+  "registryDependencies": ["range"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Slider.scala", "type": "scala:ui" }]
+}

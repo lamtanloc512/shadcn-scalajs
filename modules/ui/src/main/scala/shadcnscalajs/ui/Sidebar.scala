@@ -6,7 +6,7 @@ object Sidebar:
   private val asideTag = htmlTag("aside")
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    asideTag(cls := "flex h-full w-64 flex-col border-r bg-background", mods)
+    asideTag(cls := "sidebar flex h-full w-64 flex-col border-r bg-background", mods)
   def header(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := "flex h-14 items-center border-b px-4", mods)
   def content(mods: Modifier[HtmlElement]*): HtmlElement =
     div(cls := "flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2", mods)

@@ -11,7 +11,7 @@ object Switch:
       typ := "button",
       role := "switch",
       aria.checked := "false",
-      cls := s"$base bg-input",
+      cls := s"input $base bg-input",
       span(
         cls := "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform"
       ),
@@ -23,7 +23,7 @@ object Switch:
       typ := "button",
       role := "switch",
       aria.checked <-- checkedVar.signal.map(_.toString),
-      cls := base,
+      cls := s"input $base",
       cls <-- checkedVar.signal.map(if _ then "bg-primary" else "bg-input"),
       onClick --> { _ => checkedVar.update(!_) },
       span(

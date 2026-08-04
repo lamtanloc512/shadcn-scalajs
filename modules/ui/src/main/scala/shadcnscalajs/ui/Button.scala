@@ -39,12 +39,18 @@ object Button:
 
   /** Direct usage: `Button(cls := "w-full", onClick --> observer, "Click me")` */
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    button(typ := "button", cls := base, mods)
+    button(typ := "button", cls := s"btn cn-button $base", mods)
 
   /** Builder-style: `Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Save")` */
   def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =
     apply(mods.map(_(ButtonApi))*)
 
   object ButtonApi:
-    def variant(value: Variant): Modifier[HtmlElement] = cls(variantClasses(value))
-    def size(value: Size): Modifier[HtmlElement] = cls(sizeClasses(value))
+    def variant(value: Variant): Modifier[HtmlElement] =
+      val name = value.toString.toLowerCase
+      Seq(dataAttr("variant") := name, cls(s"cn-button-variant-$name"), cls(variantClasses(value)))
+    def size(value: Size): Modifier[HtmlElement] =
+      val name = value.toString.replace("Icon", "icon-").stripSuffix("-").toLowerCase match
+        case "icon-" => "icon"
+        case other   => other
+      Seq(dataAttr("size") := name, cls(s"cn-button-size-$name"), cls(sizeClasses(value)))

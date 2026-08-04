@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Popover:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = detailsTag(cls := \"relative\", mods)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = summaryTag(cls := \"cursor-pointer list-none\", mods)\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"absolute z-50 mt-2 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none\",\n      mods\n    )\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Popover:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = detailsTag(cls := \"popover relative\", mods)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = summaryTag(cls := \"cursor-pointer list-none\", mods)\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"popover-content absolute z-50 mt-2 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none\",\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Popover.scala"
     }

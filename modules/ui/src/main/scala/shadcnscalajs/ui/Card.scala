@@ -11,27 +11,27 @@ object Card:
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
-      cls := "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
+      cls := "card cn-card flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
       mods
     )
 
   def header(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(
-      cls := "grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6",
+    headerTag(
+      cls := "cn-card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6",
       mods
     )
 
   def title(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(cls := "leading-none font-semibold", mods)
+    div(cls := "cn-card-title leading-none font-semibold", mods)
 
   def description(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(cls := "text-sm text-muted-foreground", mods)
+    div(cls := "cn-card-description text-sm text-muted-foreground", mods)
 
   def action(mods: Modifier[HtmlElement]*): HtmlElement =
     div(cls := "col-start-2 row-span-2 row-start-1 self-start justify-self-end", mods)
 
   def content(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(cls := "px-6", mods)
+    sectionTag(cls := "cn-card-content px-6", mods)
 
   def footer(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(cls := "flex items-center px-6", mods)
+    footerTag(cls := "cn-card-footer flex items-center px-6", mods)

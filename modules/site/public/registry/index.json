@@ -168,6 +168,14 @@
     "registryDependencies": []
   },
   {
+    "name": "pagination",
+    "title": "Pagination",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "button"
+    ]
+  },
+  {
     "name": "popover",
     "title": "Popover",
     "type": "scala:ui",
@@ -186,10 +194,26 @@
     "registryDependencies": []
   },
   {
+    "name": "radio-group",
+    "title": "Radio Group",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "radio"
+    ]
+  },
+  {
     "name": "range",
     "title": "Range",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "scroll-area",
+    "title": "Scroll Area",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "scrollbar"
+    ]
   },
   {
     "name": "scrollbar",
@@ -216,6 +240,20 @@
     "registryDependencies": []
   },
   {
+    "name": "slider",
+    "title": "Slider",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "range"
+    ]
+  },
+  {
+    "name": "spinner",
+    "title": "Spinner",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "switch",
     "title": "Switch",
     "type": "scala:ui",
@@ -238,6 +276,14 @@
     "title": "Textarea",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "theme-switcher",
+    "title": "Theme Switcher",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "native-select"
+    ]
   },
   {
     "name": "toast",

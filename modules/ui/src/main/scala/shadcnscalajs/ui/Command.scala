@@ -6,7 +6,7 @@ object Command:
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       role := "dialog",
-      cls := "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      cls := "command flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
       mods
     )
   def input(mods: Modifier[HtmlElement]*): HtmlElement =

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "scroll-area",
+  "title": "Scroll Area",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "scrollbar"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject ScrollArea:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"scroll-area scrollbar relative overflow-auto\", mods)\n\n",
+      "type": "scala:ui",
+      "target": "ui/ScrollArea.scala"
+    }
+  ]
+}
