@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "resizable",
+  "title": "Resizable",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport org.scalajs.dom\n\n/** shadcn/ui Resizable — a two-pane split with a drag handle, hand-rolled via document-level mouse-move/up listeners\n  * (same `documentEvents` pattern DropdownMenu uses for outside-click) rather than wrapping the\n  * `react-resizable-panels` npm package shadcn/ui uses, since there's no Scala.js equivalent to wrap. Horizontal split\n  * only — vertical is a documented follow-up, not implemented.\n  */\nobject Resizable:\n\n  /** `splitVar` is the left pane's width as a percentage (0.0-100.0), owned by the caller so it can be read or\n    * persisted if desired.\n    */\n  def horizontal(splitVar: Var[Double])(left: HtmlElement, right: HtmlElement): HtmlElement =\n    val draggingVar = Var(false)\n    val containerRef = Var(Option.empty[dom.html.Element])\n\n    def updateFromClientX(clientX: Double): Unit =\n      containerRef.now().foreach { el =>\n        val rect = el.getBoundingClientRect()\n        val pct = ((clientX - rect.left) / rect.width) * 100\n        splitVar.set(math.max(10.0, math.min(90.0, pct)))\n      }\n\n    div(\n      cls := \"flex h-full w-full\",\n      onMountCallback { ctx => containerRef.set(Some(ctx.thisNode.ref)) },\n      onMountBind { _ =>\n        documentEvents(_.onMouseMove) --> { (ev: dom.MouseEvent) =>\n          if draggingVar.now() then updateFromClientX(ev.clientX)\n        }\n      },\n      onMountBind { _ =>\n        documentEvents(_.onMouseUp) --> { _ => draggingVar.set(false) }\n      },\n      div(cls := \"overflow-auto\", styleAttr <-- splitVar.signal.map(pct => s\"width:${pct}%\"), left),\n      div(\n        cls := \"w-px shrink-0 cursor-col-resize bg-border hover:bg-ring active:bg-ring\",\n        onMouseDown --> { ev =>\n          ev.preventDefault(); draggingVar.set(true)\n        }\n      ),\n      div(cls := \"flex-1 overflow-auto\", right)\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/Resizable.scala"
+    }
+  ]
+}

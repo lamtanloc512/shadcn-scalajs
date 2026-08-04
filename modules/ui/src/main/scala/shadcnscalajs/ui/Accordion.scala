@@ -30,10 +30,14 @@ object Accordion:
       openAttr <-- openIndexVar.signal.map(_.contains(idx)),
       cls := "cn-accordion-item",
       aria.disabled := sec.disabled,
-      trigger(sec, () => openIndexVar.update {
-        case Some(`idx`) => None
-        case _           => Some(idx)
-      }),
+      trigger(
+        sec,
+        () =>
+          openIndexVar.update {
+            case Some(`idx`) => None
+            case _           => Some(idx)
+          }
+      ),
       sectionTag(cls := "cn-accordion-content cn-accordion-content-inner", sec.content)
     )
 
@@ -42,9 +46,13 @@ object Accordion:
       openAttr <-- openIndexesVar.signal.map(_.contains(idx)),
       cls := "cn-accordion-item",
       aria.disabled := sec.disabled,
-      trigger(sec, () => openIndexesVar.update { indexes =>
-        if indexes.contains(idx) then indexes - idx else indexes + idx
-      }),
+      trigger(
+        sec,
+        () =>
+          openIndexesVar.update { indexes =>
+            if indexes.contains(idx) then indexes - idx else indexes + idx
+          }
+      ),
       sectionTag(cls := "cn-accordion-content cn-accordion-content-inner", sec.content)
     )
 

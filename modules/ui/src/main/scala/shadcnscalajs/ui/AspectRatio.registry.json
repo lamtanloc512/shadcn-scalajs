@@ -1,0 +1,7 @@
+{
+  "name": "aspect-ratio",
+  "title": "Aspect Ratio",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "AspectRatio.scala", "type": "scala:ui" }]
+}

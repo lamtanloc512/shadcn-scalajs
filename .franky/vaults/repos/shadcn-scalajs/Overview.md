@@ -1,6 +1,6 @@
 ---
 tags: [franky-vault, repo-overview]
-generated_at: 2026-08-03T14:47:27.749314+00:00
+generated_at: 2026-08-04T15:04:26.668338+00:00
 ---
 
 # shadcn-scalajs
@@ -19,8 +19,6 @@ _No stack markers detected._
 - `modules/`
 - `packages/`
 - `project/`
-- `scripts/`
-- `specs/`
 
 ## Build & test
 

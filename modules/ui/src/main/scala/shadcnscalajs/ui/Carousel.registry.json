@@ -1,0 +1,7 @@
+{
+  "name": "carousel",
+  "title": "Carousel",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Carousel.scala", "type": "scala:ui" }]
+}

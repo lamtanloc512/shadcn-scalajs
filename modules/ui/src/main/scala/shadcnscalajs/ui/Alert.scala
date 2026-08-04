@@ -19,4 +19,5 @@ object Alert:
 
   def title(mods: Modifier[HtmlElement]*): HtmlElement =
     div(dataAttr("title") := "", cls := "cn-alert-title mb-1 font-medium leading-none tracking-tight", mods)
-  def description(mods: Modifier[HtmlElement]*): HtmlElement = sectionTag(cls := "cn-alert-description text-sm [&_p]:leading-relaxed", mods)
+  def description(mods: Modifier[HtmlElement]*): HtmlElement =
+    sectionTag(cls := "cn-alert-description text-sm [&_p]:leading-relaxed", mods)

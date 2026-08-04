@@ -9,7 +9,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Pagination:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    navTag(cls := \"pagination\", aria.label := \"pagination\", mods)\n\n  def list(mods: Modifier[HtmlElement]*): HtmlElement = ul(cls := \"flex items-center gap-1\", mods)\n  def item(mods: Modifier[HtmlElement]*): HtmlElement = li(mods)\n\n  def link(hrefValue: String, current: Boolean = false, mods: Modifier[HtmlElement]*): HtmlElement =\n    a(\n      href := hrefValue,\n      cls := \"btn\",\n      dataAttr(\"variant\") := (if current then \"outline\" else \"ghost\"),\n      dataAttr(\"size\") := \"icon\",\n      aria.current := (if current then \"page\" else \"false\"),\n      mods\n    )\n\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Pagination:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    navTag(cls := \"pagination\", aria.label := \"pagination\", mods)\n\n  def list(mods: Modifier[HtmlElement]*): HtmlElement = ul(cls := \"flex items-center gap-1\", mods)\n  def item(mods: Modifier[HtmlElement]*): HtmlElement = li(mods)\n\n  def link(hrefValue: String, current: Boolean = false, mods: Modifier[HtmlElement]*): HtmlElement =\n    a(\n      href := hrefValue,\n      cls := \"btn\",\n      dataAttr(\"variant\") := (if current then \"outline\" else \"ghost\"),\n      dataAttr(\"size\") := \"icon\",\n      aria.current := (if current then \"page\" else \"false\"),\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Pagination.scala"
     }

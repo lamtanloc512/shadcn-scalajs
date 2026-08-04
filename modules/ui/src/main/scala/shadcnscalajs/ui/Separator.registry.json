@@ -1,0 +1,7 @@
+{
+  "name": "separator",
+  "title": "Separator",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Separator.scala", "type": "scala:ui" }]
+}

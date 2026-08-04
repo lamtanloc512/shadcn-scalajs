@@ -1,0 +1,7 @@
+{
+  "name": "toggle",
+  "title": "Toggle",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Toggle.scala", "type": "scala:ui" }]
+}

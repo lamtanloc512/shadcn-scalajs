@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "sheet",
+  "title": "Sheet",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "dialog"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Sheet — a side panel, built on the same native `<dialog>` mechanism as Dialog/Drawer (`Dialog.element`),\n  * positioned to a side via Tailwind classes instead of Radix's animated `data-state` slide transitions.\n  */\nobject Sheet:\n\n  enum Side derives CanEqual:\n    case Top, Right, Bottom, Left\n\n  private val sideClasses: Map[Side, String] = Map(\n    Side.Right -> \"inset-y-0 right-0 left-auto m-0 h-full w-3/4 max-w-sm border-l\",\n    Side.Left -> \"inset-y-0 left-0 right-auto m-0 h-full w-3/4 max-w-sm border-r\",\n    Side.Top -> \"inset-x-0 top-0 bottom-auto m-0 w-full max-h-[80vh] border-b\",\n    Side.Bottom -> \"inset-x-0 bottom-0 top-auto m-0 w-full max-h-[80vh] border-t\"\n  )\n\n  def apply(isOpenVar: Var[Boolean], side: Side = Side.Right)(mods: Modifier[HtmlElement]*): HtmlElement =\n    Dialog.element(\n      isOpenVar,\n      s\"sheet fixed z-50 flex flex-col gap-4 bg-background p-6 shadow-lg ${sideClasses(side)}\"\n    )(mods*)\n\n  def header(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex flex-col gap-1.5\", mods)\n\n  def footer(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"mt-auto flex flex-col gap-2\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Sheet.scala"
+    }
+  ]
+}

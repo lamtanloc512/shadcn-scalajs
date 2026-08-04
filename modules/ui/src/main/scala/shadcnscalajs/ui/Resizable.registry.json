@@ -1,0 +1,7 @@
+{
+  "name": "resizable",
+  "title": "Resizable",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Resizable.scala", "type": "scala:ui" }]
+}

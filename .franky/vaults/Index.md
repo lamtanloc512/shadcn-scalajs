@@ -1,6 +1,6 @@
 ---
 tags: [franky-vault, index]
-generated_at: 2026-08-03T14:47:27.750134+00:00
+generated_at: 2026-08-04T15:04:26.668628+00:00
 ---
 
 # Repo vault

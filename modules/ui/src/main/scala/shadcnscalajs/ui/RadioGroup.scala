@@ -7,4 +7,3 @@ object RadioGroup:
     div(role := "radiogroup", dataAttr("slot") := "radio-group", mods)
 
   def item(name: String = "", mods: Modifier[HtmlElement]*): HtmlElement = Radio(name, mods*)
-

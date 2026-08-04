@@ -1,6 +1,6 @@
 # shadcn-scalajs
 
-A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with [basecoat](https://github.com/hunvreus/basecoat)'s compiled CSS (so existing shadcn/TweakCN themes work unmodified), and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it.
+A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly, and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it. Covers the full shadcn/ui catalog (~60 components; the newest AI-chat-specific additions and non-component doc pages excluded — see `.franky/memory/PROGRESS.md`), documented in a basecoat-style docs site with live previews rendered by the real Laminar components, not static screenshots.
 
 ## Quick start
 
@@ -17,16 +17,17 @@ sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS
 # publish core to local Ivy (needed by consumer projects)
 sbt core/publishLocal
 
-# run the demo site
+# run the demo/docs site — predev generates Tailwind CSS + the registry first
 cd modules/site && npm install && npm run dev
-# → http://localhost:4300/            native Laminar demo
-# → http://localhost:4300/components/drawer  component documentation + live preview
-# → http://localhost:4300/plain-html-demo.html   Web Component demo
+# → http://localhost:4300/                     landing page
+# → http://localhost:4300/components           components index
+# → http://localhost:4300/components/<name>    per-component docs + live preview
+# → http://localhost:4300/plain-html-demo.html  Web Component demo (zero Scala.js on the page)
 
 # build the CLI
 cd packages/cli && npm install && npm run build
 
-# regenerate registry JSON from modules/ui/*.registry.json
+# regenerate registry JSON from modules/ui/*.registry.json (also runs as part of predev/prebuild)
 cd modules/site && node scripts/build-registry.mjs
 ```
 
@@ -34,18 +35,19 @@ cd modules/site && node scripts/build-registry.mjs
 
 ```
 modules/
-  core/             design tokens, data-variant/data-size attribute helpers
+  core/             CommonAttrs (openAttr), Tags (slot) — styling is Tailwind classes on the components themselves
   ui/               Laminar component source of truth — one .scala + one .registry.json per component
-  webcomponents/    ScElementBase + Sc* custom-element wrappers for non-Scala consumers
-  site/             Vite dev app: Laminar landing page (Main.scala) + plain-html-demo.html + registry build script
+  webcomponents/    ScElementBase + Sc*/ScPrimitives custom-element wrappers for non-Scala consumers
+  site/             Vite + Tailwind v4 + PostCSS: Main.scala (landing + /components/:name docs) + plain-html-demo.html + generator scripts
 packages/
   cli/              Node/TS + Commander: `init` writes shadcn-scalajs.json, `add <names>` resolves deps and writes files
 vendor/
-  basecoat/         cloned basecoat repo (gitignored) — used to generate/regenerate the vendored CSS
-  basecoat-source/  reference source extracted from basecoat: CSS components, JS behavior, MDX docs, style packs
-  basecoat-vega.cdn.css     vendored, patched Vega style pack
-  basecoat-lyra.cdn.min.css vendored, patched Lyra style pack (minified)
+  basecoat/         cloned basecoat repo (gitignored) — source of the basecoat-source/ extraction
+  basecoat-source/  reference CSS/JS/docs extracted from basecoat, consumed by scripts/build-basecoat-styles.mjs
+  shadcn-source/    real shadcn/ui v4 theme presets, consumed by scripts/build-shadcn-presets.mjs
 ```
+
+No CSS is vendored pre-compiled anymore — `modules/site`'s `predev`/`prebuild` scripts generate `basecoat.generated.css`/`shadcn-presets.generated.css` from the `vendor/` snapshots on every run. See `vendor/NOTICE.md` for the full picture, including a latent Shadow-DOM bug flagged for whoever wires up the Web Component CSS bundle next.
 
 ## Consuming a component
 
@@ -78,48 +80,31 @@ libraryDependencies ++= Seq(
 <sc-button variant="outline">Click me</sc-button>
 ```
 
-Build `sc-components.js`/`.css` from `modules/webcomponents` (`sbt webcomponents/fastLinkJS`, output at `modules/webcomponents/target/scala-3.5.2/webcomponents-fastopt/main.js`) plus the CSS bundle in `vendor/basecoat-vega.cdn.css`, co-located as `sc-components.js`/`sc-components.css`.
+The Web Component bundle isn't built yet for the current component set — see `.franky/memory/PROGRESS.md`'s "Next" section. `modules/webcomponents` wraps most (not yet all) of the components in `Sc*`/`ScPrimitives` custom-element classes; `sbt webcomponents/fastLinkJS` produces the JS, but the matching `sc-components.css` Tailwind build output still needs wiring.
 
 ## Component scope
 
-The Laminar library now covers the full Basecoat component surface with direct
-Scala.js primitives and registry entries. The original five components cover
-the three architectural tiers Basecoat uses:
+All ~60 components cover three architectural tiers (matching the split basecoat itself uses):
 
-| Tier | Components | Mechanism |
+| Tier | Examples | Mechanism |
 |---|---|---|
-| Pure CSS | `Button`, `Badge` and the stateless primitives | Tailwind utility classes and native HTML semantics |
-| Native elements | `Dialog`, `Accordion` | `<dialog>` with `showModal()`/`close()`, `<details>`/`<summary>` |
-| Reactive behavior | `DropdownMenu`, `Switch` | Laminar `Var` signals and event observers |
+| Pure CSS | Button, Badge, Card, Separator, AspectRatio | Tailwind utility classes and native HTML semantics |
+| Native elements | Dialog, Sheet, Accordion, Collapsible, Popover, Combobox | `<dialog>` with `showModal()`/`close()`, `<details>`/`<summary>` |
+| Reactive behavior | DropdownMenu, ContextMenu, Menubar, Calendar, InputOTP, Resizable | Laminar `Var`/`EventBus` — no Radix-equivalent primitives library exists for Laminar |
 
-Every component follows the same distribution pattern: `.scala` in
-`modules/ui`, a `.registry.json` sidecar, and (where a native custom element
-is useful) an `Sc*` wrapper in `modules/webcomponents`.
+Every component follows the same distribution pattern: `.scala` in `modules/ui`, a `.registry.json` sidecar, a doc page under `/components/:name` in `modules/site`, and (where built) an `Sc*`/`ScPrimitives` wrapper in `modules/webcomponents`.
 
 ## Things that will bite you
 
-1. **Laminar tag-name collisions**: several HTML tags are exposed with a suffix — `sectionTag`, `detailsTag`, `summaryTag`, `dialogTag`, `menuTag`, `commandTag`. Bare `button`, `select`, `label`, `nav`, `a` work. `HtmlTag`, `DetachedRoot` need explicit imports.
-2. **`children`/other DOM-property names collide inside `ScElementBase` subclasses**: `Sc*` classes extend `dom.HTMLElement` which has a native `children` member — build the Laminar tree in a companion-object function instead.
-3. **basecoat's compiled CSS needs a one-line patch for Shadow DOM**: raw `:root { ... }` token block must become `:root, :host { ... }` or no colors render inside shadow roots. Already applied to vendored files — reapply if regenerating (see `vendor/NOTICE.md`).
-4. **Shadow DOM retargets `ev.target`**: document-level "click outside to close" checks must use `ev.composedPath()`, not `ev.target`.
-5. **`@scala-js/vite-plugin-scalajs`'s `cwd` option** is relative to the Vite project directory, not the repo root — `modules/site/vite.config.js` needs `cwd: "../.."`.
-6. **Fetching `js.Promise` chains**: `.then[String](_.text())` needs the explicit type parameter — Scala's type inference doesn't always widen on its own.
+See `AGENTS.md`'s "Things that will bite you if you don't know them" section for the full, current list (Laminar tag-name suffixes, `ScElementBase` `children` shadowing, `composedPath()` for Shadow-DOM click-outside checks, `js.Date` `Int`/`Double` mismatches, and more) — kept there rather than duplicated here since it's the file most likely to be read first by an agent picking up this repo.
 
 ## Development
 
 ```bash
-sbt ~ui/fastLinkJS          # watch & rebuild ui
+sbt ~ui/fastLinkJS            # watch & rebuild ui
 sbt ~webcomponents/fastLinkJS # watch & rebuild web components
-sbt ~site/fastLinkJS         # watch & rebuild site
+sbt ~site/fastLinkJS          # watch & rebuild site
+sbt scalafmtAll                # format before committing — franky verify checks this
 ```
 
-### Updating vendored basecoat CSS
-
-```bash
-cd vendor/basecoat
-npm install && npx tailwindcss -i src/css/basecoat-vega.cdn.css -o ../basecoat-vega.cdn.css
-# reapply Shadow DOM patch (see vendor/NOTICE.md):
-sed -i '' 's/^:root {$/:root, :host {/' ../basecoat-vega.cdn.css
-```
-
-Full provenance and patch notes: `vendor/NOTICE.md`.
+Full architecture notes, gotchas, and the new-component checklist: `AGENTS.md`. Session-by-session history: `.franky/memory/PROGRESS.md`.

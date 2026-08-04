@@ -9,7 +9,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Slider:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = Range(mods*)\n\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Slider:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = Range(mods*)\n",
       "type": "scala:ui",
       "target": "ui/Slider.scala"
     }

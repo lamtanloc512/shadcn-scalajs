@@ -21,4 +21,3 @@ object ThemeSwitcher:
       option(value := Theme.System.value, "System"),
       mods
     )
-

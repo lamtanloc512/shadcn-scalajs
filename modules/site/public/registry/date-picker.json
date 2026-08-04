@@ -1,0 +1,19 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "date-picker",
+  "title": "Date Picker",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "calendar",
+    "popover",
+    "button"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nimport scala.scalajs.js\n\n/** shadcn/ui DatePicker — a composition of a button-styled Popover trigger + Calendar, matching the canonical\n  * date-picker.tsx recipe (shadcn/ui documents this as a composition, not a separate Radix primitive, either).\n  */\nobject DatePicker:\n\n  private val monthNames = List(\n    \"January\",\n    \"February\",\n    \"March\",\n    \"April\",\n    \"May\",\n    \"June\",\n    \"July\",\n    \"August\",\n    \"September\",\n    \"October\",\n    \"November\",\n    \"December\"\n  )\n\n  def apply(selected: Var[Option[js.Date]], placeholder: String = \"Pick a date\"): HtmlElement =\n    Popover(\n      Popover.trigger(\n        cls := \"inline-flex h-9 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium shadow-xs hover:bg-accent hover:text-accent-foreground\",\n        child.text <-- selected.signal.map {\n          case Some(d) => s\"${monthNames(d.getMonth().toInt)} ${d.getDate().toInt}, ${d.getFullYear().toInt}\"\n          case None    => placeholder\n        }\n      ),\n      Popover.content(Calendar(selected))\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/DatePicker.scala"
+    }
+  ]
+}

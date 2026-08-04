@@ -1,62 +1,47 @@
-# Vendored CSS
+# Vendored source
 
-`basecoat-vega.cdn.css` is the Tailwind-compiled, dependency-free "Vega" style
-bundle from [basecoat](https://github.com/hunvreus/basecoat) (MIT License,
-copyright Ronan Berder), built from that project's
-`src/css/basecoat-vega.cdn.css` source via its own `npx tailwindcss` build
-step (see `basecoat/scripts/build.js`). It supplies shadcn-scalajs's CSS
-custom-property tokens (`--background`, `--primary`, `--ring`, etc.) and all
-component visual styling (`.btn`, `.badge`, `.dialog`, `.accordion`,
-`.dropdown-menu`, ...) — shadcn-scalajs's Scala/Laminar components emit
-markup and `data-variant`/`data-size` attributes that this stylesheet
-targets; it does not define its own CSS.
+This repo no longer vendors pre-compiled, patched CSS files (an earlier version of this
+notice described a `basecoat-vega.cdn.css` / `basecoat-lyra.cdn.min.css` patch workflow —
+that's gone, superseded by the Tailwind CSS v4 migration; see
+`.franky/memory/PROGRESS.md`'s "Basecoat → Tailwind CSS v4 migration" entry). What's here
+now is reference *source*, consumed by build-time generator scripts rather than shipped
+directly:
 
-Regenerate after upgrading the basecoat submodule/version with:
+- **`vendor/basecoat/`** — a full clone of the upstream [basecoat](https://github.com/hunvreus/basecoat)
+  git repo (MIT License, copyright Ronan Berder), kept as a raw mirror. Not read by any
+  build script directly; it's the thing `basecoat-source/` was extracted from, and where
+  you'd `git pull` to refresh that extraction.
+- **`vendor/basecoat-source/`** — curated extraction from `basecoat/`: `components/*.css`
+  (structural CSS per component, no color), `styles/*.css` (the 8 style packs — lyra,
+  vega, nova, maia, mira, luma, sera, rhea), `js/*.js`, `docs/`. Consumed by
+  `modules/site/scripts/build-basecoat-styles.mjs`, which extracts each file's
+  `@layer components { ... }` block and writes
+  `modules/site/src/styles/basecoat.generated.css` (gitignored, rebuilt on every
+  `npm run dev`/`build` via the `predev`/`prebuild` script). Regenerate the extraction
+  after pulling a newer basecoat with `npm run build:basecoat-styles` in `modules/site`.
+- **`vendor/shadcn-source/styles/`** — the real shadcn/ui v4 theme presets
+  (`style-<pack>.css`, one per style pack). Consumed by
+  `modules/site/scripts/build-shadcn-presets.mjs`, which rewrites each file's `.style-X`
+  selectors to `[data-style-pack="X"]` and writes
+  `modules/site/src/styles/shadcn-presets.generated.css` (also gitignored/regenerated).
 
-```
-cd basecoat && npm install && npx tailwindcss -i src/css/basecoat-vega.cdn.css -o ../shadcn-scalajs/vendor/basecoat-vega.cdn.css
-```
+Design tokens and per-component Tailwind utility classes live directly in
+`modules/site/src/styles/globals.css` (hand-written `@theme inline` token map +
+`:root`/`.dark` blocks copied from shadcn/ui's actual output) and in each component's own
+`.scala` file in `modules/ui` (Tailwind utility strings matching the canonical
+`button.tsx`/`badge.tsx`/etc. source) — not generated from the vendor snapshots above.
 
-**Required patch — `:root` → `:root, :host`:** basecoat's compiled output defines
-its real token *values* (`--background: oklch(1 0 0)`, etc.) under a bare
-`:root { ... }` rule. `:root` only ever matches the top-level document's
-`<html>` element, even when the stylesheet is loaded inside a Shadow Root —
-unlike `:host`, which matches the shadow host from within its own tree. Since
-every `Sc*` web-component wrapper injects this CSS into its own shadow root
-(see `ScElementBase`), the bare `:root` rule never applies there, so every
-component renders structurally correct but with no colors/tokens at all
-(discovered via live browser testing, not visible from reading the CSS or
-compiling Scala — computed styles showed `background-color: rgba(0,0,0,0)`
-instead of the expected token value). The `@theme` bridge block basecoat
-generates (`--color-background: var(--background)`, etc.) already correctly
-uses `:root, :host { ... }` — only the one raw-token block needs the same
-treatment. Regenerating from a newer basecoat version must reapply this
-one-line patch:
+## Known latent issue: `globals.css`'s `:root` won't reach a Shadow DOM
 
-```
-sed -i '' 's/^:root {$/:root, :host {/' vendor/basecoat-vega.cdn.css
-```
-
-(Native Laminar/light-DOM usage in `modules/site` is unaffected either way,
-since `:root` already matches there.)
-
-## Other style packs
-
-`basecoat-lyra.cdn.min.css` is the same idea, minified, for the "Lyra" style
-pack (`modules/site/index.html` currently links this one). Regenerate with:
-
-```
-cd basecoat && npx tailwindcss -i src/css/basecoat-lyra.cdn.css -o ../shadcn-scalajs/vendor/basecoat-lyra.cdn.min.css --minify
-```
-
-Minification strips whitespace, so the `:root`/`:host` patch above doesn't
-match as written — the token block becomes `:root{--radius:...}` (no space
-before `{`, no `:host`) on one line. Patch with:
-
-```
-sed -i '' 's/:root{--radius:/:root,:host{--radius:/' vendor/basecoat-lyra.cdn.min.css
-```
-
-Only Vega has been patched+committed as the non-minified variant; add the
-same pair of files (`basecoat-<name>.cdn.css` and/or `.cdn.min.css`, patched)
-for any other style pack before referencing it from a page or `ScElementBase`.
+`globals.css:66` defines the real design-token values under a bare `:root { ... }` rule.
+`:root` only ever matches the top-level document's `<html>` element — even from inside a
+stylesheet loaded in a Shadow Root, only `:host` matches the shadow host. This bit the
+project once already (see `.franky/memory/decisions.log` / earlier git history for the
+basecoat-CSS-era version of this bug) and **will bite again** the moment
+`modules/webcomponents`' `sc-components.css` bundle (currently unbuilt — see
+`.franky/memory/PROGRESS.md` "Next") is wired up to inject this same token set into each
+`Sc*` component's shadow root: every Web Component will render structurally correct but
+completely uncolored, no error, just `getComputedStyle(...).backgroundColor` silently
+returning transparent. Whoever wires up `sc-components.css` needs to either duplicate the
+`:root` block's declarations under `:host` too, or generate a shadow-root-safe variant of
+`globals.css` as part of that build step.

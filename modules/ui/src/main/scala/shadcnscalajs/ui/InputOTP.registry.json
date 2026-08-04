@@ -1,0 +1,7 @@
+{
+  "name": "input-otp",
+  "title": "Input OTP",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "InputOTP.scala", "type": "scala:ui" }]
+}

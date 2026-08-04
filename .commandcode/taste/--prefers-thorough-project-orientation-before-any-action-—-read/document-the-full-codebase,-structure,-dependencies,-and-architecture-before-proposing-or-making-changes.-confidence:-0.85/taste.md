@@ -7,3 +7,4 @@
 - Prefers minimizing dependency layers — willing to take on significant rewrites to eliminate intermediate dependencies that merely wrap another dependency (e.g., dropping basecoat to use Tailwind directly). Confidence: 0.75
 - Prefers aligning with established ecosystem conventions (e.g., shadcn-svelte's direct-Tailwind approach) over maintaining a divergent tooling path, even when the current approach already works. Confidence: 0.70
 - When porting a UI site from a reference implementation, expects visual fidelity to the reference — the output should closely match the reference's layout, design, and polish, not merely be functionally equivalent. Confidence: 0.75
+- Prefers splitting large monolithic page files into smaller, modular chunk files that can be imported/called, rather than keeping everything in a single giant source file. Confidence: 0.75

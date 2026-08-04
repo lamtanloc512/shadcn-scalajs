@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "context-menu",
+  "title": "Context Menu",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport org.scalajs.dom\n\nimport scala.scalajs.js\n\n/** shadcn/ui ContextMenu — right-click-triggered menu, positioned at the cursor. Same hand-rolled Var/EventBus approach\n  * as DropdownMenu (no Radix equivalent exists for Laminar), triggered by `contextmenu` instead of `click` and\n  * positioned via fixed left/top coordinates instead of anchored under a trigger button.\n  */\nobject ContextMenu:\n\n  final case class Item(label: String, onSelect: () => Unit, disabled: Boolean = false)\n\n  private val onContextMenuEvt: EventProp[dom.MouseEvent] = eventProp(\"contextmenu\")\n\n  def apply(items: Item*)(mods: Modifier[HtmlElement]*): HtmlElement =\n    val isOpenVar = Var(false)\n    val posVar = Var((0.0, 0.0))\n\n    def compPath(ev: dom.Event): js.Array[dom.EventTarget] =\n      ev.asInstanceOf[js.Dynamic].composedPath().asInstanceOf[js.Array[dom.EventTarget]]\n\n    div(\n      cls := \"relative\",\n      mods,\n      onContextMenuEvt --> { (ev: dom.MouseEvent) =>\n        ev.preventDefault()\n        posVar.set((ev.clientX, ev.clientY))\n        isOpenVar.set(true)\n      },\n      onMountBind { ctx =>\n        documentEvents(_.onMouseDown) --> { (ev: dom.MouseEvent) =>\n          if isOpenVar.now() && compPath(ev).indexOf(ctx.thisNode.ref) == -1 then isOpenVar.set(false)\n        }\n      },\n      div(\n        role := \"menu\",\n        cls := \"fixed z-50 min-w-[10rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md\",\n        display <-- isOpenVar.signal.map(open => if open then \"block\" else \"none\"),\n        styleAttr <-- posVar.signal.map { case (x, y) => s\"left:${x}px; top:${y}px\" },\n        items.zipWithIndex.map { case (item, idx) =>\n          div(\n            role := \"menuitem\",\n            cls := \"relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50\",\n            aria.disabled := item.disabled,\n            item.label,\n            onClick --> { _ => if !item.disabled then { item.onSelect(); isOpenVar.set(false) } }\n          )\n        }\n      )\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/ContextMenu.scala"
+    }
+  ]
+}

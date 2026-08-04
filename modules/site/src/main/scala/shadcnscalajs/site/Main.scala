@@ -5,6 +5,8 @@ import com.raquo.laminar.codecs.StringAsIsCodec
 import org.scalajs.dom
 import shadcnscalajs.ui.*
 
+import scala.scalajs.js
+
 object Main:
 
   private val viewBoxA = htmlAttr("viewBox", StringAsIsCodec)
@@ -31,7 +33,11 @@ object Main:
   private lazy val olEl = htmlTag[dom.HTMLElement]("ol")
 
   def main(args: Array[String]): Unit =
-    val page = if dom.window.location.pathname.startsWith("/components") then componentDocsPage() else app()
+    val pathname = dom.window.location.pathname
+    val page =
+      if pathname == "/components" || pathname == "/components/" then componentsGalleryPage()
+      else if pathname.startsWith("/components/") then componentDocsPage()
+      else app()
     render(dom.document.getElementById("root"), page)
 
   // ── SVG Icons ──
@@ -139,6 +145,75 @@ object Main:
     "100000101101000011001",
     "111111101011101101111"
   )
+
+  /** Every component with a doc page, in sidebar/prev-next order. Single source of truth for the sidebar nav, prev/next
+    * footer links, and (eventually) the components gallery index — add a display name here when porting a new
+    * component; `liveExample()`'s `case _` placeholder covers it until a real preview case is added.
+    */
+  private val componentNavList: List[String] = List(
+    "Accordion",
+    "Alert",
+    "Alert Dialog",
+    "Aspect Ratio",
+    "Avatar",
+    "Badge",
+    "Breadcrumb",
+    "Button",
+    "Button Group",
+    "Calendar",
+    "Card",
+    "Carousel",
+    "Chart",
+    "Checkbox",
+    "Collapsible",
+    "Combobox",
+    "Command",
+    "Context Menu",
+    "Date Picker",
+    "Dialog",
+    "Drawer",
+    "Dropdown Menu",
+    "Empty",
+    "Field",
+    "Form",
+    "Hover Card",
+    "Input",
+    "Input Group",
+    "Input OTP",
+    "Item",
+    "Kbd",
+    "Label",
+    "Menubar",
+    "Native Select",
+    "Navigation Menu",
+    "Pagination",
+    "Popover",
+    "Progress",
+    "Radio",
+    "Radio Group",
+    "Range",
+    "Resizable",
+    "Scroll Area",
+    "Scrollbar",
+    "Select",
+    "Separator",
+    "Sheet",
+    "Sidebar",
+    "Skeleton",
+    "Slider",
+    "Spinner",
+    "Switch",
+    "Table",
+    "Tabs",
+    "Textarea",
+    "Theme Switcher",
+    "Toast",
+    "Toggle",
+    "Toggle Group",
+    "Tooltip"
+  )
+
+  private def slugify(name: String): String = name.toLowerCase.replace(' ', '-')
 
   // shadcn/ui button classes — repeated inline for readability
   private def btnPrimary =
@@ -1200,13 +1275,18 @@ object Main:
     val componentTitle = componentName.split("-").map(_.capitalize).mkString(" ")
     val componentDescription = componentName match
       case "accordion" => "A vertically stacked set of interactive headings that each reveal a section of content."
-      case "drawer" => "A mobile-first drawer component for Laminar."
-      case "dialog" => "A modal dialog built with the native HTML dialog element."
-      case "button" => "A reusable action button with shadcn/ui variants."
-      case "switch" => "A reactive boolean control backed by a Laminar Var."
-      case _        => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
+      case "drawer"    => "A mobile-first drawer component for Laminar."
+      case "dialog"    => "A modal dialog built with the native HTML dialog element."
+      case "button"    => "A reusable action button with shadcn/ui variants."
+      case "switch"    => "A reactive boolean control backed by a Laminar Var."
+      case _           => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
 
     dom.document.title = s"$componentTitle – shadcn-scalajs"
+
+    val navIndex = componentNavList.indexWhere(name => slugify(name) == componentName)
+    val prevEntry = if navIndex > 0 then Some(componentNavList(navIndex - 1)) else None
+    val nextEntry =
+      if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
 
     def codeBlock(language: String, source: String): HtmlElement =
       div(
@@ -1224,7 +1304,7 @@ object Main:
       )
 
     def navLink(name: String): HtmlElement =
-      val slug = name.toLowerCase.replace(' ', '-')
+      val slug = slugify(name)
       a(
         href := s"/components/$slug",
         cls := s"block rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${if slug == componentName then "bg-accent font-medium text-accent-foreground" else "text-muted-foreground"}",
@@ -1416,7 +1496,7 @@ object Main:
       case "label" => previewCanvas(Label("Email address"), Input(placeholder := "you@example.com", cls := "max-w-sm"))
       case "native-select" =>
         previewCanvas(NativeSelect(cls := "max-w-sm", option("Choose a plan"), option("Pro"), option("Team")))
-      case "popover"  => previewCanvas(Popover(Popover.trigger("Open popover"), Popover.content("Popover content")))
+      case "popover" => previewCanvas(Popover(Popover.trigger("Open popover"), Popover.content("Popover content")))
       case "pagination" =>
         previewCanvas(
           Pagination(
@@ -1437,7 +1517,7 @@ object Main:
             Label(RadioGroup.item("plan"), "Team")
           )
         )
-      case "range"    => previewCanvas(Range(value := "50", cls := "max-w-sm"))
+      case "range" => previewCanvas(Range(value := "50", cls := "max-w-sm"))
       case "scrollbar" =>
         previewCanvas(
           Scrollbar(
@@ -1488,13 +1568,102 @@ object Main:
         )
       case "tabs" =>
         previewCanvas(Tabs(Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")), Tabs.content("Tab content")))
-      case "textarea" => previewCanvas(Textarea(placeholder := "Write a message…", cls := "max-w-sm"))
+      case "textarea"       => previewCanvas(Textarea(placeholder := "Write a message…", cls := "max-w-sm"))
       case "theme-switcher" => previewCanvas(ThemeSwitcher(previewTheme))
       case "toast" =>
         previewCanvas(
           Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))
         )
       case "tooltip" => previewCanvas(Tooltip("Helpful context", span("Hover me")))
+      case "aspect-ratio" =>
+        previewCanvas(
+          div(
+            cls := "w-full max-w-sm",
+            AspectRatio(
+              16.0 / 9.0,
+              div(cls := "flex size-full items-center justify-center rounded-md bg-muted", "16:9")
+            )
+          )
+        )
+      case "calendar" => previewCanvas(Calendar(Var(Option.empty[js.Date])))
+      case "carousel" =>
+        previewCanvas(
+          div(
+            cls := "w-full max-w-sm",
+            Carousel(
+              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 1"),
+              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 2"),
+              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 3")
+            )
+          )
+        )
+      case "context-menu" =>
+        previewCanvas(
+          ContextMenu(ContextMenu.Item("Back", () => ()), ContextMenu.Item("Reload", () => ()))(
+            div(
+              cls := "flex h-32 w-64 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground",
+              "Right click here"
+            )
+          )
+        )
+      case "date-picker" => previewCanvas(DatePicker(Var(Option.empty[js.Date])))
+      case "hover-card" =>
+        previewCanvas(HoverCard(HoverCard.trigger("Hover me"), HoverCard.content(p("Laminar hover card content."))))
+      case "input-otp" => previewCanvas(InputOTP(Var("")))
+      case "menubar" =>
+        previewCanvas(
+          Menubar(
+            Menubar.menu("File")(DropdownMenu.Item("New", () => ()), DropdownMenu.Item("Open", () => ())),
+            Menubar.menu("Edit")(DropdownMenu.Item("Undo", () => ()), DropdownMenu.Item("Redo", () => ()))
+          )
+        )
+      case "navigation-menu" =>
+        previewCanvas(
+          NavigationMenu(
+            NavigationMenu.list(
+              NavigationMenu.item(
+                NavigationMenu.trigger("Docs"),
+                NavigationMenu.content(p(cls := "text-sm", "Getting started guides."))
+              )
+            )
+          )
+        )
+      case "resizable" =>
+        previewCanvas(
+          div(
+            cls := "h-32 w-full max-w-sm",
+            Resizable.horizontal(Var(50.0))(
+              div(cls := "flex h-full items-center justify-center bg-muted", "Left"),
+              div(cls := "flex h-full items-center justify-center bg-muted", "Right")
+            )
+          )
+        )
+      case "separator" =>
+        previewCanvas(
+          div(
+            cls := "flex w-full max-w-sm flex-col gap-4",
+            p(cls := "text-sm", "Section one"),
+            Separator(),
+            p(cls := "text-sm", "Section two")
+          )
+        )
+      case "sheet" =>
+        previewCanvas(
+          Button(onClick --> { _ => drawerOpen.set(true) }, "Open Sheet"),
+          Sheet(drawerOpen)(
+            Sheet.header(h2(cls := "text-lg font-semibold", "Edit profile")),
+            Sheet.footer(Button(onClick --> { _ => drawerOpen.set(false) }, "Save"))
+          )
+        )
+      case "toggle" => previewCanvas(Toggle(Var(false), Toggle.Variant.Default, Toggle.Size.Default, "B"))
+      case "toggle-group" =>
+        previewCanvas(
+          ToggleGroup.single(
+            Var(Option("bold")),
+            ToggleGroup.Item("bold", "B"),
+            ToggleGroup.Item("italic", "I")
+          )
+        )
       case _ =>
         previewCanvas(
           Alert(
@@ -1504,14 +1673,79 @@ object Main:
           )
         )
 
+    // Kept in exact 1:1 correspondence with liveExample()'s cases (same match, same order) so the code shown here is
+    // always what actually produced the preview above it — update both together when changing a preview.
     val usageSource = componentName match
       case "accordion" =>
         """val openItem = Var(Option(0))
 
 Accordion(
   openItem,
-  Accordion.Section("Is it accessible?", "Yes. It uses native disclosure semantics."),
-  Accordion.Section("Multiple items?", "Use Accordion.multiple with a Var[Set[Int]].")
+  Accordion.Section("What are your shipping options?", "We offer standard, express, and overnight shipping."),
+  Accordion.Section("What is your return policy?", "Items can be returned within 30 days of delivery.")
+)"""
+      case "alert" =>
+        """Alert(Alert.Variant.Default, Alert.title("Heads up"), Alert.description("Your changes have been saved."))"""
+      case "alert-dialog" =>
+        """val isOpen = Var(false)
+
+Button(onClick --> { _ => isOpen.set(true) }, "Open alert dialog")
+
+AlertDialog(isOpen)(
+  AlertDialog.title("Delete project?"),
+  AlertDialog.description("This action cannot be undone."),
+  AlertDialog.footer(Button(onClick --> { _ => isOpen.set(false) }, "Cancel"))
+)"""
+      case "avatar" => """Avatar(Avatar.fallback("LS"))"""
+      case "badge" =>
+        """Badge("New")
+Badge.of(_.variant(Badge.Variant.Secondary), _ => "Beta")
+Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")"""
+      case "breadcrumb" =>
+        """Breadcrumb(
+  Breadcrumb.list(
+    Breadcrumb.item(Breadcrumb.link("/", "Home")),
+    Breadcrumb.separator(),
+    Breadcrumb.item("Components")
+  )
+)"""
+      case "button" =>
+        """Button("Primary")
+Button.of(_.variant(Button.Variant.Outline), _ => "Outline")
+Button.of(_.variant(Button.Variant.Destructive), _ => "Delete")"""
+      case "button-group" =>
+        """ButtonGroup(
+  Button.of(_.variant(Button.Variant.Outline), _ => "Back"),
+  Button.of(_.variant(Button.Variant.Outline), _ => "Next")
+)"""
+      case "card" =>
+        """Card(
+  Card.header(Card.title("Project update"), Card.description("A Card composed from Laminar primitives.")),
+  Card.content("Your latest deployment is ready.")
+)"""
+      case "chart"    => """Chart("Chart preview")"""
+      case "checkbox" => """Checkbox()
+Label("Accept terms")"""
+      case "collapsible" =>
+        """Collapsible(
+  Collapsible.trigger("Show details"),
+  Collapsible.content(p("This is native details content."))
+)"""
+      case "combobox" => """Combobox(Combobox.trigger("Choose a framework"), Combobox.content("Laminar"))"""
+      case "command" =>
+        """Command(
+  Command.input(placeholder := "Search…"),
+  Command.list(Command.item("Open settings"), Command.item("Create project"))
+)"""
+      case "dialog" =>
+        """val isOpen = Var(false)
+
+Button(onClick --> { _ => isOpen.set(true) }, "Open dialog")
+
+Dialog(isOpen)(
+  h2("Dialog"),
+  p("Native HTML dialog."),
+  Button(onClick --> { _ => isOpen.set(false) }, "Close")
 )"""
       case "drawer" =>
         """val isOpen = Var(false)
@@ -1519,18 +1753,169 @@ Accordion(
 Button(onClick --> { _ => isOpen.set(true) }, "Open Drawer")
 
 Drawer(isOpen)(
-  Drawer.header(
-    h2("Edit profile"),
-    p("Make changes to your profile.")
-  ),
+  Drawer.header(h2("Edit profile"), p("Make changes to your public profile.")),
   Drawer.footer(
-    Button(onClick --> { _ => isOpen.set(false) }, "Save")
+    Button.of(_.variant(Button.Variant.Outline), _ => "Cancel"),
+    Button(onClick --> { _ => isOpen.set(false) }, "Save changes")
   )
 )"""
-      case "switch" => """val enabled = Var(true)
+      case "dropdown-menu" =>
+        """DropdownMenu("Open menu")(
+  DropdownMenu.Item("Profile", () => ()),
+  DropdownMenu.Item("Settings", () => ())
+)"""
+      case "empty" =>
+        """Empty(
+  Empty.header(Empty.title("No projects"), Empty.description("Create your first project to get started."))
+)"""
+      case "field" =>
+        """Field(
+  Field.label("Email"),
+  Input(placeholder := "you@example.com"),
+  Field.description("We will never share your email.")
+)"""
+      case "form" =>
+        """Form(
+  Form.item(Form.label("Email"), Input(placeholder := "you@example.com")),
+  Button("Submit")
+)"""
+      case "input" => """Input(placeholder := "Type something…")"""
+      case "input-group" =>
+        """InputGroup(
+  InputGroup.addon("https://"),
+  Input(placeholder := "example.com")
+)"""
+      case "item" =>
+        """Item(
+  Item.content(Item.title("Laminar"), Item.description("Reactive Scala.js UI")),
+  Item.actions(Badge("Stable"))
+)"""
+      case "kbd"           => """Kbd("⌘K")
+Kbd.group(Kbd("⌘"), Kbd("P"))"""
+      case "label"         => """Label("Email address")
+Input(placeholder := "you@example.com")"""
+      case "native-select" => """NativeSelect(option("Choose a plan"), option("Pro"), option("Team"))"""
+      case "popover"       => """Popover(Popover.trigger("Open popover"), Popover.content("Popover content"))"""
+      case "pagination" =>
+        """Pagination(
+  Pagination.list(
+    Pagination.item(Pagination.link("#", false, "←")),
+    Pagination.item(Pagination.link("#", true, "1")),
+    Pagination.item(Pagination.link("#", false, "2")),
+    Pagination.item(Pagination.link("#", false, "→"))
+  )
+)"""
+      case "progress" => """Progress(68)"""
+      case "radio"    => """Radio("plan", checked := true)
+Label("Pro")
+Radio("plan")
+Label("Team")"""
+      case "radio-group" =>
+        """RadioGroup(
+  Label(RadioGroup.item("plan", checked := true), "Pro"),
+  Label(RadioGroup.item("plan"), "Team")
+)"""
+      case "range" => """Range(value := "50")"""
+      case "scrollbar" =>
+        """Scrollbar(
+  p("Scrollable content"),
+  div(styleAttr := "height:12rem"),
+  p("End")
+)"""
+      case "scroll-area" =>
+        """ScrollArea(
+  p("Scrollable content rendered by the Laminar primitive."),
+  div(styleAttr := "height:12rem"),
+  p("End")
+)"""
+      case "select" => """Select(option("Choose a plan"), option("Pro"), option("Team"))"""
+      case "sidebar" =>
+        """Sidebar(
+  Sidebar.header("Navigation"),
+  Sidebar.content(Sidebar.menu(Sidebar.menuItem("Overview"), Sidebar.menuItem("Settings")))
+)"""
+      case "skeleton" => """Skeleton(cls := "h-20 w-full")"""
+      case "slider"   => """Slider(value := "50")"""
+      case "spinner"  => """Spinner()"""
+      case "switch"   => """val enabled = Var(true)
 Switch(enabled)"""
-      case "input"  => """Input(placeholder := "Email address")"""
-      case _        => s"""$componentTitle(/* Laminar modifiers */)"""
+      case "table" =>
+        """Table(
+  Table.header(Table.row(Table.head("Component"), Table.head("Status"))),
+  Table.body(
+    Table.row(Table.cell("Drawer"), Table.cell(Badge("Ready"))),
+    Table.row(Table.cell("Dialog"), Table.cell(Badge.of(_.variant(Badge.Variant.Secondary), _ => "Native")))
+  )
+)"""
+      case "tabs" =>
+        """Tabs(Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")), Tabs.content("Tab content"))"""
+      case "textarea"       => """Textarea(placeholder := "Write a message…")"""
+      case "theme-switcher" => """val theme = Var(ThemeSwitcher.Theme.System)
+ThemeSwitcher(theme)"""
+      case "toast" =>
+        """Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))"""
+      case "tooltip" => """Tooltip("Helpful context", span("Hover me"))"""
+      case "aspect-ratio" =>
+        """AspectRatio(16.0 / 9.0, div(cls := "bg-muted flex items-center justify-center", "16:9"))"""
+      case "calendar" => """val selected = Var(Option.empty[js.Date])
+Calendar(selected)"""
+      case "carousel" =>
+        """Carousel(
+  div("Slide 1"),
+  div("Slide 2"),
+  div("Slide 3")
+)"""
+      case "context-menu" =>
+        """ContextMenu(ContextMenu.Item("Back", () => ()), ContextMenu.Item("Reload", () => ()))(
+  div("Right click here")
+)"""
+      case "date-picker" => """val selected = Var(Option.empty[js.Date])
+DatePicker(selected)"""
+      case "hover-card" =>
+        """HoverCard(
+  HoverCard.trigger("Hover me"),
+  HoverCard.content(p("Laminar hover card content."))
+)"""
+      case "input-otp" => """val code = Var("")
+InputOTP(code)"""
+      case "menubar" =>
+        """Menubar(
+  Menubar.menu("File")(DropdownMenu.Item("New", () => ()), DropdownMenu.Item("Open", () => ())),
+  Menubar.menu("Edit")(DropdownMenu.Item("Undo", () => ()), DropdownMenu.Item("Redo", () => ()))
+)"""
+      case "navigation-menu" =>
+        """NavigationMenu(
+  NavigationMenu.list(
+    NavigationMenu.item(
+      NavigationMenu.trigger("Docs"),
+      NavigationMenu.content(p("Getting started guides."))
+    )
+  )
+)"""
+      case "resizable" =>
+        """val split = Var(50.0)
+Resizable.horizontal(split)(div("Left"), div("Right"))"""
+      case "separator" => """p("Section one")
+Separator()
+p("Section two")"""
+      case "sheet" =>
+        """val isOpen = Var(false)
+
+Button(onClick --> { _ => isOpen.set(true) }, "Open Sheet")
+
+Sheet(isOpen)(
+  Sheet.header(h2("Edit profile")),
+  Sheet.footer(Button(onClick --> { _ => isOpen.set(false) }, "Save"))
+)"""
+      case "toggle" => """val pressed = Var(false)
+Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
+      case "toggle-group" =>
+        """ToggleGroup.single(
+  Var(Option("bold")),
+  ToggleGroup.Item("bold", "B"),
+  ToggleGroup.Item("italic", "I")
+)"""
+      case _ => s"""$componentTitle(/* Laminar modifiers */)"""
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
@@ -1598,49 +1983,7 @@ Switch(enabled)"""
             ),
             a(href := "/components", cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium", "Components"),
             p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
-            List(
-              "Accordion",
-              "Alert",
-              "Alert Dialog",
-              "Avatar",
-              "Badge",
-              "Breadcrumb",
-              "Button",
-              "Button Group",
-              "Card",
-              "Chart",
-              "Checkbox",
-              "Combobox",
-              "Command",
-              "Dialog",
-              "Drawer",
-              "Dropdown Menu",
-              "Empty",
-              "Field",
-              "Input",
-              "Input Group",
-              "Item",
-              "Kbd",
-              "Label",
-              "Native Select",
-              "Pagination",
-              "Popover",
-              "Progress",
-              "Radio Group",
-              "Select",
-              "Scroll Area",
-              "Sidebar",
-              "Skeleton",
-              "Slider",
-              "Spinner",
-              "Switch",
-              "Table",
-              "Tabs",
-              "Textarea",
-              "Theme Switcher",
-              "Toast",
-              "Tooltip"
-            ).map(navLink)
+            componentNavList.map(navLink)
           )
         ),
         mainTag(
@@ -1701,12 +2044,22 @@ Switch(enabled)"""
             ),
             div(
               cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
-              a(href := "/components/dialog", cls := "text-muted-foreground hover:text-foreground", "← Dialog"),
-              a(
-                href := "/components/dropdown-menu",
-                cls := "text-muted-foreground hover:text-foreground",
-                "Dropdown Menu →"
-              )
+              prevEntry match
+                case Some(name) =>
+                  a(
+                    href := s"/components/${slugify(name)}",
+                    cls := "text-muted-foreground hover:text-foreground",
+                    s"← $name"
+                  )
+                case None => emptyNode,
+              nextEntry match
+                case Some(name) =>
+                  a(
+                    href := s"/components/${slugify(name)}",
+                    cls := "text-muted-foreground hover:text-foreground",
+                    s"$name →"
+                  )
+                case None => emptyNode
             )
           )
         ),

@@ -1,0 +1,7 @@
+{
+  "name": "navigation-menu",
+  "title": "Navigation Menu",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "NavigationMenu.scala", "type": "scala:ui" }]
+}

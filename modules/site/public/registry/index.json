@@ -18,6 +18,12 @@
     "registryDependencies": []
   },
   {
+    "name": "aspect-ratio",
+    "title": "Aspect Ratio",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "avatar",
     "title": "Avatar",
     "type": "scala:ui",
@@ -48,8 +54,20 @@
     "registryDependencies": []
   },
   {
+    "name": "calendar",
+    "title": "Calendar",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "card",
     "title": "Card",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "carousel",
+    "title": "Carousel",
     "type": "scala:ui",
     "registryDependencies": []
   },
@@ -85,6 +103,22 @@
     "type": "scala:ui",
     "registryDependencies": [
       "input"
+    ]
+  },
+  {
+    "name": "context-menu",
+    "title": "Context Menu",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "date-picker",
+    "title": "Date Picker",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "calendar",
+      "popover",
+      "button"
     ]
   },
   {
@@ -130,6 +164,12 @@
     ]
   },
   {
+    "name": "hover-card",
+    "title": "Hover Card",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "input",
     "title": "Input",
     "type": "scala:ui",
@@ -142,6 +182,12 @@
     "registryDependencies": [
       "input"
     ]
+  },
+  {
+    "name": "input-otp",
+    "title": "Input OTP",
+    "type": "scala:ui",
+    "registryDependencies": []
   },
   {
     "name": "item",
@@ -162,8 +208,22 @@
     "registryDependencies": []
   },
   {
+    "name": "menubar",
+    "title": "Menubar",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "dropdown-menu"
+    ]
+  },
+  {
     "name": "native-select",
     "title": "Native Select",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "navigation-menu",
+    "title": "Navigation Menu",
     "type": "scala:ui",
     "registryDependencies": []
   },
@@ -208,6 +268,12 @@
     "registryDependencies": []
   },
   {
+    "name": "resizable",
+    "title": "Resizable",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "scroll-area",
     "title": "Scroll Area",
     "type": "scala:ui",
@@ -226,6 +292,20 @@
     "title": "Select",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "separator",
+    "title": "Separator",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "sheet",
+    "title": "Sheet",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "dialog"
+    ]
   },
   {
     "name": "sidebar",
@@ -288,6 +368,18 @@
   {
     "name": "toast",
     "title": "Toast",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "toggle",
+    "title": "Toggle",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "toggle-group",
+    "title": "Toggle Group",
     "type": "scala:ui",
     "registryDependencies": []
   },

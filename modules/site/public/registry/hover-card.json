@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "hover-card",
+  "title": "Hover Card",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui HoverCard — shown on hover rather than click, unlike Popover. Radix's HoverCard uses JS open/close delays;\n  * this uses a pure-CSS `group`/`group-hover` reveal instead, avoiding a second hand-rolled timer-based state machine\n  * for what is fundamentally a hover-triggered tooltip-like panel.\n  */\nobject HoverCard:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"group relative inline-block\", mods)\n\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = span(cls := \"cursor-pointer underline-offset-4\", mods)\n\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"invisible absolute z-50 mt-2 w-64 rounded-md border bg-popover p-4 text-popover-foreground opacity-0 shadow-md outline-none transition-opacity group-hover:visible group-hover:opacity-100\",\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/HoverCard.scala"
+    }
+  ]
+}

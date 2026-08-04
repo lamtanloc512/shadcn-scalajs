@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "toggle-group",
+  "title": "Toggle Group",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui ToggleGroup — a row of Toggle-style buttons, either single-select (bound to `Var[Option[String]]`,\n  * radio-like) or multi-select (bound to `Var[Set[String]]`).\n  */\nobject ToggleGroup:\n\n  final case class Item(value: String, label: Modifier[HtmlElement])\n\n  private val itemClasses =\n    \"inline-flex items-center justify-center gap-2 rounded-md h-9 px-2 min-w-9 text-sm font-medium hover:bg-muted hover:text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50\"\n\n  def single(selected: Var[Option[String]], items: Item*): HtmlElement =\n    div(\n      role := \"group\",\n      cls := \"flex items-center gap-1\",\n      children <-- selected.signal.map { current =>\n        items.toList.map { item =>\n          button(\n            typ := \"button\",\n            cls := itemClasses,\n            dataAttr(\"state\") := (if current.contains(item.value) then \"on\" else \"off\"),\n            onClick --> { _ => selected.set(Some(item.value)) },\n            item.label\n          )\n        }\n      }\n    )\n\n  def multiple(selected: Var[Set[String]], items: Item*): HtmlElement =\n    div(\n      role := \"group\",\n      cls := \"flex items-center gap-1\",\n      children <-- selected.signal.map { current =>\n        items.toList.map { item =>\n          button(\n            typ := \"button\",\n            cls := itemClasses,\n            dataAttr(\"state\") := (if current.contains(item.value) then \"on\" else \"off\"),\n            onClick --> { _ =>\n              selected.update(s => if s.contains(item.value) then s - item.value else s + item.value)\n            },\n            item.label\n          )\n        }\n      }\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/ToggleGroup.scala"
+    }
+  ]
+}

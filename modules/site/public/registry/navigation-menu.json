@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "navigation-menu",
+  "title": "Navigation Menu",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui NavigationMenu — a horizontal nav with hover-revealed panels, same CSS-hover approach as HoverCard\n  * (Radix's NavigationMenu tracks open/close state in JS; a `group`/`group-hover` reveal covers the common case without\n  * a second state machine).\n  */\nobject NavigationMenu:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    navTag(cls := \"relative z-10 flex max-w-max flex-1 items-center justify-center\", mods)\n\n  def list(mods: Modifier[HtmlElement]*): HtmlElement =\n    ul(cls := \"flex flex-1 list-none items-center justify-center gap-1\", mods)\n\n  def item(mods: Modifier[HtmlElement]*): HtmlElement = li(cls := \"group/item relative\", mods)\n\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement =\n    button(\n      typ := \"button\",\n      cls := \"inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground\",\n      mods\n    )\n\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"invisible absolute left-0 top-full z-50 mt-1.5 w-full min-w-64 rounded-md border bg-popover p-4 text-popover-foreground opacity-0 shadow-md transition-opacity group-hover/item:visible group-hover/item:opacity-100\",\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/NavigationMenu.scala"
+    }
+  ]
+}

@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build:basecoat-styles": "node scripts/build-basecoat-styles.mjs",
-    "predev": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs",
-    "prebuild": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs",
+    "build:registry": "node scripts/build-registry.mjs",
+    "predev": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs && npm run build:registry",
+    "prebuild": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs && npm run build:registry",
     "build": "vite build",
     "preview": "vite preview"
   },

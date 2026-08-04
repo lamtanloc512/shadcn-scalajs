@@ -1,0 +1,7 @@
+{
+  "name": "toggle-group",
+  "title": "Toggle Group",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "ToggleGroup.scala", "type": "scala:ui" }]
+}

@@ -12,7 +12,10 @@ object Table:
   private val tdTag = htmlTag("td")
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(cls := "table-container relative w-full overflow-auto", tableTag(cls := "table w-full caption-bottom text-sm", mods))
+    div(
+      cls := "table-container relative w-full overflow-auto",
+      tableTag(cls := "table w-full caption-bottom text-sm", mods)
+    )
   def header(mods: Modifier[HtmlElement]*): HtmlElement = theadTag(cls := "[&_tr]:border-b", mods)
   def body(mods: Modifier[HtmlElement]*): HtmlElement = tbodyTag(cls := "[&_tr:last-child]:border-0", mods)
   def footer(mods: Modifier[HtmlElement]*): HtmlElement =

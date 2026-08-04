@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "menubar",
+  "title": "Menubar",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "dropdown-menu"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Menubar — a horizontal row of DropdownMenu instances. Each top-level menu IS a DropdownMenu (already a\n  * fully working hand-rolled Var/EventBus dropdown); this only supplies the outer menubar chrome. Individual menu\n  * triggers keep DropdownMenu's own outline-button styling rather than a fully flattened menubar-item look — a\n  * deliberate simplification, since restyling would require DropdownMenu to expose its trigger's class list, which it\n  * doesn't yet.\n  */\nobject Menubar:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"menubar\",\n      cls := \"flex h-9 items-center gap-1 rounded-md border bg-background p-1 shadow-xs\",\n      mods\n    )\n\n  /** A single top-level menu — thin alias over DropdownMenu so call sites read as `Menubar.menu(\"File\")(...)`. */\n  def menu(trigger: Modifier[HtmlElement]*)(items: DropdownMenu.Item*): HtmlElement =\n    DropdownMenu(trigger*)(items*)\n",
+      "type": "scala:ui",
+      "target": "ui/Menubar.scala"
+    }
+  ]
+}

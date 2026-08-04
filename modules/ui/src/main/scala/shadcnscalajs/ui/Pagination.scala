@@ -18,4 +18,3 @@ object Pagination:
       aria.current := (if current then "page" else "false"),
       mods
     )
-

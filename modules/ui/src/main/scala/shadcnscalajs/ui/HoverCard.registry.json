@@ -1,0 +1,7 @@
+{
+  "name": "hover-card",
+  "title": "Hover Card",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "HoverCard.scala", "type": "scala:ui" }]
+}

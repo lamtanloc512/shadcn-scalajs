@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "input-otp",
+  "title": "Input OTP",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport org.scalajs.dom\n\n/** shadcn/ui InputOTP — a row of single-character inputs bound to a `Var[String]`, with auto-advance on input and\n  * backspace-to-previous. shadcn/ui wraps the `input-otp` npm package for masking/paste-splitting; this hand-rolls the\n  * same UX directly in Laminar since there's no Scala.js equivalent to wrap.\n  */\nobject InputOTP:\n\n  def apply(codeVar: Var[String], length: Int = 6): HtmlElement =\n    val boxRefs = scala.collection.mutable.ArrayBuffer.fill[Option[dom.html.Input]](length)(None)\n\n    def charAt(s: String, i: Int): String = if i < s.length then s.charAt(i).toString else \"\"\n\n    def setCharAt(i: Int, c: String): Unit =\n      val padded = codeVar.now().padTo(length, ' ')\n      val updated = padded.updated(i, if c.isEmpty then ' ' else c.charAt(0))\n      codeVar.set(updated.replace(\" \", \"\"))\n\n    div(\n      cls := \"flex items-center gap-2\",\n      (0 until length).map { i =>\n        input(\n          typ := \"text\",\n          inputMode := \"numeric\",\n          maxLength := 1,\n          cls := \"size-9 rounded-md border text-center text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50\",\n          value <-- codeVar.signal.map(s => charAt(s, i)),\n          onMountCallback { ctx => boxRefs(i) = Some(ctx.thisNode.ref) },\n          onInput --> { ev =>\n            val v = ev.target.asInstanceOf[dom.html.Input].value\n            setCharAt(i, v)\n            if v.nonEmpty && i < length - 1 then boxRefs(i + 1).foreach(_.focus())\n          },\n          onKeyDown --> { (ev: dom.KeyboardEvent) =>\n            if ev.key == \"Backspace\" && charAt(codeVar.now(), i).isEmpty && i > 0 then boxRefs(i - 1).foreach(_.focus())\n          }\n        )\n      }\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/InputOTP.scala"
+    }
+  ]
+}

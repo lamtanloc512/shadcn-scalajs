@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject ButtonGroup:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"button-group cn-button-group flex w-fit items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\", mods)\n  def vertical(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"button-group cn-button-group flex flex-col items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\", dataAttr(\"orientation\") := \"vertical\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject ButtonGroup:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"button-group cn-button-group flex w-fit items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\",\n      mods\n    )\n  def vertical(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"button-group cn-button-group flex flex-col items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\",\n      dataAttr(\"orientation\") := \"vertical\",\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/ButtonGroup.scala"
     }
