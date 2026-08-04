@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "form",
+  "title": "Form",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "field"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Form:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = form(cls := \"grid gap-6\", mods)\n  def item(mods: Modifier[HtmlElement]*): HtmlElement = Field(mods*)\n  def label(text: String, mods: Modifier[HtmlElement]*): HtmlElement = Field.label(text, mods*)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = Field.description(mods*)\n  def message(mods: Modifier[HtmlElement]*): HtmlElement = Field.error(mods*)\n",
+      "type": "scala:ui",
+      "target": "ui/Form.scala"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "input",
+  "title": "Input",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Input.scala", "type": "scala:ui" }]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "progress",
+  "title": "Progress",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Progress:\n  def apply(value: Int = 0, mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"progressbar\",\n      aria.valueMin := 0d,\n      aria.valueMax := 100d,\n      aria.valueNow := value.toDouble,\n      cls := \"relative h-2 w-full overflow-hidden rounded-full bg-primary/20\",\n      div(\n        cls := \"h-full w-full flex-1 bg-primary transition-all\",\n        styleAttr := s\"transform:translateX(-${100 - value}%)\"\n      ),\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/Progress.scala"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "drawer",
+  "title": "Drawer",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "dialog"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** Drawer surface using a native dialog; callers can add side-specific classes. */\nobject Drawer:\n  def apply(isOpenVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement =\n    Dialog(isOpenVar)(\n      cls := \"inset-x-0 bottom-0 top-auto max-w-none translate-x-0 translate-y-0 rounded-t-lg sm:max-w-none\",\n      mods\n    )\n  def header(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"grid gap-1.5 p-4 text-center sm:text-left\", mods)\n  def footer(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"mt-auto flex flex-col gap-2 p-4\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Drawer.scala"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "scrollbar",
+  "title": "Scrollbar",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Scrollbar:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"relative overflow-auto\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Scrollbar.scala"
+    }
+  ]
+}

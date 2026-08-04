@@ -1,0 +1,1 @@
+{"name":"drawer","title":"Drawer","registryDependencies":["dialog"],"scalaDependencies":[],"files":[{"path":"Drawer.scala","type":"scala:ui"}]}

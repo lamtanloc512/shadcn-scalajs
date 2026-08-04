@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "collapsible",
+  "title": "Collapsible",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Collapsible:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = detailsTag(mods)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = summaryTag(cls := \"cursor-pointer list-none\", mods)\n  def content(mods: Modifier[HtmlElement]*): HtmlElement = div(mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Collapsible.scala"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "tooltip",
+  "title": "Tooltip",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\nimport com.raquo.laminar.codecs.StringAsIsCodec\n\nobject Tooltip:\n  private val titleAttr = htmlAttr(\"title\", StringAsIsCodec)\n  def apply(text: String, mods: Modifier[HtmlElement]*): HtmlElement =\n    span(titleAttr := text, cls := \"cursor-help\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Tooltip.scala"
+    }
+  ]
+}

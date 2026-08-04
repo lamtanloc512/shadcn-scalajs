@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "alert-dialog",
+  "title": "Alert Dialog",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** Alert dialog composition over the native Laminar Dialog primitive. */\nobject AlertDialog:\n  def apply(isOpenVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement = Dialog(isOpenVar)(mods*)\n  def title(mods: Modifier[HtmlElement]*): HtmlElement = h2(cls := \"text-lg font-semibold\", mods)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := \"text-sm text-muted-foreground\", mods)\n  def footer(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/AlertDialog.scala"
+    }
+  ]
+}

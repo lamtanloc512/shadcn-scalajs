@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "skeleton",
+  "title": "Skeleton",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Skeleton:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"animate-pulse rounded-md bg-primary/10\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Skeleton.scala"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "toast",
+  "title": "Toast",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Toast:\n  enum Variant derives CanEqual:\n    case Default, Destructive\n\n  def apply(variant: Variant = Variant.Default, mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"status\",\n      cls := s\"group pointer-events-auto relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all ${variant match\n          case Variant.Default     => \"bg-background text-foreground\"\n          case Variant.Destructive => \"destructive group border-destructive bg-destructive text-destructive-foreground\"\n        }\",\n      mods\n    )\n  def title(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"text-sm font-semibold\", mods)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"text-sm opacity-90\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Toast.scala"
+    }
+  ]
+}

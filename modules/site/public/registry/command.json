@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "command",
+  "title": "Command",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "input"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Command:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"dialog\",\n      cls := \"flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground\",\n      mods\n    )\n  def input(mods: Modifier[HtmlElement]*): HtmlElement =\n    Input(cls := \"h-11 rounded-none border-0 border-b shadow-none focus-visible:ring-0\", mods)\n  def list(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"max-h-[300px] overflow-y-auto overflow-x-hidden p-1\", mods)\n  def group(heading: String, mods: Modifier[HtmlElement]*): HtmlElement = div(\n    cls := \"overflow-hidden p-1 text-foreground\",\n    h3(cls := \"px-2 py-1.5 text-xs font-medium text-muted-foreground\", heading),\n    mods\n  )\n  def item(mods: Modifier[HtmlElement]*): HtmlElement = div(\n    role := \"option\",\n    cls := \"relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground\",\n    mods\n  )\n",
+      "type": "scala:ui",
+      "target": "ui/Command.scala"
+    }
+  ]
+}

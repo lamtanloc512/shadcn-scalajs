@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "select",
+  "title": "Select",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Select:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    select(\n      cls := \"flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50\",\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/Select.scala"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "field",
+  "title": "Field",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "label"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Field:\n  private val labelTag = htmlTag(\"label\")\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"grid gap-2\", mods)\n  def label(text: String, mods: Modifier[HtmlElement]*): HtmlElement =\n    labelTag(cls := \"flex items-center gap-2 text-sm leading-none font-medium select-none\", mods, text)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := \"text-sm text-muted-foreground\", mods)\n  def error(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := \"text-sm font-medium text-destructive\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Field.scala"
+    }
+  ]
+}

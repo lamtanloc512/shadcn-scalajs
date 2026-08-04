@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "item",
+  "title": "Item",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Item:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex w-full items-center gap-2 rounded-md p-4 text-sm\", mods)\n  def media(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex shrink-0 items-center justify-center\", mods)\n  def content(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex min-w-0 flex-1 flex-col gap-1\", mods)\n  def title(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"truncate font-medium\", mods)\n  def description(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"line-clamp-2 text-sm text-muted-foreground\", mods)\n  def actions(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"ml-auto flex items-center gap-2\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Item.scala"
+    }
+  ]
+}

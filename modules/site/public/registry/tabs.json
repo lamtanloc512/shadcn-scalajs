@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "tabs",
+  "title": "Tabs",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Tabs:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex flex-col gap-2\", mods)\n  def list(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground\", mods)\n  def trigger(mods: Modifier[HtmlElement]*): HtmlElement = button(\n    typ := \"button\",\n    cls := \"inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium transition-all hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50\",\n    mods\n  )\n  def content(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex-1 outline-none\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Tabs.scala"
+    }
+  ]
+}

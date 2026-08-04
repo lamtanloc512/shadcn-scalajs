@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "card",
+  "title": "Card",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Card primitives.\n  *\n  * The helpers intentionally accept Laminar modifiers so they can be composed with application-specific content without\n  * introducing a React-style wrapper API.\n  */\nobject Card:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm\",\n      mods\n    )\n\n  def header(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6\",\n      mods\n    )\n\n  def title(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"leading-none font-semibold\", mods)\n\n  def description(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"text-sm text-muted-foreground\", mods)\n\n  def action(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"col-start-2 row-span-2 row-start-1 self-start justify-self-end\", mods)\n\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"px-6\", mods)\n\n  def footer(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex items-center px-6\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Card.scala"
+    }
+  ]
+}

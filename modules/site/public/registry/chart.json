@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "chart",
+  "title": "Chart",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Chart:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"img\",\n      cls := \"flex aspect-video w-full items-center justify-center rounded-lg border bg-card p-4\",\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/Chart.scala"
+    }
+  ]
+}

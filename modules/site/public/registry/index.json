@@ -6,8 +6,32 @@
     "registryDependencies": []
   },
   {
+    "name": "alert",
+    "title": "Alert",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "alert-dialog",
+    "title": "Alert Dialog",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "avatar",
+    "title": "Avatar",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
     "name": "badge",
     "title": "Badge",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "breadcrumb",
+    "title": "Breadcrumb",
     "type": "scala:ui",
     "registryDependencies": []
   },
@@ -18,14 +42,212 @@
     "registryDependencies": []
   },
   {
+    "name": "button-group",
+    "title": "Button Group",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "card",
+    "title": "Card",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "chart",
+    "title": "Chart",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "checkbox",
+    "title": "Checkbox",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "collapsible",
+    "title": "Collapsible",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "combobox",
+    "title": "Combobox",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "popover"
+    ]
+  },
+  {
+    "name": "command",
+    "title": "Command",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "input"
+    ]
+  },
+  {
     "name": "dialog",
     "title": "Dialog",
     "type": "scala:ui",
     "registryDependencies": []
   },
   {
+    "name": "drawer",
+    "title": "Drawer",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "dialog"
+    ]
+  },
+  {
     "name": "dropdown-menu",
     "title": "Dropdown Menu",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "empty",
+    "title": "Empty",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "field",
+    "title": "Field",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "label"
+    ]
+  },
+  {
+    "name": "form",
+    "title": "Form",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "field"
+    ]
+  },
+  {
+    "name": "input",
+    "title": "Input",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "input-group",
+    "title": "Input Group",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "input"
+    ]
+  },
+  {
+    "name": "item",
+    "title": "Item",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "kbd",
+    "title": "Kbd",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "label",
+    "title": "Label",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "native-select",
+    "title": "Native Select",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "popover",
+    "title": "Popover",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "progress",
+    "title": "Progress",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "radio",
+    "title": "Radio",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "range",
+    "title": "Range",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "scrollbar",
+    "title": "Scrollbar",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "select",
+    "title": "Select",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "sidebar",
+    "title": "Sidebar",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "skeleton",
+    "title": "Skeleton",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "switch",
+    "title": "Switch",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "table",
+    "title": "Table",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "tabs",
+    "title": "Tabs",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "textarea",
+    "title": "Textarea",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "toast",
+    "title": "Toast",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "tooltip",
+    "title": "Tooltip",
     "type": "scala:ui",
     "registryDependencies": []
   }

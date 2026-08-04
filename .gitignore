@@ -7,6 +7,3 @@ project/metals.sbt
 .bsp/
 node_modules/
 dist/
-vendor/basecoat/
-modules/site/public/sc-components.js
-modules/site/public/sc-components.css

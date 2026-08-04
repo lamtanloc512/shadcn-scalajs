@@ -6,11 +6,7 @@ import shadcnscalajs.core.CommonAttrs.openAttr
 
 import scala.scalajs.js
 
-/** Laminar port of basecoat's Accordion (basecoat/src/css/components/accordion.css + basecoat/src/js/accordion.js).
-  * Native-element tier: open/close itself is free from native `<details>`/`<summary>` semantics. basecoat's own JS here
-  * only (a) closes sibling sections to enforce single-open, and (b) blocks toggling disabled sections — both
-  * reimplemented declaratively below via `openIndexVar` (single source of truth) instead of imperative DOM listening,
-  * since Laminar's `children <-- signal` re-render gives us single-open-for-free.
+/** shadcn/ui Accordion — native `<details>`/`<summary>` with Tailwind styling, reactive single-open via Laminar.
   */
 object Accordion:
 
@@ -20,8 +16,8 @@ object Accordion:
     el.asInstanceOf[js.Dynamic].open.asInstanceOf[Boolean]
 
   def apply(openIndexVar: Var[Option[Int]], sections: Section*): HtmlElement =
-    sectionTag(
-      cls := "accordion",
+    div(
+      cls := "flex flex-col",
       children <-- openIndexVar.signal.map { openIndex =>
         sections.zipWithIndex.map { case (sec, idx) =>
           renderSection(openIndexVar, isOpen = openIndex.contains(idx), sec, idx)
@@ -32,9 +28,16 @@ object Accordion:
   private def renderSection(openIndexVar: Var[Option[Int]], isOpen: Boolean, sec: Section, idx: Int): HtmlElement =
     detailsTag(
       openAttr := isOpen,
+      cls := "border-b last:border-b-0",
       aria.disabled := sec.disabled,
-      summaryTag(sec.title),
-      sectionTag(sec.content),
+      summaryTag(
+        cls := "flex cursor-pointer items-center justify-between py-4 font-medium transition-all hover:underline [&::-webkit-details-marker]:hidden",
+        sec.title
+      ),
+      div(
+        cls := "pb-4 pt-0 text-muted-foreground",
+        sec.content
+      ),
       onToggle --> { (ev: dom.Event) =>
         if !sec.disabled then
           val nowOpen = isOpenAttr(ev.target.asInstanceOf[dom.Element])

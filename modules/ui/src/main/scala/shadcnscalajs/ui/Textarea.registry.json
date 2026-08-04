@@ -1,0 +1,7 @@
+{
+  "name": "textarea",
+  "title": "Textarea",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Textarea.scala", "type": "scala:ui" }]
+}

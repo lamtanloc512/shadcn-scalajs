@@ -1,0 +1,7 @@
+{
+  "name": "card",
+  "title": "Card",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Card.scala", "type": "scala:ui" }]
+}

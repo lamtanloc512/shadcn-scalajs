@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "button-group",
+  "title": "Button Group",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject ButtonGroup:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex w-fit items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\", mods)\n  def vertical(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex flex-col items-stretch [&>button]:focus-visible:z-10 [&>button]:relative\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/ButtonGroup.scala"
+    }
+  ]
+}

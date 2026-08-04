@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "range",
+  "title": "Range",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Range:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    input(typ := \"range\", cls := \"h-5 w-full cursor-pointer accent-primary\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/Range.scala"
+    }
+  ]
+}

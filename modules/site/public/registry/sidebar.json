@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "sidebar",
+  "title": "Sidebar",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Sidebar:\n  private val asideTag = htmlTag(\"aside\")\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    asideTag(cls := \"flex h-full w-64 flex-col border-r bg-background\", mods)\n  def header(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"flex h-14 items-center border-b px-4\", mods)\n  def content(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2\", mods)\n  def footer(mods: Modifier[HtmlElement]*): HtmlElement = div(cls := \"border-t p-2\", mods)\n  def menu(mods: Modifier[HtmlElement]*): HtmlElement = navTag(cls := \"flex flex-col gap-1\", mods)\n  def menuItem(mods: Modifier[HtmlElement]*): HtmlElement = a(\n    href := \"#\",\n    cls := \"flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground\",\n    mods\n  )\n",
+      "type": "scala:ui",
+      "target": "ui/Sidebar.scala"
+    }
+  ]
+}

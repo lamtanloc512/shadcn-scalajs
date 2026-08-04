@@ -1,0 +1,7 @@
+{
+  "name": "label",
+  "title": "Label",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Label.scala", "type": "scala:ui" }]
+}

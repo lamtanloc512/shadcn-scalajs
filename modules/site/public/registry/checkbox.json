@@ -1,0 +1,15 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "checkbox",
+  "title": "Checkbox",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Checkbox:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    input(\n      typ := \"checkbox\",\n      cls := \"peer size-4 shrink-0 rounded-[4px] border border-primary shadow-xs outline-none transition-shadow focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 checked:bg-primary checked:text-primary-foreground\",\n      mods\n    )\n",
+      "type": "scala:ui",
+      "target": "ui/Checkbox.scala"
+    }
+  ]
+}

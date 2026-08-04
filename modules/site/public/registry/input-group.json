@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "input-group",
+  "title": "Input Group",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "input"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject InputGroup:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"flex w-full items-center rounded-md border border-input bg-background shadow-xs focus-within:ring-[3px] focus-within:ring-ring/50\",\n      mods\n    )\n  def addon(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"flex items-center justify-center px-3 text-sm text-muted-foreground\", mods)\n",
+      "type": "scala:ui",
+      "target": "ui/InputGroup.scala"
+    }
+  ]
+}
