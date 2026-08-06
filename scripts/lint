@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Thin franky pass-through — canonical implementation lives in .franky/scripts/lint
+set -euo pipefail
+exec "$(cd "$(dirname "$0")/.." && pwd)/.franky/scripts/lint" "$@"

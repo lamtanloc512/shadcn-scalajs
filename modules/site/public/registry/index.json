@@ -157,7 +157,8 @@
     "title": "Field",
     "type": "scala:ui",
     "registryDependencies": [
-      "label"
+      "label",
+      "separator"
     ]
   },
   {
@@ -191,6 +192,7 @@
     "title": "Input Group",
     "type": "scala:ui",
     "registryDependencies": [
+      "button",
       "input"
     ]
   },
@@ -322,7 +324,10 @@
     "name": "sidebar",
     "title": "Sidebar",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "button",
+      "separator"
+    ]
   },
   {
     "name": "skeleton",
@@ -392,7 +397,9 @@
     "name": "toggle-group",
     "title": "Toggle Group",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "toggle"
+    ]
   },
   {
     "name": "tooltip",

@@ -25,8 +25,10 @@ object Chart:
 
   /** Shared hover state — pass to `Chart.bar` / `Chart.area` / `Chart.donut` and `Chart.tooltip`. */
   final class HoverVar(initial: Option[Point] = None):
-    val signal: Signal[Option[Point]] = hoverVar.signal
+    // hoverVar must be initialized before signal — Scala initializes vals in source order,
+    // and reading an uninitialized field under Scala.js throws NPE (UndefinedBehaviorError).
     private[Chart] val hoverVar: Var[Option[Point]] = Var(initial)
+    val signal: Signal[Option[Point]] = hoverVar.signal
 
   def hoverVar(initial: Option[Point] = None): HoverVar = HoverVar(initial)
 
