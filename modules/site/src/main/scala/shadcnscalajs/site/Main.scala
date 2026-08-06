@@ -21,7 +21,6 @@ object Main:
   private val yA = htmlAttr("y", StringAsIsCodec)
   private val wA = htmlAttr("width", StringAsIsCodec)
   private val hA = htmlAttr("height", StringAsIsCodec)
-  private val stylePackA = htmlAttr("data-style-pack", StringAsIsCodec)
 
   private lazy val kbdEl = htmlTag("kbd")
   private lazy val svgEl = htmlTag("svg")
@@ -37,6 +36,10 @@ object Main:
     val page =
       if pathname == "/components" || pathname == "/components/" then componentsGalleryPage()
       else if pathname.startsWith("/components/") then componentDocsPage()
+      else if pathname.startsWith("/blocks/") && pathname.endsWith("/preview") then
+        BlockPreviewPage(pathname.stripPrefix("/blocks/").stripSuffix("/preview"))
+      else if pathname == "/blocks" || pathname == "/blocks/" then BlocksIndexPage()
+      else if pathname.startsWith("/blocks/") then BlockDocsPage(pathname.stripPrefix("/blocks/").stripSuffix("/"))
       else app()
     render(dom.document.getElementById("root"), page)
 
@@ -45,10 +48,10 @@ object Main:
     s"""<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">$p</svg>"""
   private def iconArrowRight = iconSvg("<path d='M5 12h14'/><path d='m12 5 7 7-7 7'/>")
   private def iconSearch = iconSvg("<circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/>")
-  private def iconSun = iconSvg(
+  def iconSun = iconSvg(
     "<circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m9.32 9.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41'/>"
   )
-  private def iconMoon = iconSvg("<path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/>")
+  def iconMoon = iconSvg("<path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/>")
   private def iconChevronRight = iconSvg("<path d='m9 18 6-6-6-6'/>")
   private def iconChevronUp = iconSvg("<path d='m18 15-6-6-6 6'/>")
   private def iconChart = iconSvg("<path d='M10 3H3v18h18v-7M8 16v-5M12 16V8M16 16v-3'/>")
@@ -107,6 +110,10 @@ object Main:
     "<path d='M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5'/>"
   )
   private def iconPlus = iconSvg("<path d='M5 12h14M12 5v14'/>")
+  private def iconCircleCheck = iconSvg("<path d='M21.801 10A10 10 0 1 1 17 3.335'/><path d='m9 11 3 3L22 4'/>")
+  private def iconCircleAlert = iconSvg(
+    "<circle cx='12' cy='12' r='10'/><path d='M12 8v4'/><path d='M12 16h.01'/>"
+  )
   private def iconEllipsis = iconSvg(
     "<circle cx='12' cy='12' r='1'/><circle cx='19' cy='12' r='1'/><circle cx='5' cy='12' r='1'/>"
   )
@@ -114,11 +121,18 @@ object Main:
   private val logoSvg =
     """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true"><rect width="256" height="256" fill="none"/><line x1="208" y1="128" x2="128" y2="208" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="192" y1="40" x2="40" y2="192" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>"""
 
-  private def rawIcon(html: String): HtmlElement =
+  def rawIcon(html: String): HtmlElement =
     val el = dom.document.createElement("div"); el.innerHTML = html
     span(cls := "[&_svg]:size-4 inline-flex", foreignHtmlElement(el.firstElementChild.asInstanceOf[dom.html.Element]))
 
-  private lazy val logoEl: dom.html.Element =
+  /** `rawIcon` without the wrapping `span`. Needed wherever a component's Tailwind classes target a *direct* `> svg`
+    * child — e.g. `Alert`'s `has-[>svg]:grid-cols-*` icon column, which a wrapper element silently defeats.
+    */
+  private def bareIcon(html: String): HtmlElement =
+    val el = dom.document.createElement("div"); el.innerHTML = html
+    foreignHtmlElement(el.firstElementChild.asInstanceOf[dom.html.Element])
+
+  lazy val logoEl: dom.html.Element =
     val div = dom.document.createElement("div"); div.innerHTML = logoSvg
     div.firstElementChild.asInstanceOf[dom.html.Element]
 
@@ -220,21 +234,19 @@ object Main:
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
   private def btnOutline =
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-  private def btnGhost =
+  def btnGhost =
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-  private def btnIcon =
+  def btnIcon =
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground size-9"
 
   // ── App ──
   private def app(): HtmlElement =
-    val darkMode = Var(false)
-    val stylePack = Var("lyra")
+    val themeConfig = Var(ThemeConfig.load())
     val dialogOpen = Var(false)
 
     div(
       cls := "min-h-dvh overflow-x-clip bg-background text-foreground antialiased",
-      cls <-- darkMode.signal.map(if _ then "dark" else ""),
-      stylePackA <-- stylePack.signal,
+      themeConfig.signal --> { cfg => ThemeConfig.applyToDocument(cfg) },
 
       // ── Header ──
       headerTag(
@@ -246,28 +258,21 @@ object Main:
             a(
               href := "/",
               cls := btnGhost,
-              aria.label := "Basecoat home",
+              aria.label := "shadcn-scalajs home",
               span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
-              span(cls := "truncate font-semibold", "Basecoat")
+              span(cls := "truncate font-semibold", "shadcn-scalajs")
             ),
             navTag(
               cls := "hidden sm:flex items-center gap-1",
               aria.label := "Primary",
-              a(cls := btnGhost, href := "/introduction", "Docs"),
               a(cls := btnGhost, href := "/components", "Components"),
+              a(cls := btnGhost, href := "/blocks", "Blocks"),
               a(
                 cls := btnGhost,
-                href := "https://github.com/hunvreus/basecoat",
+                href := "https://github.com/lamtanloc512/shadcn-scalajs",
                 target := "_blank",
                 rel := "noopener",
                 "GitHub"
-              ),
-              a(
-                cls := btnGhost,
-                href := "https://basecoatui.com/chat",
-                target := "_blank",
-                rel := "noopener",
-                "Discord"
               )
             )
           ),
@@ -297,8 +302,12 @@ object Main:
             select(
               cls := "hidden sm:block h-8 w-28 shrink-0 rounded-md border border-input bg-background px-2 text-sm",
               aria.label := "Style pack",
-              value <-- stylePack.signal,
-              onChange --> { ev => stylePack.set(ev.target.asInstanceOf[dom.html.Select].value) },
+              value <-- themeConfig.signal.map(_.stylePack),
+              onChange --> { ev =>
+                val next = themeConfig.now().copy(stylePack = ev.target.asInstanceOf[dom.html.Select].value)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               option(value := "vega", "Vega"),
               option(value := "nova", "Nova"),
               option(value := "maia", "Maia"),
@@ -312,7 +321,11 @@ object Main:
               typ := "button",
               cls := s"$btnIcon hidden sm:inline-flex",
               aria.label := "Toggle dark mode",
-              onClick --> { _ => darkMode.update(!_) },
+              onClick --> { _ =>
+                val next = themeConfig.now().copy(darkMode = !themeConfig.now().darkMode)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               span(cls := "hidden dark:block", rawIcon(iconSun)),
               span(cls := "block dark:hidden", rawIcon(iconMoon))
             )
@@ -331,18 +344,18 @@ object Main:
               cls := "mx-auto flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4",
               h1(
                 cls := "text-3xl font-semibold tracking-tight text-balance text-primary lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter max-w-4xl",
-                "All of the shadcn/ui magic, none of the React"
+                "shadcn/ui, ported to Scala.js"
               ),
               p(
                 cls := "max-w-4xl text-base text-balance text-foreground sm:text-lg",
-                "A component library built with Tailwind CSS that works with any web stack."
+                "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes — every component also compiles to a standalone Web Component for any frontend."
               ),
               div(
                 cls := "flex w-full items-center justify-center gap-2 pt-2",
-                a(cls := btnPrimary, href := "/installation", "Get started"),
+                a(cls := btnPrimary, href := "/components", "Get started"),
                 a(
                   cls := btnOutline,
-                  href := "https://github.com/hunvreus/basecoat",
+                  href := "https://github.com/lamtanloc512/shadcn-scalajs",
                   target := "_blank",
                   rel := "noopener",
                   "Source code"
@@ -1067,22 +1080,11 @@ object Main:
     * making this page a useful smoke test as well as documentation.
     */
   private def componentsGalleryPage(): HtmlElement =
-    val darkMode = Var(false)
-    val stylePack = Var("lyra")
-    val dialogOpen = Var(false)
-    val switchOn = Var(true)
-    val accordionOpen = Var(Option.empty[Int])
-
-    def preview(name: String, description: String, content: Modifier[HtmlElement]*): HtmlElement =
-      Card(
-        Card.header(Card.title(name), Card.description(description)),
-        Card.content(div(cls := "flex min-h-20 flex-wrap items-center gap-3", content))
-      )
+    val themeConfig = Var(ThemeConfig.load())
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      cls <-- darkMode.signal.map(if _ then "dark" else ""),
-      stylePackA <-- stylePack.signal,
+      themeConfig.signal --> { cfg => ThemeConfig.applyToDocument(cfg) },
       headerTag(
         cls := "sticky inset-x-0 top-0 z-30 flex h-14 items-center border-b bg-background/95 px-4 backdrop-blur",
         div(
@@ -1091,21 +1093,26 @@ object Main:
             href := "/",
             cls := btnGhost,
             span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
-            span(cls := "font-semibold", "Basecoat")
+            span(cls := "font-semibold", "shadcn-scalajs")
           ),
           navTag(
             cls := "hidden items-center gap-1 sm:flex",
             aria.label := "Primary",
             a(cls := btnGhost, href := "/", "Home"),
-            a(cls := btnGhost + " bg-accent text-accent-foreground", href := "/components", "Components")
+            a(cls := btnGhost + " bg-accent text-accent-foreground", href := "/components", "Components"),
+            a(cls := btnGhost, href := "/blocks", "Blocks")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
             select(
               cls := "h-8 w-28 rounded-md border border-input bg-background px-2 text-sm",
               aria.label := "Style pack",
-              value <-- stylePack.signal,
-              onChange --> { ev => stylePack.set(ev.target.asInstanceOf[dom.html.Select].value) },
+              value <-- themeConfig.signal.map(_.stylePack),
+              onChange --> { ev =>
+                val next = themeConfig.now().copy(stylePack = ev.target.asInstanceOf[dom.html.Select].value)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               option(value := "vega", "Vega"),
               option(value := "nova", "Nova"),
               option(value := "maia", "Maia"),
@@ -1119,7 +1126,11 @@ object Main:
               typ := "button",
               cls := btnIcon,
               aria.label := "Toggle dark mode",
-              onClick --> { _ => darkMode.update(!_) },
+              onClick --> { _ =>
+                val next = themeConfig.now().copy(darkMode = !themeConfig.now().darkMode)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               span(cls := "hidden dark:block", rawIcon(iconSun)),
               span(cls := "block dark:hidden", rawIcon(iconMoon))
             )
@@ -1134,128 +1145,18 @@ object Main:
           h1(cls := "text-4xl font-semibold tracking-tight", "Components"),
           p(
             cls := "mt-3 text-lg text-muted-foreground",
-            "Every preview below is rendered from shadcn-scalajs UI primitives, with the active style pack applied live."
+            "Browse every component in the shadcn-scalajs registry. Each links to its full docs page with a live preview, usage code, and install instructions."
           )
         ),
         div(
-          cls := "grid gap-6 md:grid-cols-2",
-          preview(
-            "Button",
-            "Variants and sizes",
-            Button.of(_.variant(Button.Variant.Primary), _ => "Primary"),
-            Button.of(_.variant(Button.Variant.Secondary), _ => "Secondary"),
-            Button.of(_.variant(Button.Variant.Outline), _ => "Outline"),
-            Button.of(_.variant(Button.Variant.Destructive), _ => "Delete")
-          ),
-          preview(
-            "Badge",
-            "Compact status labels",
-            Badge("New"),
-            Badge.of(_.variant(Badge.Variant.Secondary), _ => "Beta"),
-            Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")
-          ),
-          preview(
-            "Form controls",
-            "Input, textarea, select, checkbox and switch",
-            Field.label("Name"),
-            Input(placeholder := "Your name", cls := "max-w-48"),
-            Textarea(placeholder := "Write a message…", cls := "max-w-64"),
-            Select(option("Choose a plan"), option("Pro"), option("Team")),
-            Checkbox(),
-            Switch(switchOn),
-            span(
-              cls := "text-sm text-muted-foreground",
-              child.text <-- switchOn.signal.map(if _ then "Enabled" else "Disabled")
+          cls := "grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3",
+          componentNavList.map { name =>
+            a(
+              href := s"/components/${slugify(name)}",
+              cls := "text-sm text-foreground underline-offset-4 hover:text-primary hover:underline",
+              name
             )
-          ),
-          preview(
-            "Feedback",
-            "Alerts, progress, skeleton and toast surfaces",
-            Alert(Alert.Variant.Default, Alert.title("Heads up"), Alert.description("Your changes are saved.")),
-            Progress(68, cls := "min-w-40"),
-            Skeleton(cls := "h-8 w-36"),
-            Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))
-          ),
-          preview(
-            "Navigation",
-            "Breadcrumbs, tabs and button groups",
-            Breadcrumb(
-              Breadcrumb.list(
-                Breadcrumb.item(Breadcrumb.link("/", "Home")),
-                Breadcrumb.separator(),
-                Breadcrumb.item("Components")
-              )
-            ),
-            Tabs(
-              Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")),
-              Tabs.content(p(cls := "pt-3 text-sm text-muted-foreground", "Tab content"))
-            ),
-            ButtonGroup(
-              Button.of(_.variant(Button.Variant.Outline), _ => "Back"),
-              Button.of(_.variant(Button.Variant.Outline), _ => "Next")
-            )
-          ),
-          preview(
-            "Disclosure",
-            "Native details-based collapsible and accordion",
-            Collapsible(
-              Collapsible.trigger("What is Laminar?"),
-              Collapsible.content(p(cls := "pt-2 text-sm text-muted-foreground", "A reactive Scala.js UI library."))
-            ),
-            Accordion(
-              accordionOpen,
-              Accordion.Section("What is shadcn-scalajs?", "A copy-and-own component library for Scala.js."),
-              Accordion.Section("Does it use React?", "No, it uses Laminar.")
-            )
-          ),
-          preview(
-            "Overlay primitives",
-            "Dialog, popover, command and tooltip",
-            Button(typ := "button", onClick --> { _ => dialogOpen.set(true) }, "Open dialog"),
-            Popover(
-              Popover.trigger("Open popover"),
-              Popover.content(p(cls := "text-sm", "Native details provide the baseline behavior."))
-            ),
-            Tooltip("Helpful context", span("Hover me")),
-            Command(
-              Command.input(placeholder := "Search commands…"),
-              Command.list(Command.item("Open settings"), Command.item("Create project"))
-            )
-          ),
-          preview(
-            "Data display",
-            "Avatar, item, table and empty states",
-            Avatar(Avatar.fallback("LS")),
-            Item(
-              Item.content(Item.title("Laminar"), Item.description("Reactive Scala.js UI")),
-              Item.actions(Badge("Stable"))
-            ),
-            Empty(
-              Empty.header(Empty.title("No projects"), Empty.description("Create your first project to get started."))
-            ),
-            Table(
-              Table.header(Table.row(Table.head("Name"), Table.head("Status"))),
-              Table.body(Table.row(Table.cell("shadcn-scalajs"), Table.cell(Badge("Ready"))))
-            )
-          ),
-          preview(
-            "Layout",
-            "Sidebar, card and grouped inputs",
-            Sidebar(
-              Sidebar.header("Navigation"),
-              Sidebar.content(Sidebar.menu(Sidebar.menuItem("Overview"), Sidebar.menuItem("Settings"))),
-              Sidebar.footer("v0.1")
-            ),
-            InputGroup(InputGroup.addon("https://"), Input(placeholder := "example.com", cls := "border-0 shadow-none"))
-          )
-        )
-      ),
-      Dialog(dialogOpen)(
-        h2(cls := "text-lg font-semibold", "Dialog preview"),
-        p(cls := "text-sm text-muted-foreground", "This is the native Laminar dialog primitive."),
-        div(
-          cls := "mt-4 flex justify-end",
-          Button(typ := "button", onClick --> { _ => dialogOpen.set(false) }, "Close")
+          }
         )
       )
     )
@@ -1264,8 +1165,7 @@ object Main:
     * same shell and live primitive preview so the route structure scales as examples are added.
     */
   private def componentDocsPage(): HtmlElement =
-    val darkMode = Var(false)
-    val stylePack = Var("lyra")
+    val themeConfig = Var(ThemeConfig.load())
     val drawerOpen = Var(false)
     val dialogOpen = Var(false)
     val switchOn = Var(true)
@@ -1354,9 +1254,43 @@ object Main:
             )
           )
         )
+      // Mirrors shadcn/ui's own new-york-v4 alert-demo.tsx, plus a fourth icon-less alert: the icon is optional, and
+      // without one the root falls back to its `grid-cols-[0_1fr]` branch — a layout path nothing else here exercises.
       case "alert" =>
         previewCanvas(
-          Alert(Alert.Variant.Default, Alert.title("Heads up"), Alert.description("Your changes have been saved."))
+          div(
+            cls := "grid w-full max-w-xl items-start gap-4",
+            Alert(
+              Alert.Variant.Default,
+              bareIcon(iconCircleCheck),
+              Alert.title("Success! Your changes have been saved"),
+              Alert.description("This is an alert with icon, title and description.")
+            ),
+            Alert(
+              Alert.Variant.Default,
+              bareIcon(iconInfo),
+              Alert.title("This Alert has a title and an icon. No description.")
+            ),
+            Alert(
+              Alert.Variant.Default,
+              Alert.title("This Alert has no icon"),
+              Alert.description("Title and description line up in the same column either way.")
+            ),
+            Alert(
+              Alert.Variant.Destructive,
+              bareIcon(iconCircleAlert),
+              Alert.title("Unable to process your payment."),
+              Alert.description(
+                p("Please verify your billing information and try again."),
+                ul(
+                  cls := "list-inside list-disc text-sm",
+                  li("Check your card details"),
+                  li("Ensure sufficient funds"),
+                  li("Verify billing address")
+                )
+              )
+            )
+          )
         )
       case "alert-dialog" =>
         previewCanvas(
@@ -1414,7 +1348,33 @@ object Main:
             Collapsible.content(p(cls := "pt-2 text-sm text-muted-foreground", "This is native details content."))
           )
         )
-      case "combobox" => previewCanvas(Combobox(Combobox.trigger("Choose a framework"), Combobox.content("Laminar")))
+      case "combobox" =>
+        val frameworks = Seq(
+          Combobox.Item("next.js", "Next.js"),
+          Combobox.Item("sveltekit", "SvelteKit"),
+          Combobox.Item("nuxt.js", "Nuxt.js"),
+          Combobox.Item("remix", "Remix"),
+          Combobox.Item("astro", "Astro")
+        )
+        previewCanvas(
+          div(
+            cls := "flex w-full max-w-sm flex-col gap-4",
+            Combobox(
+              Var(Option.empty[String]),
+              frameworks,
+              placeholder = "Select framework…",
+              searchPlaceholder = "Search framework…",
+              emptyText = "No framework found."
+            ),
+            Combobox.multiple(
+              Var(Set.empty[String]),
+              frameworks,
+              placeholder = "Select frameworks…",
+              searchPlaceholder = "Search framework…",
+              emptyText = "No framework found."
+            )
+          )
+        )
       case "command" =>
         previewCanvas(
           Command(
@@ -1685,7 +1645,44 @@ Accordion(
   Accordion.Section("What is your return policy?", "Items can be returned within 30 days of delivery.")
 )"""
       case "alert" =>
-        """Alert(Alert.Variant.Default, Alert.title("Heads up"), Alert.description("Your changes have been saved."))"""
+        """// An icon is optional, but must be a *direct* child of Alert — that is what switches
+// on the icon grid column (has-[>svg]:grid-cols-*). A wrapper element defeats it.
+Alert(
+  Alert.Variant.Default,
+  circleCheckIcon,
+  Alert.title("Success! Your changes have been saved"),
+  Alert.description("This is an alert with icon, title and description.")
+)
+
+// Title only — the description is optional too.
+Alert(
+  Alert.Variant.Default,
+  infoIcon,
+  Alert.title("This Alert has a title and an icon. No description.")
+)
+
+// No icon.
+Alert(
+  Alert.Variant.Default,
+  Alert.title("This Alert has no icon"),
+  Alert.description("Title and description line up in the same column either way.")
+)
+
+// The description is a grid, so block children stack with a gap.
+Alert(
+  Alert.Variant.Destructive,
+  circleAlertIcon,
+  Alert.title("Unable to process your payment."),
+  Alert.description(
+    p("Please verify your billing information and try again."),
+    ul(
+      cls := "list-inside list-disc text-sm",
+      li("Check your card details"),
+      li("Ensure sufficient funds"),
+      li("Verify billing address")
+    )
+  )
+)"""
       case "alert-dialog" =>
         """val isOpen = Var(false)
 
@@ -1731,7 +1728,33 @@ Label("Accept terms")"""
   Collapsible.trigger("Show details"),
   Collapsible.content(p("This is native details content."))
 )"""
-      case "combobox" => """Combobox(Combobox.trigger("Choose a framework"), Combobox.content("Laminar"))"""
+      case "combobox" =>
+        """val frameworks = Seq(
+  Combobox.Item("next.js", "Next.js"),
+  Combobox.Item("sveltekit", "SvelteKit"),
+  Combobox.Item("nuxt.js", "Nuxt.js"),
+  Combobox.Item("remix", "Remix"),
+  Combobox.Item("astro", "Astro")
+)
+
+// single-select — value toggles off if you click the same item again
+Combobox(
+  Var(Option.empty[String]),
+  frameworks,
+  placeholder = "Select framework…",
+  searchPlaceholder = "Search framework…",
+  emptyText = "No framework found."
+)
+
+// multi-select — picks render as removable chips on the trigger; the popover
+// stays open after each pick so you can keep choosing
+Combobox.multiple(
+  Var(Set.empty[String]),
+  frameworks,
+  placeholder = "Select frameworks…",
+  searchPlaceholder = "Search framework…",
+  emptyText = "No framework found."
+)"""
       case "command" =>
         """Command(
   Command.input(placeholder := "Search…"),
@@ -1919,8 +1942,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      cls <-- darkMode.signal.map(if _ then "dark" else ""),
-      stylePackA <-- stylePack.signal,
+      themeConfig.signal --> { cfg => ThemeConfig.applyToDocument(cfg) },
       headerTag(
         cls := "sticky inset-x-0 top-0 z-40 border-b bg-background/95 backdrop-blur",
         div(
@@ -1939,15 +1961,20 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               cls := btnGhost + " bg-accent text-accent-foreground",
               href := s"/components/$componentName",
               "Components"
-            )
+            ),
+            a(cls := btnGhost, href := "/blocks", "Blocks")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
             select(
               cls := "h-8 w-28 rounded-md border border-input bg-background px-2 text-sm",
               aria.label := "Style pack",
-              value <-- stylePack.signal,
-              onChange --> { ev => stylePack.set(ev.target.asInstanceOf[dom.html.Select].value) },
+              value <-- themeConfig.signal.map(_.stylePack),
+              onChange --> { ev =>
+                val next = themeConfig.now().copy(stylePack = ev.target.asInstanceOf[dom.html.Select].value)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               option(value := "vega", "Vega"),
               option(value := "nova", "Nova"),
               option(value := "maia", "Maia"),
@@ -1961,7 +1988,11 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               typ := "button",
               cls := btnIcon,
               aria.label := "Toggle dark mode",
-              onClick --> { _ => darkMode.update(!_) },
+              onClick --> { _ =>
+                val next = themeConfig.now().copy(darkMode = !themeConfig.now().darkMode)
+                themeConfig.set(next)
+                ThemeConfig.store(next)
+              },
               span(cls := "hidden dark:block", rawIcon(iconSun)),
               span(cls := "block dark:hidden", rawIcon(iconMoon))
             )
@@ -1982,6 +2013,11 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               "Introduction"
             ),
             a(href := "/components", cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium", "Components"),
+            a(
+              href := "/blocks",
+              cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
+              "Blocks"
+            ),
             p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
             componentNavList.map(navLink)
           )
@@ -2007,7 +2043,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                 s"${componentTitle} is available as a direct Laminar component and through the generated registry."
               )
             ),
-            div(cls := "mt-8 overflow-hidden rounded-md border bg-card", liveExample()),
+            div(cls := "mt-8 rounded-md border bg-card", liveExample()),
             div(
               idAttr := "installation",
               cls := "mt-12 scroll-mt-24",
@@ -2040,7 +2076,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                   "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
                 else "Compose this primitive with Card, Field, Button, and the other Laminar components."
               ),
-              div(cls := "mt-4 overflow-hidden rounded-md border bg-card", liveExample())
+              div(cls := "mt-4 rounded-md border bg-card", liveExample())
             ),
             div(
               cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
