@@ -32,7 +32,7 @@ object Icons:
     )
     libraryVar.signal
 
-  private def base(mods: Modifier[SvgElement]*)(paths: (String => SvgElement)*)(pathData: Seq[String]): SvgElement =
+  private def reactive(lucide: Seq[String], hugeicons: Seq[String])(mods: Modifier[SvgElement]*): SvgElement =
     svgTag(
       svg.viewBox := "0 0 24 24",
       svg.fill := "none",
@@ -42,26 +42,19 @@ object Icons:
       svg.strokeLineJoin := "round",
       svg.cls := "size-4",
       aria.hidden := true,
-      pathData.map(d => svgPath(svg.d := d)),
+      children <-- activeLibrary.map { lib =>
+        (if lib == "hugeicons" then hugeicons else lucide).map(d => svgPath(svg.d := d)).toList
+      },
       mods
     )
 
-  private def reactive(lucide: Seq[String], hugeicons: Seq[String])(mods: Modifier[SvgElement]*): HtmlElement =
-    div(
-      cls := "inline-contents",
-      child <-- activeLibrary.map { lib =>
-        val data = if lib == "hugeicons" then hugeicons else lucide
-        base(mods*)()(data)
-      }
-    )
-
-  def chevronDown(mods: Modifier[SvgElement]*): HtmlElement =
+  def chevronDown(mods: Modifier[SvgElement]*): SvgElement =
     reactive(
       lucide = Seq("m6 9 6 6 6-6"),
       hugeicons = Seq("M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9")
     )(mods*)
 
-  def chevronsUpDown(mods: Modifier[SvgElement]*): HtmlElement =
+  def chevronsUpDown(mods: Modifier[SvgElement]*): SvgElement =
     reactive(
       lucide = Seq("m7 15 5 5 5-5", "m7 9 5-5 5 5"),
       hugeicons = Seq(
@@ -70,10 +63,10 @@ object Icons:
       )
     )(mods*)
 
-  def check(mods: Modifier[SvgElement]*): HtmlElement =
+  def check(mods: Modifier[SvgElement]*): SvgElement =
     reactive(lucide = Seq("M20 6 9 17l-5-5"), hugeicons = Seq("M5 14L8.5 17.5L19 6.5"))(mods*)
 
-  def x(mods: Modifier[SvgElement]*): HtmlElement =
+  def x(mods: Modifier[SvgElement]*): SvgElement =
     reactive(
       lucide = Seq("M18 6 6 18", "m6 6 12 12"),
       hugeicons = Seq("M18 6L6.00081 17.9992", "M17.9992 18L6 6.00085")
