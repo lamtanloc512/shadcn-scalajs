@@ -10,7 +10,7 @@ ThisBuild / scalacOptions ++= Seq(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, ui, webcomponents, site)
+  .aggregate(core, ui, blocks, webcomponents, site)
   .settings(
     name := "shadcn-scalajs"
   )
@@ -43,6 +43,15 @@ lazy val ui = project
   .settings(noPublish)
   .dependsOn(core)
 
+// Blocks — multi-file page/section compositions built from `ui`, served to
+// consumers as copy-paste-owned .scala files exactly like components.
+lazy val blocks = project
+  .in(file("modules/blocks"))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(jsSettings)
+  .settings(noPublish)
+  .dependsOn(ui)
+
 // Custom-element (Web Component) export layer, so any JS framework or plain
 // HTML page can consume the same components without a Scala toolchain.
 lazy val webcomponents = project
@@ -66,7 +75,7 @@ lazy val site = project
   .settings(
     scalaJSUseMainModuleInitializer := true
   )
-  .dependsOn(ui, webcomponents)
+  .dependsOn(ui, blocks, webcomponents)
 
 lazy val noPublish = Seq(
   publishLocal / skip := true,
