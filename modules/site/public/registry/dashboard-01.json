@@ -1,0 +1,29 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "dashboard-01",
+  "title": "Dashboard 01",
+  "type": "scala:block",
+  "registryDependencies": [
+    "card",
+    "table",
+    "progress",
+    "chart",
+    "badge",
+    "field",
+    "button",
+    "input"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.blocks.dashboard01\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.ui.*\n\n/** An original analytics-dashboard composition — not a copy of any specific reference layout's cards, copy, or dataset\n  * — built to exercise every `shadcnscalajs.site.ThemeConfig` knob (colors, radius, fonts, icon library) as the live\n  * preview on `/create`. See docs/superpowers/specs/2026-08-06-create-theme-customizer-design.md.\n  */\nobject Dashboard01:\n\n  private val asideTag = htmlTag(\"aside\")\n  private val mainTag = htmlTag(\"main\")\n\n  private final case class NavItem(label: String, active: Boolean)\n  private val navItems = List(\n    NavItem(\"Overview\", active = true),\n    NavItem(\"Transactions\", active = false),\n    NavItem(\"Reports\", active = false),\n    NavItem(\"Settings\", active = false)\n  )\n\n  private final case class Transaction(name: String, category: String, amount: String, status: String)\n  private val transactions = List(\n    Transaction(\"Coffee Roasters Co.\", \"Food & Drink\", \"-$4.50\", \"Completed\"),\n    Transaction(\"Cloud Hosting Inc.\", \"Software\", \"-$29.00\", \"Completed\"),\n    Transaction(\"Client Payment\", \"Income\", \"+$1,200.00\", \"Completed\"),\n    Transaction(\"Design Subscription\", \"Software\", \"-$12.00\", \"Pending\")\n  )\n\n  def apply(): HtmlElement =\n    div(\n      cls := \"cn-dashboard-01 flex min-h-svh w-full bg-muted/30\",\n      asideTag(\n        cls := \"hidden w-56 shrink-0 border-r bg-card md:block\",\n        div(cls := \"flex h-14 items-center gap-2 border-b px-4 text-sm font-semibold\", \"Acme Analytics\"),\n        navTag(\n          cls := \"flex flex-col gap-1 p-3\",\n          navItems.map { item =>\n            a(\n              href := \"#\",\n              cls := s\"flex items-center gap-2 rounded-md px-3 py-2 text-sm ${\n                  if item.active then \"bg-accent text-accent-foreground\"\n                  else \"text-muted-foreground hover:bg-accent hover:text-accent-foreground\"\n                }\",\n              item.label\n            )\n          }\n        )\n      ),\n      mainTag(\n        cls := \"flex-1 p-6\",\n        div(\n          cls := \"mb-6 flex items-center justify-between\",\n          h1(cls := \"font-heading text-2xl font-semibold\", \"Overview\"),\n          Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => \"Export\")\n        ),\n        div(\n          cls := \"grid gap-4 md:grid-cols-3\",\n          Card(\n            cls := \"md:col-span-2\",\n            Card.header(Card.title(\"Weekly Activity\"), Card.description(\"Sessions over the last 7 days\")),\n            Card.content(\n              Chart(\n                div(\n                  cls := \"flex h-full w-full items-end gap-3 px-2\",\n                  List(38, 62, 45, 80, 55, 90, 70).map { pct =>\n                    div(cls := \"flex-1 rounded-t bg-primary\", height := s\"$pct%\")\n                  }\n                )\n              )\n            )\n          ),\n          Card(\n            Card.header(Card.title(\"Monthly Goal\")),\n            Card.content(\n              div(\n                cls := \"mb-2 flex items-center justify-between text-sm\",\n                span(\"Revenue\"),\n                span(cls := \"font-medium\", \"68%\")\n              ),\n              Progress(68, cls := \"mb-4\"),\n              div(\n                cls := \"mb-2 flex items-center justify-between text-sm\",\n                span(\"New Customers\"),\n                span(cls := \"font-medium\", \"42%\")\n              ),\n              Progress(42)\n            )\n          )\n        ),\n        div(\n          cls := \"mt-4 grid gap-4 md:grid-cols-3\",\n          Card(\n            cls := \"md:col-span-2\",\n            Card.header(Card.title(\"Recent Transactions\")),\n            Card.content(\n              Table(\n                Table.header(\n                  Table.row(Table.head(\"Name\"), Table.head(\"Category\"), Table.head(\"Amount\"), Table.head(\"Status\"))\n                ),\n                Table.body(\n                  transactions.map { t =>\n                    Table.row(\n                      Table.cell(t.name),\n                      Table.cell(cls := \"text-muted-foreground\", t.category),\n                      Table.cell(t.amount),\n                      Table.cell(\n                        Badge.of(\n                          _.variant(if t.status == \"Completed\" then Badge.Variant.Secondary else Badge.Variant.Outline),\n                          _ => t.status\n                        )\n                      )\n                    )\n                  }\n                )\n              )\n            )\n          ),\n          Card(\n            Card.header(Card.title(\"Quick Update\")),\n            Card.content(\n              Field(Field.label(\"Display name\"), Input(placeholder := \"Ada Lovelace\")),\n              Field(cls := \"mt-3\", Field.label(\"Support email\"), Input(placeholder := \"team@example.com\"))\n            ),\n            Card.footer(Button(cls := \"w-full\", \"Save changes\"))\n          )\n        )\n      )\n    )\n",
+      "type": "scala:page",
+      "target": "blocks/dashboard01/Dashboard01.scala"
+    }
+  ],
+  "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
+  "categories": [
+    "dashboard",
+    "analytics"
+  ]
+}
