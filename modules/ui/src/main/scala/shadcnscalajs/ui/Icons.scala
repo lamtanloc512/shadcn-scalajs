@@ -56,13 +56,25 @@ object Icons:
     )
 
   def chevronDown(mods: Modifier[SvgElement]*): HtmlElement =
-    reactive(lucide = Seq("m6 9 6 6 6-6"), hugeicons = Seq("m6 9 6 6 6-6"))(mods*)
+    reactive(
+      lucide = Seq("m6 9 6 6 6-6"),
+      hugeicons = Seq("M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9")
+    )(mods*)
 
   def chevronsUpDown(mods: Modifier[SvgElement]*): HtmlElement =
-    reactive(lucide = Seq("m7 15 5 5 5-5", "m7 9 5-5 5 5"), hugeicons = Seq("m7 15 5 5 5-5", "m7 9 5-5 5 5"))(mods*)
+    reactive(
+      lucide = Seq("m7 15 5 5 5-5", "m7 9 5-5 5 5"),
+      hugeicons = Seq(
+        "M18 14C18 14 13.5811 19 12 19C10.4188 19 6 14 6 14",
+        "M18 9.99996C18 9.99996 13.5811 5.00001 12 5C10.4188 4.99999 6 10 6 10"
+      )
+    )(mods*)
 
   def check(mods: Modifier[SvgElement]*): HtmlElement =
-    reactive(lucide = Seq("M20 6 9 17l-5-5"), hugeicons = Seq("M20 6 9 17l-5-5"))(mods*)
+    reactive(lucide = Seq("M20 6 9 17l-5-5"), hugeicons = Seq("M5 14L8.5 17.5L19 6.5"))(mods*)
 
   def x(mods: Modifier[SvgElement]*): HtmlElement =
-    reactive(lucide = Seq("M18 6 6 18", "m6 6 12 12"), hugeicons = Seq("M18 6 6 18", "m6 6 12 12"))(mods*)
+    reactive(
+      lucide = Seq("M18 6 6 18", "m6 6 12 12"),
+      hugeicons = Seq("M18 6L6.00081 17.9992", "M17.9992 18L6 6.00085")
+    )(mods*)
