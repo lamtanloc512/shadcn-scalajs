@@ -10,6 +10,10 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+@utility inline-contents {
+  display: contents;
+}
+
 @theme inline {
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading-token);
