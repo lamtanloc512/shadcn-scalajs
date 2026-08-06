@@ -772,3 +772,13 @@
   --style-card-radius: 1.25rem;
   --style-control-radius: 0.875rem;
 }
+
+.cn-dashboard-01[data-menu-color="inverted"] aside {
+  background-color: var(--foreground);
+  color: var(--background);
+}
+
+.cn-dashboard-01[data-menu-accent="solid"] aside nav a[class*="bg-accent"] {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}

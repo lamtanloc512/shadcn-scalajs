@@ -28,9 +28,10 @@ object Dashboard01:
     Transaction("Design Subscription", "Software", "-$12.00", "Pending")
   )
 
-  def apply(): HtmlElement =
+  def apply(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       cls := "cn-dashboard-01 flex min-h-svh w-full bg-muted/30",
+      mods,
       asideTag(
         cls := "hidden w-56 shrink-0 border-r bg-card md:block",
         div(cls := "flex h-14 items-center gap-2 border-b px-4 text-sm font-semibold", "Acme Analytics"),
