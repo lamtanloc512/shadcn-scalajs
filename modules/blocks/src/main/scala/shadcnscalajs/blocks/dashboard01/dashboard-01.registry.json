@@ -4,7 +4,7 @@
   "type": "scala:block",
   "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
   "categories": ["dashboard", "analytics"],
-  "registryDependencies": ["card", "table", "progress", "chart", "badge", "field", "button", "input"],
+  "registryDependencies": ["card", "table", "progress", "chart", "badge", "field", "button", "input", "icons"],
   "scalaDependencies": [],
   "files": [
     { "path": "dashboard01/Dashboard01.scala", "type": "scala:page" }

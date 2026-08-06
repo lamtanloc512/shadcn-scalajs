@@ -6,7 +6,8 @@
   "registryDependencies": [
     "popover",
     "command",
-    "badge"
+    "badge",
+    "icons"
   ],
   "scalaDependencies": [],
   "files": [

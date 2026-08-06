@@ -3,7 +3,9 @@
   "name": "accordion",
   "title": "Accordion",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
     {

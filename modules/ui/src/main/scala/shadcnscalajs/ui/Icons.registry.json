@@ -1,0 +1,7 @@
+{
+  "name": "icons",
+  "title": "Icons",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Icons.scala", "type": "scala:ui" }]
+}

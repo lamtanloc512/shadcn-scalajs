@@ -1,1 +1,1 @@
-{"name":"combobox","title":"Combobox","registryDependencies":["popover","command","badge"],"scalaDependencies":[],"files":[{"path":"Combobox.scala","type":"scala:ui"}]}
+{"name":"combobox","title":"Combobox","registryDependencies":["popover","command","badge","icons"],"scalaDependencies":[],"files":[{"path":"Combobox.scala","type":"scala:ui"}]}

@@ -3,7 +3,9 @@
     "name": "accordion",
     "title": "Accordion",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "icons"
+    ]
   },
   {
     "name": "alert",
@@ -96,7 +98,8 @@
     "registryDependencies": [
       "popover",
       "command",
-      "badge"
+      "badge",
+      "icons"
     ]
   },
   {
@@ -168,6 +171,12 @@
   {
     "name": "hover-card",
     "title": "Hover Card",
+    "type": "scala:ui",
+    "registryDependencies": []
+  },
+  {
+    "name": "icons",
+    "title": "Icons",
     "type": "scala:ui",
     "registryDependencies": []
   },
@@ -416,7 +425,8 @@
       "badge",
       "field",
       "button",
-      "input"
+      "input",
+      "icons"
     ],
     "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
     "categories": [

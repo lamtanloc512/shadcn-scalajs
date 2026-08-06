@@ -1,7 +1,7 @@
 {
   "name": "accordion",
   "title": "Accordion",
-  "registryDependencies": [],
+  "registryDependencies": ["icons"],
   "scalaDependencies": [],
   "files": [{ "path": "Accordion.scala", "type": "scala:ui" }]
 }
