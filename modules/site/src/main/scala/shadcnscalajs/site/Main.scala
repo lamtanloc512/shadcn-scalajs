@@ -40,6 +40,7 @@ object Main:
         BlockPreviewPage(pathname.stripPrefix("/blocks/").stripSuffix("/preview"))
       else if pathname == "/blocks" || pathname == "/blocks/" then BlocksIndexPage()
       else if pathname.startsWith("/blocks/") then BlockDocsPage(pathname.stripPrefix("/blocks/").stripSuffix("/"))
+      else if pathname == "/create" || pathname == "/create/" then CreatePage()
       else app()
     render(dom.document.getElementById("root"), page)
 
@@ -267,6 +268,7 @@ object Main:
               aria.label := "Primary",
               a(cls := btnGhost, href := "/components", "Components"),
               a(cls := btnGhost, href := "/blocks", "Blocks"),
+              a(cls := btnGhost, href := "/create", "Create"),
               a(
                 cls := btnGhost,
                 href := "https://github.com/lamtanloc512/shadcn-scalajs",
@@ -1100,7 +1102,8 @@ object Main:
             aria.label := "Primary",
             a(cls := btnGhost, href := "/", "Home"),
             a(cls := btnGhost + " bg-accent text-accent-foreground", href := "/components", "Components"),
-            a(cls := btnGhost, href := "/blocks", "Blocks")
+            a(cls := btnGhost, href := "/blocks", "Blocks"),
+            a(cls := btnGhost, href := "/create", "Create")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
@@ -1962,7 +1965,8 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               href := s"/components/$componentName",
               "Components"
             ),
-            a(cls := btnGhost, href := "/blocks", "Blocks")
+            a(cls := btnGhost, href := "/blocks", "Blocks"),
+            a(cls := btnGhost, href := "/create", "Create")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",

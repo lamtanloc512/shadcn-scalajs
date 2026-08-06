@@ -34,7 +34,8 @@ object BlocksLayout:
             aria.label := "Primary",
             a(cls := Main.btnGhost, href := "/", "Home"),
             a(cls := Main.btnGhost, href := "/components", "Components"),
-            a(cls := Main.btnGhost + " bg-accent text-accent-foreground", href := "/blocks", "Blocks")
+            a(cls := Main.btnGhost + " bg-accent text-accent-foreground", href := "/blocks", "Blocks"),
+            a(cls := Main.btnGhost, href := "/create", "Create")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
