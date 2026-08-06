@@ -49,11 +49,11 @@ Preset value lists:
 |---|---|
 | `stylePack` | vega, nova, maia, lyra, mira, luma, sera, rhea (existing, unchanged) |
 | `baseColor` | neutral, gray, zinc, stone, slate |
-| `themeColor` | orange, red, blue, green, violet |
-| `chartColor` | orange, red, blue, green, violet (same list as `themeColor`, settable independently) |
+| `themeColor` | red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose — Tailwind's standard named color palette, matching shadcn's own convention rather than a smaller invented list |
+| `chartColor` | same palette as `themeColor`, settable independently |
 | `headingFont` / `bodyFont` | default, inter, geist, dm-sans |
 | `iconLibrary` | lucide, hugeicons |
-| `radius` | none, sm, default, lg, xl |
+| `radius` | default, none, small, medium, large — matching shadcn's actual radius preset names (not the `sm`/`lg`/`xl` naming I'd first proposed) |
 
 Two scoping notes:
 
