@@ -28,6 +28,13 @@ object Dashboard01:
     Transaction("Design Subscription", "Software", "-$12.00", "Pending")
   )
 
+  // Written out as full literal class names (not string-interpolated) so Tailwind's static content
+  // scanner — which only recognizes complete class-name tokens verbatim in source — actually
+  // generates all five `bg-chart-N` utilities instead of just whichever happens to appear literally
+  // elsewhere in the codebase.
+  private val chartColorClasses =
+    List("bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5")
+
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       cls := "cn-dashboard-01 flex min-h-svh w-full bg-muted/30",
@@ -66,8 +73,8 @@ object Dashboard01:
               Chart(
                 div(
                   cls := "flex h-full w-full items-end gap-3 px-2",
-                  List(38, 62, 45, 80, 55, 90, 70).map { pct =>
-                    div(cls := "flex-1 rounded-t bg-primary", height := s"$pct%")
+                  List(38, 62, 45, 80, 55, 90, 70).zipWithIndex.map { case (pct, i) =>
+                    div(cls := s"flex-1 rounded-t ${chartColorClasses(i % 5)}", height := s"$pct%")
                   }
                 )
               )

@@ -3,6 +3,18 @@
 @import "./basecoat.generated.css";
 @import "./shadcn-presets.generated.css";
 
+/* Tailwind v4's automatic content detection is scoped to this Vite project's own root
+   (modules/site) — it never sees modules/ui's or modules/blocks's Scala sources directly. Most of
+   those modules' utility classes still render correctly today only by coincidence, because the
+   exact same literal class-name strings also happen to appear somewhere in modules/site's own
+   source (docs pages re-demo the same classes). Utility names that aren't duplicated anywhere in
+   modules/site — e.g. `bg-chart-3`/`bg-chart-4`/`bg-chart-5`, only ever used inside
+   modules/blocks/dashboard01/Dashboard01.scala — silently never get generated. Declare both sibling
+   source trees explicitly so their classes are scanned regardless of what modules/site happens to
+   duplicate. */
+@source "../../../ui/src/main/scala/**/*.scala";
+@source "../../../blocks/src/main/scala/**/*.scala";
+
 @custom-variant dark (&:is(.dark *));
 
 @utility no-scrollbar {
