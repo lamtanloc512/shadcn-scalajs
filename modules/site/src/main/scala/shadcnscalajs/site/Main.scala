@@ -1343,7 +1343,8 @@ object Main:
           )
         )
       case "chart"    => previewCanvas(Chart("Chart preview"))
-      case "checkbox" => previewCanvas(Checkbox(), Label("Accept terms"))
+      case "checkbox" =>
+        previewCanvas(Checkbox(idAttr := "terms"), Label(forId := "terms", "Accept terms"))
       case "collapsible" =>
         previewCanvas(
           Collapsible(
@@ -1724,8 +1725,8 @@ Button.of(_.variant(Button.Variant.Destructive), _ => "Delete")"""
   Card.content("Your latest deployment is ready.")
 )"""
       case "chart"    => """Chart("Chart preview")"""
-      case "checkbox" => """Checkbox()
-Label("Accept terms")"""
+      case "checkbox" => """Checkbox(idAttr := "terms")
+Label(forId := "terms", "Accept terms")"""
       case "collapsible" =>
         """Collapsible(
   Collapsible.trigger("Show details"),
