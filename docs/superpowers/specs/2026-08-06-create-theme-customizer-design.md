@@ -7,7 +7,7 @@
 
 - A new `/create` page with a customizer sidebar (9 controls) and a live dashboard preview that visibly reacts to every control.
 - The customizer's choices are **site-wide**: they drive the same styling state the existing header style-pack selector uses, on every page (Home, Docs, Components gallery, Component doc pages, Blocks pages, and `/create` itself).
-- Icon Library becomes a genuinely functional control: every existing shipped component (~30 of them) that currently hand-rolls its own inline SVG icon gets migrated to a shared, swappable icon registry supporting Lucide and Hugeicons.
+- Icon Library becomes a genuinely functional control: every existing shipped component that currently hand-rolls its own inline SVG icon gets migrated to a shared, swappable icon registry supporting Lucide and Hugeicons. (Corrected during planning: a direct code audit found this is actually 2 components — `Accordion`/`Combobox`, 4 icons total — not ~30; the ~30-icon count actually lives in `Main.scala`'s landing-page marketing bullets, which are explicitly out of scope, see below.)
 
 ## Non-goals (explicitly deferred to later specs)
 
@@ -16,6 +16,7 @@
 - The "Initialize Project" dialog / CLI command generation.
 - The reference's richer popover/swatch-grid picker widgets — this spec uses plain `<select>` dropdowns for every control, matching the pattern the existing header style-pack selector already uses.
 - Migrating every icon usage to the new abstraction is in scope (see Icon Library below), but sourcing additional icon libraries beyond Lucide and Hugeicons is not.
+- `Main.scala`'s ~30 landing-page marketing icons (wallet, landmark, calendar, shield, etc. — feature-list bullet decorations, unrelated to any reusable component) stay on their current hard-coded Lucide-only implementation. Icon Library switching visibly affects every real UI-component icon and the new dashboard preview block, which is where it actually matters for evaluating the customizer.
 
 ## Architectural context
 
@@ -93,8 +94,9 @@ New module: `modules/ui/src/main/scala/shadcnscalajs/ui/Icons.scala`.
 
 - A named registry function per icon actually used anywhere in the component library today (audit needed as the first implementation step — expected set includes at minimum: `chevronDown`, `chevronUp`, `chevronRight`, `chevronsUpDown`, `check`, `x`, `search`, `sun`, `moon`, plus whatever else turns up in the audit).
 - Each named function resolves to one of two backing implementations — Lucide (centralizing the path data already hard-coded today, unchanged visually) or Hugeicons (newly sourced from Hugeicons' free, MIT-licensed stroke-rounded set, matching each Lucide icon's meaning as closely as that free set allows) — based on the active `ThemeConfig.iconLibrary`, read the same way `applyToDocument` exposes the other fields (a `data-icon-library` attribute on `<html>`, read via a small reactive signal `Icons.activeLibrary: Signal[String]` that components consume when building their icon elements).
-- Every existing component (~30 files, e.g. `Accordion.scala`'s `chevronDown()`, `Combobox.scala`'s `chevronsUpDown()`/`checkIcon()`, `DropdownMenu`, and everything else with a private inline `svgTag(...)` helper) gets refactored to call `Icons.xxx()` instead of its own private icon function.
-- This is the largest, most mechanical chunk of work in this spec — see Implementation strategy below.
+- Confirmed by direct code audit: exactly 2 `modules/ui` files have inline icon functions today — `Accordion.scala`'s `chevronDown()`, and `Combobox.scala`'s `chevronsUpDown()`/`checkIcon()`/`removeIcon()` (4 icons total). Both get refactored to call `Icons.xxx()` instead of their own private `svgTag(...)` helpers.
+- The new `Dashboard01` block (see UI structure below) also draws its icons through `Icons.xxx()` from the start, rather than hand-rolling its own.
+- `Main.scala`'s ~30 landing-page marketing icons are explicitly out of scope (see Non-goals) — they stay on their current hard-coded implementation.
 
 ## UI structure
 
