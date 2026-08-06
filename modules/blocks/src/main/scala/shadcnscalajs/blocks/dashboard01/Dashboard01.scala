@@ -53,7 +53,7 @@ object Dashboard01:
         div(
           cls := "mb-6 flex items-center justify-between",
           h1(cls := "font-heading text-2xl font-semibold", "Overview"),
-          Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Export")
+          Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => span("Export", Icons.chevronDown()))
         ),
         div(
           cls := "grid gap-4 md:grid-cols-3",
@@ -105,12 +105,22 @@ object Dashboard01:
                       Table.cell(t.name),
                       Table.cell(cls := "text-muted-foreground", t.category),
                       Table.cell(t.amount),
-                      Table.cell(
-                        Badge.of(
-                          _.variant(if t.status == "Completed" then Badge.Variant.Secondary else Badge.Variant.Outline),
-                          _ => t.status
+                      if t.status == "Completed" then
+                        Table.cell(
+                          cls := "flex items-center gap-1.5",
+                          Icons.check(),
+                          Badge.of(
+                            _.variant(Badge.Variant.Secondary),
+                            _ => t.status
+                          )
                         )
-                      )
+                      else
+                        Table.cell(
+                          Badge.of(
+                            _.variant(Badge.Variant.Outline),
+                            _ => t.status
+                          )
+                        )
                     )
                   }
                 )
