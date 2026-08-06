@@ -3,6 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Router-less multi-page app: every navigation is a real page load, and the Scala.js bundle
+       (which calls ThemeConfig.applyToDocument) is deferred, so without this the page would paint
+       with default styling before the persisted theme applies. This synchronous, blocking script
+       mirrors ThemeConfig.applyToDocument by reading the same localStorage key directly, before any
+       stylesheet or the deferred module script runs. Duplicating the attribute list here (rather
+       than sharing code with the Scala side) is intentional, matching shadcn/ui's own docs site. -->
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("shadcn-scalajs:theme");
+        if (!raw) return;
+        var cfg = JSON.parse(raw);
+        var html = document.documentElement;
+        if (cfg.stylePack) html.setAttribute("data-style-pack", cfg.stylePack);
+        if (cfg.baseColor) html.setAttribute("data-base-color", cfg.baseColor);
+        if (cfg.themeColor) html.setAttribute("data-theme-color", cfg.themeColor);
+        if (cfg.chartColor) html.setAttribute("data-chart-color", cfg.chartColor);
+        if (cfg.headingFont) html.setAttribute("data-heading-font", cfg.headingFont);
+        if (cfg.bodyFont) html.setAttribute("data-body-font", cfg.bodyFont);
+        if (cfg.iconLibrary) html.setAttribute("data-icon-library", cfg.iconLibrary);
+        if (cfg.radius) html.setAttribute("data-radius", cfg.radius);
+        if (cfg.darkMode) html.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@400..700&family=Inter:wght@100..900&family=Noto+Sans:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:wght@100..900&display=swap" rel="stylesheet" />
