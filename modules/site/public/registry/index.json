@@ -94,7 +94,9 @@
     "title": "Combobox",
     "type": "scala:ui",
     "registryDependencies": [
-      "popover"
+      "popover",
+      "command",
+      "badge"
     ]
   },
   {
@@ -388,5 +390,86 @@
     "title": "Tooltip",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "calendar-01",
+    "title": "Calendar 01",
+    "type": "scala:block",
+    "registryDependencies": [
+      "calendar"
+    ],
+    "description": "A single date picker.",
+    "categories": [
+      "calendar",
+      "date"
+    ]
+  },
+  {
+    "name": "dashboard-01",
+    "title": "Dashboard 01",
+    "type": "scala:block",
+    "registryDependencies": [
+      "card",
+      "table",
+      "progress",
+      "chart",
+      "badge",
+      "field",
+      "button",
+      "input"
+    ],
+    "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
+    "categories": [
+      "dashboard",
+      "analytics"
+    ]
+  },
+  {
+    "name": "login-01",
+    "title": "Login 01",
+    "type": "scala:block",
+    "registryDependencies": [
+      "button",
+      "card",
+      "input",
+      "field"
+    ],
+    "description": "A simple login form.",
+    "categories": [
+      "authentication",
+      "login"
+    ]
+  },
+  {
+    "name": "otp-01",
+    "title": "OTP 01",
+    "type": "scala:block",
+    "registryDependencies": [
+      "button",
+      "card",
+      "field",
+      "input-otp"
+    ],
+    "description": "A one-time-password verification form.",
+    "categories": [
+      "authentication",
+      "otp"
+    ]
+  },
+  {
+    "name": "signup-01",
+    "title": "Signup 01",
+    "type": "scala:block",
+    "registryDependencies": [
+      "button",
+      "card",
+      "input",
+      "field"
+    ],
+    "description": "A signup form with name, email and password fields.",
+    "categories": [
+      "authentication",
+      "signup"
+    ]
   }
 ]

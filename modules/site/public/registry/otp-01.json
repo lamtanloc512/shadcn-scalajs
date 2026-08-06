@@ -1,0 +1,30 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "otp-01",
+  "title": "OTP 01",
+  "type": "scala:block",
+  "registryDependencies": [
+    "button",
+    "card",
+    "field",
+    "input-otp"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.blocks.otp01\n\nimport com.raquo.laminar.api.L.*\n\n/** Authored page composition for the OTP block. See Login01's note on file-based routing. */\nobject Otp01:\n\n  def apply(): HtmlElement =\n    div(\n      cls := \"flex min-h-svh w-full items-center justify-center p-6 md:p-10\",\n      div(cls := \"w-full max-w-sm\", OtpForm())\n    )\n",
+      "type": "scala:page",
+      "target": "blocks/otp01/Otp01.scala"
+    },
+    {
+      "content": "package shadcnscalajs.blocks.otp01\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.ui.*\n\n/** Authored for shadcn-scalajs — there is no upstream `otp-01` block. Structure follows `login-01`'s card + Field\n  * layout, with InputOTP as the input.\n  */\nobject OtpForm:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    val codeVar = Var(\"\")\n    div(\n      cls := \"flex flex-col gap-6\",\n      mods,\n      Card(\n        Card.header(\n          Card.title(\"Enter your verification code\"),\n          Card.description(\"We sent a 6-digit code to m@example.com\")\n        ),\n        Card.content(\n          form(\n            Field.group(\n              Field(\n                cls := \"items-center\",\n                InputOTP(codeVar)\n              ),\n              Field(\n                Button.of(\n                  _.variant(Button.Variant.Primary),\n                  _.size(Button.Size.Default),\n                  _ => typ := \"submit\",\n                  _ => \"Verify\"\n                ),\n                Field.description(\n                  cls := \"text-center\",\n                  \"Didn't get a code? \",\n                  a(href := \"#\", \"Resend\")\n                )\n              )\n            )\n          )\n        )\n      )\n    )\n",
+      "type": "scala:component",
+      "target": "blocks/otp01/OtpForm.scala"
+    }
+  ],
+  "description": "A one-time-password verification form.",
+  "categories": [
+    "authentication",
+    "otp"
+  ]
+}

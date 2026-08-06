@@ -1,0 +1,22 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "calendar-01",
+  "title": "Calendar 01",
+  "type": "scala:block",
+  "registryDependencies": [
+    "calendar"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.blocks.calendar01\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.ui.*\n\nimport scala.scalajs.js\n\n/** Port of shadcn/ui `blocks/calendar-01.tsx` — a single date picker with a bordered container. */\nobject Calendar01:\n\n  def apply(): HtmlElement =\n    val selected = Var(Option(new js.Date(2025, 5, 12)))\n    div(\n      cls := \"flex min-h-svh w-full items-center justify-center p-6 md:p-10\",\n      Calendar(selected, cls := \"rounded-lg border shadow-sm\")\n    )\n",
+      "type": "scala:page",
+      "target": "blocks/calendar01/Calendar01.scala"
+    }
+  ],
+  "description": "A single date picker.",
+  "categories": [
+    "calendar",
+    "date"
+  ]
+}

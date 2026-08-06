@@ -1,0 +1,30 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "login-01",
+  "title": "Login 01",
+  "type": "scala:block",
+  "registryDependencies": [
+    "button",
+    "card",
+    "input",
+    "field"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.blocks.login01\n\nimport com.raquo.laminar.api.L.*\n\n/** Port of shadcn/ui new-york-v4 `blocks/login-01/page.tsx`.\n  *\n  * Upstream ships this as a file-routed page (`target: app/login/page.tsx`). Laminar has no file-based routing, so it\n  * is a plain composition the consumer mounts wherever their own router wants it.\n  */\nobject Login01:\n\n  def apply(): HtmlElement =\n    div(\n      cls := \"flex min-h-svh w-full items-center justify-center p-6 md:p-10\",\n      div(cls := \"w-full max-w-sm\", LoginForm())\n    )\n",
+      "type": "scala:page",
+      "target": "blocks/login01/Login01.scala"
+    },
+    {
+      "content": "package shadcnscalajs.blocks.login01\n\nimport com.raquo.laminar.api.L.*\nimport shadcnscalajs.ui.*\n\n/** Port of shadcn/ui new-york-v4 `blocks/login-01/components/login-form.tsx`. */\nobject LoginForm:\n\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      cls := \"flex flex-col gap-6\",\n      mods,\n      Card(\n        Card.header(\n          Card.title(\"Login to your account\"),\n          Card.description(\"Enter your email below to login to your account\")\n        ),\n        Card.content(\n          form(\n            Field.group(\n              Field(\n                Field.label(\"Email\", forId := \"email\"),\n                Input(idAttr := \"email\", typ := \"email\", placeholder := \"m@example.com\", required := true)\n              ),\n              Field(\n                div(\n                  cls := \"flex items-center\",\n                  Field.label(\"Password\", forId := \"password\"),\n                  a(\n                    href := \"#\",\n                    cls := \"ml-auto inline-block text-sm underline-offset-4 hover:underline\",\n                    \"Forgot your password?\"\n                  )\n                ),\n                Input(idAttr := \"password\", typ := \"password\", required := true)\n              ),\n              Field(\n                Button.of(\n                  _.variant(Button.Variant.Primary),\n                  _.size(Button.Size.Default),\n                  _ => typ := \"submit\",\n                  _ => \"Login\"\n                ),\n                Button.of(\n                  _.variant(Button.Variant.Outline),\n                  _.size(Button.Size.Default),\n                  _ => typ := \"button\",\n                  _ => \"Login with Google\"\n                ),\n                Field.description(cls := \"text-center\", \"Don't have an account? \", a(href := \"#\", \"Sign up\"))\n              )\n            )\n          )\n        )\n      )\n    )\n",
+      "type": "scala:component",
+      "target": "blocks/login01/LoginForm.scala"
+    }
+  ],
+  "description": "A simple login form.",
+  "categories": [
+    "authentication",
+    "login"
+  ]
+}
