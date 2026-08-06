@@ -3,10 +3,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-export PATH="$PATH:/Users/locgorilla/Library/Application Support/Coursier/bin"
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 
-echo "build: sbt compile (core, ui, webcomponents, site) + Scala.js link"
-sbt "core/compile" "ui/compile" "webcomponents/compile" "site/compile" \
+echo "build: sbt compile (core, ui, blocks, webcomponents, site) + Scala.js link"
+sbt "core/compile" "ui/compile" "blocks/compile" "webcomponents/compile" "site/compile" \
     "ui/fastLinkJS" "webcomponents/fastLinkJS" "site/fastLinkJS"
 
 echo "build: packages/cli (tsc)"

@@ -1,1 +1,7 @@
-{"name":"field","title":"Field","registryDependencies":["label"],"scalaDependencies":[],"files":[{"path":"Field.scala","type":"scala:ui"}]}
+{
+  "name": "field",
+  "title": "Field",
+  "registryDependencies": ["label", "separator"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Field.scala", "type": "scala:ui" }]
+}

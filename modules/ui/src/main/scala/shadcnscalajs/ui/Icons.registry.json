@@ -3,5 +3,12 @@
   "title": "Icons",
   "registryDependencies": [],
   "scalaDependencies": [],
-  "files": [{ "path": "Icons.scala", "type": "scala:ui" }]
+  "files": [
+    { "path": "Icons.scala", "type": "scala:ui" },
+    { "path": "icons/LucideIconData.scala", "type": "scala:ui" },
+    { "path": "icons/TablerIconData.scala", "type": "scala:ui" },
+    { "path": "icons/HugeiconsIconData.scala", "type": "scala:ui" },
+    { "path": "icons/PhosphorIconData.scala", "type": "scala:ui" },
+    { "path": "icons/RemixIconData.scala", "type": "scala:ui" }
+  ]
 }

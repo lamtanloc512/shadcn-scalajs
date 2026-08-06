@@ -7,7 +7,6 @@ set -euo pipefail
 # wins when set.
 ROOT="${FRANKY_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 LINT="$ROOT/scripts/lint"
-[[ -x "$LINT" ]] || LINT="$ROOT/.franky/scripts/lint"
 [[ ! -x "$LINT" ]] && exit 0
 
 if ! "$LINT" >/dev/null 2>&1; then

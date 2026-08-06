@@ -1,1 +1,7 @@
-{"name":"empty","title":"Empty","registryDependencies":[],"scalaDependencies":[],"files":[{"path":"Empty.scala","type":"scala:ui"}]}
+{
+  "name": "empty",
+  "title": "Empty",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Empty.scala", "type": "scala:ui" }]
+}

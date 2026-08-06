@@ -2,18 +2,17 @@
   "mode": "adopt",
   "created": [
     ".franky/memory/summaries/",
-    ".franky/AGENTS.franky.md",
-    ".franky/specs/",
-    ".franky/specs/PROJECT.md",
+    "specs/",
+    "specs/PROJECT.md",
     ".franky/scripts.toml",
     "scripts/setup",
     "scripts/build",
     "scripts/lint",
     "scripts/test",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
-    "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
+    "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/path_guard.sh",
+    "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/secret_scan.sh",
+    "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/lint_gate.sh",
+    "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/egress_guard.sh",
     ".franky/hooks.claude.md",
     ".devcontainer/devcontainer.json",
     "scripts/visual"
@@ -31,6 +30,7 @@
     ".franky/AGENT-GUIDE.md",
     ".franky/bootstrap.json",
     ".cursor/skills/franky/SKILL.md",
+    ".franky/AGENTS.franky.md",
     ".franky/commands.toml",
     ".franky/tools/mcp.base.json",
     ".franky/tools/mcp.json",
@@ -114,8 +114,8 @@
     },
     {
       "path": ".franky/AGENTS.franky.md",
-      "action": "create",
-      "note": null
+      "action": "skip",
+      "note": "exists"
     },
     {
       "path": "AGENTS.md",
@@ -123,12 +123,12 @@
       "note": "append franky block from .franky/AGENTS.franky.md"
     },
     {
-      "path": ".franky/specs/",
+      "path": "specs/",
       "action": "create",
       "note": null
     },
     {
-      "path": ".franky/specs/PROJECT.md",
+      "path": "specs/PROJECT.md",
       "action": "create",
       "note": null
     },
@@ -173,22 +173,22 @@
       "note": "exists"
     },
     {
-      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/path_guard.sh",
+      "path": "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/path_guard.sh",
       "action": "create",
       "note": "hook"
     },
     {
-      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/secret_scan.sh",
+      "path": "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/secret_scan.sh",
       "action": "create",
       "note": "hook"
     },
     {
-      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/lint_gate.sh",
+      "path": "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/lint_gate.sh",
       "action": "create",
       "note": "hook"
     },
     {
-      "path": "/Users/locgorilla/StartUp/shadcn-scalajs/.franky/hooks/egress_guard.sh",
+      "path": "/Users/elam/Projects/shadcn-scalajs/.franky/hooks/egress_guard.sh",
       "action": "create",
       "note": "hook"
     },

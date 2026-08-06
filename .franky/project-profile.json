@@ -6,12 +6,7 @@
     "AGENTS.md"
   ],
   "mcp_files": [],
-  "existing_scripts": [
-    "setup",
-    "build",
-    "lint",
-    "test"
-  ],
+  "existing_scripts": [],
   "makefile_targets": [],
   "package_manager": null,
   "npm_scripts": {

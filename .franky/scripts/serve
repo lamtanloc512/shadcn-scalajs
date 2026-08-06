@@ -5,5 +5,5 @@
 set -euo pipefail
 cd "$(dirname "$0")/../modules/site"
 
-export PATH="$PATH:/Users/locgorilla/Library/Application Support/Coursier/bin"
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 exec npm run dev

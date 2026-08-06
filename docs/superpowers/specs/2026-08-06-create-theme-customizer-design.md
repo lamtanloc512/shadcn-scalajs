@@ -1,116 +1,411 @@
-# Create page: theme customizer + dashboard preview block
+# Create page: theme customizer + preview-02 fidelity
 
-**Status:** Draft, pending user review
-**Scope:** First of several planned specs cloning the shape of shadcn-svelte's `/create/preview-02` page (a live theme customizer with a dashboard preview) into shadcn-scalajs. Explicitly deferred to later specs: a second alternate preview mockup, URL-based preset sharing, a "Random"/shuffle control, and an "Initialize Project" dialog.
+**Status:** Accepted — implementation source of truth for the Preview-02 Fidelity Plan  
+**Date:** 2026-08-06  
+**Supersedes:** the prior draft of this document (simplified `/create` + inline `Dashboard01` customizer). That draft’s deferred non-goals (URL presets, shuffle, Initialize Project, rich pickers, five icon libraries, iframe preview, and the 33-card mosaic) are **in scope** here.
 
-## Goals
+## Goal
 
-- A new `/create` page with a customizer sidebar (9 controls) and a live dashboard preview that visibly reacts to every control.
-- The customizer's choices are **site-wide**: they drive the same styling state the existing header style-pack selector uses, on every page (Home, Docs, Components gallery, Component doc pages, Blocks pages, and `/create` itself).
-- Icon Library becomes a genuinely functional control: every existing shipped component that currently hand-rolls its own inline SVG icon gets migrated to a shared, swappable icon registry supporting Lucide and Hugeicons. (Corrected during planning: a direct code audit found this is actually 2 components — `Accordion`/`Combobox`, 4 icons total — not ~30; the ~30-icon count actually lives in `Main.scala`'s landing-page marketing bullets, which are explicitly out of scope, see below.)
+Ship a pixel-faithful Scala.js / Laminar port of shadcn-svelte’s `/create/preview-02` experience:
 
-## Non-goals (explicitly deferred to later specs)
+- Responsive create shell with customizer, header, iframe preview frame, floating preview switcher, actions, and Initialize Project dialog.
+- Exact 33-card preview-02 mosaic (34 site source files: one grid + 33 cards).
+- Full preset encode/decode, locks, undo/redo history, randomize/reset, dark-mode shortcut, and five icon libraries.
+- Routes: `/create`, `/create/preview-02`, and chrome-less `/preview/preview-02` (iframe target).
 
-- The reference's second alternate dashboard mockup and its "01/02" preview switcher.
-- URL query-param state encoding, "Copy Preset" / "Open Preset" sharing, and the "Random" (shuffle) control.
-- The "Initialize Project" dialog / CLI command generation.
-- The reference's richer popover/swatch-grid picker widgets — this spec uses plain `<select>` dropdowns for every control, matching the pattern the existing header style-pack selector already uses.
-- Migrating every icon usage to the new abstraction is in scope (see Icon Library below), but sourcing additional icon libraries beyond Lucide and Hugeicons is not.
-- `Main.scala`'s ~30 landing-page marketing icons (wallet, landmark, calendar, shield, etc. — feature-list bullet decorations, unrelated to any reusable component) stay on their current hard-coded Lucide-only implementation. Icon Library switching visibly affects every real UI-component icon and the new dashboard preview block, which is where it actually matters for evaluating the customizer.
+Reference sources (do not invent layout or copy):
 
-## Architectural context
+- Shell: `shadcn-svelte/docs/src/routes/(app)/(layout)/(create)/create/+layout.svelte` and sibling `components/*`
+- Mosaic: `shadcn-svelte/docs/src/lib/registry/examples/create/preview-02/preview-02.svelte` + `cards/*`
+- Preset/state: `shadcn-svelte` `packages/cli/src/preset/preset.ts` + `docs/src/lib/features/design-system/*`
 
-This site is a static multi-page app with no client-side router: every navigation is a real browser navigation, and `Main.main()` re-runs from scratch on each page load with fresh `Var`s (see `modules/site/src/main/scala/shadcnscalajs/site/Main.scala`'s `main()` dispatch). The existing header style-pack `<select>` already demonstrates this limitation today — its selection resets to "lyra" on every navigation, because there is no persistent in-memory state across page loads.
+## Non-goals (only these)
 
-"Site-wide" therefore requires real persistence, not just a shared `Var`. This design uses `localStorage`.
+1. **Switcher “02” mosaic** — the reference switcher maps label `"02"` → registry example `preview` (a separate 33-card mosaic under `examples/create/preview/`). Keep the floating **01 / 02** switcher UI with **01** active (`preview-02`). Do **not** port the separate `preview` mosaic in this work. Clicking **02** may no-op, show a short “coming soon” affordance, or route to a stub — but must not claim fidelity for that mosaic.
+2. **CLI packaging of preview-02** — preview-02 is a **site-only** registry-example equivalent under `modules/site`, not a `modules/blocks` CLI block and not written by `packages/cli add`.
+3. **Changing `dashboard-01`** — leave `modules/blocks/.../dashboard01/` and its registry entry **unchanged**. It remains separately available on Blocks routes. `/create` no longer uses it as the create-page preview.
+4. **Unifying duplicated site headers** across the whole docs site (still owned by the docs-site IA redesign). Add Create nav links where the create shell needs them; do not rewrite all four headers as a separate project.
+5. **Welcome-dialog marketing copy parity beyond structure** — include the dismissible welcome dialog in the create shell (reference: `welcome-dialog.svelte`); adapt product naming to shadcn-scalajs where needed, but keep layout/behavior.
 
-## Data model
+Everything else required for visual and interaction fidelity of `/create/preview-02` is in scope, including previously deferred customizer features.
 
-A single case class, `ThemeConfig`, replaces the separate `darkMode`/`stylePack` `Var`s every page currently creates independently:
+---
 
-```scala
-final case class ThemeConfig(
-  stylePack: String = "lyra",
-  darkMode: Boolean = false,
-  baseColor: String = "neutral",
-  themeColor: String = "orange",
-  chartColor: String = "orange",
-  headingFont: String = "default",
-  bodyFont: String = "default",
-  iconLibrary: String = "lucide",
-  radius: String = "default",
-  menuColor: String = "default",
-  menuAccent: String = "subtle"
-)
+## Architecture
+
+### Placement
+
+| Concern | Location |
+|---|---|
+| Theme / preset state | `modules/site/.../ThemeConfig.scala` (evolve in place) |
+| Create shell, customizer, pickers, actions, dialogs | `modules/site/.../site/create/` (split from today’s `CreatePage.scala`) |
+| Preview-02 mosaic | `modules/site/.../site/create/preview02/` — **34 Scala files** |
+| Shared UI primitives gaps | `modules/ui` only as needed by the reference; update `.registry.json` when APIs/deps change |
+| Icons (5 libraries) | `modules/ui/Icons.scala` + `Icons.registry.json` |
+| Routing / FOUC / fonts / tokens / QR dep | `Main.scala`, `globals.css`, `index.html`, `modules/site/package.json` |
+| Existing dashboard block | `modules/blocks/.../dashboard01/` — **untouched** |
+
+### Routing (static multi-page site)
+
+This site has **no client-side router**: each path is a real navigation; `Main.main()` remounts with fresh `Var`s. Persistence must use `localStorage` + URL `?preset=` (and iframe attribute sync), not an in-memory singleton alone.
+
+| Path | Behavior |
+|---|---|
+| `/create` | Redirect (or immediate remount equivalent) to `/create/preview-02`, preserving `url.search` (reference: `create/+page.server.ts` → 303 to `/create/preview-02${search}`). |
+| `/create/preview-02` | Full create chrome: site header + designer main + customizer + iframe pointing at `/preview/preview-02` (+ current preset query) + floating switcher. |
+| `/preview/preview-02` | Chrome-less mosaic only (`Preview02`), for the iframe. Support `fromPreview=true` minimize control back to `/create/preview-02` with search preserved (reference: `preview/[item]/+page.svelte`). |
+
+Other `/create/<item>` values are out of scope except the deferred **02** stub if implemented.
+
+### Iframe + theme sync
+
+- Parent create page hosts `<iframe src="/preview/preview-02?...">` with height `h-(--preview-height)` and `title` set to the item name.
+- Maximize control (top-right of preview frame) navigates to `/preview/preview-02?...&fromPreview=true`.
+- Theme must apply on both parent and iframe documents without FOUC: blocking/pre-paint script in `index.html` plus `ThemeConfig.applyToDocument` on mount; persist preset string and locks so iframe loads match parent.
+- Fix any stale `dark` class removal path so light mode clears correctly after dark.
+
+---
+
+## Exact layout dimensions (create shell)
+
+Mirror reference CSS custom properties and structure from `create/+layout.svelte` + `customizer.svelte` + `preview.svelte`:
+
+```
+[--customizer-width:--spacing(56)]          /* 14rem */
+[--gap:--spacing(4)] md:[--gap:--spacing(6)]
+[--preview-height:calc(100svh-var(--header-height)-2rem-150px)]
+md:[--preview-height:calc(100svh-var(--header-height)-2rem)]
 ```
 
-Preset value lists:
+Shell structure:
 
-| Field | Values |
+- Root: `group/layout relative z-10 flex h-svh flex-col overflow-hidden section-soft`
+- Main (`data-slot="designer"`): `container-wrapper flex min-h-0 flex-1 flex-col gap-(--gap) p-(--gap) pt-[calc(var(--gap)*0.25)] md:flex-row-reverse`
+  - Children = preview frame (flex-1)
+  - Customizer column: `md:w-(--customizer-width)`, self-start
+- Customizer card: `dark max-h-(--preview-height) ... rounded-2xl bg-card/90 shadow-xl backdrop-blur-xl`, size sm
+  - Desktop: vertical field groups + separators; header with Main Menu visible `md:flex`
+  - Mobile: horizontal scrolling controls (`flex-row` field groups, `overflow-x-auto` content)
+- Preview frame (`data-slot="preview"`): `rounded-2xl border`, inner scroll `max-h-(--preview-height)`, iframe height `--preview-height`
+- Floating switcher: `absolute right-3 bottom-3`, `dark ... rounded-xl bg-card/90 p-1 shadow-xl backdrop-blur-xl`, buttons `h-7 min-w-8 ... data-[active=true]:bg-accent`
+- Sponsor blocks (`Cta` / `Ethical` equivalents): `hidden md:flex` below customizer on desktop
+
+Do not invent a left-rail `<aside>` customizer; the reference is **desktop reversed** (customizer on the right via `md:flex-row-reverse`).
+
+---
+
+## Exact layout dimensions (preview-02 mosaic)
+
+From `preview-02.svelte`:
+
+Outer: `overflow-x-auto overflow-y-hidden bg-muted contain-[paint]` with gap tokens:
+
+```
+[--gap:--spacing(4)]
+md:[--gap:--spacing(10)]
+3xl:[--gap:--spacing(12)]
+style-lyra:md:[--gap:--spacing(6)]
+style-mira:md:[--gap:--spacing(6)]
+dark:bg-background
+```
+
+Capture grid (`data-slot="capture-target"`):
+
+```
+grid w-[2400px] grid-cols-7 ... md:w-[3000px]
+style-lyra:md:w-[2600px]
+style-mira:md:w-[2600px]
+gap-(--gap) p-(--gap)
+*:[div]:gap-(--gap)
+```
+
+Seven columns (left → right), card order **exact**:
+
+| Col | Span / notes | Cards (top → bottom) |
+|---|---|---|
+| 1 | 1 col; `contain-intrinsic-size:380px_1200px` | ContributionHistory, EmptyDistributeTrack, QrConnect, DividendIncome, IndexInvesting, SyncingState |
+| 2 | 1 col | PayoutThreshold, ClaimableBalance, Preferences, SavingsProgress, KitchenIsland |
+| 3–4 | `col-span-2`; intrinsic `760px_1200px` | SavingsTargets, RecentTransactions; then nested 2-col: (SidebarNav, Faq) \| (Payments, FrontDoor); then ReleaseCatalog |
+| 5 | 1 col | AccountAccess, CardOverview, TransferFunds, CoverArt, LoadingCard |
+| 6 | 1 col | ReceivingMethod, PowerUsage, EmptyConnectBank, UpcomingPayments, RollerShades |
+| 7 | 1 col | StockPerformance, EmptyExploreCatalog, NewMilestone, SocialLinks, NotificationSettings |
+
+That is **33 cards**. Source file budget under `modules/site/.../create/preview02/`:
+
+1. `Preview02.scala` — grid shell only  
+2–34. One Scala file per card (PascalCase matching the reference component names above)
+
+Copy, datasets, class names, style-pack gap/width overrides, and per-card responsive visibility (e.g. DividendIncome `hidden md:block` chart/label) must match the reference files. Prefer `content-visibility` / contain-intrinsic sizing class parity where Tailwind v4 supports the utilities used.
+
+---
+
+## Component boundaries (create shell)
+
+Split today’s monolithic `CreatePage.scala` into focused site modules (names indicative; keep packages under `shadcnscalajs.site.create`):
+
+| Module | Responsibility |
 |---|---|
-| `stylePack` | vega, nova, maia, lyra, mira, luma, sera, rhea (existing, unchanged) |
-| `baseColor` | neutral, gray, zinc, stone, slate |
-| `themeColor` | red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose — Tailwind's standard named color palette, matching shadcn's own convention rather than a smaller invented list |
-| `chartColor` | same palette as `themeColor`, settable independently |
-| `headingFont` / `bodyFont` | default, inter, geist, dm-sans |
-| `iconLibrary` | lucide, hugeicons |
-| `radius` | default, none, small, medium, large — matching shadcn's actual radius preset names (not the `sm`/`lg`/`xl` naming I'd first proposed) |
+| Create shell / layout | CSS vars, header slot, designer main, wire children |
+| Preview frame | iframe, maximize, hosts switcher |
+| PreviewSwitcher | 01/02 affordance; 01 → `preview-02` active; 02 deferred |
+| Customizer | Card chrome, field groups, separators, footers |
+| Style / BaseColor / Theme / ChartColor / Font / IconLibrary / Radius / MenuColor / MenuAccent pickers | Rich picker menus (not bare `<select>`), each with LockButton |
+| LockButton | Per-field lock toggle writing persisted locks |
+| MainMenu | Navigate…, Shuffle, Light/Dark, Undo, Redo, Reset + shortcut labels |
+| CopyPreset / OpenPreset | Copy `--preset <code>`; dialog to paste code or `--preset …` |
+| RandomButton / Reset | Shuffle / reset to defaults |
+| InitializeProject dialog | Shows init command with current preset; copy command |
+| Action / command palette (optional parity) | ⌘/Ctrl+P navigate among create examples if wired; minimum: MainMenu “Navigate…” |
+| Welcome dialog | First-visit dismissible dialog, persisted |
+| Sponsor / Ethical | Desktop-only below customizer |
 
-Two scoping notes:
+Reuse existing `ui` primitives (`Card`, `Button`, `Dialog`, `Field`, `Separator`, `Tooltip`, `DropdownMenu`/`Command` as needed). Site-only picker chrome may live under `create/` without becoming registry components.
 
-- **Radius** already exists today, baked into each style pack's own `--radius`/`--style-card-radius`/`--style-control-radius` values (see `globals.css`'s `[data-style-pack="..."]` blocks). Introducing an independent `radius` field means it **overrides** whatever the active pack would otherwise set for these three properties — the pack continues to drive shadow, control height, and font-family, but radius becomes its own knob once a non-`"default"` value is chosen. `"default"` means "defer to the pack's own radius," so existing pages that never touch the new control keep behaving exactly as they do today.
-- **`headingFont`/`bodyFont`** follow the same `"default"`-sentinel pattern as radius, for the same reason: the "sera" style pack already has its own special Playfair Display / Noto Sans pairing (see `globals.css`'s `[data-style-pack="sera"]` font block), and defaulting these two fields to a concrete font like `"inter"` would silently override that pairing on every page that never touches the new controls. `"default"` means "defer to whatever the active pack sets (or the site's base Inter Variable if the pack doesn't override it)"; choosing anything else always wins over the pack, matching radius's precedence rule.
-- **`menuColor`/`menuAccent`** don't correspond to anything else on the site — the real header nav is a plain bar, not a sidebar. These two fields only ever affect the new dashboard preview block's own internal sidebar nav's CSS. They're still part of the persisted, site-wide `ThemeConfig` for consistency (so the preview block looks the same regardless of which page set them), they just have a narrower blast radius than the other fields.
+---
 
-## Persistence & application
+## State model
 
-New module: `modules/site/src/main/scala/shadcnscalajs/site/ThemeConfig.scala`.
+### Defaults (Nova / Neutral)
 
-- `ThemeConfig.default: ThemeConfig` — the all-defaults value shown above.
-- `ThemeConfig.load(): ThemeConfig` — reads a single `localStorage` key (e.g. `"shadcn-scalajs:theme"`), parses it as JSON via `js.JSON.parse` + a `js.Dynamic` field-by-field read (same hand-rolled style already used in `ScAccordion.parseSections`/`ScDropdownMenu.parseItems` — no new JSON library dependency), and falls back to `default` on a missing key or any parse error.
-- `ThemeConfig.store(cfg: ThemeConfig): Unit` — serializes back to the same key via `js.JSON.stringify` on a `js.Dynamic` literal.
-- `ThemeConfig.applyToDocument(cfg: ThemeConfig): Unit` — sets `data-style-pack`, `data-base-color`, `data-theme-color`, `data-chart-color`, `data-heading-font`, `data-body-font`, `data-icon-library`, and `data-radius` attributes on `document.documentElement`, and toggles its `dark` class based on `darkMode`. This generalizes and replaces today's narrower `Main.syncHtmlStylePack` (which only ever handled `data-style-pack`).
+Match `DEFAULT_PRESET_CONFIG` from `shadcn-svelte/packages/cli/src/preset/preset.ts` (first value of each v2 field array):
 
-Every page's mount function (`app()`, `componentsGalleryPage()`, `componentDocsPage()`, `BlocksLayout.apply()`, and the new `CreatePage()`) is updated to:
-1. `val themeConfig = Var(ThemeConfig.load())` instead of separate `darkMode`/`stylePack` `Var`s.
-2. Bind `ThemeConfig.applyToDocument` reactively off `themeConfig.signal` (replacing the existing `stylePackA <-- stylePack.signal` / `syncHtmlStylePack(stylePack)` pair).
-3. Any control that changes a field does `themeConfig.update(_.copy(...))` followed by `ThemeConfig.store(themeConfig.now())`, so the next page load (a real browser navigation, per the architectural note above) picks up the change.
+| Field | Default |
+|---|---|
+| `style` / stylePack | `nova` |
+| `baseColor` | `neutral` |
+| `theme` / themeColor | `neutral` |
+| `chartColor` | `neutral` |
+| `iconLibrary` | `lucide` (first key in reference `iconLibraries`) |
+| `font` / bodyFont | `inter` |
+| `fontHeading` / headingFont | `inherit` |
+| `radius` | `default` |
+| `menuAccent` | `subtle` |
+| `menuColor` | `default` |
+| `darkMode` | `false` (orthogonal to preset code; toggled via D / MainMenu) |
 
-The existing header style-pack `<select>` (present in 4 duplicated header blocks today) becomes one control among several writing into the same `ThemeConfig`, rather than owning its own narrower `Var`.
+**Replace** the current site defaults (`lyra`, orange theme/chart, `"default"` fonts, menuAccent `"solid"` naming, gray/slate base list). Align value vocabularies with the reference:
 
-## CSS additions (`globals.css`)
+- **Styles:** nova, vega, maia, lyra, mira, luma, sera, rhea  
+- **Base colors:** neutral, stone, zinc, mauve, olive, mist, taupe  
+- **Themes / chart colors:** reference theme key set (neutral + stone/zinc + named hues + mauve/olive/mist/taupe)  
+- **Fonts:** full `PRESET_FONTS` list used by the reference pickers (not a 4-option subset); heading allows `inherit`  
+- **Icon libraries:** lucide, tabler, hugeicons, phosphor, remixicon  
+- **Radius:** default, none, small, medium, large  
+- **Menu accent:** `subtle` \| `bold` (not `solid`)  
+- **Menu color:** default, inverted, default-translucent, inverted-translucent  
 
-New attribute-selector blocks, following the existing `[data-style-pack="..."]` pattern:
+### Preset encode / URL
 
-- `[data-base-color="..."]` — redefines `--background`/`--foreground`/`--card`/`--border`/etc.'s grayscale OKLCH values per preset.
-- `[data-theme-color="..."]` — redefines `--primary`/`--accent`/`--ring` OKLCH values per preset.
-- `[data-chart-color="..."]` — redefines `--chart-1` through `--chart-5`.
-- `[data-heading-font="..."]` / `[data-body-font="..."]` (for every value except `"default"`) — redefines `--font-heading-token`/`--font-body` directly, taking precedence over whatever the active `[data-style-pack]` block set (declared after the style-pack blocks, same precedence technique as radius below). `data-heading-font="default"`/`data-body-font="default"` set no font properties at all, so the pack's own values (e.g. sera's Playfair/Noto Sans pairing, or the site's base Inter Variable for every other pack) show through untouched.
-- `[data-radius="..."]` — redefines `--radius`/`--style-card-radius`/`--style-control-radius` directly, taking precedence over whatever the active `[data-style-pack]` block set for those same three properties (achieved via source order: these rules are declared after the style-pack blocks) — except when `data-radius="default"`, which sets no radius properties at all so the pack's own values show through untouched.
+- Persist an encoded preset string (v2 `"b"` + base62), compatible with reference `encodePreset` / `decodePreset` field order and bit widths so shared codes round-trip.
+- Sync `?preset=` on the create URL with `replaceState` semantics (no scroll jump).
+- `shareUrl` shape: origin + `/create?preset=<code>` (or `/create/preview-02?preset=<code>` — prefer matching reference `/create?preset=` since `/create` redirects and preserves search).
+- Copy Preset copies `` `--preset ${code}` ``; Open Preset accepts raw code or `--preset <code>`, validates with the same alphabet/version rules, rejects invalid input (`aria-invalid`).
 
-## Icon abstraction
+### Locks
 
-New module: `modules/ui/src/main/scala/shadcnscalajs/ui/Icons.scala`.
+Persisted lock map (localStorage key e.g. `locks` / namespaced equivalent) for: style, baseColor, theme, chartColor, iconLibrary, font, fontHeading, menuAccent, menuColor, radius (plus unused item/template keys if keeping structural parity). Randomize **skips** locked fields. Unlock/lock via LockButton on each picker.
 
-- A named registry function per icon actually used anywhere in the component library today (audit needed as the first implementation step — expected set includes at minimum: `chevronDown`, `chevronUp`, `chevronRight`, `chevronsUpDown`, `check`, `x`, `search`, `sun`, `moon`, plus whatever else turns up in the audit).
-- Each named function resolves to one of two backing implementations — Lucide (centralizing the path data already hard-coded today, unchanged visually) or Hugeicons (newly sourced from Hugeicons' free, MIT-licensed stroke-rounded set, matching each Lucide icon's meaning as closely as that free set allows) — based on the active `ThemeConfig.iconLibrary`, read the same way `applyToDocument` exposes the other fields (a `data-icon-library` attribute on `<html>`, read via a small reactive signal `Icons.activeLibrary: Signal[String]` that components consume when building their icon elements).
-- Confirmed by direct code audit: exactly 2 `modules/ui` files have inline icon functions today — `Accordion.scala`'s `chevronDown()`, and `Combobox.scala`'s `chevronsUpDown()`/`checkIcon()`/`removeIcon()` (4 icons total). Both get refactored to call `Icons.xxx()` instead of their own private `svgTag(...)` helpers.
-- The new `Dashboard01` block (see UI structure below) also draws its icons through `Icons.xxx()` from the start, rather than hand-rolling its own.
-- `Main.scala`'s ~30 landing-page marketing icons are explicitly out of scope (see Non-goals) — they stay on their current hard-coded implementation.
+### History
 
-## UI structure
+Undo/redo stack over the encoded preset string (reference: `StateHistory`). Shortcuts: ⌘/Ctrl+Z undo, ⇧⌘/Ctrl+Shift+Z redo. Disable menu items when `canUndo` / `canRedo` is false.
 
-**`modules/site/src/main/scala/shadcnscalajs/site/CreatePage.scala`** (new): a two-pane layout — a customizer sidebar card with the 9 controls as `<select>` dropdowns (Style, Base Color, Theme, Chart Color, Heading Font, Font, Icon Library, Radius, Menu Color, Menu Accent), each writing into the shared `themeConfig: Var[ThemeConfig]` on change; and the dashboard preview block rendered inline next to it (not iframed, so it shares the page's `ThemeConfig` `Var` directly with no cross-frame messaging needed).
+### Randomize / reset
 
-**`modules/blocks/src/main/scala/shadcnscalajs/blocks/dashboard01/Dashboard01.scala`** (new block, following the existing `login01`/`signup01`/`otp01`/`calendar01` naming convention, with its own `.registry.json` sidecar): an original analytics-dashboard composition built from existing `modules/ui` primitives (`Card`, the existing `Chart` component, `Table`, `Progress`, `Field`/`Input`, `Button`, `Badge`) plus a simple internal sidebar nav (the surface `menuColor`/`menuAccent` actually style). Enough surface area to exercise every new knob — not a reproduction of any specific reference layout's card titles, copy, or dataset.
+- **R** — randomize (ignore when focus is editable input/textarea/select/contentEditable).  
+- **⇧R** — reset to `DEFAULT_PRESET_CONFIG`.  
+- Apply reference biases: lyra → mono font + none radius; rhea → no large radius; chart color pairings by theme; heading font ~70% inherit / ~30% contrast font.  
+- Style-driven radius coercion (lyra/sera → none; rhea forbids large) must run after style changes, matching `design-system-provider.svelte`.
 
-**Routing:** a new `else if pathname == "/create" then CreatePage()` branch in `Main.main()`'s dispatch, and a `"Create"` nav link added consistently across the 4 existing duplicated header blocks (unifying those headers is explicitly out of scope, per `BlocksLayout.scala`'s own existing tech-debt note pointing at the docs-site IA redesign spec).
+### Dark mode
 
-## Testing / verification
+- **D** toggles document dark class (same editable-target guard as R).  
+- Customizer card itself uses `dark` chrome; preview/iframe content follows document theme.  
+- Persist dark preference so navigations and iframe loads stay consistent.
 
-- `sbt compile`/`scalafmtAll` across every touched module (`core`, `ui`, `webcomponents`, `site`, `blocks`) after each implementation phase.
-- Headless-browser verification (Chrome via `puppeteer-core`, the established pattern from this project's recent style-pack work, since no other browser automation tool is available in this environment): load `/create`, exercise every control, confirm the dashboard preview visibly updates (background/accent colors, chart colors, corner radius, font family, icon shapes swapping between Lucide and Hugeicons); confirm a choice persists across a simulated navigation to `/components` (same `localStorage` key, header selector reflects the same values); spot-check a handful of the ~30 migrated components' icons still render correctly (not blown up in size — this project has already hit exactly that SVG-sizing bug once this session, in `Combobox.scala`'s check icon).
+### Document application
 
-## Implementation strategy (cost-aware delegation)
+`applyToDocument` (and iframe equivalent) must set style-pack / base / theme / chart / fonts / icon library / radius / menu attributes or classes as required by `globals.css` and menu hooks (`.cn-menu-target`, translucent markers). Complete light **and** dark token coverage for every selectable base/theme/chart combination used by the reference. Load all fonts needed by the font pickers from `index.html` (no dead options).
 
-Per the user's stated preference, implementation work is delegated to subagents on a cheaper model, with the main thread doing only: writing the plan, establishing the `Icons.scala` pattern with one or two reference migrations, and final verification/review of subagent work before reporting completion. The ~30-component icon migration in particular is highly parallelizable — independent files, identical mechanical transformation — and is the clearest candidate for fanning out across several subagents once the pattern is established.
+Menu color behavior: inverted variants add `dark` on `.cn-menu-target`; translucent variants toggle `cn-menu-translucent` — observe DOM mutations if menus mount late (reference MutationObserver pattern), adapted to Laminar.
+
+---
+
+## Primitive gaps (`modules/ui`)
+
+Extend **only** what preview-02 and the customizer require. Current stubs are insufficient; bring APIs in line with shadcn new-york-v4 / reference usage:
+
+| Primitive | Required additions |
+|---|---|
+| Sidebar | Full composition used by SidebarNav (Provider, Root/collapsible, Content, Group, Menu, MenuButton, MenuItem, MenuBadge, etc. as referenced) |
+| Item | Variants + parts used by pickers and cards (size/variant, ItemMedia, ItemContent, ItemTitle, ItemDescription, ItemActions, ItemHeader, separators) |
+| Field | FieldSet, FieldLegend, FieldSeparator, FieldContent, FieldTitle, orientation variants |
+| InputGroup | Addon, Text, Input, Button slots / alignments used by TransferFunds & SocialLinks |
+| Empty | Media (icon variant), Content, Title, Description — EmptyConnectBank, EmptyDistributeTrack, EmptyExploreCatalog, SyncingState |
+| Slider | Controlled bindings for single/multi values (KitchenIsland, RollerShades, PayoutThreshold) |
+| ToggleGroup | Variants, disabled, single selection bindings (KitchenIsland, RollerShades, ReleaseCatalog) |
+| Checkbox | Indeterminate state for NotificationSettings “select all” |
+| Tabs | Stateful value binding (Faq) |
+| Select | Stateful helpers for Preferences, TransferFunds, SavingsTargets, PayoutThreshold |
+| Chart | See charts strategy below (may extend existing Chart helpers) |
+
+Update `.registry.json` sidecars whenever public API or dependencies change. Do not block create-page fidelity on Web Component wrappers.
+
+---
+
+## Icons (five libraries)
+
+`Icons.scala` must expose every icon concept used by preview-02 cards **and** create-shell controls (~40 concepts; audit reference `IconPlaceholder` usages and card SVGs during implementation).
+
+For each concept, ship real path data (or equivalent SVG children) for:
+
+1. Lucide  
+2. Tabler  
+3. Hugeicons  
+4. Phosphor  
+5. Remix Icon (`remixicon`)
+
+Rules:
+
+- Resolve via `data-icon-library` / active library signal.  
+- Return **SVG roots** (or `display:contents`-safe roots) so `> svg` selectors keep working — no block wrapper that breaks accordion/chevron CSS.  
+- Register an `icons` registry item so CLI consumers that depend on Icons compile.  
+- Customizer Icon Library picker shows the five libraries with logo + preview glyph row (reference `icon-library-picker.svelte`).
+
+---
+
+## Charts / QR / dates strategy
+
+### Charts
+
+Reference cards use LayerChart (`BarChart`, `AreaChart`, `PieChart`) via shadcn Chart containers. This port:
+
+- Implements **Laminar-owned SVG helpers** for bar, area, and donut/pie geometry (no LayerChart dependency).  
+- Uses existing `--chart-*` CSS tokens from the active chart color.  
+- Matches axes, curves/fills, labels, legends, and **hover tooltips** closely enough that matched screenshots differ only by intentional engine limits (document any residual delta).  
+- Cards: ContributionHistory, DividendIncome, CardOverview, PowerUsage, SavingsProgress, SidebarNav (mini charts), StockPerformance (area + tooltip).
+
+### QR
+
+- Add `qrcode` npm dependency in `modules/site`.  
+- Thin Scala.js facade calling `QRCode.toDataURL(url, { width: 160, margin: 1 })`.  
+- `QrConnect` card: 160×160 image, pulse placeholder until ready, same connect URL and copy as reference.
+
+### Dates
+
+- Use existing `js.Date`-based `Calendar` API (no java.time).  
+- UpcomingPayments / Payments calendar interactions bind through that API.
+
+---
+
+## Card interactions (must work)
+
+At minimum, browser-verify the plan’s listed set:
+
+| Card | Interaction |
+|---|---|
+| Faq | Tabs (General/Billing/Goals) + Accordion open/close |
+| KitchenIsland | Switch enable; ToggleGroup scenes update sliders; sliders move |
+| RollerShades | Slider drives shade height; ToggleGroup open/half/closed presets |
+| NotificationSettings | Per-row checkboxes; indeterminate/select-all master |
+| ReleaseCatalog | ToggleGroup filters catalog |
+| StockPerformance | Command/combobox ticker search; area chart + tooltip |
+| PayoutThreshold | Slider + Select bindings |
+| Preferences / TransferFunds / SavingsTargets | Select value changes |
+| UpcomingPayments / Payments | Calendar selection; Payments dropdowns |
+| RecentTransactions | Dropdown menus |
+| CoverArt (and any reference file-picker card) | File picker / upload affordance matching reference behavior |
+| QrConnect | QR renders to data URL |
+
+All 33 cards must render with correct copy and structure even if some are mostly static.
+
+---
+
+## Accessibility
+
+- Keyboard shortcuts (R, ⇧R, D, ⌘/Ctrl+Z, ⇧⌘/Ctrl+Shift+Z, ⌘/Ctrl+P if action menu ships) must **not** fire when focus is in input, textarea, select, or contentEditable (match reference guards).  
+- Provide visible focus rings on picker triggers and customizer controls.  
+- Open Preset: `sr-only` label, `aria-invalid` when input non-empty and invalid.  
+- KitchenIsland scene group: `sr-only` “Scenes” (or equivalent) labeling the ToggleGroup.  
+- Dialogs (Open Preset, Initialize Project, Welcome): focus trap / restore via existing Dialog behavior; Escape closes.  
+- iframe `title` set to the preview item name.  
+- Decorative QR may use empty alt only if adjacent text already describes purpose (reference pattern); otherwise provide meaningful alt text describing “scan to connect”.  
+- Lock buttons: accessible name (e.g. “Lock style”).  
+- Do not rely on color alone for active switcher / lock state — use `data-active` / pressed semantics plus text.
+
+---
+
+## CSS / integration checklist
+
+- Port shell and mosaic utilities into `globals.css` / Tailwind sources so 2400/3000/2600 widths, gaps, `--preview-height`, `--customizer-width`, style-lyra/mira overrides, and capture-target exist.  
+- Complete light/dark token blocks for base/theme/chart selections; ensure dark mode does not override base/theme controls into no-ops (known prior bug: unlayered `.dark` after attribute selectors).  
+- Font loading for every selectable family used.  
+- Pre-paint theme script in `index.html`.  
+- Menu accent/color hooks compatible with SidebarNav / `.cn-menu-target`.  
+- `qrcode` dependency; Vite can resolve the facade.
+
+---
+
+## Relationship to dashboard-01
+
+- `dashboard-01` stays a normal block: Blocks index, docs, preview routes unchanged.  
+- Create page **does not** embed `Dashboard01`.  
+- No registry or source edits under `modules/blocks/.../dashboard01/` for this feature.
+
+---
+
+## Implementation phases (aligned with the accepted plan)
+
+1. **Spec** — this document (done when Accepted).  
+2. **State + shell** — ThemeConfig/preset/locks/history/randomize; routes; responsive shell; customizer; actions; Initialize dialog; iframe frame; switcher affordance.  
+3. **Primitives + icons** — ui gaps + five-library Icons.  
+4. **Preview cards** — 34 files, exact grid and interactions.  
+5. **Charts + QR + dates** — SVG chart helpers, qrcode facade, Calendar wiring.  
+6. **Visual + Franky verify** — screenshots, interaction checks, compile, registry, `franky verify`.
+
+---
+
+## Verification criteria
+
+Work is done only when all of the following pass:
+
+### Functional
+
+- Every customizer field updates preview (parent + iframe) for style, base, theme, chart, fonts, radius, menu color/accent, icon library.  
+- Preset URL updates; Copy Preset / Open Preset round-trip; invalid codes rejected.  
+- Locks persist and block randomize for locked fields.  
+- Undo/redo and Reset restore expected presets.  
+- R / ⇧R / D / undo-redo shortcuts honor editable-target guards.  
+- Initialize Project dialog shows command including current `--preset` and copies it.  
+- `/create` → `/create/preview-02` with search preserved; `/preview/preview-02` is chrome-less; maximize/minimize preserve search.  
+- Switcher shows 01 active; 02 remains deferred (no false claim of second mosaic fidelity).  
+- Listed interactive cards behave as specified; QR renders.
+
+### Visual
+
+- Matched desktop and mobile screenshots vs live shadcn-svelte reference for default Nova/Neutral, dark mode, representative style packs (including lyra/mira width+gap overrides), chart colors, fonts, radii, menu modes, and all five icon libraries.  
+- Full `[data-slot="capture-target"]` mosaic at 3000px (or lyra/mira 2600px) compared; residual differences documented and intentional only.
+
+### Build / repo
+
+- `sbt ui/compile site/compile blocks/compile` (blocks still compiles; dashboard-01 unchanged).  
+- `sbt scalafmtAll`  
+- Registry generation (`build-registry.mjs` / predev) succeeds; Icons registry present if Icons is a dependency.  
+- `./scripts/test` and `franky verify` exit 0; inspect `.franky/verify-report.json`.  
+- Update `.franky/memory/PROGRESS.md` with completion status and remaining deferred **02** mosaic work.
+
+### Explicit non-regressions
+
+- `dashboard-01` block source and registry hash/content unchanged aside from unrelated pre-existing dirty work not part of this feature.  
+- No CLI `add preview-02` requirement.
+
+---
+
+## Self-review (spec quality)
+
+- **No Draft status** — Accepted.  
+- **No contradictory non-goals** — prior “defer presets/shuffle/init/rich pickers/extra icon libs/second preview” removed; only switcher-02 mosaic, CLI packaging of preview-02, dashboard-01 edits, and full header unification remain deferred.  
+- **Card count** — 33 cards, 34 Scala sources, ordered columns specified.  
+- **Dimensions** — shell CSS vars and mosaic widths/gaps/columns specified from reference.  
+- **Ambiguity** — 02 click behavior may be stub/no-op; must not implement the other mosaic. Preset share path may use `/create?preset=` (preferred) with redirect preserving search.  
+- **Placeholders** — none intentional; implementation audits icon list and exact primitive part names from reference files at code time.  
+- **Scope** — site-only preview-02; ui primitives only as required; no production code changes in Task 1 (spec only).

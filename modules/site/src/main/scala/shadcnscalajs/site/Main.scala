@@ -40,7 +40,11 @@ object Main:
         BlockPreviewPage(pathname.stripPrefix("/blocks/").stripSuffix("/preview"))
       else if pathname == "/blocks" || pathname == "/blocks/" then BlocksIndexPage()
       else if pathname.startsWith("/blocks/") then BlockDocsPage(pathname.stripPrefix("/blocks/").stripSuffix("/"))
-      else if pathname == "/create" || pathname == "/create/" then CreatePage()
+      else if pathname == "/create" || pathname == "/create/" then
+        dom.window.location.replace("/create/preview-02" + dom.window.location.search)
+        div()
+      else if pathname == "/create/preview-02" then shadcnscalajs.site.create.CreatePageEntry()
+      else if pathname == "/preview/preview-02" then shadcnscalajs.site.create.PreviewOnlyPage()
       else app()
     render(dom.document.getElementById("root"), page)
 
@@ -1342,7 +1346,7 @@ object Main:
             Card.content("Your latest deployment is ready.")
           )
         )
-      case "chart"    => previewCanvas(Chart("Chart preview"))
+      case "chart" => previewCanvas(Chart("Chart preview"))
       case "checkbox" =>
         previewCanvas(Checkbox(idAttr := "terms"), Label(forId := "terms", "Accept terms"))
       case "collapsible" =>
@@ -1444,8 +1448,11 @@ object Main:
         previewCanvas(
           InputGroup(
             cls := "max-w-sm",
-            InputGroup.addon("https://"),
-            Input(placeholder := "example.com", cls := "border-0 shadow-none")
+            InputGroup.addon(
+              InputGroup.AddonAlign.InlineStart,
+              InputGroup.text("https://")
+            ),
+            InputGroup.input(placeholder := "example.com")
           )
         )
       case "item" =>
@@ -1624,6 +1631,8 @@ object Main:
         previewCanvas(
           ToggleGroup.single(
             Var(Option("bold")),
+            Toggle.Variant.Default,
+            Toggle.Size.Default,
             ToggleGroup.Item("bold", "B"),
             ToggleGroup.Item("italic", "I")
           )
@@ -1809,8 +1818,8 @@ Drawer(isOpen)(
       case "input" => """Input(placeholder := "Type something…")"""
       case "input-group" =>
         """InputGroup(
-  InputGroup.addon("https://"),
-  Input(placeholder := "example.com")
+  InputGroup.addon(InputGroup.AddonAlign.InlineStart, InputGroup.text("https://")),
+  InputGroup.input(placeholder := "example.com")
 )"""
       case "item" =>
         """Item(

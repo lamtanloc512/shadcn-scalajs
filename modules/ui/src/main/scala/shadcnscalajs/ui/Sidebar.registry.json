@@ -1,1 +1,7 @@
-{"name":"sidebar","title":"Sidebar","registryDependencies":[],"scalaDependencies":[],"files":[{"path":"Sidebar.scala","type":"scala:ui"}]}
+{
+  "name": "sidebar",
+  "title": "Sidebar",
+  "registryDependencies": ["button", "separator"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Sidebar.scala", "type": "scala:ui" }]
+}

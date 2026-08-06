@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-export PATH="$PATH:/Users/locgorilla/Library/Application Support/Coursier/bin"
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 
 echo "lint: scalafmt check"
 sbt scalafmtCheckAll

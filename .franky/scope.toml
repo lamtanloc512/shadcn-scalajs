@@ -6,5 +6,7 @@ secrets = []
 actions = ["edit", "run_tests"]
 
 [repos]
-read = []
+read = [
+    "/Users/elam/Projects/ui"
+]
 write = []

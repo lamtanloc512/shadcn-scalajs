@@ -15,10 +15,15 @@ object Dialog:
     dialogTag(
       cls := rootClass,
       onMountBind { ctx =>
+        val el = ctx.thisNode.ref
+        // Native Escape / form method=dialog close the <dialog> without touching isOpenVar —
+        // mirror that back so callers stay in sync and can run dismiss side-effects.
+        val onNativeClose: scala.scalajs.js.Function1[dom.Event, Unit] =
+          (_: dom.Event) => if isOpenVar.now() then isOpenVar.set(false)
+        el.addEventListener("close", onNativeClose)
         isOpenVar.signal --> { (open: Boolean) =>
-          val el = ctx.thisNode.ref
           if open then { if !el.open then el.showModal() }
-          else el.close()
+          else if el.open then el.close()
         }
       },
       onClick --> { (ev: dom.MouseEvent) =>

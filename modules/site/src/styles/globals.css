@@ -16,6 +16,8 @@
 @source "../../../blocks/src/main/scala/**/*.scala";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant style-lyra (&:is([data-style-pack="lyra"] *));
+@custom-variant style-mira (&:is([data-style-pack="mira"] *));
 
 @utility no-scrollbar {
   scrollbar-width: none;
@@ -76,6 +78,7 @@
 }
 
 :root {
+  --header-height: 3.5rem;
   /* shadcn font tokens. Inter remains the default body font, while each
      preset can override body/heading/code independently. */
   --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -151,16 +154,6 @@
   --muted-foreground: #737373;
 }
 
-[data-base-color="gray"] {
-  --background: #ffffff;
-  --foreground: #101828;
-  --card: #ffffff;
-  --card-foreground: #101828;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --muted: #f9fafb;
-  --muted-foreground: #6a7282;
-}
 
 [data-base-color="zinc"] {
   --background: #ffffff;
@@ -184,15 +177,91 @@
   --muted-foreground: #79716b;
 }
 
-[data-base-color="slate"] {
-  --background: #ffffff;
-  --foreground: #0f172b;
-  --card: #ffffff;
-  --card-foreground: #0f172b;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --muted: #f8fafc;
-  --muted-foreground: #62748e;
+[data-base-color="mauve"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0.008 326);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.008 326);
+  --border: oklch(0.922 0.005 325.62);
+  --input: oklch(0.922 0.005 325.62);
+  --muted: oklch(0.96 0.003 325.6);
+  --muted-foreground: oklch(0.542 0.034 322.5);
+}
+
+[data-base-color="olive"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.153 0.006 107.1);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.153 0.006 107.1);
+  --border: oklch(0.93 0.007 106.5);
+  --input: oklch(0.93 0.007 106.5);
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: oklch(0.58 0.031 107.3);
+}
+
+[data-base-color="mist"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.148 0.004 228.8);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.148 0.004 228.8);
+  --border: oklch(0.925 0.005 214.3);
+  --input: oklch(0.925 0.005 214.3);
+  --muted: oklch(0.963 0.002 197.1);
+  --muted-foreground: oklch(0.56 0.021 213.5);
+}
+
+[data-base-color="taupe"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.147 0.004 49.3);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 49.3);
+  --border: oklch(0.922 0.005 34.3);
+  --input: oklch(0.922 0.005 34.3);
+  --muted: oklch(0.96 0.002 17.2);
+  --muted-foreground: oklch(0.547 0.021 43.1);
+}
+
+
+[data-theme-color="neutral"] {
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+[data-theme-color="stone"] {
+  --primary: oklch(0.216 0.006 56.043);
+  --primary-foreground: oklch(0.985 0.001 106.423);
+  --ring: oklch(0.709 0.01 56.259);
+}
+
+[data-theme-color="zinc"] {
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.705 0.015 286.067);
+}
+
+[data-theme-color="mauve"] {
+  --primary: oklch(0.212 0.019 322.12);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.711 0.019 323.02);
+}
+
+[data-theme-color="olive"] {
+  --primary: oklch(0.228 0.013 107.4);
+  --primary-foreground: oklch(0.988 0.003 106.5);
+  --ring: oklch(0.737 0.021 106.9);
+}
+
+[data-theme-color="mist"] {
+  --primary: oklch(0.218 0.008 223.9);
+  --primary-foreground: oklch(0.987 0.002 197.1);
+  --ring: oklch(0.723 0.014 214.4);
+}
+
+[data-theme-color="taupe"] {
+  --primary: oklch(0.214 0.009 43.1);
+  --primary-foreground: oklch(0.986 0.002 67.8);
+  --ring: oklch(0.714 0.014 41.2);
 }
 
 [data-theme-color="red"] {
@@ -295,6 +364,62 @@
   --primary: #f43f5e;
   --primary-foreground: #ffffff;
   --ring: #f43f5e;
+}
+
+[data-chart-color="neutral"] {
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+
+[data-chart-color="stone"] {
+  --chart-1: oklch(0.869 0.005 56.366);
+  --chart-2: oklch(0.553 0.013 58.071);
+  --chart-3: oklch(0.444 0.011 73.639);
+  --chart-4: oklch(0.374 0.01 67.558);
+  --chart-5: oklch(0.268 0.007 34.298);
+}
+
+[data-chart-color="zinc"] {
+  --chart-1: oklch(0.871 0.006 286.286);
+  --chart-2: oklch(0.552 0.016 285.938);
+  --chart-3: oklch(0.442 0.017 285.786);
+  --chart-4: oklch(0.37 0.013 285.805);
+  --chart-5: oklch(0.274 0.006 286.033);
+}
+
+[data-chart-color="mauve"] {
+  --chart-1: oklch(0.865 0.012 325.68);
+  --chart-2: oklch(0.542 0.034 322.5);
+  --chart-3: oklch(0.435 0.029 321.78);
+  --chart-4: oklch(0.364 0.029 323.89);
+  --chart-5: oklch(0.263 0.024 320.12);
+}
+
+[data-chart-color="olive"] {
+  --chart-1: oklch(0.88 0.011 106.6);
+  --chart-2: oklch(0.58 0.031 107.3);
+  --chart-3: oklch(0.466 0.025 107.3);
+  --chart-4: oklch(0.394 0.023 107.4);
+  --chart-5: oklch(0.286 0.016 107.4);
+}
+
+[data-chart-color="mist"] {
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
+}
+
+[data-chart-color="taupe"] {
+  --chart-1: oklch(0.868 0.007 39.5);
+  --chart-2: oklch(0.547 0.021 43.1);
+  --chart-3: oklch(0.438 0.017 39.3);
+  --chart-4: oklch(0.367 0.016 35.7);
+  --chart-5: oklch(0.268 0.011 36.5);
 }
 
 [data-chart-color="red"] {
@@ -601,16 +726,6 @@
   --muted-foreground: oklch(0.708 0 0);
 }
 
-.dark[data-base-color="gray"] {
-  --background: oklch(0.145 0.02 264);
-  --foreground: oklch(0.985 0.005 264);
-  --card: oklch(0.205 0.02 264);
-  --card-foreground: oklch(0.985 0.005 264);
-  --border: oklch(1 0.02 264 / 10%);
-  --input: oklch(1 0.02 264 / 15%);
-  --muted: oklch(0.269 0.02 264);
-  --muted-foreground: oklch(0.708 0.02 264);
-}
 
 .dark[data-base-color="zinc"] {
   --background: oklch(0.145 0.015 286);
@@ -634,20 +749,96 @@
   --muted-foreground: oklch(0.708 0.01 58);
 }
 
-.dark[data-base-color="slate"] {
-  --background: oklch(0.145 0.025 257);
-  --foreground: oklch(0.985 0.006 257);
-  --card: oklch(0.205 0.025 257);
-  --card-foreground: oklch(0.985 0.006 257);
-  --border: oklch(1 0.025 257 / 10%);
-  --input: oklch(1 0.025 257 / 15%);
-  --muted: oklch(0.269 0.025 257);
-  --muted-foreground: oklch(0.708 0.025 257);
+.dark[data-base-color="mauve"] {
+  --background: oklch(0.145 0.008 326);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.212 0.019 322.12);
+  --card-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --muted: oklch(0.263 0.024 320.12);
+  --muted-foreground: oklch(0.711 0.019 323.02);
 }
+
+.dark[data-base-color="olive"] {
+  --background: oklch(0.153 0.006 107.1);
+  --foreground: oklch(0.988 0.003 106.5);
+  --card: oklch(0.228 0.013 107.4);
+  --card-foreground: oklch(0.988 0.003 106.5);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --muted: oklch(0.286 0.016 107.4);
+  --muted-foreground: oklch(0.737 0.021 106.9);
+}
+
+.dark[data-base-color="mist"] {
+  --background: oklch(0.148 0.004 228.8);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.218 0.008 223.9);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --muted: oklch(0.275 0.011 216.9);
+  --muted-foreground: oklch(0.723 0.014 214.4);
+}
+
+.dark[data-base-color="taupe"] {
+  --background: oklch(0.147 0.004 49.3);
+  --foreground: oklch(0.986 0.002 67.8);
+  --card: oklch(0.214 0.009 43.1);
+  --card-foreground: oklch(0.986 0.002 67.8);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --muted: oklch(0.268 0.011 36.5);
+  --muted-foreground: oklch(0.714 0.014 41.2);
+}
+
 
 /* Dark-mode theme-color overrides, same specificity-escalation reasoning as above. shadcn's own
    dark themes keep saturated accent colors as-is, so these reuse the exact light-mode hex values
    for --primary/--ring; --primary-foreground stays white for text-on-accent legibility. */
+.dark[data-theme-color="neutral"] {
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --ring: oklch(0.556 0 0);
+}
+
+.dark[data-theme-color="stone"] {
+  --primary: oklch(0.923 0.003 48.717);
+  --primary-foreground: oklch(0.216 0.006 56.043);
+  --ring: oklch(0.553 0.013 58.071);
+}
+
+.dark[data-theme-color="zinc"] {
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --ring: oklch(0.552 0.016 285.938);
+}
+
+.dark[data-theme-color="mauve"] {
+  --primary: oklch(0.922 0.005 325.62);
+  --primary-foreground: oklch(0.212 0.019 322.12);
+  --ring: oklch(0.542 0.034 322.5);
+}
+
+.dark[data-theme-color="olive"] {
+  --primary: oklch(0.93 0.007 106.5);
+  --primary-foreground: oklch(0.228 0.013 107.4);
+  --ring: oklch(0.58 0.031 107.3);
+}
+
+.dark[data-theme-color="mist"] {
+  --primary: oklch(0.925 0.005 214.3);
+  --primary-foreground: oklch(0.218 0.008 223.9);
+  --ring: oklch(0.56 0.021 213.5);
+}
+
+.dark[data-theme-color="taupe"] {
+  --primary: oklch(0.922 0.005 34.3);
+  --primary-foreground: oklch(0.214 0.009 43.1);
+  --ring: oklch(0.547 0.021 43.1);
+}
+
 .dark[data-theme-color="red"] {
   --primary: #ef4444;
   --primary-foreground: #ffffff;
@@ -748,6 +939,198 @@
   --primary: #f43f5e;
   --primary-foreground: #ffffff;
   --ring: #f43f5e;
+}
+
+.dark[data-chart-color="neutral"] {
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+
+.dark[data-chart-color="stone"] {
+  --chart-1: oklch(0.869 0.005 56.366);
+  --chart-2: oklch(0.553 0.013 58.071);
+  --chart-3: oklch(0.444 0.011 73.639);
+  --chart-4: oklch(0.374 0.01 67.558);
+  --chart-5: oklch(0.268 0.007 34.298);
+}
+
+.dark[data-chart-color="zinc"] {
+  --chart-1: oklch(0.871 0.006 286.286);
+  --chart-2: oklch(0.552 0.016 285.938);
+  --chart-3: oklch(0.442 0.017 285.786);
+  --chart-4: oklch(0.37 0.013 285.805);
+  --chart-5: oklch(0.274 0.006 286.033);
+}
+
+.dark[data-chart-color="mauve"] {
+  --chart-1: oklch(0.865 0.012 325.68);
+  --chart-2: oklch(0.542 0.034 322.5);
+  --chart-3: oklch(0.435 0.029 321.78);
+  --chart-4: oklch(0.364 0.029 323.89);
+  --chart-5: oklch(0.263 0.024 320.12);
+}
+
+.dark[data-chart-color="olive"] {
+  --chart-1: oklch(0.88 0.011 106.6);
+  --chart-2: oklch(0.58 0.031 107.3);
+  --chart-3: oklch(0.466 0.025 107.3);
+  --chart-4: oklch(0.394 0.023 107.4);
+  --chart-5: oklch(0.286 0.016 107.4);
+}
+
+.dark[data-chart-color="mist"] {
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
+}
+
+.dark[data-chart-color="taupe"] {
+  --chart-1: oklch(0.868 0.007 39.5);
+  --chart-2: oklch(0.547 0.021 43.1);
+  --chart-3: oklch(0.438 0.017 39.3);
+  --chart-4: oklch(0.367 0.016 35.7);
+  --chart-5: oklch(0.268 0.011 36.5);
+}
+
+.dark[data-chart-color="red"] {
+  --chart-1: #ef4444;
+  --chart-2: color-mix(in oklab, #ef4444 80%, white);
+  --chart-3: color-mix(in oklab, #ef4444 60%, white);
+  --chart-4: color-mix(in oklab, #ef4444 40%, white);
+  --chart-5: color-mix(in oklab, #ef4444 20%, white);
+}
+
+.dark[data-chart-color="orange"] {
+  --chart-1: #f97316;
+  --chart-2: color-mix(in oklab, #f97316 80%, white);
+  --chart-3: color-mix(in oklab, #f97316 60%, white);
+  --chart-4: color-mix(in oklab, #f97316 40%, white);
+  --chart-5: color-mix(in oklab, #f97316 20%, white);
+}
+
+.dark[data-chart-color="amber"] {
+  --chart-1: #f59e0b;
+  --chart-2: color-mix(in oklab, #f59e0b 80%, white);
+  --chart-3: color-mix(in oklab, #f59e0b 60%, white);
+  --chart-4: color-mix(in oklab, #f59e0b 40%, white);
+  --chart-5: color-mix(in oklab, #f59e0b 20%, white);
+}
+
+.dark[data-chart-color="yellow"] {
+  --chart-1: #eab308;
+  --chart-2: color-mix(in oklab, #eab308 80%, white);
+  --chart-3: color-mix(in oklab, #eab308 60%, white);
+  --chart-4: color-mix(in oklab, #eab308 40%, white);
+  --chart-5: color-mix(in oklab, #eab308 20%, white);
+}
+
+.dark[data-chart-color="lime"] {
+  --chart-1: #84cc16;
+  --chart-2: color-mix(in oklab, #84cc16 80%, white);
+  --chart-3: color-mix(in oklab, #84cc16 60%, white);
+  --chart-4: color-mix(in oklab, #84cc16 40%, white);
+  --chart-5: color-mix(in oklab, #84cc16 20%, white);
+}
+
+.dark[data-chart-color="green"] {
+  --chart-1: #22c55e;
+  --chart-2: color-mix(in oklab, #22c55e 80%, white);
+  --chart-3: color-mix(in oklab, #22c55e 60%, white);
+  --chart-4: color-mix(in oklab, #22c55e 40%, white);
+  --chart-5: color-mix(in oklab, #22c55e 20%, white);
+}
+
+.dark[data-chart-color="emerald"] {
+  --chart-1: #10b981;
+  --chart-2: color-mix(in oklab, #10b981 80%, white);
+  --chart-3: color-mix(in oklab, #10b981 60%, white);
+  --chart-4: color-mix(in oklab, #10b981 40%, white);
+  --chart-5: color-mix(in oklab, #10b981 20%, white);
+}
+
+.dark[data-chart-color="teal"] {
+  --chart-1: #14b8a6;
+  --chart-2: color-mix(in oklab, #14b8a6 80%, white);
+  --chart-3: color-mix(in oklab, #14b8a6 60%, white);
+  --chart-4: color-mix(in oklab, #14b8a6 40%, white);
+  --chart-5: color-mix(in oklab, #14b8a6 20%, white);
+}
+
+.dark[data-chart-color="cyan"] {
+  --chart-1: #06b6d4;
+  --chart-2: color-mix(in oklab, #06b6d4 80%, white);
+  --chart-3: color-mix(in oklab, #06b6d4 60%, white);
+  --chart-4: color-mix(in oklab, #06b6d4 40%, white);
+  --chart-5: color-mix(in oklab, #06b6d4 20%, white);
+}
+
+.dark[data-chart-color="sky"] {
+  --chart-1: #0ea5e9;
+  --chart-2: color-mix(in oklab, #0ea5e9 80%, white);
+  --chart-3: color-mix(in oklab, #0ea5e9 60%, white);
+  --chart-4: color-mix(in oklab, #0ea5e9 40%, white);
+  --chart-5: color-mix(in oklab, #0ea5e9 20%, white);
+}
+
+.dark[data-chart-color="blue"] {
+  --chart-1: #3b82f6;
+  --chart-2: color-mix(in oklab, #3b82f6 80%, white);
+  --chart-3: color-mix(in oklab, #3b82f6 60%, white);
+  --chart-4: color-mix(in oklab, #3b82f6 40%, white);
+  --chart-5: color-mix(in oklab, #3b82f6 20%, white);
+}
+
+.dark[data-chart-color="indigo"] {
+  --chart-1: #6366f1;
+  --chart-2: color-mix(in oklab, #6366f1 80%, white);
+  --chart-3: color-mix(in oklab, #6366f1 60%, white);
+  --chart-4: color-mix(in oklab, #6366f1 40%, white);
+  --chart-5: color-mix(in oklab, #6366f1 20%, white);
+}
+
+.dark[data-chart-color="violet"] {
+  --chart-1: #8b5cf6;
+  --chart-2: color-mix(in oklab, #8b5cf6 80%, white);
+  --chart-3: color-mix(in oklab, #8b5cf6 60%, white);
+  --chart-4: color-mix(in oklab, #8b5cf6 40%, white);
+  --chart-5: color-mix(in oklab, #8b5cf6 20%, white);
+}
+
+.dark[data-chart-color="purple"] {
+  --chart-1: #a855f7;
+  --chart-2: color-mix(in oklab, #a855f7 80%, white);
+  --chart-3: color-mix(in oklab, #a855f7 60%, white);
+  --chart-4: color-mix(in oklab, #a855f7 40%, white);
+  --chart-5: color-mix(in oklab, #a855f7 20%, white);
+}
+
+.dark[data-chart-color="fuchsia"] {
+  --chart-1: #d946ef;
+  --chart-2: color-mix(in oklab, #d946ef 80%, white);
+  --chart-3: color-mix(in oklab, #d946ef 60%, white);
+  --chart-4: color-mix(in oklab, #d946ef 40%, white);
+  --chart-5: color-mix(in oklab, #d946ef 20%, white);
+}
+
+.dark[data-chart-color="pink"] {
+  --chart-1: #ec4899;
+  --chart-2: color-mix(in oklab, #ec4899 80%, white);
+  --chart-3: color-mix(in oklab, #ec4899 60%, white);
+  --chart-4: color-mix(in oklab, #ec4899 40%, white);
+  --chart-5: color-mix(in oklab, #ec4899 20%, white);
+}
+
+.dark[data-chart-color="rose"] {
+  --chart-1: #f43f5e;
+  --chart-2: color-mix(in oklab, #f43f5e 80%, white);
+  --chart-3: color-mix(in oklab, #f43f5e 60%, white);
+  --chart-4: color-mix(in oklab, #f43f5e 40%, white);
+  --chart-5: color-mix(in oklab, #f43f5e 20%, white);
 }
 
 @layer base {
@@ -910,28 +1293,217 @@
   }
 }
 
+/* --- FONTS --- */
+[data-heading-font="inherit"] {
+  --font-heading-token: var(--font-body);
+}
+
 [data-heading-font="inter"] {
   --font-heading-token: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
-}
-
-[data-heading-font="geist"] {
-  --font-heading-token: "Geist", ui-sans-serif, system-ui, sans-serif;
-}
-
-[data-heading-font="dm-sans"] {
-  --font-heading-token: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 [data-body-font="inter"] {
   --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-[data-body-font="geist"] {
-  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+[data-heading-font="noto-sans"] {
+  --font-heading-token: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="noto-sans"] {
+  --font-body: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="nunito-sans"] {
+  --font-heading-token: "Nunito Sans Variable", "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="nunito-sans"] {
+  --font-body: "Nunito Sans Variable", "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="figtree"] {
+  --font-heading-token: "Figtree Variable", "Figtree", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="figtree"] {
+  --font-body: "Figtree Variable", "Figtree", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="roboto"] {
+  --font-heading-token: "Roboto Variable", "Roboto", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="roboto"] {
+  --font-body: "Roboto Variable", "Roboto", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="raleway"] {
+  --font-heading-token: "Raleway Variable", "Raleway", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="raleway"] {
+  --font-body: "Raleway Variable", "Raleway", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="dm-sans"] {
+  --font-heading-token: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 [data-body-font="dm-sans"] {
-  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="public-sans"] {
+  --font-heading-token: "Public Sans Variable", "Public Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="public-sans"] {
+  --font-body: "Public Sans Variable", "Public Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="outfit"] {
+  --font-heading-token: "Outfit Variable", "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="outfit"] {
+  --font-body: "Outfit Variable", "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="jetbrains-mono"] {
+  --font-heading-token: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-body-font="jetbrains-mono"] {
+  --font-body: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-heading-font="geist"] {
+  --font-heading-token: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="geist"] {
+  --font-body: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="geist-mono"] {
+  --font-heading-token: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-body-font="geist-mono"] {
+  --font-body: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-heading-font="lora"] {
+  --font-heading-token: "Lora Variable", "Lora", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="lora"] {
+  --font-body: "Lora Variable", "Lora", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="merriweather"] {
+  --font-heading-token: "Merriweather Variable", "Merriweather", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="merriweather"] {
+  --font-body: "Merriweather Variable", "Merriweather", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="playfair-display"] {
+  --font-heading-token: "Playfair Display Variable", "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="playfair-display"] {
+  --font-body: "Playfair Display Variable", "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="noto-serif"] {
+  --font-heading-token: "Noto Serif Variable", "Noto Serif", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="noto-serif"] {
+  --font-body: "Noto Serif Variable", "Noto Serif", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="roboto-slab"] {
+  --font-heading-token: "Roboto Slab Variable", "Roboto Slab", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="roboto-slab"] {
+  --font-body: "Roboto Slab Variable", "Roboto Slab", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="oxanium"] {
+  --font-heading-token: "Oxanium Variable", "Oxanium", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="oxanium"] {
+  --font-body: "Oxanium Variable", "Oxanium", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="manrope"] {
+  --font-heading-token: "Manrope Variable", "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="manrope"] {
+  --font-body: "Manrope Variable", "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="space-grotesk"] {
+  --font-heading-token: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="space-grotesk"] {
+  --font-body: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="montserrat"] {
+  --font-heading-token: "Montserrat Variable", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="montserrat"] {
+  --font-body: "Montserrat Variable", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="ibm-plex-sans"] {
+  --font-heading-token: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="ibm-plex-sans"] {
+  --font-body: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="source-sans-3"] {
+  --font-heading-token: "Source Sans 3 Variable", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="source-sans-3"] {
+  --font-body: "Source Sans 3 Variable", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="instrument-sans"] {
+  --font-heading-token: "Instrument Sans Variable", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="instrument-sans"] {
+  --font-body: "Instrument Sans Variable", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="eb-garamond"] {
+  --font-heading-token: "EB Garamond Variable", "EB Garamond", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="eb-garamond"] {
+  --font-body: "EB Garamond Variable", "EB Garamond", Georgia, "Times New Roman", serif;
+}
+
+[data-heading-font="instrument-serif"] {
+  --font-heading-token: "Instrument Serif", Georgia, "Times New Roman", serif;
+}
+
+[data-body-font="instrument-serif"] {
+  --font-body: "Instrument Serif", Georgia, "Times New Roman", serif;
 }
 
 [data-radius="none"] {
@@ -956,6 +1528,10 @@
   --radius: 1rem;
   --style-card-radius: 1.25rem;
   --style-control-radius: 0.875rem;
+}
+
+.cn-menu-translucent {
+  @apply relative animate-none! bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:**:text-accent-foreground! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:focus:bg-foreground/10!;
 }
 
 .cn-dashboard-01[data-menu-color="inverted"] aside {
