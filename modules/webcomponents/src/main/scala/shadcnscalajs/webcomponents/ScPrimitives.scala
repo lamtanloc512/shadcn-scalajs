@@ -11,14 +11,37 @@ import scala.scalajs.js
 abstract class SlotPrimitive(node: HtmlElement) extends ScElementBase:
   mount(node)
 
-class ScAlert extends SlotPrimitive(Alert(Alert.Variant.Default, slotTag()))
+/** Not a `SlotPrimitive`: `<sc-alert variant="destructive">` has to re-style the root when the attribute changes, so
+  * the root is built here from `Alert`'s own exported class strings rather than by calling `Alert(...)` once.
+  */
+class ScAlert extends ScElementBase:
+
+  private val variantVar = Var(Alert.Variant.Default)
+
+  observeAttribute("variant")(v => ScAlert.parseVariant(v).foreach(variantVar.set))
+
+  mount(
+    div(
+      dataAttr("slot") := "alert",
+      role := "alert",
+      cls := Alert.baseClass,
+      cls <-- variantVar.signal.map(Alert.variantClass),
+      slotTag()
+    )
+  )
+
+object ScAlert:
+  private def parseVariant(v: Option[String]): Option[Alert.Variant] = v.collect {
+    case "default"     => Alert.Variant.Default
+    case "destructive" => Alert.Variant.Destructive
+  }
+
 class ScAvatar extends SlotPrimitive(Avatar(slotTag()))
 class ScBreadcrumb extends SlotPrimitive(Breadcrumb(slotTag()))
 class ScButtonGroup extends SlotPrimitive(ButtonGroup(slotTag()))
 class ScCard extends SlotPrimitive(Card(slotTag()))
 class ScCheckbox extends SlotPrimitive(Checkbox(slotTag()))
 class ScCollapsible extends SlotPrimitive(Collapsible(slotTag()))
-class ScCombobox extends SlotPrimitive(Combobox(slotTag()))
 class ScCommand extends SlotPrimitive(Command(slotTag()))
 class ScChart extends SlotPrimitive(Chart(slotTag()))
 class ScEmpty extends SlotPrimitive(Empty(slotTag()))
@@ -54,7 +77,6 @@ object ScPrimitives:
     register("sc-card", js.constructorOf[ScCard])
     register("sc-checkbox", js.constructorOf[ScCheckbox])
     register("sc-collapsible", js.constructorOf[ScCollapsible])
-    register("sc-combobox", js.constructorOf[ScCombobox])
     register("sc-command", js.constructorOf[ScCommand])
     register("sc-chart", js.constructorOf[ScChart])
     register("sc-empty", js.constructorOf[ScEmpty])

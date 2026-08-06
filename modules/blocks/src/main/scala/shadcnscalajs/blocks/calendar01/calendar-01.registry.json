@@ -1,0 +1,12 @@
+{
+  "name": "calendar-01",
+  "title": "Calendar 01",
+  "type": "scala:block",
+  "description": "A single date picker.",
+  "categories": ["calendar", "date"],
+  "registryDependencies": ["calendar"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "calendar01/Calendar01.scala", "type": "scala:page" }
+  ]
+}

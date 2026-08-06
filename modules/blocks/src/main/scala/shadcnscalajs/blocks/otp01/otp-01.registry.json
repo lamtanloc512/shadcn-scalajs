@@ -1,0 +1,13 @@
+{
+  "name": "otp-01",
+  "title": "OTP 01",
+  "type": "scala:block",
+  "description": "A one-time-password verification form.",
+  "categories": ["authentication", "otp"],
+  "registryDependencies": ["button", "card", "field", "input-otp"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "otp01/Otp01.scala", "type": "scala:page" },
+    { "path": "otp01/OtpForm.scala", "type": "scala:component" }
+  ]
+}

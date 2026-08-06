@@ -17,5 +17,6 @@ object Main:
         ScDialog.register()
         ScAccordion.register()
         ScDropdownMenu.register()
+        ScCombobox.register()
         ScPrimitives.register()
       }

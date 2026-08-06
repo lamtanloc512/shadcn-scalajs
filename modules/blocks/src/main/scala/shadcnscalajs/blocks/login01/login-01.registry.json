@@ -1,0 +1,13 @@
+{
+  "name": "login-01",
+  "title": "Login 01",
+  "type": "scala:block",
+  "description": "A simple login form.",
+  "categories": ["authentication", "login"],
+  "registryDependencies": ["button", "card", "input", "field"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "login01/Login01.scala", "type": "scala:page" },
+    { "path": "login01/LoginForm.scala", "type": "scala:component" }
+  ]
+}
