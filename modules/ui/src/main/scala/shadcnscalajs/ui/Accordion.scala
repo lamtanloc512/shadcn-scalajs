@@ -1,7 +1,6 @@
 package shadcnscalajs.ui
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.api.L.svg.{path as svgPath, svg as svgTag}
 import shadcnscalajs.core.CommonAttrs.openAttr
 
 /** Basecoat-compatible Accordion built from native `<details>` / `<summary>` elements.
@@ -65,21 +64,5 @@ object Accordion:
         if !sec.disabled then toggle()
       },
       sec.title,
-      chevronDown()
-    )
-
-  private def chevronDown(): SvgElement =
-    svgTag(
-      svg.width := "24",
-      svg.height := "24",
-      svg.viewBox := "0 0 24 24",
-      svg.fill := "none",
-      svg.stroke := "currentColor",
-      svg.strokeWidth := "2",
-      svg.strokeLineCap := "round",
-      svg.strokeLineJoin := "round",
-      aria.hidden := true,
-      svgPath(
-        svg.d := "m6 9 6 6 6-6"
-      )
+      Icons.chevronDown()
     )
