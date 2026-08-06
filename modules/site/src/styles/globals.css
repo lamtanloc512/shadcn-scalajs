@@ -112,8 +112,6 @@
   --font-heading-token: var(--font-body);
   --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-family: var(--font-body);
-  font-size: var(--style-font-size);
-  line-height: var(--style-line-height);
   --style-font-size: 0.875rem;
   --style-line-height: 1.5;
   --style-card-radius: var(--radius-xl);
@@ -121,6 +119,299 @@
   --style-card-shadow: var(--tw-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
   --style-card-border: 1px;
   --style-control-height: 2.25rem;
+}
+
+[data-base-color="neutral"] {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+}
+
+[data-base-color="gray"] {
+  --background: #ffffff;
+  --foreground: #101828;
+  --card: #ffffff;
+  --card-foreground: #101828;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --muted: #f9fafb;
+  --muted-foreground: #6a7282;
+}
+
+[data-base-color="zinc"] {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717b;
+}
+
+[data-base-color="stone"] {
+  --background: #ffffff;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+  --muted: #f5f5f4;
+  --muted-foreground: #79716b;
+}
+
+[data-base-color="slate"] {
+  --background: #ffffff;
+  --foreground: #0f172b;
+  --card: #ffffff;
+  --card-foreground: #0f172b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --muted: #f8fafc;
+  --muted-foreground: #62748e;
+}
+
+[data-theme-color="red"] {
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  --ring: #ef4444;
+}
+
+[data-theme-color="orange"] {
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+  --ring: #f97316;
+}
+
+[data-theme-color="amber"] {
+  --primary: #f59e0b;
+  --primary-foreground: #ffffff;
+  --ring: #f59e0b;
+}
+
+[data-theme-color="yellow"] {
+  --primary: #eab308;
+  --primary-foreground: #ffffff;
+  --ring: #eab308;
+}
+
+[data-theme-color="lime"] {
+  --primary: #84cc16;
+  --primary-foreground: #ffffff;
+  --ring: #84cc16;
+}
+
+[data-theme-color="green"] {
+  --primary: #22c55e;
+  --primary-foreground: #ffffff;
+  --ring: #22c55e;
+}
+
+[data-theme-color="emerald"] {
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --ring: #10b981;
+}
+
+[data-theme-color="teal"] {
+  --primary: #14b8a6;
+  --primary-foreground: #ffffff;
+  --ring: #14b8a6;
+}
+
+[data-theme-color="cyan"] {
+  --primary: #06b6d4;
+  --primary-foreground: #ffffff;
+  --ring: #06b6d4;
+}
+
+[data-theme-color="sky"] {
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+  --ring: #0ea5e9;
+}
+
+[data-theme-color="blue"] {
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --ring: #3b82f6;
+}
+
+[data-theme-color="indigo"] {
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --ring: #6366f1;
+}
+
+[data-theme-color="violet"] {
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --ring: #8b5cf6;
+}
+
+[data-theme-color="purple"] {
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --ring: #a855f7;
+}
+
+[data-theme-color="fuchsia"] {
+  --primary: #d946ef;
+  --primary-foreground: #ffffff;
+  --ring: #d946ef;
+}
+
+[data-theme-color="pink"] {
+  --primary: #ec4899;
+  --primary-foreground: #ffffff;
+  --ring: #ec4899;
+}
+
+[data-theme-color="rose"] {
+  --primary: #f43f5e;
+  --primary-foreground: #ffffff;
+  --ring: #f43f5e;
+}
+
+[data-chart-color="red"] {
+  --chart-1: #ef4444;
+  --chart-2: color-mix(in oklab, #ef4444 80%, white);
+  --chart-3: color-mix(in oklab, #ef4444 60%, white);
+  --chart-4: color-mix(in oklab, #ef4444 40%, white);
+  --chart-5: color-mix(in oklab, #ef4444 20%, white);
+}
+
+[data-chart-color="orange"] {
+  --chart-1: #f97316;
+  --chart-2: color-mix(in oklab, #f97316 80%, white);
+  --chart-3: color-mix(in oklab, #f97316 60%, white);
+  --chart-4: color-mix(in oklab, #f97316 40%, white);
+  --chart-5: color-mix(in oklab, #f97316 20%, white);
+}
+
+[data-chart-color="amber"] {
+  --chart-1: #f59e0b;
+  --chart-2: color-mix(in oklab, #f59e0b 80%, white);
+  --chart-3: color-mix(in oklab, #f59e0b 60%, white);
+  --chart-4: color-mix(in oklab, #f59e0b 40%, white);
+  --chart-5: color-mix(in oklab, #f59e0b 20%, white);
+}
+
+[data-chart-color="yellow"] {
+  --chart-1: #eab308;
+  --chart-2: color-mix(in oklab, #eab308 80%, white);
+  --chart-3: color-mix(in oklab, #eab308 60%, white);
+  --chart-4: color-mix(in oklab, #eab308 40%, white);
+  --chart-5: color-mix(in oklab, #eab308 20%, white);
+}
+
+[data-chart-color="lime"] {
+  --chart-1: #84cc16;
+  --chart-2: color-mix(in oklab, #84cc16 80%, white);
+  --chart-3: color-mix(in oklab, #84cc16 60%, white);
+  --chart-4: color-mix(in oklab, #84cc16 40%, white);
+  --chart-5: color-mix(in oklab, #84cc16 20%, white);
+}
+
+[data-chart-color="green"] {
+  --chart-1: #22c55e;
+  --chart-2: color-mix(in oklab, #22c55e 80%, white);
+  --chart-3: color-mix(in oklab, #22c55e 60%, white);
+  --chart-4: color-mix(in oklab, #22c55e 40%, white);
+  --chart-5: color-mix(in oklab, #22c55e 20%, white);
+}
+
+[data-chart-color="emerald"] {
+  --chart-1: #10b981;
+  --chart-2: color-mix(in oklab, #10b981 80%, white);
+  --chart-3: color-mix(in oklab, #10b981 60%, white);
+  --chart-4: color-mix(in oklab, #10b981 40%, white);
+  --chart-5: color-mix(in oklab, #10b981 20%, white);
+}
+
+[data-chart-color="teal"] {
+  --chart-1: #14b8a6;
+  --chart-2: color-mix(in oklab, #14b8a6 80%, white);
+  --chart-3: color-mix(in oklab, #14b8a6 60%, white);
+  --chart-4: color-mix(in oklab, #14b8a6 40%, white);
+  --chart-5: color-mix(in oklab, #14b8a6 20%, white);
+}
+
+[data-chart-color="cyan"] {
+  --chart-1: #06b6d4;
+  --chart-2: color-mix(in oklab, #06b6d4 80%, white);
+  --chart-3: color-mix(in oklab, #06b6d4 60%, white);
+  --chart-4: color-mix(in oklab, #06b6d4 40%, white);
+  --chart-5: color-mix(in oklab, #06b6d4 20%, white);
+}
+
+[data-chart-color="sky"] {
+  --chart-1: #0ea5e9;
+  --chart-2: color-mix(in oklab, #0ea5e9 80%, white);
+  --chart-3: color-mix(in oklab, #0ea5e9 60%, white);
+  --chart-4: color-mix(in oklab, #0ea5e9 40%, white);
+  --chart-5: color-mix(in oklab, #0ea5e9 20%, white);
+}
+
+[data-chart-color="blue"] {
+  --chart-1: #3b82f6;
+  --chart-2: color-mix(in oklab, #3b82f6 80%, white);
+  --chart-3: color-mix(in oklab, #3b82f6 60%, white);
+  --chart-4: color-mix(in oklab, #3b82f6 40%, white);
+  --chart-5: color-mix(in oklab, #3b82f6 20%, white);
+}
+
+[data-chart-color="indigo"] {
+  --chart-1: #6366f1;
+  --chart-2: color-mix(in oklab, #6366f1 80%, white);
+  --chart-3: color-mix(in oklab, #6366f1 60%, white);
+  --chart-4: color-mix(in oklab, #6366f1 40%, white);
+  --chart-5: color-mix(in oklab, #6366f1 20%, white);
+}
+
+[data-chart-color="violet"] {
+  --chart-1: #8b5cf6;
+  --chart-2: color-mix(in oklab, #8b5cf6 80%, white);
+  --chart-3: color-mix(in oklab, #8b5cf6 60%, white);
+  --chart-4: color-mix(in oklab, #8b5cf6 40%, white);
+  --chart-5: color-mix(in oklab, #8b5cf6 20%, white);
+}
+
+[data-chart-color="purple"] {
+  --chart-1: #a855f7;
+  --chart-2: color-mix(in oklab, #a855f7 80%, white);
+  --chart-3: color-mix(in oklab, #a855f7 60%, white);
+  --chart-4: color-mix(in oklab, #a855f7 40%, white);
+  --chart-5: color-mix(in oklab, #a855f7 20%, white);
+}
+
+[data-chart-color="fuchsia"] {
+  --chart-1: #d946ef;
+  --chart-2: color-mix(in oklab, #d946ef 80%, white);
+  --chart-3: color-mix(in oklab, #d946ef 60%, white);
+  --chart-4: color-mix(in oklab, #d946ef 40%, white);
+  --chart-5: color-mix(in oklab, #d946ef 20%, white);
+}
+
+[data-chart-color="pink"] {
+  --chart-1: #ec4899;
+  --chart-2: color-mix(in oklab, #ec4899 80%, white);
+  --chart-3: color-mix(in oklab, #ec4899 60%, white);
+  --chart-4: color-mix(in oklab, #ec4899 40%, white);
+  --chart-5: color-mix(in oklab, #ec4899 20%, white);
+}
+
+[data-chart-color="rose"] {
+  --chart-1: #f43f5e;
+  --chart-2: color-mix(in oklab, #f43f5e 80%, white);
+  --chart-3: color-mix(in oklab, #f43f5e 60%, white);
+  --chart-4: color-mix(in oklab, #f43f5e 40%, white);
+  --chart-5: color-mix(in oklab, #f43f5e 20%, white);
 }
 
 [data-style-pack="lyra"] {
@@ -428,4 +719,52 @@
   [data-style-pack="mira"] .accordion > details > :not(summary) {
     @apply px-2 pt-0 pb-4 text-xs/relaxed;
   }
+}
+
+[data-heading-font="inter"] {
+  --font-heading-token: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="geist"] {
+  --font-heading-token: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-heading-font="dm-sans"] {
+  --font-heading-token: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="inter"] {
+  --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="geist"] {
+  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-body-font="dm-sans"] {
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-radius="none"] {
+  --radius: 0rem;
+  --style-card-radius: 0rem;
+  --style-control-radius: 0rem;
+}
+
+[data-radius="small"] {
+  --radius: 0.25rem;
+  --style-card-radius: 0.375rem;
+  --style-control-radius: 0.25rem;
+}
+
+[data-radius="medium"] {
+  --radius: 0.5rem;
+  --style-card-radius: 0.625rem;
+  --style-control-radius: 0.375rem;
+}
+
+[data-radius="large"] {
+  --radius: 1rem;
+  --style-card-radius: 1.25rem;
+  --style-control-radius: 0.875rem;
 }
