@@ -565,6 +565,173 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Dark-mode base-color overrides. `.dark` alone and `[data-base-color="X"]` alone are both
+   specificity (0,1,0), and `.dark` sits later in the file, so it always won once `<html>` carried
+   both the class and the attribute. These `.dark[data-base-color="X"]` rules are specificity
+   (0,2,0), so they beat plain `.dark` regardless of source order, restoring per-base-color dark
+   tuning. Hues/chroma mirror each family's Tailwind palette (neutral has none; gray/slate are cool,
+   zinc is a cooler neutral, stone is warm), re-derived at the same lightness steps the plain `.dark`
+   block above already uses for background/card/border/muted/muted-foreground. */
+.dark[data-base-color="neutral"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+}
+
+.dark[data-base-color="gray"] {
+  --background: oklch(0.145 0.02 264);
+  --foreground: oklch(0.985 0.005 264);
+  --card: oklch(0.205 0.02 264);
+  --card-foreground: oklch(0.985 0.005 264);
+  --border: oklch(1 0.02 264 / 10%);
+  --input: oklch(1 0.02 264 / 15%);
+  --muted: oklch(0.269 0.02 264);
+  --muted-foreground: oklch(0.708 0.02 264);
+}
+
+.dark[data-base-color="zinc"] {
+  --background: oklch(0.145 0.015 286);
+  --foreground: oklch(0.985 0.004 286);
+  --card: oklch(0.205 0.015 286);
+  --card-foreground: oklch(0.985 0.004 286);
+  --border: oklch(1 0.015 286 / 10%);
+  --input: oklch(1 0.015 286 / 15%);
+  --muted: oklch(0.269 0.015 286);
+  --muted-foreground: oklch(0.708 0.015 286);
+}
+
+.dark[data-base-color="stone"] {
+  --background: oklch(0.145 0.01 58);
+  --foreground: oklch(0.985 0.003 58);
+  --card: oklch(0.205 0.01 58);
+  --card-foreground: oklch(0.985 0.003 58);
+  --border: oklch(1 0.01 58 / 10%);
+  --input: oklch(1 0.01 58 / 15%);
+  --muted: oklch(0.269 0.01 58);
+  --muted-foreground: oklch(0.708 0.01 58);
+}
+
+.dark[data-base-color="slate"] {
+  --background: oklch(0.145 0.025 257);
+  --foreground: oklch(0.985 0.006 257);
+  --card: oklch(0.205 0.025 257);
+  --card-foreground: oklch(0.985 0.006 257);
+  --border: oklch(1 0.025 257 / 10%);
+  --input: oklch(1 0.025 257 / 15%);
+  --muted: oklch(0.269 0.025 257);
+  --muted-foreground: oklch(0.708 0.025 257);
+}
+
+/* Dark-mode theme-color overrides, same specificity-escalation reasoning as above. shadcn's own
+   dark themes keep saturated accent colors as-is, so these reuse the exact light-mode hex values
+   for --primary/--ring; --primary-foreground stays white for text-on-accent legibility. */
+.dark[data-theme-color="red"] {
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  --ring: #ef4444;
+}
+
+.dark[data-theme-color="orange"] {
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+  --ring: #f97316;
+}
+
+.dark[data-theme-color="amber"] {
+  --primary: #f59e0b;
+  --primary-foreground: #ffffff;
+  --ring: #f59e0b;
+}
+
+.dark[data-theme-color="yellow"] {
+  --primary: #eab308;
+  --primary-foreground: #ffffff;
+  --ring: #eab308;
+}
+
+.dark[data-theme-color="lime"] {
+  --primary: #84cc16;
+  --primary-foreground: #ffffff;
+  --ring: #84cc16;
+}
+
+.dark[data-theme-color="green"] {
+  --primary: #22c55e;
+  --primary-foreground: #ffffff;
+  --ring: #22c55e;
+}
+
+.dark[data-theme-color="emerald"] {
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --ring: #10b981;
+}
+
+.dark[data-theme-color="teal"] {
+  --primary: #14b8a6;
+  --primary-foreground: #ffffff;
+  --ring: #14b8a6;
+}
+
+.dark[data-theme-color="cyan"] {
+  --primary: #06b6d4;
+  --primary-foreground: #ffffff;
+  --ring: #06b6d4;
+}
+
+.dark[data-theme-color="sky"] {
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+  --ring: #0ea5e9;
+}
+
+.dark[data-theme-color="blue"] {
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --ring: #3b82f6;
+}
+
+.dark[data-theme-color="indigo"] {
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --ring: #6366f1;
+}
+
+.dark[data-theme-color="violet"] {
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --ring: #8b5cf6;
+}
+
+.dark[data-theme-color="purple"] {
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --ring: #a855f7;
+}
+
+.dark[data-theme-color="fuchsia"] {
+  --primary: #d946ef;
+  --primary-foreground: #ffffff;
+  --ring: #d946ef;
+}
+
+.dark[data-theme-color="pink"] {
+  --primary: #ec4899;
+  --primary-foreground: #ffffff;
+  --ring: #ec4899;
+}
+
+.dark[data-theme-color="rose"] {
+  --primary: #f43f5e;
+  --primary-foreground: #ffffff;
+  --ring: #f43f5e;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
