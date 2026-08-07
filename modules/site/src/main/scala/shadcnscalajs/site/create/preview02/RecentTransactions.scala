@@ -60,11 +60,8 @@ object RecentTransactions:
     )
   )
 
-  private val ghostIconTrigger: Modifier[HtmlElement] =
-    cls := "size-8 border-0 bg-transparent p-0 shadow-none hover:bg-accent hover:text-accent-foreground"
-
   private def rowMenu: HtmlElement =
-    DropdownMenu(ghostIconTrigger, Icons.moreHorizontal())(
+    DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses, DropdownMenu.Align.End)(Icons.moreHorizontal())(
       DropdownMenu.Item("View details", () => ()),
       DropdownMenu.Item("Add note", () => ()),
       DropdownMenu.Item("Categorize", () => ()),

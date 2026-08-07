@@ -125,6 +125,10 @@ object Slider:
       span(
         dataAttr("slot") := "slider-track",
         dataAttr("orientation") := "horizontal",
+        // `data-horizontal:` compiles to `&[data-horizontal]`, not `[data-orientation=horizontal]`.
+        // The track's height and the range's fill come only from that variant — in the base classes
+        // here and in every style pack — so without this flag both collapse to zero height.
+        dataAttr("horizontal") := "",
         cls := trackClasses,
         onMountCallback { ctx => trackRef.set(Some(ctx.thisNode.ref)) },
         onMouseDown --> { ev =>
@@ -134,6 +138,7 @@ object Slider:
         },
         span(
           dataAttr("slot") := "slider-range",
+          dataAttr("horizontal") := "",
           cls := rangeClasses,
           styleAttr <-- valuesSignal.map(rangeStyle(_, min, max))
         )
@@ -143,13 +148,17 @@ object Slider:
         vs.zipWithIndex.map { case (v, idx) =>
           span(
             dataAttr("slot") := "slider-thumb",
-            cls := s"$thumbClasses absolute top-1/2",
+            cls := thumbClasses,
             role := "slider",
             aria.valueMin := min,
             aria.valueMax := max,
             aria.valueNow := v,
             tabIndex := 0,
-            styleAttr := s"left:${pct(v, min, max)}%;transform:translate(-50%, -50%)",
+            // Positioned inline rather than with `absolute top-1/2` utilities: packs set
+            // `.cn-slider-thumb { position: relative }` to anchor their enlarged `::after` hit area,
+            // and being unlayered they beat the utility class, dropping the thumb into flex flow
+            // beside the track. An inline style outranks them and keeps the pack's hit area working.
+            styleAttr := s"position:absolute;top:50%;left:${pct(v, min, max)}%;transform:translate(-50%, -50%)",
             onMouseDown --> { ev =>
               ev.preventDefault()
               ev.stopPropagation()

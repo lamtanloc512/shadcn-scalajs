@@ -65,7 +65,10 @@ object Item:
   def of(mods: (ItemApi.type => Modifier[HtmlElement])*): HtmlElement =
     div(
       dataAttr("slot") := "item",
-      cls := base,
+      // Match Item.apply and the upstream component: omitting `size` means Default, not unstyled.
+      // Explicit size modifiers follow these defaults and therefore still override data-size.
+      dataAttr("size") := Size.Default.toString.toLowerCase,
+      cls := s"$base ${sizeClasses(Size.Default)}",
       mods.map(_(ItemApi))
     )
 

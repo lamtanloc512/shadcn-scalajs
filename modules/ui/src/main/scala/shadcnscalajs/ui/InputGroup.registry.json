@@ -1,7 +1,7 @@
 {
   "name": "input-group",
   "title": "Input Group",
-  "registryDependencies": ["button", "input"],
+  "registryDependencies": ["button", "input", "textarea"],
   "scalaDependencies": [],
   "files": [{ "path": "InputGroup.scala", "type": "scala:ui" }]
 }

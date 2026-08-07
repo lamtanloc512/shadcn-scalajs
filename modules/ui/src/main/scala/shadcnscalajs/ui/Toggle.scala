@@ -17,30 +17,39 @@ object Toggle:
   private val ariaPressedAttr: HtmlAttr[Boolean] = htmlAttr("aria-pressed", BooleanAsTrueFalseStringCodec)
 
   private val base =
-    "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-muted hover:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+    "cn-toggle group/toggle inline-flex items-center justify-center whitespace-nowrap outline-none hover:bg-muted focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
 
-  private val variantClasses: Map[Variant, String] = Map(
-    Variant.Default -> "bg-transparent",
-    Variant.Outline -> "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground"
-  )
+  private def variantClasses(variant: Variant): String = variant match
+    case Variant.Default => "cn-toggle-variant-default"
+    case Variant.Outline => "cn-toggle-variant-outline"
 
-  private val sizeClasses: Map[Size, String] = Map(
-    Size.Default -> "h-9 px-2 min-w-9",
-    Size.Sm -> "h-8 px-1.5 min-w-8",
-    Size.Lg -> "h-10 px-2.5 min-w-10"
-  )
+  private def sizeClasses(size: Size): String = size match
+    case Size.Default => "cn-toggle-size-default"
+    case Size.Sm      => "cn-toggle-size-sm"
+    case Size.Lg      => "cn-toggle-size-lg"
+
+  def apply(
+      pressedVar: Var[Boolean],
+      variant: Variant,
+      size: Size,
+      mods: Modifier[HtmlElement]*
+  ): HtmlElement =
+    apply(pressedVar, variant, size, Val(false), mods*)
 
   def apply(
       pressedVar: Var[Boolean],
       variant: Variant = Variant.Default,
       size: Size = Size.Default,
+      isDisabled: Signal[Boolean] = Val(false),
       mods: Modifier[HtmlElement]*
   ): HtmlElement =
     button(
       typ := "button",
+      dataAttr("slot") := "toggle",
       cls := s"$base ${variantClasses(variant)} ${sizeClasses(size)}",
       dataAttr("state") <-- pressedVar.signal.map(if _ then "on" else "off"),
       ariaPressedAttr <-- pressedVar.signal,
+      disabled <-- isDisabled,
       onClick --> { _ => pressedVar.update(!_) },
       mods
     )

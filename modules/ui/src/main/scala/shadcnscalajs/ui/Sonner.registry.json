@@ -1,0 +1,7 @@
+{
+  "name": "sonner",
+  "title": "Sonner",
+  "registryDependencies": [],
+  "scalaDependencies": ["Spinner"],
+  "files": [{ "path": "Sonner.scala", "type": "scala:ui" }]
+}

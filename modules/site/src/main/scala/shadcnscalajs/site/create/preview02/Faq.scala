@@ -55,9 +55,6 @@ object Faq:
     )
   )
 
-  private val tabTriggerClasses =
-    "inline-flex flex-1 items-center justify-center rounded-md px-3 py-1 text-sm font-medium transition-all hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
-
   private def questionAccordion(openIndexVar: Var[Option[Int]], questions: List[QA]): HtmlElement =
     div(
       cls := "w-full",
@@ -65,25 +62,6 @@ object Faq:
         openIndexVar,
         questions.map(qa => Accordion.Section(qa.question, qa.answer))*
       )
-    )
-
-  private def tabPanel(selectedTab: Signal[String], tabValue: String, panel: HtmlElement): HtmlElement =
-    div(
-      role := "tabpanel",
-      cls := "flex-1 outline-none w-full",
-      display <-- selectedTab.map(value => if value == tabValue then "block" else "none"),
-      panel
-    )
-
-  private def tabTrigger(selectedTabVar: Var[String], tabValue: String, label: String): HtmlElement =
-    button(
-      typ := "button",
-      role := "tab",
-      cls := tabTriggerClasses,
-      dataAttr("state") <-- selectedTabVar.signal.map(v => if v == tabValue then "active" else "inactive"),
-      aria.selected <-- selectedTabVar.signal.map(_ == tabValue),
-      onClick --> { _ => selectedTabVar.set(tabValue) },
-      label
     )
 
   def apply(): HtmlElement =
@@ -95,16 +73,25 @@ object Faq:
     Card(
       dataAttr("card") := "faq",
       Card.content(
-        Tabs(
-          Tabs.list(
-            cls := "w-full",
-            tabTrigger(selectedTabVar, "general", "General"),
-            tabTrigger(selectedTabVar, "billing", "Billing"),
-            tabTrigger(selectedTabVar, "goals", "Goals")
+        Tabs.stateful(selectedTabVar, Tabs.ListVariant.Default, cls := "w-full")(
+          Tabs.Tab(
+            "general",
+            "General",
+            questionAccordion(generalOpenVar, generalQuestions),
+            Seq(cls := "flex-1")
           ),
-          tabPanel(selectedTabVar.signal, "general", questionAccordion(generalOpenVar, generalQuestions)),
-          tabPanel(selectedTabVar.signal, "billing", questionAccordion(billingOpenVar, billingQuestions)),
-          tabPanel(selectedTabVar.signal, "goals", questionAccordion(goalsOpenVar, goalsQuestions))
+          Tabs.Tab(
+            "billing",
+            "Billing",
+            questionAccordion(billingOpenVar, billingQuestions),
+            Seq(cls := "flex-1")
+          ),
+          Tabs.Tab(
+            "goals",
+            "Goals",
+            questionAccordion(goalsOpenVar, goalsQuestions),
+            Seq(cls := "flex-1")
+          )
         )
       ),
       Card.footer(

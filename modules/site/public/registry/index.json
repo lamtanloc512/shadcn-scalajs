@@ -117,11 +117,24 @@
     "registryDependencies": []
   },
   {
+    "name": "data-table",
+    "title": "Data Table",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "table",
+      "button",
+      "input",
+      "checkbox",
+      "dropdown-menu"
+    ]
+  },
+  {
     "name": "date-picker",
     "title": "Date Picker",
     "type": "scala:ui",
     "registryDependencies": [
       "calendar",
+      "range-calendar",
       "popover",
       "button"
     ]
@@ -193,7 +206,8 @@
     "type": "scala:ui",
     "registryDependencies": [
       "button",
-      "input"
+      "input",
+      "textarea"
     ]
   },
   {
@@ -281,6 +295,14 @@
     "registryDependencies": []
   },
   {
+    "name": "range-calendar",
+    "title": "Range Calendar",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "calendar"
+    ]
+  },
+  {
     "name": "resizable",
     "title": "Resizable",
     "type": "scala:ui",
@@ -342,6 +364,12 @@
     "registryDependencies": [
       "range"
     ]
+  },
+  {
+    "name": "sonner",
+    "title": "Sonner",
+    "type": "scala:ui",
+    "registryDependencies": []
   },
   {
     "name": "spinner",

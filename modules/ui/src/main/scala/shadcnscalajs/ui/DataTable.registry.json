@@ -1,0 +1,7 @@
+{
+  "name": "data-table",
+  "title": "Data Table",
+  "registryDependencies": ["table", "button", "input", "checkbox", "dropdown-menu"],
+  "scalaDependencies": [],
+  "files": [{ "path": "DataTable.scala", "type": "scala:ui" }]
+}

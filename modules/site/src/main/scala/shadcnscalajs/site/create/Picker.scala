@@ -131,8 +131,30 @@ object Picker:
       onClick --> { _ => ctx.toggle() }
     )
 
-  /** Places the open menu against the trigger's viewport rect, right edges aligned, flipping above the trigger when
-    * there is no room below and clamping to the viewport so it can never run off-screen.
+  /** The area the trigger's `overflow` ancestors leave visible, in viewport coordinates. The customizer is a short
+    * scroll container, so a trigger can be scrolled out of sight while its rect still reports a position; placing
+    * against that rect drops the menu somewhere unrelated on the page.
+    */
+  private def visibleBounds(trigger: dom.html.Element): (Double, Double, Double, Double) =
+    var top = 0.0
+    var left = 0.0
+    var right = dom.window.innerWidth.toDouble
+    var bottom = dom.window.innerHeight.toDouble
+    var node = trigger.parentElement
+    while node != null && node != dom.document.body do
+      val style = dom.window.getComputedStyle(node)
+      if style.overflow != "visible" || style.overflowX != "visible" || style.overflowY != "visible" then
+        val rect = node.getBoundingClientRect()
+        top = math.max(top, rect.top)
+        left = math.max(left, rect.left)
+        right = math.min(right, rect.right)
+        bottom = math.min(bottom, rect.bottom)
+      node = node.parentElement
+    (top, left, right, bottom)
+
+  /** Places the open menu against the trigger's viewport rect, right edges aligned, on whichever side has more room,
+    * capping its height to that room so it stays attached to the trigger instead of drifting across the page. A trigger
+    * scrolled out of its container takes the menu with it: the menu hides rather than floating on its own.
     */
   private def place(ctx: Root): Unit =
     for
@@ -141,20 +163,36 @@ object Picker:
     do
       val gap = 8.0
       val margin = 8.0
+      val minHeight = 96.0
+      val maxHeight = 384.0
       val rect = trigger.getBoundingClientRect()
-      val viewportWidth = dom.window.innerWidth.toDouble
-      val viewportHeight = dom.window.innerHeight.toDouble
-      val menuWidth = menu.offsetWidth.toDouble
-      val menuHeight = menu.offsetHeight.toDouble
-      val left = math.max(margin, math.min(rect.right - menuWidth, viewportWidth - margin - menuWidth))
-      val below = rect.bottom + gap
-      val above = rect.top - gap - menuHeight
-      val top =
-        if below + menuHeight <= viewportHeight - margin then below
-        else if above >= margin then above
-        else math.max(margin, viewportHeight - margin - menuHeight)
-      menu.style.left = s"${left}px"
-      menu.style.top = s"${top}px"
+      val (clipTop, clipLeft, clipRight, clipBottom) = visibleBounds(trigger)
+      val hidden = rect.bottom <= clipTop || rect.top >= clipBottom || rect.right <= clipLeft || rect.left >= clipRight
+
+      // Fixed inline rather than via the `fixed` utility: menu style packs set
+      // `.cn-menu-translucent { position: relative }` to anchor their backdrop pseudo-element, and being
+      // unlayered they beat the utility, dropping the menu into body flow below the whole page. Inline
+      // outranks them, and `fixed` is still a containing block so the pack's backdrop stays anchored.
+      menu.style.position = "fixed"
+
+      menu.style.visibility = if hidden then "hidden" else "visible"
+      menu.style.pointerEvents = if hidden then "none" else "auto"
+      if !hidden then
+        val viewportWidth = dom.window.innerWidth.toDouble
+        val viewportHeight = dom.window.innerHeight.toDouble
+        val menuWidth = menu.offsetWidth.toDouble
+        val desired = math.min(maxHeight, menu.scrollHeight.toDouble)
+        val roomBelow = viewportHeight - margin - (rect.bottom + gap)
+        val roomAbove = rect.top - gap - margin
+        val below = roomBelow >= desired || roomBelow >= roomAbove
+        val height = math.max(minHeight, math.min(desired, if below then roomBelow else roomAbove))
+        val left = math.max(margin, math.min(rect.right - menuWidth, viewportWidth - margin - menuWidth))
+        val top =
+          if below then math.min(rect.bottom + gap, viewportHeight - margin - height)
+          else math.max(margin, rect.top - gap - height)
+        menu.style.maxHeight = s"${height}px"
+        menu.style.left = s"${left}px"
+        menu.style.top = s"${top}px"
 
   /** The menu is rendered into `document.body` instead of inline. Inline it is clipped by three ancestors — the
     * customizer's scroll area plus two `overflow-hidden` wrappers — and the card's `backdrop-blur` makes it a

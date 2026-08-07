@@ -96,11 +96,14 @@ object Field:
       mods
     )
 
+  private val labelClasses =
+    "cn-field-label group/field-label peer/field-label flex w-fit items-center gap-2 text-sm leading-snug font-medium select-none group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4 has-data-[state=checked]:bg-primary/5 has-data-[state=checked]:border-primary dark:has-data-[state=checked]:bg-primary/10"
+
   /** field.tsx `FieldLabel` — wraps Label's classes plus the field-label additions. */
   def label(text: String, mods: Modifier[HtmlElement]*): HtmlElement =
     labelTag(
       dataAttr("slot") := "field-label",
-      cls := "flex items-center gap-2 text-sm leading-none font-medium select-none group/field-label peer/field-label w-fit leading-snug group-data-[disabled=true]/field:opacity-50",
+      cls := labelClasses,
       mods,
       text
     )
@@ -141,4 +144,23 @@ object Field:
       }
     )
 
-  def error(mods: Modifier[HtmlElement]*): HtmlElement = p(cls := "text-sm font-medium text-destructive", mods)
+  /** field-error.svelte `FieldError` — optional `errors` list and/or child content; renders nothing when empty. */
+  def error(mods: Modifier[HtmlElement]*): Node =
+    error(Nil, mods*)
+
+  def error(errors: Seq[String], mods: Modifier[HtmlElement]*): Node =
+    val messages = errors.flatMap(msg => Option(msg).filter(_.nonEmpty))
+    if mods.isEmpty && messages.isEmpty then emptyNode
+    else
+      div(
+        role := "alert",
+        dataAttr("slot") := "field-error",
+        cls := "cn-field-error font-normal text-sm text-destructive",
+        if mods.nonEmpty then mods
+        else if messages.length == 1 then messages.head
+        else
+          ul(
+            cls := "ml-4 flex list-disc flex-col gap-1",
+            messages.map(msg => li(msg))
+          )
+      )

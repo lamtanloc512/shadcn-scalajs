@@ -1,0 +1,7 @@
+{
+  "name": "range-calendar",
+  "title": "Range Calendar",
+  "registryDependencies": ["calendar"],
+  "scalaDependencies": [],
+  "files": [{ "path": "RangeCalendar.scala", "type": "scala:ui" }]
+}

@@ -82,6 +82,7 @@ object Main:
     "Combobox",
     "Command",
     "Context Menu",
+    "Data Table",
     "Date Picker",
     "Dialog",
     "Drawer",
@@ -105,6 +106,7 @@ object Main:
     "Radio",
     "Radio Group",
     "Range",
+    "Range Calendar",
     "Resizable",
     "Scroll Area",
     "Scrollbar",
@@ -114,6 +116,7 @@ object Main:
     "Sidebar",
     "Skeleton",
     "Slider",
+    "Sonner",
     "Spinner",
     "Switch",
     "Table",
@@ -123,10 +126,212 @@ object Main:
     "Toast",
     "Toggle",
     "Toggle Group",
-    "Tooltip"
+    "Tooltip",
+    "Typography"
   )
 
   private def slugify(name: String): String = name.toLowerCase.replace(' ', '-')
+
+  /** Typography recipe page — utility classes copied from shadcn-svelte typography examples (no registry component). */
+  private def typographyDemo(): HtmlElement =
+    div(
+      cls := "w-full max-w-2xl space-y-8 p-6 text-left",
+      p(
+        cls := "text-sm text-muted-foreground",
+        "No Typography.scala component — apply these Tailwind classes directly in your Laminar elements."
+      ),
+      div(
+        cls := "space-y-6",
+        h1(
+          cls := "scroll-m-20 text-4xl font-extrabold tracking-tight text-balance",
+          "Taxing Laughter: The Joke Tax Chronicles"
+        ),
+        p(cls := "text-xl leading-7 text-muted-foreground [&:not(:first-child)]:mt-6", "Lead paragraph text."),
+        h2(
+          cls := "scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0",
+          "The King's Plan"
+        ),
+        h3(cls := "scroll-m-20 text-2xl font-semibold tracking-tight", "The Joke Tax"),
+        h4(cls := "scroll-m-20 text-xl font-semibold tracking-tight", "People stopped telling jokes"),
+        p(cls := "leading-7 [&:not(:first-child)]:mt-6", "Body paragraph with standard leading."),
+        p(cls := "text-xl text-muted-foreground", "Lead — muted xl text."),
+        div(cls := "text-lg font-semibold", "Large semibold text."),
+        small(cls := "text-sm leading-none font-medium", "Small label text."),
+        p(cls := "text-sm text-muted-foreground", "Muted helper text."),
+        blockQuote(cls := "mt-6 border-s-2 ps-6 italic", "A blockquote with a left border."),
+        ul(
+          cls := "my-6 ms-6 list-disc [&>li]:mt-2",
+          li("1st level of puns: 5 gold coins"),
+          li("2nd level of jokes: 10 gold coins"),
+          li("3rd level of one-liners: 20 gold coins")
+        ),
+        code(
+          cls := "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
+          "inline code"
+        )
+      )
+    )
+
+  private def formatUsd(amount: Int): String =
+    val formatter = js.Dynamic.newInstance(js.Dynamic.global.Intl.NumberFormat)(
+      "en-US",
+      js.Dynamic.literal(style = "currency", currency = "USD")
+    )
+    formatter.format(amount).asInstanceOf[String]
+
+  private final case class DemoPayment(id: String, amount: Int, status: String, email: String)
+
+  /** Interactive data-table demo — mirrors shadcn-svelte's data-table-demo.svelte using pure Laminar state. */
+  private def dataTableDemo(): HtmlElement =
+    val payments = Var(
+      Seq(
+        DemoPayment("m5gr84i9", 316, "Success", "ken99@yahoo.com"),
+        DemoPayment("3u1reuv4", 242, "Success", "Abe45@gmail.com"),
+        DemoPayment("derv1ws0", 837, "Processing", "Monserrat44@gmail.com"),
+        DemoPayment("5kma53ae", 874, "Success", "Silas22@gmail.com"),
+        DemoPayment("bhqecj4p", 721, "Failed", "carmella@hotmail.com")
+      )
+    )
+
+    // Header-checkbox state, refreshed by the binder on the root element below — column renderers run outside
+    // any element scope, so they cannot read the page rows signal directly.
+    val pageRowIds = Var(Seq.empty[String])
+    val allPageRowsSelected = Var(false)
+    val somePageRowsSelected = Var(false)
+
+    lazy val columns: Seq[DataTable.Column[DemoPayment]] = Seq(
+      DataTable.Column(
+        id = "select",
+        header = () =>
+          Checkbox(
+            allPageRowsSelected,
+            somePageRowsSelected.signal,
+            role := "checkbox",
+            aria.label := "Select all",
+            onClick --> { _ => table.toggleAllRows(pageRowIds.now()) }
+          ),
+        cell = p =>
+          Checkbox(
+            Var(table.rowSelection.now().contains(p.id)),
+            role := "checkbox",
+            aria.label := "Select row",
+            onClick --> { _ => table.toggleRow(p.id) }
+          ),
+        accessor = _ => "",
+        enableSorting = false,
+        enableHiding = false
+      ),
+      DataTable.Column.text("status", "Status", _.status, p => div(cls := "capitalize", p.status)),
+      DataTable.Column(
+        id = "email",
+        header = () =>
+          Button.of(
+            _.variant(Button.Variant.Ghost),
+            _.size(Button.Size.Sm),
+            _ => cls := "-ms-3",
+            _ => onClick --> { _ => table.toggleSort("email") },
+            // Label and icon must be direct children: the button's own `gap` and `has-[>svg]:px-*`
+            // only see direct children, so wrapping both in a span stacks the icon under the text.
+            _ => "Email",
+            _ => Icons.chevronsUpDown()
+          ),
+        cell = p => div(cls := "lowercase", p.email),
+        accessor = _.email
+      ),
+      DataTable.Column(
+        id = "amount",
+        header = () => div(cls := "text-end", "Amount"),
+        cell = p => div(cls := "text-end font-medium", formatUsd(p.amount)),
+        // Zero-padded so the string sort the table applies orders amounts numerically.
+        accessor = p => f"${p.amount}%012d"
+      ),
+      DataTable.Column(
+        id = "actions",
+        header = () => span(cls := "sr-only", "Actions"),
+        cell = p =>
+          DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses, DropdownMenu.Align.End)(
+            span(cls := "sr-only", "Open menu"),
+            Icons.moreHorizontal()
+          )(
+            DropdownMenu.Item(
+              "Copy payment ID",
+              () => { val _ = js.Dynamic.global.navigator.clipboard.writeText(p.id) }
+            ),
+            DropdownMenu.Item("View customer", () => ()),
+            DropdownMenu.Item("View payment details", () => ())
+          ),
+        accessor = _ => "",
+        enableSorting = false,
+        enableHiding = false
+      )
+    )
+
+    lazy val table: DataTable.TableState[DemoPayment] = DataTable.createTable(
+      payments,
+      columns,
+      initialPageSize = 10,
+      rowId = _.id,
+      filterFn = (p, q, _) => p.email.toLowerCase.contains(q.toLowerCase)
+    )
+
+    div(
+      cls := "-mb-8 w-full",
+      table.rows.combineWith(table.rowSelection.signal) --> { (state: (Seq[DemoPayment], Set[String])) =>
+        val (pageRows, selection) = state
+        val ids = pageRows.map(_.id)
+        pageRowIds.set(ids)
+        val selectedOnPage = ids.count(selection.contains)
+        allPageRowsSelected.set(ids.nonEmpty && selectedOnPage == ids.size)
+        somePageRowsSelected.set(selectedOnPage > 0 && selectedOnPage < ids.size)
+      },
+      div(
+        cls := "flex items-center py-4",
+        Input(
+          placeholder := "Filter emails...",
+          cls := "max-w-sm",
+          controlled(value <-- table.globalFilter.signal, onInput.mapToValue --> table.globalFilter)
+        ),
+        div(
+          cls := "ms-auto",
+          DropdownMenu.alignEnd("Columns", Icons.chevronDown(svg.cls := "ms-2 size-4"))(
+            table.hideableColumns.map { col =>
+              DropdownMenu.Item.checkbox(
+                col.id.capitalize,
+                table.isColumnVisible(col.id),
+                () => table.toggleColumnVisibility(col.id)
+              )
+            }*
+          )
+        )
+      ),
+      table.view(_.id),
+      div(
+        cls := "flex items-center justify-end space-x-2 pt-4",
+        div(
+          cls := "flex-1 text-sm text-muted-foreground",
+          child.text <-- table.selectedFilteredCount.combineWith(table.filteredCount).map { case (sel, total) =>
+            s"$sel of $total row(s) selected."
+          }
+        ),
+        div(
+          cls := "space-x-2",
+          Button.of(
+            _.variant(Button.Variant.Outline),
+            _.size(Button.Size.Sm),
+            _ => disabled <-- table.canPreviousPage.map(!_),
+            _ => onClick --> { _ => table.previousPage() },
+            _ => "Previous"
+          ),
+          Button.of(
+            _.variant(Button.Variant.Outline),
+            _.size(Button.Size.Sm),
+            _ => disabled <-- table.canNextPage.map(!_),
+            _ => onClick --> { _ => table.nextPage() },
+            _ => "Next"
+          )
+        )
+      )
+    )
 
   // shadcn/ui button classes — repeated inline for readability
   private def btnPrimary =
@@ -294,7 +499,8 @@ object Main:
           ),
           "."
         )
-      )
+      ),
+      Sonner.Toaster()
     )
 
   /** Interactive component gallery. Each preview is composed from the same Laminar primitives exported by modules/ui,
@@ -384,7 +590,8 @@ object Main:
             )
           }
         )
-      )
+      ),
+      Sonner.Toaster()
     )
 
   /** Documentation-style component route. `/components/drawer` is the first full page; other component links use the
@@ -395,6 +602,8 @@ object Main:
     val drawerOpen = Var(false)
     val dialogOpen = Var(false)
     val switchOn = Var(true)
+    val tabsDefaultSelected = Var("overview")
+    val tabsLineSelected = Var("overview")
     val previewTheme = Var(ThemeSwitcher.Theme.System)
     val pathParts = dom.window.location.pathname.stripPrefix("/components").stripPrefix("/").split("/").toList
     val componentName = pathParts.find(_.nonEmpty).getOrElse("drawer")
@@ -402,10 +611,15 @@ object Main:
     val componentDescription = componentName match
       case "accordion" => "A vertically stacked set of interactive headings that each reveal a section of content."
       case "drawer"    => "A mobile-first drawer component for Laminar."
-      case "dialog"    => "A modal dialog built with the native HTML dialog element."
-      case "button"    => "A reusable action button with shadcn/ui variants."
-      case "switch"    => "A reactive boolean control backed by a Laminar Var."
-      case _           => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
+      case "data-table" =>
+        "Pure Scala table-state utilities composing Table — sorting, filtering, pagination, and row selection without TanStack."
+      case "dialog" => "A modal dialog built with the native HTML dialog element."
+      case "button" => "A reusable action button with shadcn/ui variants."
+      case "switch" => "A reactive boolean control backed by a Laminar Var."
+      case "sonner" => "An opinionated toast component — pure Laminar, no svelte-sonner dependency."
+      case "typography" =>
+        "Styles for headings, paragraphs, lists, and inline code — utility-class recipes, not a registry component."
+      case _ => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
 
     dom.document.title = s"$componentTitle – shadcn-scalajs"
 
@@ -454,8 +668,15 @@ object Main:
         )
       )
 
+    /** Wide demos (tables, sidebars, nav) need more than the prose `max-w-2xl` column. */
+    val articleWidthCls =
+      componentName match
+        case "data-table" | "sidebar" | "chart" | "navigation-menu" | "carousel" | "resizable" | "table" =>
+          "mx-auto max-w-5xl"
+        case _ => "mx-auto max-w-2xl"
+
     def previewCanvas(content: Modifier[HtmlElement]*): HtmlElement =
-      div(cls := "flex min-h-64 w-full items-center justify-center gap-3 p-6", content)
+      div(cls := "flex min-h-[450px] w-full items-center justify-center gap-3 p-10", content)
 
     def liveExample(): HtmlElement = componentName match
       case "accordion" =>
@@ -647,11 +868,26 @@ object Main:
         )
       case "field" =>
         previewCanvas(
-          Field(
-            cls := "w-full max-w-sm",
-            Field.label("Email"),
-            Input(placeholder := "you@example.com"),
-            Field.description("We will never share your email.")
+          div(
+            cls := "flex w-full max-w-sm flex-col gap-6",
+            Field(
+              cls := "w-full",
+              Field.label("Email"),
+              Input(placeholder := "you@example.com"),
+              Field.description("We will never share your email.")
+            ),
+            Field(
+              cls := "w-full",
+              Field.label("Password"),
+              Input(`type` := "password"),
+              Field.error(Seq("Password must be at least 8 characters."))
+            ),
+            Field(
+              cls := "w-full",
+              Field.label("Username"),
+              Input(placeholder := "jane"),
+              Field.error(Seq("Username is required.", "Username must be unique."))
+            )
           )
         )
       case "form" =>
@@ -665,13 +901,23 @@ object Main:
       case "input" => previewCanvas(Input(placeholder := "Type something…", cls := "max-w-sm"))
       case "input-group" =>
         previewCanvas(
-          InputGroup(
-            cls := "max-w-sm",
-            InputGroup.addon(
-              InputGroup.AddonAlign.InlineStart,
-              InputGroup.text("https://")
+          div(
+            cls := "flex w-full max-w-sm flex-col gap-4",
+            InputGroup(
+              InputGroup.addon(InputGroup.AddonAlign.InlineStart, InputGroup.text("https://")),
+              InputGroup.input(placeholder := "example.com")
             ),
-            InputGroup.input(placeholder := "example.com")
+            InputGroup(
+              InputGroup.addon(
+                InputGroup.AddonAlign.BlockStart,
+                span(cls := "text-sm text-muted-foreground", "Description")
+              ),
+              InputGroup.textarea(placeholder := "Enter your message…", rows := 3),
+              InputGroup.addon(
+                InputGroup.AddonAlign.BlockEnd,
+                span(cls := "text-xs text-muted-foreground", "Markdown supported")
+              )
+            )
           )
         )
       case "item" =>
@@ -731,13 +977,47 @@ object Main:
         previewCanvas(
           Sidebar(
             cls := "h-48 w-full max-w-sm",
-            Sidebar.header("Navigation"),
-            Sidebar.content(Sidebar.menu(Sidebar.menuItem("Overview"), Sidebar.menuItem("Settings")))
+            Sidebar.header(
+              Sidebar.input(placeholder := "Search…", cls := "mb-2")
+            ),
+            Sidebar.content(
+              Sidebar.group(
+                Sidebar.groupLabel(
+                  span(cls := "flex-1", "Navigation"),
+                  Sidebar.groupAction(Icons.plus(), aria.label := "Add section")
+                ),
+                Sidebar.groupContent(
+                  Sidebar.menu(
+                    li(
+                      dataAttr("slot") := "sidebar-menu-item",
+                      dataAttr("sidebar") := "menu-item",
+                      cls := "group/menu-item relative",
+                      Sidebar.menuButton(isActive = true)(Icons.layoutDashboard(), "Overview"),
+                      Sidebar.menuAction(showOnHover = true)(Icons.moreHorizontal(), aria.label := "More")
+                    ),
+                    Sidebar.menuItem(Icons.building2(), "Settings"),
+                    Sidebar.menuSkeleton(showIcon = true)()
+                  )
+                )
+              )
+            )
           )
         )
       case "skeleton" => previewCanvas(Skeleton(cls := "h-20 w-full max-w-sm"))
       case "slider"   => previewCanvas(Slider(value := "50", cls := "w-full max-w-sm"))
-      case "spinner"  => previewCanvas(Spinner())
+      case "sonner" =>
+        previewCanvas(
+          div(
+            cls := "flex flex-wrap items-center justify-center gap-2",
+            Button(onClick --> { _ => Sonner.toast("Event has been created") }, "Toast"),
+            Button(onClick --> { _ => Sonner.success("Successfully saved") }, "Success"),
+            Button(onClick --> { _ => Sonner.error("Something went wrong") }, "Error"),
+            Button(onClick --> { _ => Sonner.info("Did you know?") }, "Info"),
+            Button(onClick --> { _ => Sonner.warning("Please review") }, "Warning"),
+            Button(onClick --> { _ => Sonner.loading("Loading…") }, "Loading")
+          )
+        )
+      case "spinner" => previewCanvas(Spinner())
       case "switch" =>
         previewCanvas(
           Switch(switchOn),
@@ -757,14 +1037,35 @@ object Main:
           )
         )
       case "tabs" =>
-        previewCanvas(Tabs(Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")), Tabs.content("Tab content")))
+        previewCanvas(
+          div(
+            cls := "flex w-full max-w-md flex-col gap-6",
+            div(
+              cls := "flex flex-col gap-2",
+              p(cls := "text-sm font-medium", "Default"),
+              Tabs.stateful(tabsDefaultSelected)(
+                ("overview", "Overview", p(cls := "text-sm text-muted-foreground", "Overview panel content.")),
+                ("usage", "Usage", p(cls := "text-sm text-muted-foreground", "Usage panel content."))
+              )
+            ),
+            div(
+              cls := "flex flex-col gap-2",
+              p(cls := "text-sm font-medium", "Line"),
+              Tabs.stateful(tabsLineSelected, Tabs.ListVariant.Line)(
+                Tabs.Tab("overview", "Overview", p(cls := "text-sm text-muted-foreground", "Overview panel content.")),
+                Tabs.Tab("usage", "Usage", p(cls := "text-sm text-muted-foreground", "Usage panel content."))
+              )
+            )
+          )
+        )
       case "textarea"       => previewCanvas(Textarea(placeholder := "Write a message…", cls := "max-w-sm"))
       case "theme-switcher" => previewCanvas(ThemeSwitcher(previewTheme))
       case "toast" =>
         previewCanvas(
           Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))
         )
-      case "tooltip" => previewCanvas(Tooltip("Helpful context", span("Hover me")))
+      case "tooltip"    => previewCanvas(Tooltip("Helpful context", span("Hover me")))
+      case "typography" => previewCanvas(typographyDemo())
       case "aspect-ratio" =>
         previewCanvas(
           div(
@@ -796,7 +1097,18 @@ object Main:
             )
           )
         )
-      case "date-picker" => previewCanvas(DatePicker(Var(Option.empty[js.Date])))
+      case "data-table" =>
+        div(cls := "w-full min-h-[450px] p-10", dataTableDemo())
+      case "date-picker" =>
+        previewCanvas(
+          div(
+            cls := "flex flex-col items-center gap-4",
+            DatePicker(Var(Option.empty[js.Date])),
+            DatePicker.withRange(Var((Option.empty[js.Date], Option.empty[js.Date])))
+          )
+        )
+      case "range-calendar" =>
+        previewCanvas(RangeCalendar(Var((Option.empty[js.Date], Option.empty[js.Date])), cls := "rounded-md border"))
       case "hover-card" =>
         previewCanvas(HoverCard(HoverCard.trigger("Hover me"), HoverCard.content(p("Laminar hover card content."))))
       case "input-otp" => previewCanvas(InputOTP(Var("")))
@@ -812,8 +1124,26 @@ object Main:
           NavigationMenu(
             NavigationMenu.list(
               NavigationMenu.item(
-                NavigationMenu.trigger("Docs"),
-                NavigationMenu.content(p(cls := "text-sm", "Getting started guides."))
+                NavigationMenu.trigger("Getting Started"),
+                NavigationMenu.content(
+                  div(
+                    cls := "grid gap-1 p-2 md:w-[400px] lg:w-[500px]",
+                    NavigationMenu.link(href := "#", "Introduction"),
+                    NavigationMenu.link(href := "#", "Installation"),
+                    NavigationMenu.link(href := "#", "Typography")
+                  )
+                )
+              ),
+              NavigationMenu.item(
+                NavigationMenu.trigger("Components"),
+                NavigationMenu.content(
+                  div(
+                    cls := "grid gap-1 p-2 md:w-[400px] lg:w-[500px]",
+                    NavigationMenu.link(href := "#", "Alert"),
+                    NavigationMenu.link(href := "#", "Button"),
+                    NavigationMenu.link(href := "#", "Card")
+                  )
+                )
               )
             )
           )
@@ -1028,6 +1358,18 @@ Drawer(isOpen)(
   Field.label("Email"),
   Input(placeholder := "you@example.com"),
   Field.description("We will never share your email.")
+)
+
+Field(
+  Field.label("Password"),
+  Input(`type` := "password"),
+  Field.error(Seq("Password must be at least 8 characters."))
+)
+
+Field(
+  Field.label("Username"),
+  Input(placeholder := "jane"),
+  Field.error(Seq("Username is required.", "Username must be unique."))
 )"""
       case "form" =>
         """Form(
@@ -1039,6 +1381,12 @@ Drawer(isOpen)(
         """InputGroup(
   InputGroup.addon(InputGroup.AddonAlign.InlineStart, InputGroup.text("https://")),
   InputGroup.input(placeholder := "example.com")
+)
+
+InputGroup(
+  InputGroup.addon(InputGroup.AddonAlign.BlockStart, span("Description")),
+  InputGroup.textarea(placeholder := "Enter your message…", rows := 3),
+  InputGroup.addon(InputGroup.AddonAlign.BlockEnd, span("Markdown supported"))
 )"""
       case "item" =>
         """Item(
@@ -1091,8 +1439,19 @@ Label("Team")"""
 )"""
       case "skeleton" => """Skeleton(cls := "h-20 w-full")"""
       case "slider"   => """Slider(value := "50")"""
-      case "spinner"  => """Spinner()"""
-      case "switch"   => """val enabled = Var(true)
+      case "sonner" =>
+        """// Mount once near your app root
+Sonner.Toaster()
+
+// Fire from event handlers anywhere
+Sonner.toast("Event has been created")
+Sonner.success("Successfully saved")
+Sonner.error("Something went wrong")
+Sonner.info("Did you know?")
+Sonner.warning("Please review")
+Sonner.loading("Loading…")"""
+      case "spinner" => """Spinner()"""
+      case "switch"  => """val enabled = Var(true)
 Switch(enabled)"""
       case "table" =>
         """Table(
@@ -1103,13 +1462,27 @@ Switch(enabled)"""
   )
 )"""
       case "tabs" =>
-        """Tabs(Tabs.list(Tabs.trigger("Overview"), Tabs.trigger("Usage")), Tabs.content("Tab content"))"""
+        """val selected = Var("overview")
+Tabs.stateful(selected)(
+  ("overview", "Overview", p("Overview panel content.")),
+  ("usage", "Usage", p("Usage panel content."))
+)
+
+Tabs.stateful(selected, Tabs.ListVariant.Line, cls := "w-full")(
+  Tabs.Tab("overview", "Overview", p("Overview content."), Seq(cls := "flex-1")),
+  Tabs.Tab("usage", "Usage", p("Usage content."), Seq(cls := "flex-1"))
+)"""
       case "textarea"       => """Textarea(placeholder := "Write a message…")"""
       case "theme-switcher" => """val theme = Var(ThemeSwitcher.Theme.System)
 ThemeSwitcher(theme)"""
       case "toast" =>
         """Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))"""
       case "tooltip" => """Tooltip("Helpful context", span("Hover me"))"""
+      case "typography" =>
+        """h1(cls := "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl", "Heading 1")
+p(cls := "leading-7 [&:not(:first-child)]:mt-6", "Paragraph")
+p(cls := "text-xl text-muted-foreground", "Lead text")
+code(cls := "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold", "code")"""
       case "aspect-ratio" =>
         """AspectRatio(16.0 / 9.0, div(cls := "bg-muted flex items-center justify-center", "16:9"))"""
       case "calendar" => """val selected = Var(Option.empty[js.Date])
@@ -1124,8 +1497,37 @@ Calendar(selected)"""
         """ContextMenu(ContextMenu.Item("Back", () => ()), ContextMenu.Item("Reload", () => ()))(
   div("Right click here")
 )"""
-      case "date-picker" => """val selected = Var(Option.empty[js.Date])
-DatePicker(selected)"""
+      case "data-table" =>
+        """final case class Payment(id: String, amount: Int, status: String, email: String)
+
+val payments = Var(Seq(
+  Payment("m5gr84i9", 316, "Success", "ken99@yahoo.com"),
+  Payment("3u1reuv4", 242, "Success", "Abe45@gmail.com")
+))
+
+val table = DataTable.createTable(
+  payments,
+  Seq(
+    DataTable.Column.text("status", "Status", _.status, p => div(cls := "capitalize", p.status)),
+    DataTable.Column.text("email", "Email", _.email, p => div(cls := "lowercase", p.email))
+  ),
+  rowId = _.id,
+  filterFn = (p, q, _) => p.email.toLowerCase.contains(q.toLowerCase)
+)
+
+Input(
+  placeholder := "Filter emails...",
+  controlled(value <-- table.globalFilter.signal, onInput.mapToValue --> table.globalFilter)
+)
+
+table.view(_.id)"""
+      case "date-picker"    => """val selected = Var(Option.empty[js.Date])
+DatePicker(selected)
+
+val range = Var((Option.empty[js.Date], Option.empty[js.Date]))
+DatePicker.withRange(range)"""
+      case "range-calendar" => """val range = Var((Option.empty[js.Date], Option.empty[js.Date]))
+RangeCalendar(range, cls := "rounded-md border")"""
       case "hover-card" =>
         """HoverCard(
   HoverCard.trigger("Hover me"),
@@ -1142,8 +1544,22 @@ InputOTP(code)"""
         """NavigationMenu(
   NavigationMenu.list(
     NavigationMenu.item(
-      NavigationMenu.trigger("Docs"),
-      NavigationMenu.content(p("Getting started guides."))
+      NavigationMenu.trigger("Getting Started"),
+      NavigationMenu.content(
+        div(
+          NavigationMenu.link(href := "#", "Introduction"),
+          NavigationMenu.link(href := "#", "Installation")
+        )
+      )
+    ),
+    NavigationMenu.item(
+      NavigationMenu.trigger("Components"),
+      NavigationMenu.content(
+        div(
+          NavigationMenu.link(href := "#", "Alert"),
+          NavigationMenu.link(href := "#", "Button")
+        )
+      )
     )
   )
 )"""
@@ -1262,7 +1678,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
         mainTag(
           cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
           articleTag(
-            cls := "mx-auto max-w-2xl",
+            cls := articleWidthCls,
             div(
               cls := "mb-8 flex items-start justify-between gap-4",
               div(
@@ -1277,17 +1693,31 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               h2(cls := "text-xl font-semibold", "About"),
               p(
                 cls := "mt-3 text-sm leading-6 text-muted-foreground",
-                s"${componentTitle} is available as a direct Laminar component and through the generated registry."
+                if componentName == "typography" then
+                  "We do not ship typography styles by default. This page shows utility-class recipes you can copy into your Laminar elements."
+                else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
               )
             ),
             div(cls := "mt-8 rounded-md border bg-card", liveExample()),
-            div(
-              idAttr := "installation",
-              cls := "mt-12 scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "Installation"),
-              p(cls := "mt-3 text-sm text-muted-foreground", "Add the component through the local registry CLI."),
-              codeBlock("shell", s"npx shadcn-scalajs add $componentName")
-            ),
+            if componentName != "typography" then
+              div(
+                idAttr := "installation",
+                cls := "mt-12 scroll-mt-24",
+                h2(cls := "text-xl font-semibold", "Installation"),
+                p(cls := "mt-3 text-sm text-muted-foreground", "Add the component through the local registry CLI."),
+                codeBlock("shell", s"npx shadcn-scalajs add $componentName")
+              )
+            else
+              div(
+                idAttr := "installation",
+                cls := "mt-12 scroll-mt-24",
+                h2(cls := "text-xl font-semibold", "Installation"),
+                p(
+                  cls := "mt-3 text-sm text-muted-foreground",
+                  "No registry component — upstream shadcn/ui documents typography as Tailwind utility recipes. Copy the class strings from the preview below."
+                )
+              )
+            ,
             div(
               idAttr := "usage",
               cls := "mt-12 scroll-mt-24",
@@ -1337,5 +1767,6 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
           )
         ),
         tableOfContents
-      )
+      ),
+      Sonner.Toaster()
     )

@@ -8,9 +8,6 @@ import shadcnscalajs.ui.*
   */
 object Payments:
 
-  private val ghostIconTrigger: Modifier[HtmlElement] =
-    cls := "size-8 border-0 bg-transparent p-0 shadow-none hover:bg-accent hover:text-accent-foreground"
-
   private def paymentItem(title: String, description: String, icon: => SvgElement): HtmlElement =
     a(
       href := "#/",
@@ -36,8 +33,7 @@ object Payments:
             Breadcrumb.item(Breadcrumb.link("#/", "Home")),
             Breadcrumb.separator(),
             Breadcrumb.item(
-              DropdownMenu(
-                ghostIconTrigger,
+              DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses)(
                 Icons.moreHorizontal(),
                 span(cls := "sr-only", "Account options")
               )(

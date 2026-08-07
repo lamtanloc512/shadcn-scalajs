@@ -1,7 +1,7 @@
 {
   "name": "date-picker",
   "title": "Date Picker",
-  "registryDependencies": ["calendar", "popover", "button"],
+  "registryDependencies": ["calendar", "range-calendar", "popover", "button"],
   "scalaDependencies": [],
   "files": [{ "path": "DatePicker.scala", "type": "scala:ui" }]
 }

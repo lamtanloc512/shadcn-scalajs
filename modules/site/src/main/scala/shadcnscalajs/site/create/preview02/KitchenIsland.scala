@@ -90,10 +90,13 @@ object KitchenIsland:
             scene,
             Toggle.Variant.Outline,
             Toggle.Size.Default,
-            ToggleGroup.Item("cooking", "Cooking", disabled = enabled.signal.map(!_)),
-            ToggleGroup.Item("dining", "Dining", disabled = enabled.signal.map(!_)),
-            ToggleGroup.Item("nightlight", "Nightlight", disabled = enabled.signal.map(!_)),
-            ToggleGroup.Item("focus", "Focus", disabled = enabled.signal.map(!_))
+            1,
+            ToggleGroup.Orientation.Horizontal,
+            Seq(cls := "flex-wrap"),
+            ToggleGroup.Item("cooking", "Cooking", enabled.signal.map(!_)),
+            ToggleGroup.Item("dining", "Dining", enabled.signal.map(!_)),
+            ToggleGroup.Item("nightlight", "Nightlight", enabled.signal.map(!_)),
+            ToggleGroup.Item("focus", "Focus", enabled.signal.map(!_))
           )
         ),
         Item.group(

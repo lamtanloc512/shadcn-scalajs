@@ -51,6 +51,9 @@ object ReleaseCatalog:
             filters,
             Toggle.Variant.Outline,
             Toggle.Size.Default,
+            1,
+            ToggleGroup.Orientation.Horizontal,
+            Nil,
             ToggleGroup.Item("stocks", "Stocks"),
             ToggleGroup.Item("etfs", "ETFs"),
             ToggleGroup.Item("reits", "REITs")

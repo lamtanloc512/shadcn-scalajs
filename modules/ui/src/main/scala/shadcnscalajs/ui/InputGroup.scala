@@ -58,7 +58,10 @@ object InputGroup:
       mods
     )
 
-  def addon(align: AddonAlign = AddonAlign.InlineStart, mods: Modifier[HtmlElement]*): HtmlElement =
+  def addon(mods: Modifier[HtmlElement]*): HtmlElement =
+    addon(AddonAlign.InlineStart, mods*)
+
+  def addon(align: AddonAlign, mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       role := "group",
       dataAttr("slot") := "input-group-addon",
@@ -69,9 +72,9 @@ object InputGroup:
         if target.closest("button") == null then
           val parent = ev.currentTarget.asInstanceOf[dom.html.Element].parentElement
           if parent != null then
-            parent.querySelector("input") match
-              case input: dom.html.Input => input.focus()
-              case _                     => ()
+            parent.querySelector("[data-slot=input-group-control]") match
+              case el: dom.HTMLElement => el.focus()
+              case _                   => ()
       },
       mods
     )
@@ -92,10 +95,20 @@ object InputGroup:
       mods
     )
 
-  def button(size: ButtonSize = ButtonSize.Xs, mods: Modifier[HtmlElement]*): HtmlElement =
+  def button(mods: Modifier[HtmlElement]*): HtmlElement =
+    button(ButtonSize.Xs, mods*)
+
+  def button(size: ButtonSize, mods: Modifier[HtmlElement]*): HtmlElement =
     Button(
       Button.ButtonApi.variant(Button.Variant.Ghost),
       cls := s"cn-input-group-button flex items-center shadow-none ${buttonSizeClasses(size)}",
       dataAttr("size") := buttonSizeName(size),
+      mods
+    )
+
+  def textarea(mods: Modifier[HtmlElement]*): HtmlElement =
+    Textarea(
+      dataAttr("slot") := "input-group-control",
+      cls := "cn-input-group-textarea flex-1 resize-none rounded-none border-0! bg-transparent! shadow-none! ring-0! focus-visible:ring-0! aria-invalid:ring-0! dark:bg-transparent!",
       mods
     )

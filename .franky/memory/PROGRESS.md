@@ -9,13 +9,15 @@
 
 - **preview-02 fidelity (complete)** (spec `docs/superpowers/specs/2026-08-06-create-theme-customizer-design.md`, plan `docs/superpowers/plans/2026-08-06-preview-02-fidelity.md`). Waves 1–3 done. Create shell + customizer + preset codec/locks/history; 5 icon libraries (Lucide + Tabler/Hugeicons/Phosphor/Remix, 58 concepts each); 33-card mosaic under `modules/site/.../create/preview02/`; routes `/create` → `/create/preview-02`, chrome-less `/preview/preview-02`. Home embeds `Preview02` with Build Your Own → `/create`. Wave 2 browser gate PASS; Wave 3 Task 30 mosaic audit PASS (widths 3000/2400/lyra-mira 2600); Task 31 create-page e2e **71/0**; Task 32 `franky verify` PASS (setup/build/lint/test). Orchestrator fixes: `Chart.HoverVar` init-order NPE; `SavingsTargets` single outer `data-card`; restored root `scripts/*` thin wrappers for franky. Residual deltas vs reference kept below.
 
+- **Pure Laminar component ports (complete)** (spec `docs/superpowers/specs/2026-08-07-pure-laminar-component-ports-design.md`, plan `docs/superpowers/plans/2026-08-07-pure-laminar-component-ports.md`). No bits-ui / TanStack / svelte-sonner. Wave 1 polish: Field error-list API, InputGroup.textarea, Tabs line/keyboard/stateful, Toggle disabled, ToggleGroup spacing/orientation/item mods, Spinner SVG, Sidebar input/groupAction/menuAction/menuSkeleton + mobile Dialog sheet + cookie. Wave 2: Calendar.range + RangeCalendar + DatePicker.withRange. Wave 3: NavigationMenu open-state machine + viewport, Sonner toaster queue (portal), DataTable pure Scala state utilities + demo, Typography docs recipes page. `sbt compile` + `scalafmtAll` green. Orchestrated via composer-2.5-fast workers with orchestrator fixes for ToggleGroup overloads, Calendar isDisabled-before-varargs, NavigationMenu Laminar API, DataTable demo.
+
 ## Known residual deltas vs the reference (Task 30)
 
 Intentional / accepted gaps vs shadcn-svelte `/create/preview-02` (LayerChart + bits-ui):
 
 1. **Charts** — hand-rolled SVG `Chart.bar` / `area` / `donut` instead of LayerChart/d3; no tween on ticker swap; donut center labels are HTML overlays; tooltip is Laminar fixed-position, not bits.
 2. **Select** — native `<select>` via `Select.stateful`, not Trigger/Content popover selects.
-3. **ToggleGroup** — no call-site `mods` / `flex-1` item sizing; RollerShades/KitchenIsland wrap for width.
+3. **ToggleGroup** — spacing/orientation/item mods now exist; preview-02 cards use them for width where updated.
 4. **Checkbox indeterminate** — DOM `indeterminate` set; no `:indeterminate` CSS (may look checked when partial).
 5. **ReleaseCatalog filters** — client-side filter added so toggles change row count (reference binds filters but still renders all rows).
 6. **Payments** — no calendar in the svelte card (breadcrumb + items only); calendar lives on UpcomingPayments.
@@ -40,7 +42,9 @@ Structural comparison was against `.svelte` sources (live shadcn-svelte docs ser
 - `sc-components.css` still isn't built/wired for `ScElementBase` — when it is, apply the `:root`→`:host` fix in `vendor/NOTICE.md` *before* shipping, not after rediscovering it's broken.
 - `ContextMenu.scala`'s right-click trigger needs a manual (non-automated) browser check.
 - CLI has no package-rewriting — "own every line" needs import-rewriting or a real `core` publish.
-- `scripts/test` checks CLI-written files exist, not that they compile (full check manual, see `AGENTS.md`). Data Table + newest AI-chat additions remain a deliberate scope cut.
+- `scripts/test` checks CLI-written files exist, not that they compile (full check manual, see `AGENTS.md`). Newest AI-chat additions remain a deliberate scope cut (Data Table is now ported as pure Laminar).
+- **NavigationMenu / Sonner / DataTable browser QA** — compile-green; interactive demos need a manual/puppeteer smoke pass (viewport panel open, toast stack, sort/filter/paginate).
+- **Sidebar mobile Sheet** — uses `Dialog.element` directly (Sheet lacks content-class override); consider extending Sheet later.
 
 ## Blockers
 

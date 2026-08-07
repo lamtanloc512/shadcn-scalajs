@@ -66,16 +66,16 @@ object RollerShades:
       ),
       Card.footer(
         cls := "w-full",
-        div(
-          cls := "w-full",
-          ToggleGroup.single(
-            preset,
-            Toggle.Variant.Outline,
-            Toggle.Size.Default,
-            ToggleGroup.Item("open", "Open"),
-            ToggleGroup.Item("half", "Half"),
-            ToggleGroup.Item("closed", "Closed")
-          )
+        ToggleGroup.single(
+          preset,
+          Toggle.Variant.Outline,
+          Toggle.Size.Default,
+          1,
+          ToggleGroup.Orientation.Horizontal,
+          Seq(cls := "w-full"),
+          ToggleGroup.Item("open", "Open", cls := "flex-1"),
+          ToggleGroup.Item("half", "Half", cls := "flex-1"),
+          ToggleGroup.Item("closed", "Closed", cls := "flex-1")
         )
       )
     )

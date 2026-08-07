@@ -10,12 +10,53 @@ import scala.scalajs.js
   */
 object DropdownMenu:
 
-  final case class Item(label: String, onSelect: () => Unit, disabled: Boolean = false)
+  /** `checked` turns the row into a DropdownMenuCheckboxItem: a trailing check indicator tracks the signal. */
+  final case class Item(
+      label: String,
+      onSelect: () => Unit,
+      disabled: Boolean = false,
+      checked: Option[Signal[Boolean]] = None
+  )
+
+  object Item:
+    def checkbox(label: String, checked: Signal[Boolean], onSelect: () => Unit): Item =
+      Item(label, onSelect, disabled = false, checked = Some(checked))
+
+  enum Align derives CanEqual:
+    case Start, End
+
+  /** Trigger base — same Tailwind classes as Button.outline. */
+  val outlineTriggerClasses: String =
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+
+  /** Borderless square trigger for row/card action menus — the `variant="ghost" size="icon"` trigger upstream. */
+  val ghostIconTriggerClasses: String =
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground size-8"
 
   private var idCounter = 0
   private def nextId(): String = { idCounter += 1; s"dropdown-menu-$idCounter" }
 
   def apply(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
+    render(outlineTriggerClasses, Align.Start, trigger, items)
+
+  /** Menu anchored to the trigger's inline end — the `align="end"` content of the canonical component. */
+  def alignEnd(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
+    render(outlineTriggerClasses, Align.End, trigger, items)
+
+  /** Replaces the trigger's class list outright. Appending overrides instead loses to the base classes whenever
+    * Tailwind emits the conflicting utility later (e.g. `p-0` never beats `px-4`).
+    */
+  def withTrigger(triggerClasses: String, align: Align = Align.Start)(trigger: Modifier[HtmlElement]*)(
+      items: Item*
+  ): HtmlElement =
+    render(triggerClasses, align, trigger, items)
+
+  private def render(
+      triggerClasses: String,
+      align: Align,
+      trigger: Seq[Modifier[HtmlElement]],
+      items: Seq[Item]
+  ): HtmlElement =
     val isOpenVar = Var(false)
     val activeIndexVar = Var(firstEnabledIndex(items, 0))
     val menuId = nextId()
@@ -45,10 +86,9 @@ object DropdownMenu:
           if isOpenVar.now() && compPath(ev).indexOf(ctx.thisNode.ref) == -1 then isOpenVar.set(false)
         }
       },
-      // Trigger button — same Tailwind base as Button.outline
       button(
         typ := "button",
-        cls := "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2",
+        cls := triggerClasses,
         aria.hasPopup := true,
         aria.expanded <-- isOpenVar.signal,
         trigger,
@@ -71,7 +111,7 @@ object DropdownMenu:
       ),
       // Popover menu
       div(
-        cls := "absolute top-full left-0 z-50 mt-1 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+        cls := s"absolute top-full ${if align == Align.End then "end-0" else "start-0"} z-50 mt-1 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
         display <-- isOpenVar.signal.map(open => if open then "block" else "none"),
         aria.hidden <-- isOpenVar.signal.map(!_),
         div(
@@ -79,10 +119,18 @@ object DropdownMenu:
           children <-- activeIndexVar.signal.map { activeIdx =>
             items.zipWithIndex.map { case (item, idx) =>
               div(
-                role := "menuitem",
-                cls := s"relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${if idx == activeIdx then "bg-accent text-accent-foreground" else ""}",
+                role := (if item.checked.isDefined then "menuitemcheckbox" else "menuitem"),
+                cls := s"relative flex cursor-default items-center gap-2 rounded-sm py-1.5 ps-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${if item.checked.isDefined then "pe-8" else "pe-2"} ${if idx == activeIdx then "bg-accent text-accent-foreground" else ""}",
                 aria.disabled := item.disabled,
+                item.checked.map(c => aria.checked <-- c.map(_.toString)).toSeq,
                 item.label,
+                item.checked.map { c =>
+                  span(
+                    cls := "absolute end-2 flex size-3.5 items-center justify-center",
+                    cls("invisible") <-- c.map(!_),
+                    Icons.check(svg.cls := "size-4")
+                  )
+                }.toSeq,
                 onClick --> { _ => select(idx) }
               )
             }.toList

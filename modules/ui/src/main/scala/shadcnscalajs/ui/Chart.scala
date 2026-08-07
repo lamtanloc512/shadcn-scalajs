@@ -102,7 +102,10 @@ object Chart:
     div(
       cls := "pointer-events-none fixed z-50 grid min-w-[9rem] -translate-x-1/2 translate-y-2 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl transition-[left,top,opacity] duration-150 ease-out",
       display <-- hoverSignal.map(_.fold("none")(_ => "grid")),
-      styleAttr <-- cursorVar.signal.map { case (x, y) => s"left:${x}px;top:${y}px" },
+      // Individual style props, never `styleAttr`: writing the whole style attribute on every
+      // mousemove erases the `display` above, leaving an empty tooltip trailing the cursor.
+      left <-- cursorVar.signal.map((x, _) => s"${x}px"),
+      top <-- cursorVar.signal.map((_, y) => s"${y}px"),
       onMountBind { _ =>
         documentEvents(_.onMouseMove) --> { (ev: dom.MouseEvent) =>
           cursorVar.set((ev.clientX, ev.clientY))

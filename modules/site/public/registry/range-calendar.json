@@ -1,0 +1,17 @@
+{
+  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "name": "range-calendar",
+  "title": "Range Calendar",
+  "type": "scala:ui",
+  "registryDependencies": [
+    "calendar"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nimport scala.scalajs.js\n\n/** shadcn/ui RangeCalendar — range-mode calendar grid, mirroring upstream `range-calendar.svelte` (bits-ui\n  * RangeCalendar) as a thin wrapper over [[Calendar.range]].\n  */\nobject RangeCalendar:\n\n  def apply(selected: Var[Calendar.DateRange], mods: Modifier[HtmlElement]*): HtmlElement =\n    Calendar.range(selected, mods*)\n\n  def apply(\n      selected: Var[Calendar.DateRange],\n      isDisabled: js.Date => Boolean,\n      mods: Modifier[HtmlElement]*\n  ): HtmlElement =\n    Calendar.range(selected, isDisabled, mods*)\n",
+      "type": "scala:ui",
+      "target": "ui/RangeCalendar.scala"
+    }
+  ]
+}

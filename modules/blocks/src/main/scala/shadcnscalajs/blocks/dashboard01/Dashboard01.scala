@@ -62,7 +62,15 @@ object Dashboard01:
         div(
           cls := "mb-6 flex items-center justify-between",
           h1(cls := "font-heading text-2xl font-semibold", "Overview"),
-          Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => span("Export", Icons.chevronDown()))
+          // Label and chevron as direct button children so `inline-flex gap-*` and
+          // `has-[>svg]:px-*` apply — wrapping both in a bare span made the icon stack
+          // under the text and overflow the h-8 control.
+          Button.of(
+            _.variant(Button.Variant.Outline),
+            _.size(Button.Size.Sm),
+            _ => "Export",
+            _ => Icons.chevronDown()
+          )
         ),
         div(
           cls := "grid gap-4 md:grid-cols-3",
