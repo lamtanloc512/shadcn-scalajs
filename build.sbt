@@ -1,4 +1,4 @@
-import org.scalajs.linker.interface.ESVersion
+import org.scalajs.linker.interface.{ESVersion, ModuleSplitStyle}
 
 ThisBuild / organization := "dev.shadcn-scalajs"
 ThisBuild / version := "0.1.0"
@@ -16,10 +16,40 @@ lazy val root = project
   )
   .settings(noPublish)
 
+// Packages whose classes change often — emit small ES modules so Vite can
+// hot-reload only the touched files. Libraries stay in fewer larger modules.
+lazy val appPackages = List(
+  "shadcnscalajs.site",
+  "shadcnscalajs.ui",
+  "shadcnscalajs.blocks",
+  "shadcnscalajs.core",
+  "shadcnscalajs.webcomponents"
+)
+
 lazy val jsSettings = Seq(
-  scalaJSLinkerConfig ~= {
-    _.withModuleKind(ModuleKind.ESModule)
+  scalaJSLinkerConfig ~= { cfg =>
+    cfg
+      .withModuleKind(ModuleKind.ESModule)
       .withESFeatures(_.withESVersion(ESVersion.ES2020))
+      .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(appPackages))
+      // Vite prepends the *-fastopt dir onto Scala.js absolute file:/https:
+      // sourcemap URIs and then warns "points to missing source files".
+      // Disable linker maps; browser + Vite own maps are not usable for Scala
+      // sources through this pipeline anyway.
+      .withSourceMap(false)
+  },
+  // Production link (fullLinkJS / vite build): one module, size-oriented ES
+  // features. sbt-scalajs already enables minify + Semantics.optimized on
+  // fullOpt; Closure stays off for ESModule (unsupported) — Vite minifies.
+  Compile / fullOptJS / scalaJSLinkerConfig ~= { cfg =>
+    cfg
+      .withModuleSplitStyle(ModuleSplitStyle.FewestModules)
+      .withSourceMap(false)
+      .withBatchMode(true)
+      .withESFeatures(
+        _.withESVersion(ESVersion.ES2020)
+          .withAvoidClasses(false) // smaller output vs. Firefox-tuned default
+      )
   }
 )
 
@@ -85,3 +115,11 @@ lazy val noPublish = Seq(
 addCommandAlias("uiw", ";~ui/fastLinkJS")
 addCommandAlias("wcw", ";~webcomponents/fastLinkJS")
 addCommandAlias("sitew", ";~site/fastLinkJS")
+// Size-optimized production link (Scala.js minify + FewestModules). Prefer
+// `cd modules/site && npm run build` which runs site/fullLinkJS via the Vite
+// plugin and then minifies/bundles with esbuild.
+addCommandAlias("siteOpt", ";site/fullLinkJS")
+addCommandAlias(
+  "opt",
+  ";ui/fullLinkJS;webcomponents/fullLinkJS;site/fullLinkJS"
+)

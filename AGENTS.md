@@ -41,11 +41,13 @@ vendor/                 reference source (basecoat + shadcn/ui snapshots) consum
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 
 sbt core/compile ui/compile webcomponents/compile site/compile   # compile everything
-sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS       # Scala.js link (per module)
+sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS       # Scala.js link (dev / per module)
+sbt siteOpt                                                      # size-optimized site/fullLinkJS (or `sbt opt` for ui+wc+site)
 sbt scalafmtAll                                                  # format — CI (franky verify / scripts/lint) checks this, run it before committing
 sbt core/publishLocal                                            # publish core to ~/.ivy2/local (needed for consumer fixtures / real CLI testing)
 
 cd modules/site && npm install && npm run dev   # predev runs build-basecoat-styles + build-shadcn-presets + build-registry, then Vite
+cd modules/site && npm run build                # production: Vite plugin runs site/fullLinkJS, then esbuild minify → dist/
 # → http://localhost:4300/                    native Laminar landing page
 # → http://localhost:4300/components          components index (componentsGalleryPage)
 # → http://localhost:4300/components/<name>   per-component docs + live preview
@@ -66,6 +68,7 @@ node packages/cli/dist/index.js add <component...>
 3. **Shadow DOM retargets `ev.target`**: any document-level "click outside to close" check must use `ev.composedPath()`, not `ev.target` — see `DropdownMenu.scala`'s `compPath` helper (also duplicated in `ContextMenu.scala`) and its doc comment for the exact failure mode this avoids (item selection silently eating clicks). `composedPath` isn't typed in the pinned scalajs-dom facade — cast through `js.Dynamic`.
 4. **`globals.css`'s `:root` token block won't reach a Shadow DOM** — same class of bug as the old basecoat-CSS era, currently latent since `sc-components.css` isn't wired up yet. See `vendor/NOTICE.md`'s "Known latent issue" section before wiring that up.
 5. **`@scala-js/vite-plugin-scalajs`'s `cwd` option** is relative to the Vite project's own directory, not the repo root — `modules/site/vite.config.js` needs `cwd: "../.."` (two levels up), not `".."`.
+5b. **Scala.js sourcemaps + Vite**: linker maps use absolute `file:` / `https:` URIs; Vite wrongly resolves them under `*-fastopt/` and prints "Sourcemap ... points to missing source files". Linker source maps are disabled in `build.sbt` (`withSourceMap(false)`). Do not re-enable without a Vite-compatible map strategy.
 6. **Fetching `js.Promise` chains**: `.`then`[String](_.text())` needs the explicit type parameter on the first `.then` — Scala's type inference doesn't always widen `js.Promise[String]` to the expected `B | Thenable[B]` on its own (see `webcomponents/Main.scala`).
 7. **`js.Date` getters return `Double`, the constructor wants `Int`**: `new js.Date(d.getFullYear(), d.getMonth(), day)` fails to compile — `.toInt` both getter calls first (see `Calendar.scala`). No java.time dependency is in this build; date logic is hand-rolled on `js.Date`.
 8. **A method/value named the same as one of Laminar's own keys shadows it inside that scope** — e.g. never name a `Var[String]` parameter `value`, since `value` is also Laminar's `<input>` value prop; `InputOTP.scala` uses `codeVar` for exactly this reason. Same caution applies to `children`, `content`, `label`, etc. if you're inside a scope that also needs the Laminar key of the same name.

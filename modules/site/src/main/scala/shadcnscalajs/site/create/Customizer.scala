@@ -15,6 +15,9 @@ object Customizer:
     }
 
     div(
+      // Marks this column as chrome rather than themed content: globals.css exempts it from the
+      // style-pack card reset so the panel keeps its own elevation and the sponsor cards their border.
+      dataAttr("slot") := "customizer",
       cls := "top-24 right-12 isolate z-10 flex min-h-0 w-full flex-col gap-2 self-start md:w-(--customizer-width)",
       Card(
         dataAttr("size") := "sm",

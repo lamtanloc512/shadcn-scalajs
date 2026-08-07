@@ -81,23 +81,8 @@ object CreateShell:
               )
             )
           ),
-          select(
-            cls := "hidden sm:block h-8 w-28 shrink-0 rounded-md border border-input bg-background px-2 text-sm",
-            aria.label := "Style pack",
-            value <-- state.config.signal.map(_.stylePack),
-            onChange --> { ev =>
-              val style = ev.target.asInstanceOf[dom.html.Select].value
-              state.update(_.copy(style = style))
-            },
-            option(value := "vega", "Vega"),
-            option(value := "nova", "Nova"),
-            option(value := "maia", "Maia"),
-            option(value := "lyra", "Lyra"),
-            option(value := "mira", "Mira"),
-            option(value := "luma", "Luma"),
-            option(value := "sera", "Sera"),
-            option(value := "rhea", "Rhea")
-          ),
+          // No style-pack select here: the customizer column owns that control on this page, and a
+          // second one would be a competing source of truth for the same preset field.
           button(
             typ := "button",
             cls := s"${Main.btnIcon} hidden sm:inline-flex",

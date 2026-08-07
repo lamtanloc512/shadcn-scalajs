@@ -11,8 +11,9 @@ export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 # build everything
 sbt compile
 
-# Scala.js link (produces browser-ready .js per module)
+# Scala.js link — fast (dev) vs optimized (production size)
 sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS
+sbt siteOpt   # or: sbt opt — fullLinkJS minify + FewestModules
 
 # publish core to local Ivy (needed by consumer projects)
 sbt core/publishLocal
@@ -23,6 +24,10 @@ cd modules/site && npm install && npm run dev
 # → http://localhost:4300/components           components index
 # → http://localhost:4300/components/<name>    per-component docs + live preview
 # → http://localhost:4300/plain-html-demo.html  Web Component demo (zero Scala.js on the page)
+
+# production bundle (runs site/fullLinkJS via the Vite plugin, then minifies)
+cd modules/site && npm run build
+# → modules/site/dist/
 
 # build the CLI
 cd packages/cli && npm install && npm run build
@@ -104,7 +109,11 @@ See `AGENTS.md`'s "Things that will bite you if you don't know them" section for
 sbt ~ui/fastLinkJS            # watch & rebuild ui
 sbt ~webcomponents/fastLinkJS # watch & rebuild web components
 sbt ~site/fastLinkJS          # watch & rebuild site
+sbt siteOpt                   # size-optimized site link (fullLinkJS)
 sbt scalafmtAll                # format before committing — franky verify checks this
+cd modules/site && npm run build   # fullLinkJS + Vite/esbuild minify → dist/
 ```
+
+Scala.js linker notes: `fastLinkJS` uses `SmallModulesFor` for Vite HMR; `fullLinkJS` uses `FewestModules` + Scala.js minify + `avoidClasses=false` for smaller output (Vite finishes with esbuild). Source maps from the linker are off — Vite cannot resolve Scala.js absolute `file:`/`https:` map URIs and would warn about missing sources.
 
 Full architecture notes, gotchas, and the new-component checklist: `AGENTS.md`. Session-by-session history: `.franky/memory/PROGRESS.md`.

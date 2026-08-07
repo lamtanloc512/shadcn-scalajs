@@ -10,6 +10,7 @@
     "predev": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs && npm run build:registry",
     "prebuild": "npm run build:basecoat-styles && node scripts/build-shadcn-presets.mjs && npm run build:registry",
     "build": "vite build",
+    "build:opt": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {

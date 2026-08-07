@@ -13,5 +13,16 @@ export default defineConfig({
   server: {
     port: 4300,
     strictPort: true
+  },
+  build: {
+    // Production: Vite plugin runs site/fullLinkJS, then esbuild minifies.
+    // No source maps — Scala.js maps use absolute file:/https: URIs that Vite
+    // cannot resolve (and we disable linker maps in build.sbt).
+    sourcemap: false,
+    target: "es2020",
+    minify: "esbuild",
+    cssMinify: true,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1500
   }
 });

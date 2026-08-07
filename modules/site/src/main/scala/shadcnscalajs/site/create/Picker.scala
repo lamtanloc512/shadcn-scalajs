@@ -1,6 +1,7 @@
 package shadcnscalajs.site.create
 
 import com.raquo.laminar.api.L.*
+import com.raquo.laminar.nodes.RootNode
 import org.scalajs.dom
 
 import scala.scalajs.js
@@ -21,6 +22,8 @@ object Picker:
       private[Picker] val isOpen: Var[Boolean],
       private[Picker] val activeIndex: Var[Int],
       private val containerRef: Var[Option[dom.html.Element]],
+      private[Picker] val triggerRef: Var[Option[dom.html.Element]],
+      private[Picker] val menuRef: Var[Option[dom.html.Element]],
       private val entries: scala.collection.mutable.ArrayBuffer[MenuEntry]
   ):
     private var counter = 0
@@ -60,17 +63,28 @@ object Picker:
     val isOpen = Var(false)
     val activeIndex = Var(0)
     val containerRef = Var(Option.empty[dom.html.Element])
+    val triggerRef = Var(Option.empty[dom.html.Element])
+    val menuRef = Var(Option.empty[dom.html.Element])
     val entries = scala.collection.mutable.ArrayBuffer.empty[MenuEntry]
-    val ctx = Root(isOpen, activeIndex, containerRef, entries)
+    val ctx = Root(isOpen, activeIndex, containerRef, triggerRef, menuRef, entries)
 
     div(
       mods,
       onMountBind { mountCtx =>
         containerRef.set(Some(mountCtx.thisNode.ref))
         documentEvents(_.onMouseDown) --> { (ev: dom.MouseEvent) =>
-          if isOpen.now() && compPath(ev).indexOf(mountCtx.thisNode.ref) == -1 then isOpen.set(false)
+          // The menu lives in `document.body`, so it is not a descendant of this container and would
+          // read as an outside click — closing on mousedown before the item's click ever lands.
+          if isOpen.now() then
+            val path = compPath(ev)
+            val insidePicker = path.indexOf(mountCtx.thisNode.ref) != -1
+            val insideMenu = menuRef.now().exists(menu => path.indexOf(menu) != -1)
+            if !insidePicker && !insideMenu then isOpen.set(false)
         }
       },
+      // Clicking the preview iframe never reaches this document, so the mousedown handler above
+      // cannot see it and the menu would hang over the page. Losing window focus covers that case.
+      windowEvents(_.onBlur) --> { _ => if isOpen.now() then isOpen.set(false) },
       onKeyDown --> { (ev: dom.KeyboardEvent) =>
         ev.key match
           case "ArrowDown" =>
@@ -99,7 +113,9 @@ object Picker:
       case TriggerVariant.Field =>
         "relative w-40 shrink-0 touch-manipulation rounded-xl p-3 ring-1 ring-foreground/10 select-none hover:bg-muted focus-visible:ring-foreground/50 focus-visible:outline-none disabled:opacity-50 data-[state=open]:bg-muted md:w-full md:rounded-lg md:px-2.5 md:py-2"
       case TriggerVariant.Menu =>
-        "flex w-full items-center justify-between gap-2 rounded-lg px-1.75 ring-1 ring-foreground/10 focus-visible:ring-1"
+        // No resting ring: this trigger sits in the customizer's own bordered header, so an outline
+        // here reads as a stray box around the label. The focus ring stays for keyboard users.
+        "flex w-full items-center justify-between gap-2 rounded-lg px-1.75 focus-visible:ring-1 focus-visible:ring-foreground/50"
 
     button(
       typ := "button",
@@ -109,19 +125,84 @@ object Picker:
       aria.hasPopup := true,
       aria.expanded <-- ctx.isOpen.signal,
       disabled <-- isTriggerDisabled,
+      onMountCallback { mountCtx => ctx.triggerRef.set(Some(mountCtx.thisNode.ref)) },
       mods,
       children,
       onClick --> { _ => ctx.toggle() }
     )
 
+  /** Places the open menu against the trigger's viewport rect, right edges aligned, flipping above the trigger when
+    * there is no room below and clamping to the viewport so it can never run off-screen.
+    */
+  private def place(ctx: Root): Unit =
+    for
+      trigger <- ctx.triggerRef.now()
+      menu <- ctx.menuRef.now()
+    do
+      val gap = 8.0
+      val margin = 8.0
+      val rect = trigger.getBoundingClientRect()
+      val viewportWidth = dom.window.innerWidth.toDouble
+      val viewportHeight = dom.window.innerHeight.toDouble
+      val menuWidth = menu.offsetWidth.toDouble
+      val menuHeight = menu.offsetHeight.toDouble
+      val left = math.max(margin, math.min(rect.right - menuWidth, viewportWidth - margin - menuWidth))
+      val below = rect.bottom + gap
+      val above = rect.top - gap - menuHeight
+      val top =
+        if below + menuHeight <= viewportHeight - margin then below
+        else if above >= margin then above
+        else math.max(margin, viewportHeight - margin - menuHeight)
+      menu.style.left = s"${left}px"
+      menu.style.top = s"${top}px"
+
+  /** The menu is rendered into `document.body` instead of inline. Inline it is clipped by three ancestors — the
+    * customizer's scroll area plus two `overflow-hidden` wrappers — and the card's `backdrop-blur` makes it a
+    * containing block for fixed descendants, so even `position: fixed` resolves against the card and stays clipped. No
+    * z-index can lift an element out of an `overflow` ancestor; only leaving that subtree works, after which the menu
+    * is positioned by [[place]].
+    */
   def content(ctx: Root, mods: Modifier[HtmlElement]*)(children: Modifier[HtmlElement]*): HtmlElement =
-    div(
+    var scrollListener = Option.empty[js.Function1[dom.Event, Unit]]
+
+    val menu = div(
       dataAttr("slot") := "dropdown-menu-content",
-      cls := "cn-menu-target absolute top-full right-0 z-50 mt-2 max-h-96 min-w-32 w-52 translate-y-2 overflow-x-hidden overflow-y-auto rounded-xl border-0 bg-neutral-950 p-1.5 text-neutral-100 shadow-lg ring-1 ring-neutral-950/80 outline-none dark:bg-neutral-800 dark:ring-neutral-700/50",
+      cls := "cn-menu-target fixed top-0 left-0 z-50 max-h-96 min-w-32 w-52 overflow-x-hidden overflow-y-auto rounded-xl border-0 bg-neutral-950 p-1.5 text-neutral-100 shadow-lg ring-1 ring-neutral-950/80 outline-none dark:bg-neutral-800 dark:ring-neutral-700/50",
       display <-- ctx.isOpen.signal.map(open => if open then "block" else "none"),
       aria.hidden <-- ctx.isOpen.signal.map(!_),
       mods,
-      div(role := "menu", children)
+      div(role := "menu", children),
+      // Measure after the browser has applied `display: block`, otherwise the menu is still zero-sized
+      // and every flip/clamp decision below is made against the wrong height.
+      ctx.isOpen.signal --> { open =>
+        if open then dom.window.requestAnimationFrame(_ => place(ctx))
+      },
+      windowEvents(_.onResize) --> { _ => if ctx.isOpen.now() then place(ctx) },
+      onMountUnmountCallback(
+        mount = { mountCtx =>
+          ctx.menuRef.set(Some(mountCtx.thisNode.ref))
+          // Capture phase: the customizer scrolls in its own container and `scroll` does not bubble.
+          val listener: js.Function1[dom.Event, Unit] = _ => if ctx.isOpen.now() then place(ctx)
+          scrollListener = Some(listener)
+          dom.document.addEventListener("scroll", listener, useCapture = true)
+        },
+        unmount = { _ =>
+          scrollListener.foreach(dom.document.removeEventListener("scroll", _, useCapture = true))
+          scrollListener = None
+          ctx.menuRef.set(None)
+        }
+      )
+    )
+
+    var portal = Option.empty[RootNode]
+    div(
+      cls := "hidden",
+      onMountUnmountCallback(
+        mount = _ => portal = Some(render(dom.document.body, menu)),
+        unmount = _ =>
+          portal.foreach(_.unmount())
+          portal = None
+      )
     )
 
   def group(mods: Modifier[HtmlElement]*)(children: Modifier[HtmlElement]*): HtmlElement =

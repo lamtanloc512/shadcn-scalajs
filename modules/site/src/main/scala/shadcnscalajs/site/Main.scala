@@ -274,15 +274,15 @@ object Main:
           cls := "px-6 py-8 text-center text-sm text-muted-foreground",
           "Built by ",
           a(
-            href := "https://x.com/hunvreus",
+            href := "https://x.com/ethandev512",
             target := "_blank",
             rel := "noopener",
             cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
-            "Ronan Berder"
+            "Ethan Lam"
           ),
           ". ",
           a(
-            href := "https://github.com/sponsors/hunvreus",
+            href := "https://github.com/lamtanloc512",
             target := "_blank",
             rel := "noopener",
             cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
