@@ -48,7 +48,7 @@ object Pickers:
   )
 
   private def formatName(raw: String): String =
-    raw.split("-").map(part => part.headOption.map(_.toUpper + part.tail).getOrElse("")).mkString(" ")
+    raw.split("-").map(part => part.headOption.map(c => s"${c.toUpper}${part.tail}").getOrElse("")).mkString(" ")
 
   private def themeSwatchHex(themeName: String): String =
     if baseColorNames.contains(themeName) then Preset.BaseColors.find(_._1 == themeName).map(_._2).getOrElse("#737373")

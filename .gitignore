@@ -7,3 +7,4 @@ project/metals.sbt
 .bsp/
 node_modules/
 dist/
+modules/site/.DS_Store
