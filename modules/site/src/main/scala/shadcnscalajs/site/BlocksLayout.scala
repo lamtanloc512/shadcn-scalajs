@@ -44,7 +44,10 @@ object BlocksLayout:
               aria.label := "Style pack",
               value <-- themeConfig.signal.map(_.stylePack),
               onChange --> { ev =>
-                val next = themeConfig.now().copy(stylePack = ev.target.asInstanceOf[dom.html.Select].value)
+                val next = ThemeConfig.withStylePack(
+                  themeConfig.now(),
+                  ev.target.asInstanceOf[dom.html.Select].value
+                )
                 themeConfig.set(next)
                 ThemeConfig.store(next)
               },

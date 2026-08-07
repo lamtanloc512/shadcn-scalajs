@@ -27,9 +27,7 @@ final class CreateState:
     ThemeConfig.load().darkMode
 
   private def initialConfig: ThemeConfig =
-    val preset = coerceRadius(
-      Preset.decode(initialPresetCode).getOrElse(Preset.default)
-    )
+    val preset = Preset.decode(initialPresetCode).getOrElse(Preset.default)
     ThemeConfig.fromPreset(preset, darkMode = initialDarkMode)
 
   private def initialHistoryLog: Vector[String] =
@@ -60,8 +58,7 @@ final class CreateState:
   }
 
   def update(f: PresetConfig => PresetConfig): Unit =
-    val current = ThemeConfig.toPreset(config.now())
-    val next = coerceRadius(f(current))
+    val next = f(ThemeConfig.toPreset(config.now()))
     commitPreset(Preset.encode(next), recordHistory = true)
 
   def toggleLock(key: String): Unit =
@@ -252,13 +249,8 @@ final class CreateState:
       url.pathname + url.search + url.hash
     )
 
-  private def coerceRadius(cfg: PresetConfig): PresetConfig =
-    if (cfg.style == "lyra" || cfg.style == "sera") && cfg.radius != "none" then cfg.copy(radius = "none")
-    else if cfg.style == "rhea" && cfg.radius == "large" then cfg.copy(radius = "default")
-    else cfg
-
   private def commitPreset(code: String, recordHistory: Boolean): Unit =
-    val preset = coerceRadius(Preset.decode(code).getOrElse(Preset.default))
+    val preset = Preset.decode(code).getOrElse(Preset.default)
     val finalCode = Preset.encode(preset)
     val nextConfig = ThemeConfig.fromPreset(preset, darkMode = config.now().darkMode)
 

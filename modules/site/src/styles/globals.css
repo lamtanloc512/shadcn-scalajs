@@ -2411,20 +2411,28 @@
   --font-body: "Instrument Serif", Georgia, "Times New Roman", serif;
 }
 
+/* Values must match `Preset.Radii` / shadcn-svelte `RADII`. Every Tailwind
+   `rounded-*` utility (and pack `@apply rounded-3xl` etc.) is a multiple of
+   `--radius`, so `none` → 0rem flattens the whole system — that is intentional
+   for Lyra/Sera, but every other pack needs a non-zero token. */
+[data-radius="default"] {
+  --radius: 0.625rem;
+}
+
 [data-radius="none"] {
   --radius: 0rem;
 }
 
 [data-radius="small"] {
-  --radius: 0.25rem;
+  --radius: 0.45rem;
 }
 
 [data-radius="medium"] {
-  --radius: 0.5rem;
+  --radius: 0.625rem;
 }
 
 [data-radius="large"] {
-  --radius: 1rem;
+  --radius: 0.875rem;
 }
 
 .cn-menu-translucent {

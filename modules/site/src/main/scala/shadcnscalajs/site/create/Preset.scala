@@ -26,6 +26,16 @@ object Preset:
   val Styles: List[String] =
     List("nova", "vega", "maia", "lyra", "mira", "luma", "sera", "rhea")
 
+  /** Radius written when a style pack is selected. Lookup → assign → persist.
+    * Lyra/Sera are square (`none`); every other pack uses the token default.
+    */
+  val StyleRadius: Map[String, String] =
+    Styles.map(s => s -> (if s == "lyra" || s == "sera" then "none" else "default")).toMap
+
+  /** Apply a style-pack selection: set `style` and the mapped radius in one step. */
+  def withStyle(cfg: PresetConfig, style: String): PresetConfig =
+    cfg.copy(style = style, radius = StyleRadius.getOrElse(style, "default"))
+
   val BaseColors: List[(String, String)] = List(
     ("neutral", "#737373"),
     ("stone", "#79716B"),
@@ -118,8 +128,12 @@ object Preset:
 
   val FontHeadings: List[String] = "inherit" :: Fonts
 
+  /** `(name, label, cssValue)` — `cssValue` must stay in sync with
+    * `[data-radius=…]` in `globals.css`. Tailwind `rounded-*` utilities are
+    * multiples of `--radius`, so `none` (0rem) flattens every control.
+    */
   val Radii: List[(String, String, String)] = List(
-    ("default", "Default", "0.5rem"),
+    ("default", "Default", "0.625rem"),
     ("none", "None", "0rem"),
     ("small", "Small", "0.45rem"),
     ("medium", "Medium", "0.625rem"),

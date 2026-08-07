@@ -142,7 +142,7 @@ object Pickers:
             ctx,
             styleName,
             selected,
-            value => state.update(_.copy(style = value))
+            value => state.update(p => Preset.withStyle(p, value))
           )(
             div(
               cls := "flex items-start gap-2",

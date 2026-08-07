@@ -121,6 +121,13 @@ object ThemeConfig:
     )
     dom.window.localStorage.setItem(storageKey, js.JSON.stringify(literal))
 
+  /** Style-pack select: map key → default radius, then persist that config. */
+  def withStylePack(cfg: ThemeConfig, stylePack: String): ThemeConfig =
+    cfg.copy(
+      stylePack = stylePack,
+      radius = Preset.StyleRadius.getOrElse(stylePack, "default")
+    )
+
   /** Sets every `data-*` attribute `globals.css`'s attribute-selector blocks key off of, plus the `dark` class, on
     * `<html>` itself — not some inner div. `rem`-based Tailwind classes (used throughout this codebase) only ever
     * resolve against `<html>`'s own state, never an ancestor div's; putting `dark` here too (rather than on each page's
