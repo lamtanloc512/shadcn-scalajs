@@ -164,6 +164,7 @@ object LucideIconData extends IconDataSource:
       "M3 16h3a2 2 0 0 1 2 2v3",
       "M16 21v-3a2 2 0 0 1 2-2h3"
     ),
+    "minus" -> Seq("M5 12h14"),
     "moon" -> Seq("M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"),
     "more-horizontal" -> Seq(
       "M 11.0 12.0 A 1.0 1.0 0 1 0 13.0 12.0 A 1.0 1.0 0 1 0 11.0 12.0",

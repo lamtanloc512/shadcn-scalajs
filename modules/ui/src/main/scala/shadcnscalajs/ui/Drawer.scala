@@ -2,7 +2,9 @@ package shadcnscalajs.ui
 
 import com.raquo.laminar.api.L.*
 
-/** Drawer surface using a native dialog; callers can add side-specific classes.
+/** Drawer surface using a native dialog. Upstream wraps vaul-svelte for swipe physics; this keeps the same DOM contract
+  * (`data-vaul-drawer-direction`, handle, side positioning) so pack rules apply, while open/close and exit animations
+  * come from [[Dialog.element]]. Swipe-to-dismiss and snap points are not reproduced.
   *
   * The utility classes must stand alone: `modules/ui` is what the CLI copies into consumer projects, which have neither
   * the vendored basecoat CSS nor `shadcn-presets.generated.css`. The `cn-drawer*` hook classes and `data-slot`
@@ -11,13 +13,48 @@ import com.raquo.laminar.api.L.*
   */
 object Drawer:
 
-  private val contentBase: String =
-    "cn-drawer-content group/drawer-content fixed z-50 flex h-auto flex-col bg-popover text-sm text-popover-foreground"
+  enum Direction derives CanEqual:
+    case Top, Right, Bottom, Left
 
-  def apply(isOpenVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement =
-    Dialog.element(isOpenVar, "drawer", "drawer-content", contentBase)(
+  private def directionName(direction: Direction): String = direction match
+    case Direction.Top    => "top"
+    case Direction.Right  => "right"
+    case Direction.Bottom => "bottom"
+    case Direction.Left   => "left"
+
+  private val directionClasses: Map[Direction, String] = Map(
+    Direction.Bottom ->
+      "inset-x-0 bottom-0 mt-24 max-h-[80vh] rounded-t-xl border-t data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-10 data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-bottom-10",
+    Direction.Top ->
+      "inset-x-0 top-0 mb-24 max-h-[80vh] rounded-b-xl border-b data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-top-10 data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-top-10",
+    Direction.Left ->
+      "inset-y-0 left-0 w-3/4 border-r sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-left-10 data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-left-10",
+    Direction.Right ->
+      "inset-y-0 right-0 w-3/4 border-l sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-right-10 data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-right-10"
+  )
+
+  private def contentClass(direction: Direction): String =
+    s"cn-drawer-content group/drawer-content fixed z-50 flex h-auto flex-col bg-popover text-sm text-popover-foreground duration-200 ${directionClasses(direction)}"
+
+  def apply(isOpenVar: Var[Boolean], direction: Direction = Direction.Bottom)(
+      mods: Modifier[HtmlElement]*
+  ): HtmlElement =
+    Dialog.element(
+      isOpenVar,
+      "drawer m-0 max-h-none max-w-none bg-transparent p-0 text-inherit",
+      "drawer-content",
+      contentClass(direction),
+      Dialog.Options(exitMs = 220)
+    )(
+      // Pack rules and the handle gate on this attribute, which vaul would set.
+      dataAttr("vaul-drawer-direction") := directionName(direction),
       div(
-        cls := "cn-drawer-handle mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block"
+        cls := (
+          if direction == Direction.Bottom then
+            // Pack sets `.cn-drawer-handle { hidden }` unlayered; `block!` is what beats that for the bottom drawer.
+            "cn-drawer-handle mx-auto mt-4 block! h-1.5 w-[100px] shrink-0 rounded-full bg-muted"
+          else "cn-drawer-handle mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-full bg-muted"
+        )
       ),
       mods
     )

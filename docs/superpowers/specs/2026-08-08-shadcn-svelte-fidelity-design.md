@@ -56,6 +56,14 @@ model, so upstream's submenus, radio groups, shortcuts, and icon items cannot be
 5. **The site itself.** Docs pages composed from our own components instead of hand-rolled class strings,
    and docs chrome/typography matched to the shadcn-svelte docs.
 
+## Fix queue (deferred visual defects)
+
+Queued from live screenshots during Wave 4 — do not block the remaining Wave 4 behavior work.
+
+1. **Command palette chrome + demo** (2026-08-08) — **FIXED**: `Command.input` now builds from
+   `InputGroup` (pack `h-8! rounded-lg!` + addon rules match); demo already shows Suggestions/Settings
+   with icons/shortcuts.
+
 ## Done criteria
 
 - Every upstream part exists with upstream's `data-slot` value and class list.

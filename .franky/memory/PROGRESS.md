@@ -11,6 +11,10 @@
 
 - **Pure Laminar component ports (complete)** (spec `docs/superpowers/specs/2026-08-07-pure-laminar-component-ports-design.md`, plan `docs/superpowers/plans/2026-08-07-pure-laminar-component-ports.md`). No bits-ui / TanStack / svelte-sonner. Wave 1 polish: Field error-list API, InputGroup.textarea, Tabs line/keyboard/stateful, Toggle disabled, ToggleGroup spacing/orientation/item mods, Spinner SVG, Sidebar input/groupAction/menuAction/menuSkeleton + mobile Dialog sheet + cookie. Wave 2: Calendar.range + RangeCalendar + DatePicker.withRange. Wave 3: NavigationMenu open-state machine + viewport, Sonner toaster queue (portal), DataTable pure Scala state utilities + demo, Typography docs recipes page. `sbt compile` + `scalafmtAll` green. Orchestrated via composer-2.5-fast workers with orchestrator fixes for ToggleGroup overloads, Calendar isDisabled-before-varargs, NavigationMenu Laminar API, DataTable demo.
 
+- **shadcn-svelte fidelity Wave 4 (complete)** (spec `docs/superpowers/specs/2026-08-08-shadcn-svelte-fidelity-design.md`). Select listbox, Command filter engine + Combobox-on-Popover, Carousel.Ctx slide engine, InputOTP single hidden input, Dialog.element exit animations + focus restore + AlertDialog no-outside-dismiss, Pagination.stateful + ellipsis strip, Form.Ctx validation (`noValidate`). Drawer gets `data-vaul-drawer-direction` + side classes (not full vaul swipe).
+
+- **shadcn-svelte fidelity Wave 5 (minimal, complete)** — keep current design; compose docs chrome from own components in `Main.scala`: `Button.anchor` nav, landing `InputGroup`+`Kbd` search, `ScrollArea` docs sidebar, `Card` preview/code blocks, `Command.input` via `InputGroup`. Deferred: CreateShell/BlocksLayout header unification, Preview|Code Tabs, shadcn-svelte docs redesign.
+
 ## Known residual deltas vs the reference (Task 30)
 
 Intentional / accepted gaps vs shadcn-svelte `/create/preview-02` (LayerChart + bits-ui):
@@ -28,8 +32,15 @@ Structural comparison was against `.svelte` sources (live shadcn-svelte docs ser
 
 ## Next
 
+### Fix queue (visual / fidelity)
+
+- ~~**Command palette chrome + demo**~~ — fixed: `Command.input` uses `InputGroup`; demo matches Suggestions/Settings composition.
+
+### Other
+
 - **Switcher “02” mosaic** — deferred from preview-02 fidelity; port separate `examples/create/preview/` mosaic when scheduled (01 active; 02 “coming soon”).
 - **3xl mosaic gap follow-up** — see residual delta #7 above.
+- **CreateShell / BlocksLayout headers** — still use `Main.btnGhost` class strings; swap to `Button.anchor` when unifying the four headers.
 - **`Button.apply` has no default variant/size**, unlike upstream's cva `defaultVariants: {variant: "default", size: "default"}`. A bare `Button("Save")` renders 20px tall, transparent, zero padding — every call site must use `Button.of(_.variant(...), _.size(...))`. Found by screenshot during the block ports — computed-style checks on the *card* missed it. Giving `apply` the defaults would fix every bare call at once but changes 60 previews: do it as its own change with a browser pass.
 - **Sidebar rebuild sub-project** — prerequisite for `sidebar-01`; see the blocks spec's non-goals for the 19-vs-726-line gap.
 - Generate `Blocks.all`/`Blocks.render` from the `modules/blocks` sidecars; they are hand-maintained and can drift.

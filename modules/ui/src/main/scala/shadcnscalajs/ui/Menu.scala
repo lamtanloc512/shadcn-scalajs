@@ -183,57 +183,6 @@ object Menu:
         )
       )
 
-  /** Arrow/Home/End/Enter navigation over whatever items are currently in the panel. */
+  /** Arrow/Home/End/Enter navigation over whatever rows are currently in the panel. */
   private[ui] def keyboardNav(a: Floating.Anchor): Modifier[HtmlElement] =
-    def items(panel: dom.html.Element): List[dom.html.Element] =
-      panel
-        .querySelectorAll("[role^='menuitem']:not([data-disabled])")
-        .toList
-        .collect { case el: dom.html.Element => el }
-
-    def focusAt(panel: dom.html.Element, index: Int): Unit =
-      val list = items(panel)
-      if list.nonEmpty then
-        val bounded = ((index % list.size) + list.size) % list.size
-        list(bounded).focus()
-
-    def move(panel: dom.html.Element, delta: Int): Unit =
-      val list = items(panel)
-      val current = list.indexWhere(_ == dom.document.activeElement)
-      focusAt(panel, if current < 0 then (if delta > 0 then 0 else list.size - 1) else current + delta)
-
-    Seq(
-      onKeyDown --> { (ev: dom.KeyboardEvent) =>
-        a.contentRef.now().foreach { panel =>
-          ev.key match
-            case "ArrowDown" =>
-              ev.preventDefault()
-              move(panel, 1)
-            case "ArrowUp" =>
-              ev.preventDefault()
-              move(panel, -1)
-            case "Home" =>
-              ev.preventDefault()
-              focusAt(panel, 0)
-            case "End" =>
-              ev.preventDefault()
-              focusAt(panel, items(panel).size - 1)
-            case "Enter" | " " =>
-              ev.preventDefault()
-              dom.document.activeElement match
-                case el: dom.html.Element => el.click()
-                case _                    => ()
-            case _ => ()
-        }
-      },
-      // Opening with the keyboard should land on the first item, which also moves focus into the portaled panel so the
-      // key handler above receives events at all.
-      onMountBind { _ =>
-        a.isOpen.signal --> { open =>
-          if open then
-            dom.window.requestAnimationFrame { _ =>
-              a.contentRef.now().foreach(panel => items(panel).headOption.fold(panel.focus())(_.focus()))
-            }
-        }
-      }
-    )
+    Floating.keyboardNav(a, "[role^='menuitem']:not([data-disabled])")

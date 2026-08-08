@@ -333,15 +333,21 @@ object Main:
       )
     )
 
-  // shadcn/ui button classes — repeated inline for readability
-  private def btnPrimary =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
-  private def btnOutline =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-  def btnGhost =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-  def btnIcon =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground size-9"
+  // Kept as class-string aliases for CreateShell / BlocksLayout headers that still compose `<a cls := …>`.
+  // Prefer [[navGhost]] / [[Button.anchor]] / [[Button.of]] in new call sites so `data-slot="button"` is set.
+  def btnGhost = Button.classes(Button.Variant.Ghost)
+  def btnIcon = Button.classes(Button.Variant.Ghost, Button.Size.Icon)
+
+  private def navGhost(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
+    Button.anchor(hrefValue, Button.ButtonApi.variant(Button.Variant.Ghost), mods)
+
+  private def navGhostActive(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
+    Button.anchor(
+      hrefValue,
+      Button.ButtonApi.variant(Button.Variant.Ghost),
+      cls := "bg-accent text-accent-foreground",
+      mods
+    )
 
   // ── App ──
   private def app(): HtmlElement =
@@ -355,9 +361,8 @@ object Main:
           cls := "flex h-14 w-full items-center justify-between gap-2 px-4",
           div(
             cls := "flex min-w-0 items-center gap-1",
-            a(
-              href := "/",
-              cls := btnGhost,
+            navGhost(
+              "/",
               aria.label := "shadcn-scalajs home",
               span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
               span(cls := "truncate font-semibold", "shadcn-scalajs")
@@ -365,12 +370,11 @@ object Main:
             navTag(
               cls := "hidden sm:flex items-center gap-1",
               aria.label := "Primary",
-              a(cls := btnGhost, href := "/components", "Components"),
-              a(cls := btnGhost, href := "/blocks", "Blocks"),
-              a(cls := btnGhost, href := "/create", "Create"),
-              a(
-                cls := btnGhost,
-                href := "https://github.com/lamtanloc512/shadcn-scalajs",
+              navGhost("/components", "Components"),
+              navGhost("/blocks", "Blocks"),
+              navGhost("/create", "Create"),
+              navGhost(
+                "https://github.com/lamtanloc512/shadcn-scalajs",
                 target := "_blank",
                 rel := "noopener",
                 "GitHub"
@@ -380,23 +384,19 @@ object Main:
           div(
             cls := "ml-auto flex min-w-0 flex-1 items-center justify-end gap-2",
             div(
-              cls := "hidden sm:flex h-8 w-full min-w-0 max-w-72 cursor-text items-center rounded-md border border-input bg-background px-3 text-sm sm:ml-auto",
-              role := "button",
-              tabIndex := 0,
-              aria.label := "Search docs",
-              input(
-                typ := "text",
-                placeholder := "Search...",
-                readOnly := true,
-                tabIndex := -1,
-                cls := "bg-transparent outline-none flex-1"
-              ),
-              span(aria.hidden := true, rawIcon(iconSearch)),
-              span(
-                aria.hidden := true,
-                kbdEl(
-                  cls := "pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground hidden sm:flex",
-                  "⌘K"
+              cls := "hidden sm:block w-full min-w-0 max-w-72 sm:ml-auto",
+              InputGroup(
+                cls := "h-8",
+                InputGroup.input(
+                  placeholder := "Search...",
+                  readOnly := true,
+                  tabIndex := -1,
+                  aria.label := "Search docs"
+                ),
+                InputGroup.addon(InputGroup.AddonAlign.InlineEnd, Icons.search()),
+                InputGroup.addon(
+                  InputGroup.AddonAlign.InlineEnd,
+                  Kbd(cls := "hidden sm:inline-flex", "⌘K")
                 )
               )
             ),
@@ -424,13 +424,17 @@ object Main:
               ),
               div(
                 cls := "flex w-full items-center justify-center gap-2 pt-2",
-                a(
-                  cls := btnPrimary,
-                  href := "/create",
+                Button.anchor(
+                  "/create",
+                  Button.ButtonApi.variant(Button.Variant.Primary),
                   "Build Your Own ",
                   Icons.arrowRight(svg.cls := "size-4")
                 ),
-                a(cls := btnOutline, href := "/components", "Get started")
+                Button.anchor(
+                  "/components",
+                  Button.ButtonApi.variant(Button.Variant.Outline),
+                  "Get started"
+                )
               )
             )
           )
@@ -477,19 +481,18 @@ object Main:
         cls := "sticky inset-x-0 top-0 z-30 flex h-14 items-center border-b bg-background/95 px-4 backdrop-blur",
         div(
           cls := "mx-auto flex w-full max-w-7xl items-center gap-4",
-          a(
-            href := "/",
-            cls := btnGhost,
+          navGhost(
+            "/",
             span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
             span(cls := "font-semibold", "shadcn-scalajs")
           ),
           navTag(
             cls := "hidden items-center gap-1 sm:flex",
             aria.label := "Primary",
-            a(cls := btnGhost, href := "/", "Home"),
-            a(cls := btnGhost + " bg-accent text-accent-foreground", href := "/components", "Components"),
-            a(cls := btnGhost, href := "/blocks", "Blocks"),
-            a(cls := btnGhost, href := "/create", "Create")
+            navGhost("/", "Home"),
+            navGhostActive("/components", "Components"),
+            navGhost("/blocks", "Blocks"),
+            navGhost("/create", "Create")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
@@ -527,8 +530,6 @@ object Main:
     */
   private def componentDocsPage(): HtmlElement =
     val themeConfig = Var(ThemeConfig.load())
-    val drawerOpen = Var(false)
-    val dialogOpen = Var(false)
     val switchOn = Var(true)
     val tabsDefaultSelected = Var("overview")
     val tabsLineSelected = Var("overview")
@@ -557,15 +558,15 @@ object Main:
       if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
 
     def codeBlock(language: String, source: String): HtmlElement =
-      div(
-        cls := "overflow-hidden rounded-md border bg-muted/30",
+      Card(
+        cls := "mt-4 gap-0 overflow-hidden py-0",
         div(
           cls := "flex h-9 items-center justify-between border-b px-3 text-xs text-muted-foreground",
           span(language),
           span("Scala.js")
         ),
-        div(
-          cls := "overflow-x-auto p-4 font-mono text-xs leading-6 text-foreground",
+        Card.content(
+          cls := "overflow-x-auto p-4! px-4! font-mono text-xs leading-6 text-foreground",
           styleAttr := "white-space:pre",
           source
         )
@@ -668,12 +669,20 @@ object Main:
           )
         )
       case "alert-dialog" =>
+        val dialogOpen = Var(false)
         previewCanvas(
           Button(onClick --> { _ => dialogOpen.set(true) }, "Open alert dialog"),
           AlertDialog(dialogOpen)(
-            AlertDialog.title("Delete project?"),
-            AlertDialog.description("This action cannot be undone."),
-            AlertDialog.footer(Button(onClick --> { _ => dialogOpen.set(false) }, "Cancel"))
+            AlertDialog.header(
+              AlertDialog.title("Are you absolutely sure?"),
+              AlertDialog.description(
+                "This action cannot be undone. This will permanently delete your project and remove your data."
+              )
+            ),
+            AlertDialog.footer(
+              AlertDialog.cancel(onClick --> { _ => dialogOpen.set(false) }, "Cancel"),
+              AlertDialog.action(onClick --> { _ => dialogOpen.set(false) }, "Continue")
+            )
           )
         )
       case "avatar" => previewCanvas(Avatar(Avatar.fallback("LS")))
@@ -755,30 +764,55 @@ object Main:
         previewCanvas(
           Command(
             cls := "w-full max-w-sm border",
-            Command.input(placeholder := "Search…"),
-            Command.list(Command.item("Open settings"), Command.item("Create project"))
+            Command.input(placeholder := "Type a command or search…"),
+            Command.list(
+              Command.empty("No results found."),
+              Command.group(
+                "Suggestions",
+                Command.item(Icons.calendar(), span("Calendar")),
+                Command.item(Icons.search(), span("Search Emoji")),
+                Command.item(Icons.creditCard(), span("Launch"))
+              ),
+              Command.separator(),
+              Command.group(
+                "Settings",
+                Command.item(Icons.user(), span("Profile"), Command.shortcut("⌘P")),
+                Command.item(Icons.creditCard(), span("Billing"), Command.shortcut("⌘B")),
+                Command.item(Icons.gauge(), span("Settings"), Command.shortcut("⌘S"))
+              )
+            )
           )
         )
       case "dialog" =>
+        val dialogOpen = Var(false)
         previewCanvas(
           Button(onClick --> { _ => dialogOpen.set(true) }, "Open dialog"),
           Dialog(dialogOpen)(
-            h2(cls := "text-lg font-semibold", "Dialog"),
-            p(cls := "text-sm text-muted-foreground", "Native HTML dialog."),
-            Button(onClick --> { _ => dialogOpen.set(false) }, "Close")
+            Dialog.close(dialogOpen),
+            Dialog.header(
+              Dialog.title("Edit profile"),
+              Dialog.description("Make changes to your profile here. Click save when you're done.")
+            ),
+            Dialog.footer(
+              Button
+                .of(_.variant(Button.Variant.Outline), _ => onClick --> { _ => dialogOpen.set(false) }, _ => "Cancel"),
+              Button(onClick --> { _ => dialogOpen.set(false) }, "Save changes")
+            )
           )
         )
       case "drawer" =>
+        val drawerOpen = Var(false)
         previewCanvas(
           Button(onClick --> { _ => drawerOpen.set(true) }, "Open Drawer"),
           Drawer(drawerOpen)(
             Drawer.header(
-              h2(cls := "text-lg font-semibold", "Edit profile"),
-              p(cls := "text-sm text-muted-foreground", "Make changes to your public profile.")
+              Drawer.title("Edit profile"),
+              Drawer.description("Make changes to your public profile.")
             ),
             div(cls := "grid gap-4 px-4", Field.label("Display name"), Input(value := "Laminar Studio")),
             Drawer.footer(
-              Button.of(_.variant(Button.Variant.Outline), _ => "Cancel"),
+              Button
+                .of(_.variant(Button.Variant.Outline), _ => onClick --> { _ => drawerOpen.set(false) }, _ => "Cancel"),
               Button(onClick --> { _ => drawerOpen.set(false) }, "Save changes")
             )
           )
@@ -835,11 +869,32 @@ object Main:
           )
         )
       case "form" =>
+        val form = Form.ctx()
         previewCanvas(
           Form(
             cls := "w-full max-w-sm",
-            Form.item(Form.label("Email"), Input(placeholder := "you@example.com")),
-            Button("Submit")
+            onSubmit.preventDefault --> { (ev: org.scalajs.dom.Event) =>
+              val root = ev.currentTarget.asInstanceOf[org.scalajs.dom.html.Form]
+              val value = Option(root.querySelector("[name=email]"))
+                .collect { case input: org.scalajs.dom.html.Input => input.value.trim }
+                .getOrElse("")
+              if value.isEmpty then form.setErrors("email", Seq("Email is required."))
+              else if !value.contains("@") then form.setErrors("email", Seq("Enter a valid email address."))
+              else form.clear("email")
+            },
+            form.field(
+              "email",
+              form.label("email", "Email"),
+              Input(
+                nameAttr := "email",
+                typ := "email",
+                placeholder := "you@example.com",
+                aria.invalid <-- form.invalid("email").map(_.toString)
+              ),
+              Form.description("We'll never share your email."),
+              form.fieldErrors("email")
+            ),
+            Form.button("Submit")
           )
         )
       case "input" => previewCanvas(Input(placeholder := "Type something…", cls := "max-w-sm"))
@@ -907,13 +962,14 @@ object Main:
           )
         )
       case "pagination" =>
+        val page = Var(2)
         previewCanvas(
-          Pagination(
-            Pagination.list(
-              Pagination.item(Pagination.link("#", false, "←")),
-              Pagination.item(Pagination.link("#", true, "1")),
-              Pagination.item(Pagination.link("#", false, "2")),
-              Pagination.item(Pagination.link("#", false, "→"))
+          div(
+            cls := "flex w-full flex-col items-center gap-3",
+            Pagination.stateful(page, pageCount = 10),
+            p(
+              cls := "text-sm text-muted-foreground",
+              child.text <-- page.signal.map(p => s"Page $p of 10")
             )
           )
         )
@@ -945,7 +1001,28 @@ object Main:
             p("End")
           )
         )
-      case "select" => previewCanvas(Select(cls := "max-w-sm", option("Choose a plan"), option("Pro"), option("Team")))
+      case "select" =>
+        val plan = Var("")
+        previewCanvas(
+          div(
+            cls := "w-full max-w-sm",
+            Select(plan, "Choose a plan") { ctx =>
+              Seq(
+                ctx.group(
+                  Select.label("Individual"),
+                  ctx.item("free", "Free"),
+                  ctx.item("pro", "Pro")
+                ),
+                Select.separator(),
+                ctx.group(
+                  Select.label("Organisation"),
+                  ctx.item("team", "Team"),
+                  ctx.item("enterprise", "Enterprise")
+                )
+              )
+            }
+          )
+        )
       case "sidebar" =>
         previewCanvas(
           Sidebar(
@@ -1051,13 +1128,34 @@ object Main:
         )
       case "calendar" => previewCanvas(Calendar(Var(Option.empty[js.Date])))
       case "carousel" =>
+        val carousel = Carousel.ctx()
         previewCanvas(
           div(
-            cls := "w-full max-w-sm",
-            Carousel(
-              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 1"),
-              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 2"),
-              div(cls := "flex h-32 items-center justify-center rounded-md border bg-muted", "Slide 3")
+            Carousel.root(
+              cls := "w-full max-w-xs",
+              carousel.content(
+                (1 to 5).map { n =>
+                  carousel.item(
+                    div(
+                      cls := "p-1",
+                      Card(
+                        Card.content(
+                          cls := "flex aspect-square items-center justify-center p-6",
+                          span(cls := "text-4xl font-semibold", n.toString)
+                        )
+                      )
+                    )
+                  )
+                }.toList
+              ),
+              carousel.previous(),
+              carousel.next()
+            ),
+            div(
+              cls := "py-2 text-center text-sm text-muted-foreground",
+              child.text <-- carousel.selectedIndex
+                .combineWith(carousel.count)
+                .map((index, total) => s"Slide ${index + 1} of $total")
             )
           )
         )
@@ -1094,7 +1192,15 @@ object Main:
         previewCanvas(RangeCalendar(Var((Option.empty[js.Date], Option.empty[js.Date])), cls := "rounded-md border"))
       case "hover-card" =>
         previewCanvas(HoverCard(HoverCard.trigger("Hover me"), HoverCard.content(p("Laminar hover card content."))))
-      case "input-otp" => previewCanvas(InputOTP(Var("")))
+      case "input-otp" =>
+        val otp = InputOTP.ctx(Var(""))
+        previewCanvas(
+          InputOTP.root(otp)(
+            InputOTP.group((0 until 3).map(otp.slot(_))*),
+            InputOTP.separator(),
+            InputOTP.group((3 until 6).map(otp.slot(_))*)
+          )
+        )
       case "menubar" =>
         val menubarProfile = Var("benoit")
         previewCanvas(
@@ -1181,11 +1287,16 @@ object Main:
           )
         )
       case "sheet" =>
+        val drawerOpen = Var(false)
         previewCanvas(
           Button(onClick --> { _ => drawerOpen.set(true) }, "Open Sheet"),
           Sheet(drawerOpen)(
-            Sheet.header(h2(cls := "text-lg font-semibold", "Edit profile")),
-            Sheet.footer(Button(onClick --> { _ => drawerOpen.set(false) }, "Save"))
+            Sheet.close(onClick --> { _ => drawerOpen.set(false) }),
+            Sheet.header(
+              Sheet.title("Edit profile"),
+              Sheet.description("Make changes to your profile here.")
+            ),
+            Sheet.footer(Button(onClick --> { _ => drawerOpen.set(false) }, "Save changes"))
           )
         )
       case "toggle" => previewCanvas(Toggle(Var(false), Toggle.Variant.Default, Toggle.Size.Default, "B"))
@@ -1264,9 +1375,14 @@ Alert(
 Button(onClick --> { _ => isOpen.set(true) }, "Open alert dialog")
 
 AlertDialog(isOpen)(
-  AlertDialog.title("Delete project?"),
-  AlertDialog.description("This action cannot be undone."),
-  AlertDialog.footer(Button(onClick --> { _ => isOpen.set(false) }, "Cancel"))
+  AlertDialog.header(
+    AlertDialog.title("Are you absolutely sure?"),
+    AlertDialog.description("This action cannot be undone.")
+  ),
+  AlertDialog.footer(
+    AlertDialog.cancel(onClick --> { _ => isOpen.set(false) }, "Cancel"),
+    AlertDialog.action(onClick --> { _ => isOpen.set(false) }, "Continue")
+  )
 )"""
       case "avatar" => """Avatar(Avatar.fallback("LS"))"""
       case "badge" =>
@@ -1332,8 +1448,24 @@ Combobox.multiple(
 )"""
       case "command" =>
         """Command(
-  Command.input(placeholder := "Search…"),
-  Command.list(Command.item("Open settings"), Command.item("Create project"))
+  cls := "w-full max-w-sm border",
+  Command.input(placeholder := "Type a command or search…"),
+  Command.list(
+    Command.empty("No results found."),
+    Command.group(
+      "Suggestions",
+      Command.item(Icons.calendar(), span("Calendar")),
+      Command.item(Icons.search(), span("Search Emoji")),
+      Command.item(Icons.creditCard(), span("Launch"))
+    ),
+    Command.separator(),
+    Command.group(
+      "Settings",
+      Command.item(Icons.user(), span("Profile"), Command.shortcut("⌘P")),
+      Command.item(Icons.creditCard(), span("Billing"), Command.shortcut("⌘B")),
+      Command.item(Icons.gauge(), span("Settings"), Command.shortcut("⌘S"))
+    )
+  )
 )"""
       case "dialog" =>
         """val isOpen = Var(false)
@@ -1341,9 +1473,12 @@ Combobox.multiple(
 Button(onClick --> { _ => isOpen.set(true) }, "Open dialog")
 
 Dialog(isOpen)(
-  h2("Dialog"),
-  p("Native HTML dialog."),
-  Button(onClick --> { _ => isOpen.set(false) }, "Close")
+  Dialog.close(isOpen),
+  Dialog.header(
+    Dialog.title("Edit profile"),
+    Dialog.description("Make changes to your profile here.")
+  ),
+  Dialog.footer(Button(onClick --> { _ => isOpen.set(false) }, "Save changes"))
 )"""
       case "drawer" =>
         """val isOpen = Var(false)
@@ -1351,9 +1486,9 @@ Dialog(isOpen)(
 Button(onClick --> { _ => isOpen.set(true) }, "Open Drawer")
 
 Drawer(isOpen)(
-  Drawer.header(h2("Edit profile"), p("Make changes to your public profile.")),
+  Drawer.header(Drawer.title("Edit profile"), Drawer.description("Make changes to your public profile.")),
   Drawer.footer(
-    Button.of(_.variant(Button.Variant.Outline), _ => "Cancel"),
+    Button.of(_.variant(Button.Variant.Outline), _ => onClick --> { _ => isOpen.set(false) }, _ => "Cancel"),
     Button(onClick --> { _ => isOpen.set(false) }, "Save changes")
   )
 )"""
@@ -1395,9 +1530,26 @@ Field(
   Field.error(Seq("Username is required.", "Username must be unique."))
 )"""
       case "form" =>
-        """Form(
-  Form.item(Form.label("Email"), Input(placeholder := "you@example.com")),
-  Button("Submit")
+        """val form = Form.ctx()
+
+Form(
+  onSubmit.preventDefault --> { (ev: dom.Event) =>
+    val value = ev.currentTarget.asInstanceOf[dom.html.Form]
+      .querySelector("[name=email]")
+      .asInstanceOf[dom.html.Input]
+      .value
+      .trim
+    if value.isEmpty then form.setErrors("email", Seq("Email is required."))
+    else if !value.contains("@") then form.setErrors("email", Seq("Enter a valid email address."))
+    else form.clear("email")
+  },
+  form.field(
+    "email",
+    form.label("email", "Email"),
+    Input(nameAttr := "email", typ := "email", placeholder := "you@example.com"),
+    form.fieldErrors("email")
+  ),
+  Form.button("Submit")
 )"""
       case "input" => """Input(placeholder := "Type something…")"""
       case "input-group" =>
@@ -1439,12 +1591,17 @@ Input(placeholder := "you@example.com")"""
   )
 )"""
       case "pagination" =>
-        """Pagination(
-  Pagination.list(
-    Pagination.item(Pagination.link("#", false, "←")),
-    Pagination.item(Pagination.link("#", true, "1")),
-    Pagination.item(Pagination.link("#", false, "2")),
-    Pagination.item(Pagination.link("#", false, "→"))
+        """val page = Var(2)
+
+Pagination.stateful(page, pageCount = 10)
+
+// Or compose the parts yourself:
+val pager = Pagination.ctx(page, pageCount = 10)
+Pagination(
+  Pagination.content(
+    Pagination.item(pager.previous()),
+    children <-- pager.pageItems,
+    Pagination.item(pager.next())
   )
 )"""
       case "progress" => """Progress(68)"""
@@ -1470,7 +1627,24 @@ Label("Team")"""
   div(styleAttr := "height:12rem"),
   p("End")
 )"""
-      case "select" => """Select(option("Choose a plan"), option("Pro"), option("Team"))"""
+      case "select" =>
+        """val plan = Var("")
+
+Select(plan, "Choose a plan") { ctx =>
+  Seq(
+    ctx.group(
+      Select.label("Individual"),
+      ctx.item("free", "Free"),
+      ctx.item("pro", "Pro")
+    ),
+    Select.separator(),
+    ctx.group(
+      Select.label("Organisation"),
+      ctx.item("team", "Team"),
+      ctx.item("enterprise", "Enterprise")
+    )
+  )
+}"""
       case "sidebar" =>
         """Sidebar(
   Sidebar.header("Navigation"),
@@ -1527,11 +1701,26 @@ code(cls := "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm
       case "calendar" => """val selected = Var(Option.empty[js.Date])
 Calendar(selected)"""
       case "carousel" =>
-        """Carousel(
-  div("Slide 1"),
-  div("Slide 2"),
-  div("Slide 3")
-)"""
+        """val carousel = Carousel.ctx()
+
+Carousel.root(
+  cls := "w-full max-w-xs",
+  carousel.content(
+    (1 to 5).map { n =>
+      carousel.item(
+        div(
+          cls := "p-1",
+          Card(Card.content(cls := "flex aspect-square items-center justify-center p-6", span(n.toString)))
+        )
+      )
+    }.toList
+  ),
+  carousel.previous(),
+  carousel.next()
+)
+
+// Or, for a plain list of slides with the buttons wired up:
+Carousel(div("Slide 1"), div("Slide 2"), div("Slide 3"))"""
       case "context-menu" =>
         """val showBookmarks = Var(true)
 
@@ -1582,8 +1771,16 @@ RangeCalendar(range, cls := "rounded-md border")"""
   HoverCard.trigger("Hover me"),
   HoverCard.content(p("Laminar hover card content."))
 )"""
-      case "input-otp" => """val code = Var("")
-InputOTP(code)"""
+      case "input-otp" => """val otp = InputOTP.ctx(Var(""))
+
+InputOTP.root(otp)(
+  InputOTP.group((0 until 3).map(otp.slot(_))*),
+  InputOTP.separator(),
+  InputOTP.group((3 until 6).map(otp.slot(_))*)
+)
+
+// Or, for a single group of six slots:
+InputOTP(Var(""))"""
       case "menubar" =>
         """val profile = Var("benoit")
 
@@ -1643,8 +1840,9 @@ p("Section two")"""
 Button(onClick --> { _ => isOpen.set(true) }, "Open Sheet")
 
 Sheet(isOpen)(
-  Sheet.header(h2("Edit profile")),
-  Sheet.footer(Button(onClick --> { _ => isOpen.set(false) }, "Save"))
+  Sheet.close(onClick --> { _ => isOpen.set(false) }),
+  Sheet.header(Sheet.title("Edit profile"), Sheet.description("Make changes to your profile here.")),
+  Sheet.footer(Button(onClick --> { _ => isOpen.set(false) }, "Save changes"))
 )"""
       case "toggle" => """val pressed = Var(false)
 Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
@@ -1670,15 +1868,11 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
           ),
           navTag(
             cls := "hidden items-center gap-1 md:flex",
-            a(cls := btnGhost, href := "/", "Home"),
-            a(cls := btnGhost, href := "/components", "Docs"),
-            a(
-              cls := btnGhost + " bg-accent text-accent-foreground",
-              href := s"/components/$componentName",
-              "Components"
-            ),
-            a(cls := btnGhost, href := "/blocks", "Blocks"),
-            a(cls := btnGhost, href := "/create", "Create")
+            navGhost("/", "Home"),
+            navGhost("/components", "Docs"),
+            navGhostActive(s"/components/$componentName", "Components"),
+            navGhost("/blocks", "Blocks"),
+            navGhost("/create", "Create")
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
@@ -1690,23 +1884,30 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
         cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
         asideTag(
           cls := "hidden border-r lg:block",
-          navTag(
-            cls := "sticky top-14 h-[calc(100svh-3.5rem)] overflow-y-auto px-4 py-8",
-            aria.label := "Component navigation",
-            p(cls := "mb-2 px-2 text-xs font-medium text-muted-foreground", "SECTIONS"),
-            a(
-              href := "/",
-              cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
-              "Introduction"
-            ),
-            a(href := "/components", cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium", "Components"),
-            a(
-              href := "/blocks",
-              cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
-              "Blocks"
-            ),
-            p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
-            componentNavList.map(navLink)
+          ScrollArea(
+            cls := "sticky top-14 h-[calc(100svh-3.5rem)]",
+            navTag(
+              cls := "px-4 py-8",
+              aria.label := "Component navigation",
+              p(cls := "mb-2 px-2 text-xs font-medium text-muted-foreground", "SECTIONS"),
+              a(
+                href := "/",
+                cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
+                "Introduction"
+              ),
+              a(
+                href := "/components",
+                cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium",
+                "Components"
+              ),
+              a(
+                href := "/blocks",
+                cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
+                "Blocks"
+              ),
+              p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
+              componentNavList.map(navLink)
+            )
           )
         ),
         mainTag(
@@ -1719,7 +1920,12 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                 h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
                 p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
               ),
-              button(typ := "button", cls := btnOutline + " hidden shrink-0 sm:inline-flex", "Copy page")
+              Button.of(
+                _.variant(Button.Variant.Outline),
+                _.size(Button.Size.Sm),
+                _ => cls := "hidden shrink-0 sm:inline-flex",
+                _ => "Copy page"
+              )
             ),
             div(
               idAttr := "about",
@@ -1732,7 +1938,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                 else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
               )
             ),
-            div(cls := "mt-8 rounded-md border bg-card", liveExample()),
+            Card(cls := "mt-8 gap-0 overflow-hidden py-0", liveExample()),
             if componentName != "typography" then
               div(
                 idAttr := "installation",
@@ -1777,7 +1983,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                   "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
                 else "Compose this primitive with Card, Field, Button, and the other Laminar components."
               ),
-              div(cls := "mt-4 rounded-md border bg-card", liveExample())
+              Card(cls := "mt-4 gap-0 overflow-hidden py-0", liveExample())
             ),
             div(
               cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",

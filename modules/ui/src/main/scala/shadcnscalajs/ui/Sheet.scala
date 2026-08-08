@@ -36,7 +36,9 @@ object Sheet:
       isOpenVar,
       "sheet m-0 max-h-none max-w-none bg-transparent p-0 text-inherit",
       "sheet-content",
-      contentClass(side)
+      contentClass(side),
+      // Sheet's slide uses `transition duration-200`; give the exit phase room to finish.
+      Dialog.Options(exitMs = 220)
     )(
       dataAttr("side") := sideName(side),
       mods

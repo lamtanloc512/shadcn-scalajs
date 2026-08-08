@@ -54,6 +54,7 @@ object Icons:
     "menu",
     "message-square",
     "minimize",
+    "minus",
     "moon",
     "more-horizontal",
     "paintbrush",
@@ -183,6 +184,7 @@ object Icons:
   def menu(mods: Modifier[SvgElement]*): SvgElement = icon("menu")(mods*)
   def messageSquare(mods: Modifier[SvgElement]*): SvgElement = icon("message-square")(mods*)
   def minimize(mods: Modifier[SvgElement]*): SvgElement = icon("minimize")(mods*)
+  def minus(mods: Modifier[SvgElement]*): SvgElement = icon("minus")(mods*)
   def moon(mods: Modifier[SvgElement]*): SvgElement = icon("moon")(mods*)
   def moreHorizontal(mods: Modifier[SvgElement]*): SvgElement = icon("more-horizontal")(mods*)
   def paintbrush(mods: Modifier[SvgElement]*): SvgElement = icon("paintbrush")(mods*)

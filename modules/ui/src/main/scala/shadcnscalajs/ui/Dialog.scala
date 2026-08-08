@@ -3,8 +3,12 @@ package shadcnscalajs.ui
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 
-/** shadcn/ui Dialog — uses native `<dialog>` + Tailwind CSS utilities matching the canonical dialog.tsx (without Radix,
-  * since Laminar uses browser-native `<dialog>` with `showModal()`/`close()`).
+import scala.scalajs.js
+
+/** shadcn/ui Dialog — native `<dialog>` with `showModal()`/`close()`, matching the canonical dialog.tsx surface without
+  * Radix. Browser modal dialogs already provide the focus trap and scroll lock; this layer adds the pieces bits-ui
+  * would otherwise own: exit animations (keep the dialog open through `data-closed:animate-out`), focus restore to the
+  * trigger, and Escape/backdrop dismiss that can be turned off for alert dialogs.
   *
   * The utility classes must stand alone: `modules/ui` is what the CLI copies into consumer projects, which have neither
   * the vendored basecoat CSS nor `shadcn-presets.generated.css`. The `cn-dialog*` hook classes and `data-slot`
@@ -21,6 +25,16 @@ object Dialog:
 
   /** Upstream's default box model for the content panel. */
   val contentBoxClass: String = "gap-6 p-6 sm:max-w-md"
+
+  /** Behaviour knobs shared by Dialog, Sheet, Drawer, and AlertDialog. */
+  final case class Options(
+      dismissOnOutsideClick: Boolean = true,
+      dismissOnEscape: Boolean = true,
+      /** How long to keep the dialog open after `isOpenVar` goes false so `data-closed:animate-out` can finish. Sheet
+        * uses a 200ms transition; the centered dialogs use 100ms.
+        */
+      exitMs: Double = 150
+  )
 
   def apply(isOpenVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement =
     apply(isOpenVar, contentBoxClass)(mods*)
@@ -50,6 +64,10 @@ object Dialog:
         _ => span(cls := "sr-only", "Close")
       )
       .amend(mods)
+
+  /** Close button wired to the dialog's open state. */
+  def close(isOpenVar: Var[Boolean], mods: Modifier[HtmlElement]*): HtmlElement =
+    close(onClick --> { _ => isOpenVar.set(false) }, mods)
 
   def header(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
@@ -81,40 +99,103 @@ object Dialog:
 
   /** Back-compat for [[Sidebar]] mobile sheet — panel styles live on the `<dialog>`, children on the wrapper. */
   private[ui] def element(isOpenVar: Var[Boolean], rootClass: String)(mods: Modifier[HtmlElement]*): HtmlElement =
-    element(isOpenVar, rootClass, "sheet-content", "")(mods*)
+    element(isOpenVar, rootClass, "sheet-content", "", Options(exitMs = 200))(mods*)
 
   private[ui] def element(
       isOpenVar: Var[Boolean],
       rootClass: String,
       contentSlot: String,
-      contentClass: String
+      contentClass: String,
+      options: Options = Options()
   )(mods: Modifier[HtmlElement]*): HtmlElement =
+    // Closing is asynchronous: `data-closed` has to paint and finish its animation before `close()` hides the dialog.
+    var closing = false
+    var exitTimer: Option[Int] = None
+    var returnFocus: Option[dom.html.Element] = None
+
+    def clearExitTimer(): Unit =
+      exitTimer.foreach(dom.window.clearTimeout)
+      exitTimer = None
+
+    def finishClose(el: dom.html.Dialog): Unit =
+      clearExitTimer()
+      closing = false
+      if el.open then el.close()
+      returnFocus.foreach { node =>
+        // The trigger may have been removed (route change); focusing a detached node is a no-op that throws in some
+        // browsers, so only restore when it is still in the document.
+        if dom.document.contains(node) then node.focus()
+      }
+      returnFocus = None
+
+    def openDialog(el: dom.html.Dialog): Unit =
+      clearExitTimer()
+      closing = false
+      if !el.open then
+        Option(dom.document.activeElement)
+          .collect {
+            case e: dom.html.Element
+                if e != dom.document.body && e != dom.document.documentElement && !el.contains(e) =>
+              e
+          }
+          .foreach { focused => returnFocus = Some(focused) }
+        el.showModal()
+      syncOpenAttrs(el, open = true)
+      el.querySelector(s"[data-slot='$contentSlot']") match
+        case content: dom.Element => syncOpenAttrs(content, open = true)
+        case _                    => ()
+
+    def requestClose(el: dom.html.Dialog): Unit =
+      if el.open && !closing then
+        closing = true
+        syncOpenAttrs(el, open = false)
+        el.querySelector(s"[data-slot='$contentSlot']") match
+          case content: dom.Element => syncOpenAttrs(content, open = false)
+          case _                    => ()
+        // Prefer the content panel's animationend; fall back to the exit duration so a panel with no animation still
+        // closes. Multiple animationend events fire for fade+zoom, so only the first one that finds us still closing
+        // finishes — later ones are no-ops once `closing` is cleared.
+        val onEnd: js.Function1[dom.Event, Unit] = (ev: dom.Event) =>
+          ev.target match
+            case t: dom.Element if t.getAttribute("data-slot") == contentSlot || t == el =>
+              if closing then finishClose(el)
+            case _ => ()
+        el.addEventListener("animationend", onEnd)
+        el.addEventListener("transitionend", onEnd)
+        exitTimer = Some(dom.window.setTimeout(() => if closing then finishClose(el), options.exitMs))
+
     dialogTag(
       cls := rootClass,
       dataAttr("state") <-- isOpenVar.signal.map(open => if open then "open" else "closed"),
       onMountBind { ctx =>
-        val el = ctx.thisNode.ref
-        // Native Escape / form method=dialog close the <dialog> without touching isOpenVar —
-        // mirror that back so callers stay in sync and can run dismiss side-effects.
-        val onNativeClose: scala.scalajs.js.Function1[dom.Event, Unit] =
-          (_: dom.Event) => if isOpenVar.now() then isOpenVar.set(false)
+        val el = ctx.thisNode.ref.asInstanceOf[dom.html.Dialog]
+        // Escape fires `cancel` before the browser would close the dialog. Preventing default lets us run the exit
+        // animation ourselves; without it `display: none` lands immediately and kills `data-closed:animate-out`.
+        val onCancel: js.Function1[dom.Event, Unit] = (ev: dom.Event) =>
+          ev.preventDefault()
+          if options.dismissOnEscape then isOpenVar.set(false)
+        // Native form method=dialog or an explicit el.close() from outside still need to mirror into the Var.
+        val onNativeClose: js.Function1[dom.Event, Unit] = (_: dom.Event) =>
+          clearExitTimer()
+          closing = false
+          if isOpenVar.now() then isOpenVar.set(false)
+          returnFocus.foreach { node =>
+            if dom.document.contains(node) then node.focus()
+          }
+          returnFocus = None
+        el.addEventListener("cancel", onCancel)
         el.addEventListener("close", onNativeClose)
         isOpenVar.signal --> { (open: Boolean) =>
-          syncOpenAttrs(el, open)
-          if open then { if !el.open then el.showModal() }
-          else if el.open then el.close()
+          if open then openDialog(el) else requestClose(el)
         }
       },
       onClick --> { (ev: dom.MouseEvent) =>
-        if ev.target == ev.currentTarget then isOpenVar.set(false)
+        if options.dismissOnOutsideClick && ev.target == ev.currentTarget then isOpenVar.set(false)
       },
       div(
         dataAttr("slot") := contentSlot,
         dataAttr("state") <-- isOpenVar.signal.map(open => if open then "open" else "closed"),
         cls := contentClass,
-        onMountBind { ctx =>
-          isOpenVar.signal --> { (open: Boolean) => syncOpenAttrs(ctx.thisNode.ref, open) }
-        },
         mods
       )
     )

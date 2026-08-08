@@ -193,6 +193,9 @@ object TablerIconData extends IconDataSource:
       "M5 15h2a2 2 0 0 1 2 2v2",
       "M5 9h2a2 2 0 0 0 2 -2v-2"
     ),
+    "minus" -> Seq(
+      "M5 12l14 0"
+    ),
     "moon" -> Seq(
       "M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"
     ),

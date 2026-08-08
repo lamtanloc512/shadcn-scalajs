@@ -1,1 +1,7 @@
-{"name":"command","title":"Command","registryDependencies":["input"],"scalaDependencies":[],"files":[{"path":"Command.scala","type":"scala:ui"}]}
+{
+  "name": "command",
+  "title": "Command",
+  "registryDependencies": ["input-group", "icons", "dialog"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Command.scala", "type": "scala:ui" }]
+}

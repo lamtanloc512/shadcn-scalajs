@@ -125,6 +125,72 @@ object Floating:
       if delay <= 0 then action()
       else handle = Some(dom.window.setTimeout(() => action(), delay))
 
+  /** Roving-focus keyboard navigation over the rows a panel currently contains: Arrow keys move, Home/End jump,
+    * Enter/Space activate, and opening lands on the first row.
+    *
+    * `itemSelector` is queried on every keystroke instead of the rows being collected once, because with composable
+    * children a component cannot know its rows up front, and the list changes as items are filtered, added, or nested.
+    * Focus is the state: it is what the `focus:bg-accent` highlight and the style packs' `**:data-[slot$=-item]:focus`
+    * rules key off, so there is no separate "active index" to keep in sync.
+    */
+  def keyboardNav(a: Anchor, itemSelector: String): Modifier[HtmlElement] =
+    def items(panel: dom.html.Element): List[dom.html.Element] =
+      panel.querySelectorAll(itemSelector).toList.collect { case el: dom.html.Element => el }
+
+    def focusAt(panel: dom.html.Element, index: Int): Unit =
+      val list = items(panel)
+      if list.nonEmpty then
+        val bounded = ((index % list.size) + list.size) % list.size
+        list(bounded).focus()
+
+    def move(panel: dom.html.Element, delta: Int): Unit =
+      val list = items(panel)
+      val current = list.indexWhere(_ == dom.document.activeElement)
+      focusAt(panel, if current < 0 then (if delta > 0 then 0 else list.size - 1) else current + delta)
+
+    Seq(
+      onKeyDown --> { (ev: dom.KeyboardEvent) =>
+        a.contentRef.now().foreach { panel =>
+          ev.key match
+            case "ArrowDown" =>
+              ev.preventDefault()
+              move(panel, 1)
+            case "ArrowUp" =>
+              ev.preventDefault()
+              move(panel, -1)
+            case "Home" =>
+              ev.preventDefault()
+              focusAt(panel, 0)
+            case "End" =>
+              ev.preventDefault()
+              focusAt(panel, items(panel).size - 1)
+            case "Enter" | " " =>
+              ev.preventDefault()
+              dom.document.activeElement match
+                case el: dom.html.Element => el.click()
+                case _                    => ()
+            case _ => ()
+        }
+      },
+      // Opening moves focus into the portaled panel, which is also what lets the handler above receive keys at all.
+      onMountBind { _ =>
+        a.isOpen.signal --> { open =>
+          if open then
+            dom.window.requestAnimationFrame { _ =>
+              a.contentRef.now().foreach { panel =>
+                val list = items(panel)
+                // A listbox reopens on its current selection; a menu has none, so this falls back to the first row.
+                list.find(_.getAttribute("aria-selected") == "true").orElse(list.headOption) match
+                  case Some(el) =>
+                    el.focus()
+                    el.asInstanceOf[js.Dynamic].scrollIntoView(js.Dynamic.literal(block = "nearest"))
+                  case None => panel.focus()
+              }
+            }
+        }
+      }
+    )
+
   /** The area the trigger's `overflow` ancestors leave visible, in viewport coordinates. A trigger inside a scroll
     * container can be scrolled out of sight while its rect still reports a position; placing against that rect would
     * drop the panel somewhere unrelated on the page.

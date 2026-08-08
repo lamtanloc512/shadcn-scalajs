@@ -71,7 +71,10 @@
     "name": "carousel",
     "title": "Carousel",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "button",
+      "icons"
+    ]
   },
   {
     "name": "chart",
@@ -107,7 +110,9 @@
     "title": "Command",
     "type": "scala:ui",
     "registryDependencies": [
-      "input"
+      "input-group",
+      "icons",
+      "dialog"
     ]
   },
   {
@@ -190,7 +195,8 @@
     "title": "Form",
     "type": "scala:ui",
     "registryDependencies": [
-      "field"
+      "label",
+      "button"
     ]
   },
   {
@@ -227,7 +233,9 @@
     "name": "input-otp",
     "title": "Input OTP",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "icons"
+    ]
   },
   {
     "name": "item",
@@ -283,7 +291,8 @@
     "title": "Pagination",
     "type": "scala:ui",
     "registryDependencies": [
-      "button"
+      "button",
+      "icons"
     ]
   },
   {
@@ -353,7 +362,10 @@
     "name": "select",
     "title": "Select",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "floating",
+      "icons"
+    ]
   },
   {
     "name": "separator",
