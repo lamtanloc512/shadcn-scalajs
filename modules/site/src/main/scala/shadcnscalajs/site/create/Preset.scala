@@ -23,6 +23,11 @@ final case class PresetConfig(
 
 object Preset:
 
+  /** localStorage key holding the customizer's preset code. `ThemeConfig.store` writes it alongside its own JSON so a
+    * style-pack change made anywhere on the site survives the next `/create` load, which seeds from this key.
+    */
+  val storageKey = "design-system-preset"
+
   val Styles: List[String] =
     List("nova", "vega", "maia", "lyra", "mira", "luma", "sera", "rhea")
 

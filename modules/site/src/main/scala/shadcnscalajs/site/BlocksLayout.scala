@@ -15,10 +15,8 @@ import org.scalajs.dom
 object BlocksLayout:
 
   def apply(content: Modifier[HtmlElement]*): HtmlElement =
-    val themeConfig = Var(ThemeConfig.load())
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      themeConfig.signal --> { cfg => ThemeConfig.applyToDocument(cfg) },
       headerTag(
         cls := "sticky inset-x-0 top-0 z-40 border-b bg-background/95 backdrop-blur",
         div(
@@ -39,39 +37,7 @@ object BlocksLayout:
           ),
           div(
             cls := "ml-auto flex items-center gap-2",
-            select(
-              cls := "h-8 w-28 rounded-md border border-input bg-background px-2 text-sm",
-              aria.label := "Style pack",
-              value <-- themeConfig.signal.map(_.stylePack),
-              onChange --> { ev =>
-                val next = ThemeConfig.withStylePack(
-                  themeConfig.now(),
-                  ev.target.asInstanceOf[dom.html.Select].value
-                )
-                themeConfig.set(next)
-                ThemeConfig.store(next)
-              },
-              option(value := "vega", "Vega"),
-              option(value := "nova", "Nova"),
-              option(value := "maia", "Maia"),
-              option(value := "lyra", "Lyra"),
-              option(value := "mira", "Mira"),
-              option(value := "luma", "Luma"),
-              option(value := "sera", "Sera"),
-              option(value := "rhea", "Rhea")
-            ),
-            button(
-              typ := "button",
-              cls := Main.btnIcon,
-              aria.label := "Toggle dark mode",
-              onClick --> { _ =>
-                val next = themeConfig.now().copy(darkMode = !themeConfig.now().darkMode)
-                themeConfig.set(next)
-                ThemeConfig.store(next)
-              },
-              span(cls := "hidden dark:block", Main.rawIcon(Main.iconSun)),
-              span(cls := "block dark:hidden", Main.rawIcon(Main.iconMoon))
-            )
+            ThemeMenu()
           )
         )
       ),

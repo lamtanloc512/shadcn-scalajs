@@ -10,10 +10,13 @@ import shadcnscalajs.site.ThemeConfig
 
 /** Create-page customizer state: preset persistence, per-field locks, undo/redo history, biased randomization, and URL
   * sync. Ported from shadcn-svelte's `design-system-provider-state.svelte.ts`.
+  *
+  * `urlSync` is off for the site-header theme menu: docs, gallery, and blocks URLs are shareable content addresses, so
+  * the customizer must not append a `?preset=` code to them on every edit.
   */
-final class CreateState:
+final class CreateState(urlSync: Boolean = true):
 
-  private val presetStorageKey = "design-system-preset"
+  private val presetStorageKey = Preset.storageKey
   private val locksStorageKey = "locks"
 
   private var shortcutsInstalled = false
@@ -241,6 +244,7 @@ final class CreateState:
     dom.window.localStorage.setItem(presetStorageKey, code)
 
   private def syncUrl(code: String): Unit =
+    if !urlSync then return
     val url = new dom.URL(dom.window.location.href)
     url.searchParams.set("preset", code)
     dom.window.history.replaceState(

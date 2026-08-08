@@ -83,7 +83,7 @@ object ThemeConfig:
   def load(): ThemeConfig =
     Try {
       val raw = dom.window.localStorage.getItem(storageKey)
-      if raw == null then default
+      if raw == null then storedPreset.getOrElse(default)
       else
         val parsed = js.JSON.parse(raw).asInstanceOf[js.Dynamic]
         def str(field: String, fallback: String): String =
@@ -105,6 +105,15 @@ object ThemeConfig:
         )
     }.getOrElse(default)
 
+  /** The customizer's preset code, for visitors who have used `/create` but never touched a page-level theme control.
+    * Preset codes carry no dark-mode bit, so that field keeps its default.
+    */
+  private def storedPreset: Option[ThemeConfig] =
+    Option(dom.window.localStorage.getItem(Preset.storageKey))
+      .filter(Preset.isPresetCode)
+      .flatMap(Preset.decode)
+      .map(preset => fromPreset(preset, darkMode = default.darkMode))
+
   def store(cfg: ThemeConfig): Unit =
     val literal = js.Dynamic.literal(
       stylePack = cfg.stylePack,
@@ -120,13 +129,9 @@ object ThemeConfig:
       menuAccent = cfg.menuAccent
     )
     dom.window.localStorage.setItem(storageKey, js.JSON.stringify(literal))
-
-  /** Style-pack select: map key → default radius, then persist that config. */
-  def withStylePack(cfg: ThemeConfig, stylePack: String): ThemeConfig =
-    cfg.copy(
-      stylePack = stylePack,
-      radius = Preset.StyleRadius.getOrElse(stylePack, "default")
-    )
+    // `/create` seeds itself from the preset code, not from this JSON. Without this write, opening the customizer
+    // reverts whatever the docs, gallery, or blocks header last selected.
+    dom.window.localStorage.setItem(Preset.storageKey, Preset.encode(toPreset(cfg)))
 
   /** Sets every `data-*` attribute `globals.css`'s attribute-selector blocks key off of, plus the `dark` class, on
     * `<html>` itself — not some inner div. `rem`-based Tailwind classes (used throughout this codebase) only ever

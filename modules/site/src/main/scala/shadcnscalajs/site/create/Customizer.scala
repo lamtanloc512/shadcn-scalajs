@@ -6,13 +6,49 @@ import shadcnscalajs.ui.{Card, Field, Separator}
 /** Create-page customizer column — rich pickers, per-field locks, footer actions, and sponsor slots. */
 object Customizer:
 
-  def apply(state: CreateState): HtmlElement =
-    val initDialog = InitializeDialog(state)
+  /** Every customizer field, in create-page order — shared with the site header's theme menu so both surfaces edit the
+    * same config through the same controls.
+    */
+  def fields(state: CreateState, mods: Modifier[HtmlElement]*): HtmlElement =
     val lastSolidMenuAccentVar = Var {
       val cfg = state.config.now()
       if cfg.menuColor == "default-translucent" || cfg.menuColor == "inverted-translucent" then Preset.MenuAccents.head
       else cfg.menuAccent
     }
+
+    div(
+      cls := "flex min-w-0 flex-col",
+      mods,
+      Field.group(cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25", Pickers.stylePicker(state)),
+      Separator(Separator.Orientation.Horizontal),
+      Field.group(
+        cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
+        Pickers.baseColorPicker(state),
+        Pickers.themePicker(state),
+        Pickers.chartColorPicker(state)
+      ),
+      Separator(Separator.Orientation.Horizontal),
+      Field.group(
+        cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
+        Pickers.fontPicker(state, "Heading", "fontHeading", Preset.FontHeadings),
+        Pickers.fontPicker(state, "Font", "font", Preset.Fonts)
+      ),
+      Separator(Separator.Orientation.Horizontal),
+      Field.group(
+        cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
+        Pickers.iconLibraryPicker(state),
+        Pickers.radiusPicker(state)
+      ),
+      Separator(Separator.Orientation.Horizontal),
+      Field.group(
+        cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
+        Pickers.menuColorPicker(state, lastSolidMenuAccentVar),
+        Pickers.menuAccentPicker(state)
+      )
+    )
+
+  def apply(state: CreateState): HtmlElement =
+    val initDialog = InitializeDialog(state)
 
     div(
       // Marks this column as chrome rather than themed content: globals.css exempts it from the
@@ -28,32 +64,7 @@ object Customizer:
         ),
         Card.content(
           cls := "no-scrollbar min-h-0 flex-1 overflow-x-auto overflow-y-hidden p-0 md:overflow-y-auto",
-          Field.group(cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25", Pickers.stylePicker(state)),
-          Separator(Separator.Orientation.Horizontal),
-          Field.group(
-            cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
-            Pickers.baseColorPicker(state),
-            Pickers.themePicker(state),
-            Pickers.chartColorPicker(state)
-          ),
-          Separator(Separator.Orientation.Horizontal),
-          Field.group(
-            cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
-            Pickers.fontPicker(state, "Heading", "fontHeading", Preset.FontHeadings),
-            Pickers.fontPicker(state, "Font", "font", Preset.Fonts)
-          ),
-          Separator(Separator.Orientation.Horizontal),
-          Field.group(
-            cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
-            Pickers.iconLibraryPicker(state),
-            Pickers.radiusPicker(state)
-          ),
-          Separator(Separator.Orientation.Horizontal),
-          Field.group(
-            cls := "flex-row gap-2.5 p-3 md:flex-col md:gap-3.25",
-            Pickers.menuColorPicker(state, lastSolidMenuAccentVar),
-            Pickers.menuAccentPicker(state)
-          )
+          fields(state)
         ),
         Card.footer(
           cls := "flex min-w-0 gap-2 px-3! md:flex-col md:**:[button,a]:w-full",
