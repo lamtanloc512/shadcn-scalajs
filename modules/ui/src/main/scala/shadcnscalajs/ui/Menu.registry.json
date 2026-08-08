@@ -1,0 +1,8 @@
+{
+  "name": "menu",
+  "title": "Menu",
+  "description": "Shared menu surface and parts behind the dropdown menu, context menu, and menubar components.",
+  "registryDependencies": ["floating", "icons"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Menu.scala", "type": "scala:ui" }]
+}

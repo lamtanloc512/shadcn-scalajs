@@ -1,0 +1,8 @@
+{
+  "name": "floating",
+  "title": "Floating",
+  "description": "Anchored-overlay primitive shared by the popover, tooltip, hover card, and menu components.",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [{ "path": "Floating.scala", "type": "scala:ui" }]
+}

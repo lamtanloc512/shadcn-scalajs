@@ -46,5 +46,7 @@ object ScDropdownMenu:
   // shadow Laminar's `children <-- signal` receiver.
   private def view(itemsVar: Var[List[DropdownMenu.Item]]): HtmlElement =
     div(
-      children <-- itemsVar.signal.map(items => List(DropdownMenu(slotTag())(items*)))
+      // The trigger comes in through a named slot, matching the documented
+      // `<button slot="trigger">` usage — a default `<slot>` only accepts light-DOM children with no slot attribute.
+      children <-- itemsVar.signal.map(items => List(DropdownMenu(slotTag(nameAttr := "trigger"))(items*)))
     )

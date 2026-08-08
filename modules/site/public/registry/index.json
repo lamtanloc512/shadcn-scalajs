@@ -114,7 +114,9 @@
     "name": "context-menu",
     "title": "Context Menu",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "menu"
+    ]
   },
   {
     "name": "data-table",
@@ -157,7 +159,9 @@
     "name": "dropdown-menu",
     "title": "Dropdown Menu",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "menu"
+    ]
   },
   {
     "name": "empty",
@@ -175,6 +179,13 @@
     ]
   },
   {
+    "name": "floating",
+    "title": "Floating",
+    "type": "scala:ui",
+    "registryDependencies": [],
+    "description": "Anchored-overlay primitive shared by the popover, tooltip, hover card, and menu components."
+  },
+  {
     "name": "form",
     "title": "Form",
     "type": "scala:ui",
@@ -186,7 +197,9 @@
     "name": "hover-card",
     "title": "Hover Card",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "floating"
+    ]
   },
   {
     "name": "icons",
@@ -235,10 +248,21 @@
     "registryDependencies": []
   },
   {
+    "name": "menu",
+    "title": "Menu",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "floating",
+      "icons"
+    ],
+    "description": "Shared menu surface and parts behind the dropdown menu, context menu, and menubar components."
+  },
+  {
     "name": "menubar",
     "title": "Menubar",
     "type": "scala:ui",
     "registryDependencies": [
+      "menu",
       "dropdown-menu"
     ]
   },
@@ -266,7 +290,10 @@
     "name": "popover",
     "title": "Popover",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "floating",
+      "icons"
+    ]
   },
   {
     "name": "progress",
@@ -433,7 +460,9 @@
     "name": "tooltip",
     "title": "Tooltip",
     "type": "scala:ui",
-    "registryDependencies": []
+    "registryDependencies": [
+      "floating"
+    ]
   },
   {
     "name": "calendar-01",

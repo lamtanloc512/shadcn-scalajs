@@ -3,7 +3,10 @@
   "name": "popover",
   "title": "Popover",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "floating",
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
     {

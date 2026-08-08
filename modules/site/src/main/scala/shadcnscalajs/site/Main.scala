@@ -784,8 +784,24 @@ object Main:
           )
         )
       case "dropdown-menu" =>
+        val showStatusBar = Var(true)
         previewCanvas(
-          DropdownMenu("Open menu")(DropdownMenu.Item("Profile", () => ()), DropdownMenu.Item("Settings", () => ()))
+          DropdownMenu.items("Open menu") { menu =>
+            Seq(
+              DropdownMenu.label("My Account"),
+              DropdownMenu.separator(),
+              menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
+              menu.item("Billing", DropdownMenu.shortcut("⌘B")),
+              DropdownMenu.separator(),
+              menu.checkboxItem(showStatusBar, "Status Bar"),
+              DropdownMenu.separator(),
+              menu.sub("Invite users")(sub =>
+                Seq(sub.item("Email"), sub.item("Message"), sub.separator(), sub.item("More…"))
+              ),
+              DropdownMenu.separator(),
+              menu.item(Menu.destructive, "Log out", DropdownMenu.shortcut("⇧⌘Q"))
+            )
+          }
         )
       case "empty" =>
         previewCanvas(
@@ -860,7 +876,36 @@ object Main:
       case "label" => previewCanvas(Label("Email address"), Input(placeholder := "you@example.com", cls := "max-w-sm"))
       case "native-select" =>
         previewCanvas(NativeSelect(cls := "max-w-sm", option("Choose a plan"), option("Pro"), option("Team")))
-      case "popover" => previewCanvas(Popover(Popover.trigger("Open popover"), Popover.content("Popover content")))
+      case "popover" =>
+        def dimensionRow(label: String, value: String): HtmlElement =
+          div(
+            cls := "grid grid-cols-3 items-center gap-4",
+            Label(label),
+            Input(defaultValue := value, cls := "col-span-2 h-8")
+          )
+        previewCanvas(
+          Popover(
+            Popover.trigger(cls := Button.classes(Button.Variant.Outline), "Open popover"),
+            Popover.content(
+              Floating.Placement(),
+              "w-80 p-4",
+              div(
+                cls := "grid gap-4",
+                Popover.header(
+                  Popover.title("Dimensions"),
+                  Popover.description("Set the dimensions for the layer.")
+                ),
+                div(
+                  cls := "grid gap-2",
+                  dimensionRow("Width", "100%"),
+                  dimensionRow("Max. width", "300px"),
+                  dimensionRow("Height", "25px"),
+                  dimensionRow("Max. height", "none")
+                )
+              )
+            )
+          )
+        )
       case "pagination" =>
         previewCanvas(
           Pagination(
@@ -1017,8 +1062,18 @@ object Main:
           )
         )
       case "context-menu" =>
+        val showBookmarks = Var(true)
         previewCanvas(
-          ContextMenu(ContextMenu.Item("Back", () => ()), ContextMenu.Item("Reload", () => ()))(
+          ContextMenu.trigger { menu =>
+            Seq(
+              menu.item("Back", ContextMenu.shortcut("⌘[")),
+              menu.item("Forward", ContextMenu.shortcut("⌘]")),
+              menu.item("Reload", ContextMenu.shortcut("⌘R")),
+              menu.sub("More Tools")(sub => Seq(sub.item("Save Page As…"), sub.item("Developer Tools"))),
+              ContextMenu.separator(),
+              menu.checkboxItem(showBookmarks, "Show Bookmarks")
+            )
+          }(
             div(
               cls := "flex h-32 w-64 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground",
               "Right click here"
@@ -1041,11 +1096,41 @@ object Main:
         previewCanvas(HoverCard(HoverCard.trigger("Hover me"), HoverCard.content(p("Laminar hover card content."))))
       case "input-otp" => previewCanvas(InputOTP(Var("")))
       case "menubar" =>
+        val menubarProfile = Var("benoit")
         previewCanvas(
-          Menubar(
-            Menubar.menu("File")(DropdownMenu.Item("New", () => ()), DropdownMenu.Item("Open", () => ())),
-            Menubar.menu("Edit")(DropdownMenu.Item("Undo", () => ()), DropdownMenu.Item("Redo", () => ()))
-          )
+          Menubar.bar() { bar =>
+            Seq(
+              bar.menuItems("File") { menu =>
+                Seq(
+                  menu.item("New Tab", Menubar.shortcut("⌘T")),
+                  menu.item("New Window", Menubar.shortcut("⇧⌘N")),
+                  Menubar.separator(),
+                  menu.sub("Share")(sub => Seq(sub.item("Email link"), sub.item("Messages"))),
+                  Menubar.separator(),
+                  menu.item("Print…", Menubar.shortcut("⌘P"))
+                )
+              },
+              bar.menuItems("Edit") { menu =>
+                Seq(
+                  menu.item("Undo", Menubar.shortcut("⌘Z")),
+                  menu.item("Redo", Menubar.shortcut("⇧⌘Z")),
+                  Menubar.separator(),
+                  menu.item("Find")
+                )
+              },
+              bar.menuItems("View") { menu =>
+                Seq(
+                  menu.item("Reload", Menubar.shortcut("⌘R")),
+                  menu.item("Toggle Fullscreen"),
+                  Menubar.separator(),
+                  Menubar.label("Profile"),
+                  menu.radioItem(menubarProfile, "andy", "Andy"),
+                  menu.radioItem(menubarProfile, "benoit", "Benoit"),
+                  menu.radioItem(menubarProfile, "luis", "Luis")
+                )
+              }
+            )
+          }
         )
       case "navigation-menu" =>
         previewCanvas(
@@ -1273,10 +1358,20 @@ Drawer(isOpen)(
   )
 )"""
       case "dropdown-menu" =>
-        """DropdownMenu("Open menu")(
-  DropdownMenu.Item("Profile", () => ()),
-  DropdownMenu.Item("Settings", () => ())
-)"""
+        """val showStatusBar = Var(true)
+
+DropdownMenu.items("Open menu") { menu =>
+  Seq(
+    DropdownMenu.label("My Account"),
+    DropdownMenu.separator(),
+    menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
+    menu.item(() => println("billing"), "Billing"),
+    DropdownMenu.separator(),
+    menu.checkboxItem(showStatusBar, "Status Bar"),
+    menu.sub("Invite users")(sub => Seq(sub.item("Email"), sub.item("Message"))),
+    menu.item(Menu.destructive, "Log out")
+  )
+}"""
       case "empty" =>
         """Empty(
   Empty.header(Empty.title("No projects"), Empty.description("Create your first project to get started."))
@@ -1326,7 +1421,23 @@ Kbd.group(Kbd("⌘"), Kbd("P"))"""
       case "label"         => """Label("Email address")
 Input(placeholder := "you@example.com")"""
       case "native-select" => """NativeSelect(option("Choose a plan"), option("Pro"), option("Team"))"""
-      case "popover"       => """Popover(Popover.trigger("Open popover"), Popover.content("Popover content"))"""
+      case "popover" =>
+        """Popover(
+  Popover.trigger(cls := Button.classes(Button.Variant.Outline), "Open popover"),
+  Popover.content(
+    Floating.Placement(),
+    "w-80 p-4",
+    Popover.header(
+      Popover.title("Dimensions"),
+      Popover.description("Set the dimensions for the layer.")
+    ),
+    div(
+      cls := "grid grid-cols-3 items-center gap-4",
+      Label("Width"),
+      Input(defaultValue := "100%", cls := "col-span-2 h-8")
+    )
+  )
+)"""
       case "pagination" =>
         """Pagination(
   Pagination.list(
@@ -1422,7 +1533,17 @@ Calendar(selected)"""
   div("Slide 3")
 )"""
       case "context-menu" =>
-        """ContextMenu(ContextMenu.Item("Back", () => ()), ContextMenu.Item("Reload", () => ()))(
+        """val showBookmarks = Var(true)
+
+ContextMenu.trigger { menu =>
+  Seq(
+    menu.item("Back", ContextMenu.shortcut("⌘[")),
+    menu.item("Reload", ContextMenu.shortcut("⌘R")),
+    menu.sub("More Tools")(sub => Seq(sub.item("Save Page As…"), sub.item("Developer Tools"))),
+    ContextMenu.separator(),
+    menu.checkboxItem(showBookmarks, "Show Bookmarks")
+  )
+}(
   div("Right click here")
 )"""
       case "data-table" =>
@@ -1464,10 +1585,29 @@ RangeCalendar(range, cls := "rounded-md border")"""
       case "input-otp" => """val code = Var("")
 InputOTP(code)"""
       case "menubar" =>
-        """Menubar(
-  Menubar.menu("File")(DropdownMenu.Item("New", () => ()), DropdownMenu.Item("Open", () => ())),
-  Menubar.menu("Edit")(DropdownMenu.Item("Undo", () => ()), DropdownMenu.Item("Redo", () => ()))
-)"""
+        """val profile = Var("benoit")
+
+Menubar.bar() { bar =>
+  Seq(
+    bar.menuItems("File") { menu =>
+      Seq(
+        menu.item("New Tab", Menubar.shortcut("⌘T")),
+        Menubar.separator(),
+        menu.sub("Share")(sub => Seq(sub.item("Email link"), sub.item("Messages")))
+      )
+    },
+    bar.menuItems("Edit") { menu =>
+      Seq(menu.item("Undo", Menubar.shortcut("⌘Z")), menu.item("Redo", Menubar.shortcut("⇧⌘Z")))
+    },
+    bar.menuItems("View") { menu =>
+      Seq(
+        Menubar.label("Profile"),
+        menu.radioItem(profile, "andy", "Andy"),
+        menu.radioItem(profile, "benoit", "Benoit")
+      )
+    }
+  )
+}"""
       case "navigation-menu" =>
         """NavigationMenu(
   NavigationMenu.list(

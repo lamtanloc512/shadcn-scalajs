@@ -1,1 +1,7 @@
-{"name":"popover","title":"Popover","registryDependencies":[],"scalaDependencies":[],"files":[{"path":"Popover.scala","type":"scala:ui"}]}
+{
+  "name": "popover",
+  "title": "Popover",
+  "registryDependencies": ["floating", "icons"],
+  "scalaDependencies": [],
+  "files": [{ "path": "Popover.scala", "type": "scala:ui" }]
+}

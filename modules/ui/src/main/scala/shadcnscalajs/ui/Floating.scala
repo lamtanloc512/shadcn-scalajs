@@ -41,13 +41,39 @@ object Floating:
   final class Anchor private[Floating] (
       val isOpen: Var[Boolean],
       private[Floating] val triggerRef: Var[Option[dom.html.Element]],
-      private[Floating] val contentRef: Var[Option[dom.html.Element]]
+      private[ui] val contentRef: Var[Option[dom.html.Element]],
+      /** Set for context menus, which anchor to the pointer rather than to an element. */
+      private[Floating] val point: Var[Option[(Double, Double)]]
   ):
-    def open(): Unit = isOpen.set(true)
-    def close(): Unit = isOpen.set(false)
-    def toggle(): Unit = isOpen.update(!_)
+    /** Submenus opened from inside this panel. Their panels are portaled siblings of this one rather than descendants,
+      * so dismissal and Escape have to be told about them explicitly or a click on a submenu item would read as an
+      * outside click and tear the whole stack down before the click landed.
+      */
+    private var nestedAnchors: List[Anchor] = Nil
 
-  def anchor(): Anchor = Anchor(Var(false), Var(None), Var(None))
+    private[ui] def registerNested(child: Anchor): Unit = nestedAnchors ::= child
+
+    private[Floating] def panels: List[dom.html.Element] =
+      contentRef.now().toList ::: nestedAnchors.flatMap(_.panels)
+
+    private[Floating] def hasOpenNested: Boolean =
+      nestedAnchors.exists(child => child.isOpen.now() || child.hasOpenNested)
+
+    def open(): Unit =
+      point.set(None)
+      isOpen.set(true)
+    def close(): Unit =
+      nestedAnchors.foreach(_.close())
+      isOpen.set(false)
+    def toggle(): Unit = if isOpen.now() then close() else open()
+
+    def openAt(x: Double, y: Double): Unit =
+      point.set(Some((x, y)))
+      isOpen.set(true)
+
+    def focusTrigger(): Unit = triggerRef.now().foreach(_.focus())
+
+  def anchor(): Anchor = Anchor(Var(false), Var(None), Var(None), Var(None))
 
   private def compPath(ev: dom.Event): js.Array[dom.EventTarget] =
     ev.asInstanceOf[js.Dynamic].composedPath().asInstanceOf[js.Array[dom.EventTarget]]
@@ -126,62 +152,77 @@ object Floating:
     case Side.Left   => Side.Right
     case Side.Right  => Side.Left
 
+  /** `scala-js-dom`'s `DOMRect` is not constructible, so placement works against this instead — which also lets a
+    * context menu anchor to a zero-size rect at the pointer through the same code path as an element.
+    */
+  private final case class Rect(left: Double, top: Double, width: Double, height: Double):
+    def right: Double = left + width
+    def bottom: Double = top + height
+
   private def place(a: Anchor, placement: Placement): Unit =
-    for
-      trigger <- a.triggerRef.now()
-      panel <- a.contentRef.now()
-    do
-      val rect = trigger.getBoundingClientRect()
-      val (clipTop, clipLeft, clipRight, clipBottom) = visibleBounds(trigger)
-      val clipped =
-        rect.bottom <= clipTop || rect.top >= clipBottom || rect.right <= clipLeft || rect.left >= clipRight
+    for panel <- a.contentRef.now() do
+      val anchored: Option[Rect] = a.point.now() match
+        case Some((x, y)) => Some(Rect(x, y, 0, 0))
+        case None =>
+          a.triggerRef.now().map { t =>
+            val r = t.getBoundingClientRect()
+            Rect(r.left, r.top, r.width, r.height)
+          }
 
-      panel.style.position = "fixed"
-      panel.style.visibility = if clipped then "hidden" else "visible"
-      panel.style.pointerEvents = if clipped then "none" else "auto"
+      anchored.foreach { rect =>
+        // A pointer-anchored menu has no trigger subtree to be clipped by.
+        val clipped = a.point.now().isEmpty && a.triggerRef.now().exists { trigger =>
+          val (clipTop, clipLeft, clipRight, clipBottom) = visibleBounds(trigger)
+          rect.bottom <= clipTop || rect.top >= clipBottom || rect.right <= clipLeft || rect.left >= clipRight
+        }
 
-      if !clipped then
-        val pad = placement.collisionPadding
-        val gap = placement.sideOffset
-        val viewportWidth = dom.window.innerWidth.toDouble
-        val viewportHeight = dom.window.innerHeight.toDouble
-        if placement.matchTriggerWidth then panel.style.minWidth = s"${rect.width}px"
-        val panelWidth = panel.offsetWidth.toDouble
-        val panelHeight = panel.offsetHeight.toDouble
+        panel.style.position = "fixed"
+        panel.style.visibility = if clipped then "hidden" else "visible"
+        panel.style.pointerEvents = if clipped then "none" else "auto"
 
-        val room = Map(
-          Side.Top -> (rect.top - gap - pad),
-          Side.Bottom -> (viewportHeight - pad - (rect.bottom + gap)),
-          Side.Left -> (rect.left - gap - pad),
-          Side.Right -> (viewportWidth - pad - (rect.right + gap))
-        )
-        val needed = placement.side match
-          case Side.Top | Side.Bottom => panelHeight
-          case Side.Left | Side.Right => panelWidth
-        val flipped = opposite(placement.side)
-        val side =
-          if room(placement.side) >= needed || room(placement.side) >= room(flipped) then placement.side
-          else flipped
+        if !clipped then
+          val pad = placement.collisionPadding
+          val gap = placement.sideOffset
+          val viewportWidth = dom.window.innerWidth.toDouble
+          val viewportHeight = dom.window.innerHeight.toDouble
+          if placement.matchTriggerWidth then panel.style.minWidth = s"${rect.width}px"
+          val panelWidth = panel.offsetWidth.toDouble
+          val panelHeight = panel.offsetHeight.toDouble
 
-        // Along the side axis the panel sits beside the trigger; along the cross axis `align` decides where it starts.
-        def crossStart(triggerStart: Double, triggerSize: Double, panelSize: Double): Double =
-          placement.align match
-            case Align.Start  => triggerStart
-            case Align.Center => triggerStart + (triggerSize - panelSize) / 2
-            case Align.End    => triggerStart + triggerSize - panelSize
+          val room = Map(
+            Side.Top -> (rect.top - gap - pad),
+            Side.Bottom -> (viewportHeight - pad - (rect.bottom + gap)),
+            Side.Left -> (rect.left - gap - pad),
+            Side.Right -> (viewportWidth - pad - (rect.right + gap))
+          )
+          val needed = placement.side match
+            case Side.Top | Side.Bottom => panelHeight
+            case Side.Left | Side.Right => panelWidth
+          val flipped = opposite(placement.side)
+          val side =
+            if room(placement.side) >= needed || room(placement.side) >= room(flipped) then placement.side
+            else flipped
 
-        val (rawLeft, rawTop) = side match
-          case Side.Bottom => (crossStart(rect.left, rect.width, panelWidth), rect.bottom + gap)
-          case Side.Top    => (crossStart(rect.left, rect.width, panelWidth), rect.top - gap - panelHeight)
-          case Side.Right  => (rect.right + gap, crossStart(rect.top, rect.height, panelHeight))
-          case Side.Left   => (rect.left - gap - panelWidth, crossStart(rect.top, rect.height, panelHeight))
+          // Along the side axis the panel sits beside the anchor; along the cross axis `align` decides where it starts.
+          def crossStart(anchorStart: Double, anchorSize: Double, panelSize: Double): Double =
+            placement.align match
+              case Align.Start  => anchorStart
+              case Align.Center => anchorStart + (anchorSize - panelSize) / 2
+              case Align.End    => anchorStart + anchorSize - panelSize
 
-        val left = math.max(pad, math.min(rawLeft, viewportWidth - pad - panelWidth))
-        val top = math.max(pad, math.min(rawTop, viewportHeight - pad - panelHeight))
-        panel.style.left = s"${left}px"
-        panel.style.top = s"${top}px"
-        panel.setAttribute("data-side", side.toString.toLowerCase)
-        panel.setAttribute("data-align", placement.align.toString.toLowerCase)
+          val (rawLeft, rawTop) = side match
+            case Side.Bottom => (crossStart(rect.left, rect.width, panelWidth), rect.bottom + gap)
+            case Side.Top    => (crossStart(rect.left, rect.width, panelWidth), rect.top - gap - panelHeight)
+            case Side.Right  => (rect.right + gap, crossStart(rect.top, rect.height, panelHeight))
+            case Side.Left   => (rect.left - gap - panelWidth, crossStart(rect.top, rect.height, panelHeight))
+
+          val left = math.max(pad, math.min(rawLeft, viewportWidth - pad - panelWidth))
+          val top = math.max(pad, math.min(rawTop, viewportHeight - pad - panelHeight))
+          panel.style.left = s"${left}px"
+          panel.style.top = s"${top}px"
+          panel.setAttribute("data-side", side.toString.toLowerCase)
+          panel.setAttribute("data-align", placement.align.toString.toLowerCase)
+      }
 
   /** The floating panel: portaled to `document.body`, positioned against the trigger, and dismissed on outside pointer
     * down, Escape, or window blur. Dismissal ignores pointer downs inside the panel itself — it is not a DOM descendant
@@ -216,11 +257,12 @@ object Floating:
         if a.isOpen.now() then
           val path = compPath(ev)
           val insideTrigger = a.triggerRef.now().exists(t => path.indexOf(t) != -1)
-          val insidePanel = a.contentRef.now().exists(p => path.indexOf(p) != -1)
+          val insidePanel = a.panels.exists(p => path.indexOf(p) != -1)
           if !insideTrigger && !insidePanel then a.close()
       },
       documentEvents(_.onKeyDown) --> { (ev: dom.KeyboardEvent) =>
-        if a.isOpen.now() && ev.key == "Escape" then
+        // An open submenu handles Escape itself; without this the key would collapse the whole stack at once.
+        if a.isOpen.now() && ev.key == "Escape" && !a.hasOpenNested then
           a.close()
           a.triggerRef.now().foreach(_.focus())
       },
@@ -242,12 +284,38 @@ object Floating:
     )
 
     var portal = Option.empty[RootNode]
+    var container = Option.empty[dom.Element]
     div(
       cls := "hidden",
       onMountUnmountCallback(
-        mount = _ => portal = Some(render(dom.document.body, panel)),
-        unmount = _ =>
+        mount = { ctx =>
+          val target = portalTarget(ctx.thisNode.ref)
+          container = Some(target).filter(_ != dom.document.body)
+          portal = Some(render(target, panel))
+        },
+        unmount = { _ =>
           portal.foreach(_.unmount())
           portal = None
+          container.foreach(el => el.parentNode.removeChild(el))
+          container = None
+        }
       )
     )
+
+  /** Where the panel is rendered. `document.body` for ordinary use, but inside a shadow root — the web-component
+    * wrappers each mount into one, with their stylesheet injected there — the panel has to stay in that root or it
+    * loses every style. `position: fixed` still escapes ancestor `overflow` clipping either way.
+    *
+    * Laminar renders into an `Element`, and a `ShadowRoot` is a fragment, so this returns a host `div` appended to it.
+    */
+  private def portalTarget(node: dom.Element): dom.Element =
+    // `getRootNode` is absent from the pinned scalajs-dom facade.
+    val root = node.asInstanceOf[js.Dynamic].getRootNode().asInstanceOf[dom.Node]
+    val isShadowRoot =
+      root.nodeType == dom.Node.DOCUMENT_FRAGMENT_NODE && !js.isUndefined(root.asInstanceOf[js.Dynamic].host)
+    if !isShadowRoot then dom.document.body
+    else
+      val host = dom.document.createElement("div")
+      host.setAttribute("data-slot", "floating-portal")
+      root.appendChild(host)
+      host

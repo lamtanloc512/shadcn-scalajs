@@ -47,6 +47,12 @@ object Button:
   def anchor(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
     a(href := hrefValue, dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
 
+  /** The class list for a given variant and size, upstream's `buttonVariants({ variant, size })`. For parts that must
+    * look like a button without being one — a popover or menu trigger, an anchor styled as a button.
+    */
+  def classes(variant: Variant = Variant.Primary, size: Size = Size.Default): String =
+    s"btn cn-button group/button $base ${variantClasses(variant)} ${sizeClasses(size)}"
+
   /** Builder-style: `Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Save")` */
   def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =
     apply(mods.map(_(ButtonApi))*)

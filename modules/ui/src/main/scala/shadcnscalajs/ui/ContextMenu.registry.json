@@ -1,7 +1,7 @@
 {
   "name": "context-menu",
   "title": "Context Menu",
-  "registryDependencies": [],
+  "registryDependencies": ["menu"],
   "scalaDependencies": [],
   "files": [{ "path": "ContextMenu.scala", "type": "scala:ui" }]
 }

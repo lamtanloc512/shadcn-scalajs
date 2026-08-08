@@ -1,7 +1,7 @@
 {
   "name": "menubar",
   "title": "Menubar",
-  "registryDependencies": ["dropdown-menu"],
+  "registryDependencies": ["menu", "dropdown-menu"],
   "scalaDependencies": [],
   "files": [{ "path": "Menubar.scala", "type": "scala:ui" }]
 }
