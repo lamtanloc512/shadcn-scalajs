@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Range:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    input(typ := \"range\", cls := \"input cn-slider h-5 w-full cursor-pointer accent-primary\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** Native range input stand-in corresponding to upstream slider's range part (`data-slot=\"slider-range\"`). */\nobject Range:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    input(\n      typ := \"range\",\n      dataAttr(\"slot\") := \"slider-range\",\n      cls := \"input cn-slider-range cn-slider h-5 w-full cursor-pointer accent-primary\",\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Range.scala"
     }

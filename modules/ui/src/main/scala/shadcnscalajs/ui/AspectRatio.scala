@@ -9,7 +9,8 @@ object AspectRatio:
 
   def apply(ratio: Double, mods: Modifier[HtmlElement]*): HtmlElement =
     div(
-      cls := "relative w-full",
+      dataAttr("slot") := "aspect-ratio",
+      cls := "cn-aspect-ratio relative w-full",
       styleAttr := s"aspect-ratio: $ratio",
       mods
     )

@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Scrollbar:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(cls := \"scrollbar relative overflow-auto\", mods)\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** Stand-in corresponding to upstream scroll-area scrollbar (`data-slot=\"scroll-area-scrollbar\"`). Keeps a plain\n  * overflow container for existing demos; a later wave wires real scrollbar chrome.\n  */\nobject Scrollbar:\n  def apply(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      dataAttr(\"slot\") := \"scroll-area-scrollbar\",\n      dataAttr(\"orientation\") := \"vertical\",\n      cls := \"cn-scroll-area-scrollbar relative flex touch-none overflow-auto p-px transition-colors select-none\",\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Scrollbar.scala"
     }

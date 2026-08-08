@@ -24,12 +24,14 @@ object WelcomeDialog:
       persistDismissed()
       openVar.set(false)
 
-    Dialog(openVar)(
+    // The `!` matters: style packs set padding and gap on `.cn-dialog-content` from an unlayered rule, which a plain
+    // `p-0` cannot outrank. This panel is edge-to-edge artwork, so it has to win.
+    Dialog(openVar, "max-w-92! min-w-0 gap-0! overflow-hidden p-0! sm:max-w-sm")(
       // Escape / backdrop close Dialog → openVar; persist so it stays dismissed.
       openVar.signal --> { open =>
         if !open then persistDismissed()
       },
-      cls := "dialog-ring max-w-92 min-w-0 gap-0 overflow-hidden rounded-xl p-0 sm:max-w-sm dark:bg-neutral-900",
+      cls := "dialog-ring rounded-xl dark:bg-neutral-900",
       div(
         cls := "flex aspect-[2/1.2] w-full items-center justify-center rounded-t-xl bg-neutral-950 text-center text-neutral-100 sm:aspect-2/1",
         div(

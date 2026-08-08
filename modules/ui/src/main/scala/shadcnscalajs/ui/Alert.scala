@@ -48,6 +48,14 @@ object Alert:
       mods
     )
 
+  /** Trailing action slot — upstream places it in the alert's last grid column. */
+  def action(mods: Modifier[HtmlElement]*): HtmlElement =
+    div(
+      dataAttr("slot") := "alert-action",
+      cls := "cn-alert-action col-start-3 row-span-2 row-start-1 self-center justify-self-end",
+      mods
+    )
+
   def description(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "alert-description",

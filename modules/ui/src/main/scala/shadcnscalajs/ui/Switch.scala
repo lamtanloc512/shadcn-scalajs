@@ -11,9 +11,12 @@ object Switch:
       typ := "button",
       role := "switch",
       aria.checked := "false",
-      cls := s"input $base bg-input",
+      dataAttr("slot") := "switch",
+      dataAttr("size") := "default",
+      cls := s"input cn-switch group/switch $base bg-input",
       span(
-        cls := "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform"
+        dataAttr("slot") := "switch-thumb",
+        cls := "cn-switch-thumb pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform"
       ),
       mods
     )
@@ -23,11 +26,17 @@ object Switch:
       typ := "button",
       role := "switch",
       aria.checked <-- checkedVar.signal.map(_.toString),
-      cls := s"input $base",
+      dataAttr("slot") := "switch",
+      dataAttr("size") := "default",
+      // Packs select the checked track via `[data-state=checked]`, matching bits-ui's own attribute contract.
+      dataAttr("state") <-- checkedVar.signal.map(if _ then "checked" else "unchecked"),
+      cls := s"input cn-switch group/switch $base",
       cls <-- checkedVar.signal.map(if _ then "bg-primary" else "bg-input"),
       onClick --> { _ => checkedVar.update(!_) },
       span(
-        cls := "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform",
+        dataAttr("slot") := "switch-thumb",
+        dataAttr("state") <-- checkedVar.signal.map(if _ then "checked" else "unchecked"),
+        cls := "cn-switch-thumb pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform",
         cls <-- checkedVar.signal.map(if _ then "translate-x-4" else "translate-x-0")
       ),
       mods

@@ -22,6 +22,7 @@ object Checkbox:
     val selfManaged = Var(false)
     input(
       typ := "checkbox",
+      dataAttr("slot") := "checkbox",
       cls := baseClasses,
       mods,
       onMountCallback(ctx => selfManaged.set(ctx.thisNode.ref.checked)),
@@ -32,6 +33,7 @@ object Checkbox:
   def apply(checkedVar: Var[Boolean], mods: Modifier[HtmlElement]*): HtmlElement =
     input(
       typ := "checkbox",
+      dataAttr("slot") := "checkbox",
       cls := baseClasses,
       controlled(checked <-- checkedVar.signal, onClick.mapToChecked --> checkedVar),
       reflectChecked(checkedVar.signal),
@@ -41,6 +43,7 @@ object Checkbox:
   def apply(checkedVar: Var[Boolean], indeterminate: Signal[Boolean], mods: Modifier[HtmlElement]*): HtmlElement =
     input(
       typ := "checkbox",
+      dataAttr("slot") := "checkbox",
       cls := baseClasses,
       controlled(checked <-- checkedVar.signal, onClick.mapToChecked --> checkedVar),
       reflectChecked(checkedVar.signal),

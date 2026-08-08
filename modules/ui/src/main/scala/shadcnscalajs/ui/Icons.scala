@@ -116,6 +116,12 @@ object Icons:
       case None =>
         (LucideIconData, LucideIconData.paths.getOrElse(concept, Seq.empty))
 
+  /** `data-slot` for icons. The HTML `dataAttr` does not type-check against `SvgElement`, and upstream puts the slot on
+    * the `<svg>` itself rather than on a wrapper, which the style packs' `[data-slot=...] svg` rules rely on.
+    */
+  val svgSlot: com.raquo.laminar.keys.SvgAttr[String] =
+    svg.svgAttr("data-slot", com.raquo.laminar.codecs.StringAsIsCodec, None)
+
   def icon(concept: String)(mods: Modifier[SvgElement]*): SvgElement =
     svgTag(
       svg.viewBox <-- activeLibrary.map { lib => resolve(concept, lib)._1.viewBox },

@@ -5,16 +5,16 @@ import com.raquo.laminar.api.L.*
 import scala.scalajs.js
 
 /** shadcn/ui RangeCalendar — range-mode calendar grid, mirroring upstream `range-calendar.svelte` (bits-ui
-  * RangeCalendar) as a thin wrapper over [[Calendar.range]].
+  * RangeCalendar) as a thin wrapper over [[Calendar.rangeCalendar]].
   */
 object RangeCalendar:
 
   def apply(selected: Var[Calendar.DateRange], mods: Modifier[HtmlElement]*): HtmlElement =
-    Calendar.range(selected, mods*)
+    Calendar.rangeCalendar(selected, _ => false, mods*)
 
   def apply(
       selected: Var[Calendar.DateRange],
       isDisabled: js.Date => Boolean,
       mods: Modifier[HtmlElement]*
   ): HtmlElement =
-    Calendar.range(selected, isDisabled, mods*)
+    Calendar.rangeCalendar(selected, isDisabled, mods*)

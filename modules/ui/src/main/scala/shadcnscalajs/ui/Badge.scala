@@ -20,7 +20,13 @@ object Badge:
   )
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    span(cls := s"badge cn-badge $base", mods)
+    span(dataAttr("slot") := "badge", cls := s"badge cn-badge group/badge $base", mods)
+
+  /** Upstream renders the badge as an `<a>` when `href` is set; the `[a&]:hover:*` variants in every variant class only
+    * take effect on that anchor form.
+    */
+  def anchor(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
+    a(href := hrefValue, dataAttr("slot") := "badge", cls := s"badge cn-badge group/badge $base", mods)
 
   def of(mods: (BadgeApi.type => Modifier[HtmlElement])*): HtmlElement =
     apply(mods.map(_(BadgeApi))*)

@@ -10,6 +10,27 @@ import org.scalajs.dom
   */
 object Resizable:
 
+  def paneGroup(mods: Modifier[HtmlElement]*): HtmlElement =
+    div(
+      dataAttr("slot") := "resizable-pane-group",
+      dataAttr("direction") := "horizontal",
+      cls := "cn-resizable-panel-group flex h-full w-full data-[direction=vertical]:flex-col",
+      mods
+    )
+
+  def handle(mods: Modifier[HtmlElement]*): HtmlElement =
+    handle(withHandle = false)(mods*)
+
+  def handle(withHandle: Boolean)(mods: Modifier[HtmlElement]*): HtmlElement =
+    div(
+      dataAttr("slot") := "resizable-handle",
+      dataAttr("direction") := "horizontal",
+      cls := "cn-resizable-handle relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-hidden data-[direction=vertical]:h-px data-[direction=vertical]:w-full data-[direction=vertical]:after:left-0 data-[direction=vertical]:after:h-1 data-[direction=vertical]:after:w-full data-[direction=vertical]:after:translate-x-0 data-[direction=vertical]:after:-translate-y-1/2 [&[data-direction=vertical]>div]:rotate-90",
+      if withHandle then div(cls := "cn-resizable-handle-icon z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border")
+      else emptyNode,
+      mods
+    )
+
   /** `splitVar` is the left pane's width as a percentage (0.0-100.0), owned by the caller so it can be read or
     * persisted if desired.
     */
@@ -24,8 +45,7 @@ object Resizable:
         splitVar.set(math.max(10.0, math.min(90.0, pct)))
       }
 
-    div(
-      cls := "flex h-full w-full",
+    paneGroup(
       onMountCallback { ctx => containerRef.set(Some(ctx.thisNode.ref)) },
       onMountBind { _ =>
         documentEvents(_.onMouseMove) --> { (ev: dom.MouseEvent) =>
@@ -36,8 +56,8 @@ object Resizable:
         documentEvents(_.onMouseUp) --> { _ => draggingVar.set(false) }
       },
       div(cls := "overflow-auto", styleAttr <-- splitVar.signal.map(pct => s"width:${pct}%"), left),
-      div(
-        cls := "w-px shrink-0 cursor-col-resize bg-border hover:bg-ring active:bg-ring",
+      handle(
+        cls := "cursor-col-resize hover:bg-ring active:bg-ring",
         onMouseDown --> { ev =>
           ev.preventDefault(); draggingVar.set(true)
         }

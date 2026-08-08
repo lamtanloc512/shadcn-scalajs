@@ -39,7 +39,13 @@ object Button:
 
   /** Direct usage: `Button(cls := "w-full", onClick --> observer, "Click me")` */
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    button(typ := "button", cls := s"btn cn-button $base", mods)
+    button(typ := "button", dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
+
+  /** The `href` branch of upstream's button: an anchor carrying `data-slot="button"` so it picks up the same pack rules
+    * and the same button-group joining selectors as a real button.
+    */
+  def anchor(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
+    a(href := hrefValue, dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
 
   /** Builder-style: `Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Save")` */
   def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =

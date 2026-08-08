@@ -7,7 +7,8 @@ object Spinner:
   def apply(mods: Modifier[SvgElement]*): SvgElement =
     svgTag(
       aria.label := "Loading",
-      svg.cls := "size-4 animate-spin",
+      Icons.svgSlot := "spinner",
+      svg.cls := "cn-spinner size-4 animate-spin",
       svg.viewBox := "0 0 24 24",
       svg.fill := "none",
       svg.stroke := "currentColor",

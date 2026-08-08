@@ -13,7 +13,8 @@ object Separator:
       if orientation == Orientation.Horizontal then "h-px w-full" else "h-full w-px"
     div(
       role := "separator",
+      dataAttr("slot") := "separator",
       dataAttr("orientation") := orientation.toString.toLowerCase,
-      cls := s"shrink-0 bg-border $sizeClasses",
+      cls := s"cn-separator shrink-0 bg-border $sizeClasses",
       mods
     )

@@ -8,6 +8,9 @@ import scala.scalajs.js
 
 /** shadcn/ui Sonner — pure Laminar toast stack (no svelte-sonner). Mount [[Toaster]] once; call [[toast]] / [[success]]
   * / [[error]] / [[info]] / [[warning]] / [[loading]] from anywhere to enqueue notifications.
+  *
+  * Upstream `sonner.svelte` has no `data-slot` attributes; only the `toaster group` class contract is mirrored here.
+  * Pack styling hooks use `cn-toast` on individual toast rows.
   */
 object Sonner:
 
@@ -72,7 +75,7 @@ object Sonner:
   private def toastRow(item: ToastItem): HtmlElement =
     div(
       role := "status",
-      cls := "pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-md border bg-background p-4 pr-8 text-foreground shadow-lg",
+      cls := "cn-toast pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-md border bg-background p-4 pr-8 text-foreground shadow-lg",
       toastIcon(item.toastType).fold(emptyNode)(identity),
       div(cls := "flex-1 text-sm font-medium leading-snug", item.message),
       button(
@@ -87,6 +90,7 @@ object Sonner:
   private def toasterElement(mods: Seq[Modifier[HtmlElement]]): HtmlElement =
     div(
       cls := "toaster group pointer-events-none fixed bottom-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:top-auto sm:right-0 sm:bottom-0 sm:flex-col md:max-w-[420px]",
+      styleAttr := "--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);",
       mods,
       children <-- queueVar.signal.map(_.map(toastRow).toList)
     )
