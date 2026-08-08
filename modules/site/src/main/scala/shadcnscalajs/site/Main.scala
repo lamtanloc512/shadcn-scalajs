@@ -333,76 +333,15 @@ object Main:
       )
     )
 
-  // Kept as class-string aliases for CreateShell / BlocksLayout headers that still compose `<a cls := …>`.
-  // Prefer [[navGhost]] / [[Button.anchor]] / [[Button.of]] in new call sites so `data-slot="button"` is set.
-  def btnGhost = Button.classes(Button.Variant.Ghost)
-  def btnIcon = Button.classes(Button.Variant.Ghost, Button.Size.Icon)
-
-  private def navGhost(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
-    Button.anchor(hrefValue, Button.ButtonApi.variant(Button.Variant.Ghost), mods)
-
-  private def navGhostActive(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
-    Button.anchor(
-      hrefValue,
-      Button.ButtonApi.variant(Button.Variant.Ghost),
-      cls := "bg-accent text-accent-foreground",
-      mods
-    )
-
   // ── App ──
   private def app(): HtmlElement =
     div(
       cls := "min-h-dvh overflow-x-clip bg-background text-foreground antialiased",
-
-      // ── Header ──
-      headerTag(
-        cls := "bg-background sticky inset-x-0 top-0 isolate z-30 flex shrink-0 items-center gap-2",
-        div(
-          cls := "flex h-14 w-full items-center justify-between gap-2 px-4",
-          div(
-            cls := "flex min-w-0 items-center gap-1",
-            navGhost(
-              "/",
-              aria.label := "shadcn-scalajs home",
-              span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
-              span(cls := "truncate font-semibold", "shadcn-scalajs")
-            ),
-            navTag(
-              cls := "hidden sm:flex items-center gap-1",
-              aria.label := "Primary",
-              navGhost("/components", "Components"),
-              navGhost("/blocks", "Blocks"),
-              navGhost("/create", "Create"),
-              navGhost(
-                "https://github.com/lamtanloc512/shadcn-scalajs",
-                target := "_blank",
-                rel := "noopener",
-                "GitHub"
-              )
-            )
-          ),
-          div(
-            cls := "ml-auto flex min-w-0 flex-1 items-center justify-end gap-2",
-            div(
-              cls := "hidden sm:block w-full min-w-0 max-w-72 sm:ml-auto",
-              InputGroup(
-                cls := "h-8",
-                InputGroup.input(
-                  placeholder := "Search...",
-                  readOnly := true,
-                  tabIndex := -1,
-                  aria.label := "Search docs"
-                ),
-                InputGroup.addon(InputGroup.AddonAlign.InlineEnd, Icons.search()),
-                InputGroup.addon(
-                  InputGroup.AddonAlign.InlineEnd,
-                  Kbd(cls := "hidden sm:inline-flex", "⌘K")
-                )
-              )
-            ),
-            ThemeMenu()
-          )
-        )
+      SiteChrome.header(
+        includeSearch = true,
+        includeGitHub = true,
+        showHome = false,
+        bordered = false
       ),
       mainTag(
         cls := "flex flex-1 flex-col",
@@ -477,29 +416,7 @@ object Main:
   private def componentsGalleryPage(): HtmlElement =
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      headerTag(
-        cls := "sticky inset-x-0 top-0 z-30 flex h-14 items-center border-b bg-background/95 px-4 backdrop-blur",
-        div(
-          cls := "mx-auto flex w-full max-w-7xl items-center gap-4",
-          navGhost(
-            "/",
-            span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
-            span(cls := "font-semibold", "shadcn-scalajs")
-          ),
-          navTag(
-            cls := "hidden items-center gap-1 sm:flex",
-            aria.label := "Primary",
-            navGhost("/", "Home"),
-            navGhostActive("/components", "Components"),
-            navGhost("/blocks", "Blocks"),
-            navGhost("/create", "Create")
-          ),
-          div(
-            cls := "ml-auto flex items-center gap-2",
-            ThemeMenu()
-          )
-        )
-      ),
+      SiteChrome.header(active = SiteChrome.Active.Components),
       mainTag(
         cls := "mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8",
         div(
@@ -552,10 +469,26 @@ object Main:
 
     dom.document.title = s"$componentTitle – shadcn-scalajs"
 
+    val exampleTab = Var("preview")
     val navIndex = componentNavList.indexWhere(name => slugify(name) == componentName)
     val prevEntry = if navIndex > 0 then Some(componentNavList(navIndex - 1)) else None
     val nextEntry =
       if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
+
+    def docsTabTrigger(selected: Var[String], value: String, label: String): HtmlElement =
+      Tabs.trigger(
+        dataAttr("value") := value,
+        tabIndex <-- selected.signal.map(v => if v == value then 0 else -1),
+        inContext { thisNode =>
+          selected.signal --> { v =>
+            if v == value then thisNode.ref.setAttribute("data-active", "true")
+            else thisNode.ref.removeAttribute("data-active")
+          }
+        },
+        aria.selected <-- selected.signal.map(_ == value),
+        onClick --> { _ => selected.set(value) },
+        label
+      )
 
     def codeBlock(language: String, source: String): HtmlElement =
       Card(
@@ -1856,30 +1789,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      headerTag(
-        cls := "sticky inset-x-0 top-0 z-40 border-b bg-background/95 backdrop-blur",
-        div(
-          cls := "flex h-14 items-center gap-3 px-4",
-          a(
-            href := "/",
-            cls := "flex items-center gap-2 text-sm font-semibold",
-            span(cls := "[&_svg]:size-4", foreignHtmlElement(logoEl)),
-            "shadcn-scalajs"
-          ),
-          navTag(
-            cls := "hidden items-center gap-1 md:flex",
-            navGhost("/", "Home"),
-            navGhost("/components", "Docs"),
-            navGhostActive(s"/components/$componentName", "Components"),
-            navGhost("/blocks", "Blocks"),
-            navGhost("/create", "Create")
-          ),
-          div(
-            cls := "ml-auto flex items-center gap-2",
-            ThemeMenu()
-          )
-        )
-      ),
+      SiteChrome.header(nav = Some(SiteChrome.docsNav(componentName))),
       div(
         cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
         asideTag(
@@ -1938,7 +1848,22 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                 else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
               )
             ),
-            Card(cls := "mt-8 gap-0 overflow-hidden py-0", liveExample()),
+            Tabs(
+              cls := "mt-8 gap-4",
+              Tabs.list(
+                Tabs.ListVariant.Default,
+                docsTabTrigger(exampleTab, "preview", "Preview"),
+                docsTabTrigger(exampleTab, "code", "Code")
+              ),
+              Tabs.content(
+                display <-- exampleTab.signal.map(v => if v == "preview" then "block" else "none"),
+                Card(cls := "gap-0 overflow-hidden py-0", liveExample())
+              ),
+              Tabs.content(
+                display <-- exampleTab.signal.map(v => if v == "code" then "block" else "none"),
+                codeBlock("scala", usageSource)
+              )
+            ),
             if componentName != "typography" then
               div(
                 idAttr := "installation",

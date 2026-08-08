@@ -2,16 +2,11 @@ package shadcnscalajs.site.create
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
-import shadcnscalajs.site.{Main, ThemeConfig}
+import shadcnscalajs.site.{Main, SiteChrome, ThemeConfig}
 import shadcnscalajs.ui.*
 
 /** Create-page shell: site header, designer main, preview frame slot, and customizer column. */
 object CreateShell:
-
-  private val iconSearchSvg =
-    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>"""
-
-  private lazy val kbdEl = htmlTag("kbd")
 
   def apply(state: CreateState, customizer: HtmlElement): HtmlElement =
     div(
@@ -30,67 +25,22 @@ object CreateShell:
     )
 
   private def siteHeader(state: CreateState): HtmlElement =
-    headerTag(
-      cls := "bg-background sticky inset-x-0 top-0 isolate z-30 flex shrink-0 items-center gap-2",
-      div(
-        cls := "flex h-14 w-full items-center justify-between gap-2 px-4",
-        div(
-          cls := "flex min-w-0 items-center gap-1",
-          a(
-            href := "/",
-            cls := Main.btnGhost,
-            aria.label := "shadcn-scalajs home",
-            span(cls := "[&_svg]:size-4", foreignHtmlElement(Main.logoEl)),
-            span(cls := "truncate font-semibold", "shadcn-scalajs")
-          ),
-          navTag(
-            cls := "hidden sm:flex items-center gap-1",
-            aria.label := "Primary",
-            a(cls := Main.btnGhost, href := "/components", "Components"),
-            a(cls := Main.btnGhost, href := "/blocks", "Blocks"),
-            a(cls := Main.btnGhost, href := "/create", "Create"),
-            a(
-              cls := Main.btnGhost,
-              href := "https://github.com/lamtanloc512/shadcn-scalajs",
-              target := "_blank",
-              rel := "noopener",
-              "GitHub"
-            )
-          )
-        ),
-        div(
-          cls := "ml-auto flex min-w-0 flex-1 items-center justify-end gap-2",
-          div(
-            cls := "hidden sm:flex h-8 w-full min-w-0 max-w-72 cursor-text items-center rounded-md border border-input bg-background px-3 text-sm sm:ml-auto",
-            role := "button",
-            tabIndex := 0,
-            aria.label := "Search docs",
-            input(
-              typ := "text",
-              placeholder := "Search...",
-              readOnly := true,
-              tabIndex := -1,
-              cls := "bg-transparent outline-none flex-1"
-            ),
-            span(aria.hidden := true, Main.rawIcon(iconSearchSvg)),
-            span(
-              aria.hidden := true,
-              kbdEl(
-                cls := "pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground hidden sm:flex",
-                "⌘K"
-              )
-            )
-          ),
-          // No style-pack select here: the customizer column owns that control on this page, and a
-          // second one would be a competing source of truth for the same preset field.
-          button(
-            typ := "button",
-            cls := s"${Main.btnIcon} hidden sm:inline-flex",
-            aria.label := "Toggle dark mode",
-            onClick --> { _ => state.toggleDark() },
-            span(cls := "hidden dark:block", Main.rawIcon(Main.iconSun)),
-            span(cls := "block dark:hidden", Main.rawIcon(Main.iconMoon))
-          )
+    // No ThemeMenu / style-pack select here: the customizer column owns theme controls on this page.
+    SiteChrome.header(
+      active = SiteChrome.Active.Create,
+      includeSearch = true,
+      includeGitHub = true,
+      showHome = false,
+      bordered = false,
+      trailing = Seq(
+        Button(
+          Button.ButtonApi.variant(Button.Variant.Ghost),
+          Button.ButtonApi.size(Button.Size.Icon),
+          cls := "hidden sm:inline-flex",
+          aria.label := "Toggle dark mode",
+          onClick --> { _ => state.toggleDark() },
+          span(cls := "hidden dark:block", Main.rawIcon(Main.iconSun)),
+          span(cls := "block dark:hidden", Main.rawIcon(Main.iconMoon))
         )
       )
     )

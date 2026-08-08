@@ -13,7 +13,7 @@
 
 - **shadcn-svelte fidelity Wave 4 (complete)** (spec `docs/superpowers/specs/2026-08-08-shadcn-svelte-fidelity-design.md`). Select listbox, Command filter engine + Combobox-on-Popover, Carousel.Ctx slide engine, InputOTP single hidden input, Dialog.element exit animations + focus restore + AlertDialog no-outside-dismiss, Pagination.stateful + ellipsis strip, Form.Ctx validation (`noValidate`). Drawer gets `data-vaul-drawer-direction` + side classes (not full vaul swipe).
 
-- **shadcn-svelte fidelity Wave 5 (minimal, complete)** — keep current design; compose docs chrome from own components in `Main.scala`: `Button.anchor` nav, landing `InputGroup`+`Kbd` search, `ScrollArea` docs sidebar, `Card` preview/code blocks, `Command.input` via `InputGroup`. Deferred: CreateShell/BlocksLayout header unification, Preview|Code Tabs, shadcn-svelte docs redesign.
+- **shadcn-svelte fidelity Wave 5 (minimal, complete)** — keep current design; compose docs chrome from own components in `Main.scala`: `Button.anchor` nav, landing `InputGroup`+`Kbd` search, `ScrollArea` docs sidebar, `Card` preview/code blocks, `Command.input` via `InputGroup`. Headers unified via `SiteChrome`; Preview|Code `Tabs` on component docs + block docs. Deferred: shadcn-svelte docs redesign.
 
 ## Known residual deltas vs the reference (Task 30)
 
@@ -40,12 +40,10 @@ Structural comparison was against `.svelte` sources (live shadcn-svelte docs ser
 
 - **Switcher “02” mosaic** — deferred from preview-02 fidelity; port separate `examples/create/preview/` mosaic when scheduled (01 active; 02 “coming soon”).
 - **3xl mosaic gap follow-up** — see residual delta #7 above.
-- **CreateShell / BlocksLayout headers** — still use `Main.btnGhost` class strings; swap to `Button.anchor` when unifying the four headers.
 - **`Button.apply` has no default variant/size**, unlike upstream's cva `defaultVariants: {variant: "default", size: "default"}`. A bare `Button("Save")` renders 20px tall, transparent, zero padding — every call site must use `Button.of(_.variant(...), _.size(...))`. Found by screenshot during the block ports — computed-style checks on the *card* missed it. Giving `apply` the defaults would fix every bare call at once but changes 60 previews: do it as its own change with a browser pass.
 - **Sidebar rebuild sub-project** — prerequisite for `sidebar-01`; see the blocks spec's non-goals for the 19-vs-726-line gap.
 - Generate `Blocks.all`/`Blocks.render` from the `modules/blocks` sidecars; they are hand-maintained and can drift.
 - `dashboard-01`, plus variants `-02`…`-05` per block category. Preview-tab viewport width toggles.
-- `BlocksLayout` is a **fourth** duplicated header. The docs-site IA redesign spec should unify all four; the block pages also lack the style-pack `<select>` the other three headers have.
 - **The other 59 components very likely have Alert's exact bug.** Alert was audited only because it was asked about; the same hybrid (v3-era or incomplete utilities + structure shaped around basecoat selectors) is the default expectation, not the exception. Audit each against `/Users/elam/Projects/ui/apps/v4/registry/new-york-v4/ui/*.tsx` before sub-project 3 deletes basecoat, or components will break silently at deletion time.
 - `.cn-alert-action` / `has-data-[slot=alert-action]:pr-18` in `shadcn-presets.generated.css` is unreachable — upstream's `bases/*/ui/alert.tsx` has an `AlertAction` part that `modules/ui` doesn't. Deliberately skipped: new-york-v4 has no `AlertAction`, so there is no utility fallback to write for CLI consumers, and inventing one would be a fidelity guess.
 - `ScAlert` couldn't be browser-verified — Shadow DOM still gets no CSS (`ScElementBase.styleSheetText` is `None`), so every `Sc*` wrapper is unstyled until `sc-components.css` is wired. Compile + `fastLinkJS` only.

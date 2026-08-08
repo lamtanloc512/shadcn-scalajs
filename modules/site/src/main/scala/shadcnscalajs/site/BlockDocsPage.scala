@@ -2,6 +2,7 @@ package shadcnscalajs.site
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
+import shadcnscalajs.ui.*
 
 import scala.scalajs.js
 import scala.scalajs.js.JSON
@@ -14,67 +15,73 @@ object BlockDocsPage:
   def apply(name: String): HtmlElement =
     val meta = Blocks.find(name)
     val files = Var(List.empty[SourceFile])
-    val showCode = Var(false)
+    val selectedTab = Var("preview")
     val iframeKey = Var(0)
 
     fetchFiles(name, files)
+
+    val previewPanel =
+      div(
+        cls := "overflow-hidden rounded-lg border",
+        child <-- iframeKey.signal.map { key =>
+          iframe(
+            cls := "h-[640px] w-full bg-background",
+            title := s"$name preview",
+            src := s"/blocks/$name/preview?r=$key"
+          )
+        }
+      )
+
+    val codePanel =
+      div(
+        cls := "flex flex-col gap-4",
+        children <-- files.signal.map(_.map { f =>
+          div(
+            cls := "overflow-hidden rounded-lg border",
+            div(cls := "border-b bg-muted px-4 py-2 font-mono text-xs text-muted-foreground", f.target),
+            pre(cls := "overflow-x-auto p-4 text-sm", code(f.content))
+          )
+        })
+      )
 
     BlocksLayout(
       div(
         cls := "mx-auto w-full max-w-5xl px-6 py-12",
         h1(cls := "text-3xl font-semibold tracking-tight", meta.map(_.title).getOrElse(name)),
         p(cls := "mt-2 text-base text-muted-foreground", meta.map(_.description).getOrElse("")),
-        div(
-          cls := "mt-6 flex items-center gap-2",
-          button(
-            typ := "button",
-            cls := "inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium",
-            cls("bg-accent text-accent-foreground") <-- showCode.signal.map(!_),
-            onClick --> { _ => showCode.set(false) },
-            "Preview"
+        Tabs(
+          cls := "mt-6 gap-4",
+          div(
+            cls := "flex flex-wrap items-center gap-2",
+            Tabs.list(
+              Tabs.ListVariant.Default,
+              tabTrigger(selectedTab, "preview", "Preview"),
+              tabTrigger(selectedTab, "code", "Code")
+            ),
+            Button(
+              Button.ButtonApi.variant(Button.Variant.Outline),
+              Button.ButtonApi.size(Button.Size.Sm),
+              cls := "ml-auto",
+              onClick --> { _ => iframeKey.update(_ + 1) },
+              "Refresh"
+            ),
+            Button.anchor(
+              s"/blocks/$name/preview",
+              Button.ButtonApi.variant(Button.Variant.Outline),
+              Button.ButtonApi.size(Button.Size.Sm),
+              target := "_blank",
+              rel := "noopener",
+              "Open in New Tab"
+            )
           ),
-          button(
-            typ := "button",
-            cls := "inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium",
-            cls("bg-accent text-accent-foreground") <-- showCode.signal,
-            onClick --> { _ => showCode.set(true) },
-            "Code"
+          Tabs.content(
+            display <-- selectedTab.signal.map(v => if v == "preview" then "block" else "none"),
+            previewPanel
           ),
-          button(
-            typ := "button",
-            cls := "ml-auto inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium",
-            onClick --> { _ => iframeKey.update(_ + 1) },
-            "Refresh"
-          ),
-          a(
-            href := s"/blocks/$name/preview",
-            target := "_blank",
-            rel := "noopener",
-            cls := "inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium",
-            "Open in New Tab"
+          Tabs.content(
+            display <-- selectedTab.signal.map(v => if v == "code" then "block" else "none"),
+            codePanel
           )
-        ),
-        div(
-          cls := "mt-4 overflow-hidden rounded-lg border",
-          cls("hidden") <-- showCode.signal,
-          child <-- iframeKey.signal.map { key =>
-            iframe(
-              cls := "h-[640px] w-full bg-background",
-              title := s"$name preview",
-              src := s"/blocks/$name/preview?r=$key"
-            )
-          }
-        ),
-        div(
-          cls := "mt-4 flex flex-col gap-4",
-          cls("hidden") <-- showCode.signal.map(!_),
-          children <-- files.signal.map(_.map { f =>
-            div(
-              cls := "overflow-hidden rounded-lg border",
-              div(cls := "border-b bg-muted px-4 py-2 font-mono text-xs text-muted-foreground", f.target),
-              pre(cls := "overflow-x-auto p-4 text-sm", code(f.content))
-            )
-          })
         ),
         div(
           cls := "mt-10",
@@ -85,6 +92,21 @@ object BlockDocsPage:
           )
         )
       )
+    )
+
+  private def tabTrigger(selected: Var[String], value: String, label: String): HtmlElement =
+    Tabs.trigger(
+      dataAttr("value") := value,
+      tabIndex <-- selected.signal.map(v => if v == value then 0 else -1),
+      inContext { thisNode =>
+        selected.signal --> { v =>
+          if v == value then thisNode.ref.setAttribute("data-active", "true")
+          else thisNode.ref.removeAttribute("data-active")
+        }
+      },
+      aria.selected <-- selected.signal.map(_ == value),
+      onClick --> { _ => selected.set(value) },
+      label
     )
 
   private def fetchFiles(name: String, into: Var[List[SourceFile]]): Unit =
