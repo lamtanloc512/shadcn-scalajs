@@ -72,9 +72,10 @@ object DatePicker:
           }
         )
       ),
+      // `!` because packs set padding on `.cn-popover-content` from an unlayered rule; the calendar must sit flush.
       Popover.content(
-        dataAttr("slot") := "popover-content",
-        cls := "w-auto p-0",
+        Floating.Placement(align = Floating.Align.Start),
+        "w-auto p-0!",
         Calendar(selected)
       )
     )
@@ -106,8 +107,8 @@ object DatePicker:
         )
       ),
       Popover.content(
-        dataAttr("slot") := "popover-content",
-        cls := "w-auto p-0",
+        Floating.Placement(align = Floating.Align.Start),
+        "w-auto p-0!",
         RangeCalendar(selected, isDisabled)
       )
     )

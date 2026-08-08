@@ -41,7 +41,15 @@ class ScBreadcrumb extends SlotPrimitive(Breadcrumb(slotTag()))
 class ScButtonGroup extends SlotPrimitive(ButtonGroup(slotTag()))
 class ScCard extends SlotPrimitive(Card(slotTag()))
 class ScCheckbox extends SlotPrimitive(Checkbox(slotTag()))
-class ScCollapsible extends SlotPrimitive(Collapsible(slotTag()))
+
+/** Two-part components take named slots: `<sc-collapsible><span slot="trigger">…</span><div slot="content">…</div>`. */
+class ScCollapsible
+    extends SlotPrimitive(
+      Collapsible(
+        Collapsible.trigger(slotTag(nameAttr := "trigger")),
+        Collapsible.content(slotTag(nameAttr := "content"))
+      )
+    )
 class ScCommand extends SlotPrimitive(Command(slotTag()))
 class ScChart extends SlotPrimitive(Chart(slotTag()))
 class ScEmpty extends SlotPrimitive(Empty(slotTag()))
@@ -53,7 +61,13 @@ class ScItem extends SlotPrimitive(Item(slotTag()))
 class ScKbd extends SlotPrimitive(Kbd(slotTag()))
 class ScLabel extends SlotPrimitive(Label(slotTag()))
 class ScNativeSelect extends SlotPrimitive(NativeSelect(slotTag()))
-class ScPopover extends SlotPrimitive(Popover(slotTag()))
+class ScPopover
+    extends SlotPrimitive(
+      Popover(
+        Popover.trigger(slotTag(nameAttr := "trigger")),
+        Popover.content(slotTag(nameAttr := "content"))
+      )
+    )
 class ScProgress extends SlotPrimitive(Progress(0, slotTag()))
 class ScRadio extends SlotPrimitive(Radio("", slotTag()))
 class ScRange extends SlotPrimitive(Range(slotTag()))

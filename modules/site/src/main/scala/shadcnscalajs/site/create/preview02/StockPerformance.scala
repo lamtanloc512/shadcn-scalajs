@@ -68,8 +68,8 @@ object StockPerformance:
       ChartData.getOrElse(ticker, DefaultData)
 
     def commandPanel: HtmlElement =
-      Popover.content(
-        cls := "w-full p-0",
+      Popover.panel(
+        cls := "w-full p-0!",
         Command(
           Command.input(
             placeholder := "Search ticker...",

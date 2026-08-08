@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Progress:\n  def apply(value: Int = 0, mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"progressbar\",\n      aria.valueMin := 0d,\n      aria.valueMax := 100d,\n      aria.valueNow := value.toDouble,\n      cls := \"progress cn-progress relative h-2 w-full overflow-hidden rounded-full bg-primary/20\",\n      span(\n        cls := \"h-full w-full flex-1 bg-primary transition-all\",\n        styleAttr := s\"transform:translateX(-${100 - value}%)\"\n      ),\n      mods\n    )\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\nobject Progress:\n  def apply(value: Int = 0, mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      role := \"progressbar\",\n      aria.valueMin := 0d,\n      aria.valueMax := 100d,\n      aria.valueNow := value.toDouble,\n      dataAttr(\"slot\") := \"progress\",\n      cls := \"progress cn-progress relative h-2 w-full overflow-hidden rounded-full bg-primary/20\",\n      span(\n        dataAttr(\"slot\") := \"progress-indicator\",\n        cls := \"cn-progress-indicator h-full w-full flex-1 bg-primary transition-all\",\n        styleAttr := s\"transform:translateX(-${100 - value}%)\"\n      ),\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Progress.scala"
     }

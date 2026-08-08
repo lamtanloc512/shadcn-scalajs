@@ -7,7 +7,7 @@
   "scalaDependencies": [],
   "files": [
     {
-      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Separator — a plain `role=separator` div, styled per orientation. Pure CSS/no-JS tier. */\nobject Separator:\n\n  enum Orientation derives CanEqual:\n    case Horizontal, Vertical\n\n  def apply(orientation: Orientation = Orientation.Horizontal, mods: Modifier[HtmlElement]*): HtmlElement =\n    val sizeClasses =\n      if orientation == Orientation.Horizontal then \"h-px w-full\" else \"h-full w-px\"\n    div(\n      role := \"separator\",\n      dataAttr(\"orientation\") := orientation.toString.toLowerCase,\n      cls := s\"shrink-0 bg-border $sizeClasses\",\n      mods\n    )\n",
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Separator — a plain `role=separator` div, styled per orientation. Pure CSS/no-JS tier. */\nobject Separator:\n\n  enum Orientation derives CanEqual:\n    case Horizontal, Vertical\n\n  def apply(orientation: Orientation = Orientation.Horizontal, mods: Modifier[HtmlElement]*): HtmlElement =\n    val sizeClasses =\n      if orientation == Orientation.Horizontal then \"h-px w-full\" else \"h-full w-px\"\n    div(\n      role := \"separator\",\n      dataAttr(\"slot\") := \"separator\",\n      dataAttr(\"orientation\") := orientation.toString.toLowerCase,\n      cls := s\"cn-separator shrink-0 bg-border $sizeClasses\",\n      mods\n    )\n",
       "type": "scala:ui",
       "target": "ui/Separator.scala"
     }
