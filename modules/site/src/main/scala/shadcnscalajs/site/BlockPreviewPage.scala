@@ -8,8 +8,15 @@ import com.raquo.laminar.api.L.*
 object BlockPreviewPage:
 
   def apply(name: String): HtmlElement =
-    Blocks
-      .render(name)
-      .getOrElse(
-        div(cls := "flex min-h-svh items-center justify-center text-sm text-muted-foreground", s"Unknown block: $name")
-      )
+    div(
+      cls := "contents",
+      onMountCallback(_ => ThemeConfig.applyToDocument(ThemeConfig.load())),
+      Blocks
+        .render(name)
+        .getOrElse(
+          div(
+            cls := "flex min-h-svh items-center justify-center text-sm text-muted-foreground",
+            s"Unknown block: $name"
+          )
+        )
+    )

@@ -25,9 +25,11 @@ object Icons:
     "arrow-left-right",
     "arrow-right",
     "audio-lines",
+    "badge-check",
     "bell",
     "book-open",
     "bookmark",
+    "bot",
     "building-2",
     "calendar",
     "camera",
@@ -40,18 +42,25 @@ object Icons:
     "circle-plus",
     "cloud",
     "coffee",
+    "command",
     "copy",
     "credit-card",
     "dice-faces",
     "file-bar-chart",
     "file-text",
+    "folder",
+    "forward",
+    "frame",
     "gauge",
+    "gallery-vertical-end",
     "globe",
     "heart",
     "image",
     "layout-dashboard",
     "lock",
     "lock-keyhole",
+    "log-out",
+    "map",
     "maximize",
     "menu",
     "message-square",
@@ -65,8 +74,10 @@ object Icons:
     "refresh-cw",
     "repeat",
     "search",
+    "settings-2",
     "shield",
     "shopping-cart",
+    "sparkles",
     "square-lock",
     "square-terminal",
     "square-unlock",
@@ -75,6 +86,7 @@ object Icons:
     "target",
     "thermometer",
     "timer",
+    "trash-2",
     "trending-up",
     "tv",
     "undo",
@@ -158,9 +170,11 @@ object Icons:
   def arrowLeftRight(mods: Modifier[SvgElement]*): SvgElement = icon("arrow-left-right")(mods*)
   def arrowRight(mods: Modifier[SvgElement]*): SvgElement = icon("arrow-right")(mods*)
   def audioLines(mods: Modifier[SvgElement]*): SvgElement = icon("audio-lines")(mods*)
+  def badgeCheck(mods: Modifier[SvgElement]*): SvgElement = icon("badge-check")(mods*)
   def bell(mods: Modifier[SvgElement]*): SvgElement = icon("bell")(mods*)
   def bookOpen(mods: Modifier[SvgElement]*): SvgElement = icon("book-open")(mods*)
   def bookmark(mods: Modifier[SvgElement]*): SvgElement = icon("bookmark")(mods*)
+  def bot(mods: Modifier[SvgElement]*): SvgElement = icon("bot")(mods*)
   def building2(mods: Modifier[SvgElement]*): SvgElement = icon("building-2")(mods*)
   def calendar(mods: Modifier[SvgElement]*): SvgElement = icon("calendar")(mods*)
   def camera(mods: Modifier[SvgElement]*): SvgElement = icon("camera")(mods*)
@@ -173,18 +187,25 @@ object Icons:
   def circlePlus(mods: Modifier[SvgElement]*): SvgElement = icon("circle-plus")(mods*)
   def cloud(mods: Modifier[SvgElement]*): SvgElement = icon("cloud")(mods*)
   def coffee(mods: Modifier[SvgElement]*): SvgElement = icon("coffee")(mods*)
+  def command(mods: Modifier[SvgElement]*): SvgElement = icon("command")(mods*)
   def copy(mods: Modifier[SvgElement]*): SvgElement = icon("copy")(mods*)
   def creditCard(mods: Modifier[SvgElement]*): SvgElement = icon("credit-card")(mods*)
   def diceFaces(mods: Modifier[SvgElement]*): SvgElement = icon("dice-faces")(mods*)
   def fileBarChart(mods: Modifier[SvgElement]*): SvgElement = icon("file-bar-chart")(mods*)
   def fileText(mods: Modifier[SvgElement]*): SvgElement = icon("file-text")(mods*)
+  def folder(mods: Modifier[SvgElement]*): SvgElement = icon("folder")(mods*)
+  def forward(mods: Modifier[SvgElement]*): SvgElement = icon("forward")(mods*)
+  def frame(mods: Modifier[SvgElement]*): SvgElement = icon("frame")(mods*)
   def gauge(mods: Modifier[SvgElement]*): SvgElement = icon("gauge")(mods*)
+  def galleryVerticalEnd(mods: Modifier[SvgElement]*): SvgElement = icon("gallery-vertical-end")(mods*)
   def globe(mods: Modifier[SvgElement]*): SvgElement = icon("globe")(mods*)
   def heart(mods: Modifier[SvgElement]*): SvgElement = icon("heart")(mods*)
   def image(mods: Modifier[SvgElement]*): SvgElement = icon("image")(mods*)
   def layoutDashboard(mods: Modifier[SvgElement]*): SvgElement = icon("layout-dashboard")(mods*)
   def lock(mods: Modifier[SvgElement]*): SvgElement = icon("lock")(mods*)
   def lockKeyhole(mods: Modifier[SvgElement]*): SvgElement = icon("lock-keyhole")(mods*)
+  def logOut(mods: Modifier[SvgElement]*): SvgElement = icon("log-out")(mods*)
+  def map(mods: Modifier[SvgElement]*): SvgElement = icon("map")(mods*)
   def maximize(mods: Modifier[SvgElement]*): SvgElement = icon("maximize")(mods*)
   def menu(mods: Modifier[SvgElement]*): SvgElement = icon("menu")(mods*)
   def messageSquare(mods: Modifier[SvgElement]*): SvgElement = icon("message-square")(mods*)
@@ -198,8 +219,10 @@ object Icons:
   def refreshCw(mods: Modifier[SvgElement]*): SvgElement = icon("refresh-cw")(mods*)
   def repeat(mods: Modifier[SvgElement]*): SvgElement = icon("repeat")(mods*)
   def search(mods: Modifier[SvgElement]*): SvgElement = icon("search")(mods*)
+  def settings2(mods: Modifier[SvgElement]*): SvgElement = icon("settings-2")(mods*)
   def shield(mods: Modifier[SvgElement]*): SvgElement = icon("shield")(mods*)
   def shoppingCart(mods: Modifier[SvgElement]*): SvgElement = icon("shopping-cart")(mods*)
+  def sparkles(mods: Modifier[SvgElement]*): SvgElement = icon("sparkles")(mods*)
   def squareLock(mods: Modifier[SvgElement]*): SvgElement = icon("square-lock")(mods*)
   def squareTerminal(mods: Modifier[SvgElement]*): SvgElement = icon("square-terminal")(mods*)
   def squareUnlock(mods: Modifier[SvgElement]*): SvgElement = icon("square-unlock")(mods*)
@@ -208,6 +231,7 @@ object Icons:
   def target(mods: Modifier[SvgElement]*): SvgElement = icon("target")(mods*)
   def thermometer(mods: Modifier[SvgElement]*): SvgElement = icon("thermometer")(mods*)
   def timer(mods: Modifier[SvgElement]*): SvgElement = icon("timer")(mods*)
+  def trash2(mods: Modifier[SvgElement]*): SvgElement = icon("trash-2")(mods*)
   def trendingUp(mods: Modifier[SvgElement]*): SvgElement = icon("trending-up")(mods*)
   def tv(mods: Modifier[SvgElement]*): SvgElement = icon("tv")(mods*)
   def undo(mods: Modifier[SvgElement]*): SvgElement = icon("undo")(mods*)

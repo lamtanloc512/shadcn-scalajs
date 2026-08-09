@@ -63,12 +63,20 @@ object DropdownMenu:
     * overload is named rather than added to `items` because the styling is itself a `Modifier`, which would make the
     * two forms ambiguous.
     */
-  def itemsWithTrigger(triggerStyle: Modifier[HtmlElement], align: Align = Align.Start)(
+  /** `wrapperStyle` reaches the `inline-flex` element wrapping the trigger. That element shrink-wraps by default, so a
+    * trigger asked to fill its row (`w-full`) still only fills the shrunken wrapper; pass `cls := "w-full"` here to
+    * stretch it.
+    */
+  def itemsWithTrigger(
+      triggerStyle: Modifier[HtmlElement],
+      align: Align = Align.Start,
+      wrapperStyle: Modifier[HtmlElement] = emptyMod
+  )(
       trigger: Modifier[HtmlElement]*
   )(
       build: Menu.Ctx => Seq[Modifier[HtmlElement]]
   ): HtmlElement =
-    render(triggerStyle, align, trigger, build)
+    render(triggerStyle, align, trigger, build, wrapperStyle)
 
   def apply(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
     render(outlineTrigger, Align.Start, trigger, adapt(items))
@@ -103,7 +111,8 @@ object DropdownMenu:
       triggerStyle: Modifier[HtmlElement],
       align: Align,
       trigger: Seq[Modifier[HtmlElement]],
-      build: Menu.Ctx => Seq[Modifier[HtmlElement]]
+      build: Menu.Ctx => Seq[Modifier[HtmlElement]],
+      wrapperStyle: Modifier[HtmlElement] = emptyMod
   ): HtmlElement =
     val anchor = Floating.anchor()
     val ctx = Menu.Ctx(anchor, slotPrefix)
@@ -111,6 +120,7 @@ object DropdownMenu:
     div(
       dataAttr("slot") := "dropdown-menu",
       cls := "dropdown-menu inline-flex",
+      wrapperStyle,
       button(
         typ := "button",
         dataAttr("slot") := "dropdown-menu-trigger",

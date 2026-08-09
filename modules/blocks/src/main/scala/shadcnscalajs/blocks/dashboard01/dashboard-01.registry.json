@@ -2,11 +2,40 @@
   "name": "dashboard-01",
   "title": "Dashboard 01",
   "type": "scala:block",
-  "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
+  "description": "A dashboard with sidebar, charts and data table. (Column drag-reorder omitted — no DnD in ui.DataTable.)",
   "categories": ["dashboard", "analytics"],
-  "registryDependencies": ["card", "table", "progress", "chart", "badge", "field", "button", "input", "icons"],
+  "registryDependencies": [
+    "sidebar",
+    "separator",
+    "card",
+    "badge",
+    "button",
+    "avatar",
+    "dropdown-menu",
+    "icons",
+    "chart",
+    "toggle-group",
+    "select",
+    "table",
+    "checkbox",
+    "sheet",
+    "label",
+    "tabs",
+    "input"
+  ],
   "scalaDependencies": [],
   "files": [
-    { "path": "dashboard01/Dashboard01.scala", "type": "scala:page" }
+    { "path": "dashboard01/Dashboard01.scala", "type": "scala:page" },
+    { "path": "dashboard01/AppSidebar.scala", "type": "scala:component" },
+    { "path": "dashboard01/NavMain.scala", "type": "scala:component" },
+    { "path": "dashboard01/NavSecondary.scala", "type": "scala:component" },
+    { "path": "dashboard01/NavDocuments.scala", "type": "scala:component" },
+    { "path": "dashboard01/NavUser.scala", "type": "scala:component" },
+    { "path": "dashboard01/SiteHeader.scala", "type": "scala:component" },
+    { "path": "dashboard01/SectionCards.scala", "type": "scala:component" },
+    { "path": "dashboard01/ChartAreaInteractive.scala", "type": "scala:component" },
+    { "path": "dashboard01/data.scala", "type": "scala:component" },
+    { "path": "dashboard01/DataTable.scala", "type": "scala:component" },
+    { "path": "dashboard01/DataTableCellViewer.scala", "type": "scala:component" }
   ]
 }

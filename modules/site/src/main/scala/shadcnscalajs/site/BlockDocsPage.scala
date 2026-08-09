@@ -17,17 +17,68 @@ object BlockDocsPage:
     val files = Var(List.empty[SourceFile])
     val selectedTab = Var("preview")
     val iframeKey = Var(0)
+    val iframeRef = Var(Option.empty[dom.html.IFrame])
+    var themeObserver = Option.empty[dom.MutationObserver]
+    val themeAttributes = List(
+      "data-style-pack",
+      "data-base-color",
+      "data-theme-color",
+      "data-chart-color",
+      "data-heading-font",
+      "data-body-font",
+      "data-icon-library",
+      "data-radius",
+      "data-menu-color",
+      "data-menu-accent"
+    )
+
+    def syncIframeTheme(): Unit =
+      iframeRef.now().foreach { iframe =>
+        val doc = iframe.contentDocument
+        if doc != null then
+          ThemeConfig.applyToDocument(ThemeConfig.load(), doc)
+          val source = dom.document.documentElement
+          val target = doc.documentElement
+          themeAttributes.foreach { attr =>
+            Option(source.getAttribute(attr)).fold(target.removeAttribute(attr))(target.setAttribute(attr, _))
+          }
+          if source.classList.contains("dark") then target.classList.add("dark") else target.classList.remove("dark")
+      }
 
     fetchFiles(name, files)
 
     val previewPanel =
       div(
         cls := "overflow-hidden rounded-lg border",
+        onMountUnmountCallback(
+          mount = _ =>
+            val observer = new dom.MutationObserver((_, _) => syncIframeTheme())
+            observer.observe(
+              dom.document.documentElement,
+              new dom.MutationObserverInit {
+                attributes = true
+              }
+            )
+            themeObserver = Some(observer)
+          ,
+          unmount = _ =>
+            themeObserver.foreach(_.disconnect())
+            themeObserver = None
+            iframeRef.set(None)
+        ),
         child <-- iframeKey.signal.map { key =>
           iframe(
             cls := "h-[640px] w-full bg-background",
             title := s"$name preview",
-            src := s"/blocks/$name/preview?r=$key"
+            src := s"/blocks/$name/preview?r=$key",
+            onMountCallback { ctx =>
+              iframeRef.set(Some(ctx.thisNode.ref.asInstanceOf[dom.html.IFrame]))
+              syncIframeTheme()
+            },
+            onLoad --> { ev =>
+              iframeRef.set(Some(ev.target.asInstanceOf[dom.html.IFrame]))
+              syncIframeTheme()
+            }
           )
         }
       )

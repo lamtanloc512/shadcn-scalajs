@@ -62,6 +62,16 @@ object Chart:
       fillOpacity: Double = 0.25
   )
 
+  /** Two area series sharing one scale, with the second stacked above the first. */
+  final case class StackedAreaStyle(
+      lowerColor: String = "var(--chart-2)",
+      upperColor: String = "var(--chart-1)",
+      showLabels: Boolean = true,
+      labelEvery: Int = 1,
+      labelFormat: String => String = identity,
+      fillOpacity: Double = 0.4
+  )
+
   /** Donut chart options. */
   final case class DonutStyle(
       colors: List[String] = List("var(--chart-2)", "var(--chart-1)"),
@@ -81,6 +91,15 @@ object Chart:
     val (hover, style, svgMods) = parseAreaMods(mods*)
     renderArea(series, hover, style, svgMods)
 
+  /** Stacked area chart. Each point is `(label, lowerAmount, upperAmount)`. */
+  def stackedArea(
+      series: List[(String, Double, Double)],
+      hover: HoverVar,
+      style: StackedAreaStyle,
+      mods: Modifier[HtmlElement]*
+  ): HtmlElement =
+    renderStackedArea(series, hover, style, mods.toList)
+
   /** Donut / pie arcs. */
   def donut(slices: List[(String, Double)], mods: (Modifier[SvgElement] | HoverVar | DonutStyle)*): SvgElement =
     val (hover, style, svgMods) = parseDonutMods(mods*)
@@ -94,21 +113,35 @@ object Chart:
       indicator: TooltipIndicator = TooltipIndicator.Dot,
       mods: Modifier[HtmlElement]*
   ): HtmlElement =
-    val hoverSignal = hover match
+    // `distinct` matters here: the chart re-publishes the hovered point on every `mousemove`, but the point only
+    // changes when the cursor crosses into the next column. Without it, the tooltip's whole subtree is rebuilt on
+    // every event.
+    val hoverSignal = (hover match
       case h: HoverVar  => h.signal
       case s: Signal[?] => s.asInstanceOf[Signal[Option[Point]]]
+    ).distinct
 
     val cursorVar = Var((0.0, 0.0))
+    var pendingCursor = (0.0, 0.0)
+    var cursorFrame = 0
     div(
-      cls := "pointer-events-none fixed z-50 grid min-w-[9rem] -translate-x-1/2 translate-y-2 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl transition-[left,top,opacity] duration-150 ease-out",
+      // `left`/`top` are deliberately NOT transitioned. They are rewritten on every pointer move, so any easing on
+      // them restarts each frame and the tooltip visibly trails the cursor instead of tracking it.
+      cls := "pointer-events-none fixed z-50 grid min-w-[9rem] -translate-x-1/2 translate-y-2 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
       display <-- hoverSignal.map(_.fold("none")(_ => "grid")),
       // Individual style props, never `styleAttr`: writing the whole style attribute on every
       // mousemove erases the `display` above, leaving an empty tooltip trailing the cursor.
       left <-- cursorVar.signal.map((x, _) => s"${x}px"),
       top <-- cursorVar.signal.map((_, y) => s"${y}px"),
       onMountBind { _ =>
+        // Pointer moves outpace paint; coalescing to one position write per frame drops the redundant reflows.
         documentEvents(_.onMouseMove) --> { (ev: dom.MouseEvent) =>
-          cursorVar.set((ev.clientX, ev.clientY))
+          pendingCursor = (ev.clientX, ev.clientY)
+          if cursorFrame == 0 then
+            cursorFrame = dom.window.requestAnimationFrame { _ =>
+              cursorFrame = 0
+              cursorVar.set(pendingCursor)
+            }
         }
       },
       child <-- hoverSignal.map {
@@ -187,6 +220,7 @@ object Chart:
 
       svgTag(
         svg.viewBox := s"0 0 $width $height",
+        svg.preserveAspectRatio := "none",
         svg.cls := "size-full",
         svg.fill := "none",
         onMouseMove --> { (ev: dom.MouseEvent) =>
@@ -311,6 +345,88 @@ object Chart:
           }
         else emptyMod,
         svgMods
+      )
+
+  private def renderStackedArea(
+      series: List[(String, Double, Double)],
+      hover: HoverVar,
+      style: StackedAreaStyle,
+      htmlMods: List[Modifier[HtmlElement]]
+  ): HtmlElement =
+    if series.isEmpty then div(cls := "size-full", htmlMods)
+    else
+      val width = 800.0
+      val height = 250.0
+      val marginTop = 12.0
+      val marginBottom = 8.0
+      val marginX = 8.0
+      val plotW = width - marginX * 2
+      val plotH = height - marginTop - marginBottom
+      val maxVal = series.map((_, lower, upper) => lower + upper).maxOption.filter(_ > 0).getOrElse(1.0)
+      val n = series.length
+      val step = if n <= 1 then plotW else plotW / (n - 1)
+
+      def xAt(i: Int): Double = marginX + i * step
+      def yAt(amount: Double): Double = marginTop + plotH - (amount / maxVal) * plotH
+      def line(points: List[(Double, Double)]): String = naturalPath(points)
+      def reverseLine(points: List[(Double, Double)]): String =
+        naturalPath(points.reverse).replaceFirst("^M", "L")
+
+      val lowerPoints = series.zipWithIndex.map { case ((_, lower, _), i) => (xAt(i), yAt(lower)) }
+      val upperPoints = series.zipWithIndex.map { case ((_, lower, upper), i) => (xAt(i), yAt(lower + upper)) }
+      val baseline = marginTop + plotH
+      val lowerLine = line(lowerPoints)
+      val upperLine = line(upperPoints)
+      val lowerArea = s"$lowerLine L ${xAt(n - 1)} $baseline L ${xAt(0)} $baseline Z"
+      val upperArea = s"$upperLine ${reverseLine(lowerPoints)} Z"
+
+      val ticks = series.zipWithIndex.collect {
+        case ((pointLabel, _, _), i) if i % style.labelEvery.max(1) == 0 || i == n - 1 => (pointLabel, i)
+      }
+
+      div(
+        cls := "flex size-full flex-col",
+        svgTag(
+          svg.viewBox := s"0 0 $width $height",
+          svg.preserveAspectRatio := "none",
+          svg.cls := "w-full min-h-0 flex-1",
+          svg.fill := "none",
+          onMouseMove --> { (ev: dom.MouseEvent) =>
+            val rect = ev.currentTarget.asInstanceOf[dom.svg.SVG].getBoundingClientRect()
+            val relX = (ev.clientX - rect.left) / rect.width * width
+            val idx =
+              if n <= 1 then 0
+              else ((relX - marginX) / step).round.toInt.max(0).min(n - 1)
+            val (pointLabel, _, upperAmount) = series(idx)
+            hover.hoverVar.set(Some(Point(pointLabel, upperAmount, style.upperColor)))
+          },
+          onMouseLeave --> { _ => hover.hoverVar.set(None) },
+          svgPath(svg.d := lowerArea, svg.fill := style.lowerColor, svg.fillOpacity := style.fillOpacity.toString),
+          svgPath(svg.d := upperArea, svg.fill := style.upperColor, svg.fillOpacity := style.fillOpacity.toString),
+          svgPath(svg.d := lowerLine, svg.stroke := style.lowerColor, svg.strokeWidth := "1.5"),
+          svgPath(svg.d := upperLine, svg.stroke := style.upperColor, svg.strokeWidth := "1.5")
+        ),
+        // Labels live in HTML rather than in the SVG: `preserveAspectRatio="none"` stretches the viewBox to the
+        // container, which would squash the glyphs and clip the first and last tick at the edges.
+        if style.showLabels then
+          div(
+            cls := "relative mt-2 h-4 shrink-0 text-[10px] text-muted-foreground",
+            ticks.zipWithIndex.map { case ((pointLabel, i), tick) =>
+              val anchor =
+                if i == 0 then "translateX(0)"
+                else if i == n - 1 then "translateX(-100%)"
+                else "translateX(-50%)"
+              span(
+                cls := "absolute top-0 whitespace-nowrap",
+                // Thin out ticks on narrow containers so they never collide.
+                cls := (if tick % 2 == 1 then "hidden sm:inline-block" else ""),
+                styleAttr := s"left: ${xAt(i) / width * 100}%; transform: $anchor;",
+                style.labelFormat(pointLabel)
+              )
+            }
+          )
+        else emptyNode,
+        htmlMods
       )
 
   private def renderDonut(

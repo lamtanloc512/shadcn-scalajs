@@ -1,0 +1,13 @@
+{
+  "name": "sidebar-03",
+  "title": "Sidebar 03",
+  "type": "scala:block",
+  "description": "A sidebar with submenus.",
+  "categories": ["sidebar"],
+  "registryDependencies": ["sidebar", "breadcrumb", "separator", "icons"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "sidebar03/Sidebar03.scala", "type": "scala:page" },
+    { "path": "sidebar03/AppSidebar.scala", "type": "scala:component" }
+  ]
+}

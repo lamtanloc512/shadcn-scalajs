@@ -494,17 +494,25 @@
     "title": "Dashboard 01",
     "type": "scala:block",
     "registryDependencies": [
+      "sidebar",
+      "separator",
       "card",
-      "table",
-      "progress",
-      "chart",
       "badge",
-      "field",
       "button",
-      "input",
-      "icons"
+      "avatar",
+      "dropdown-menu",
+      "icons",
+      "chart",
+      "toggle-group",
+      "select",
+      "table",
+      "checkbox",
+      "sheet",
+      "label",
+      "tabs",
+      "input"
     ],
-    "description": "An analytics dashboard with activity chart, goal progress, and a transactions table.",
+    "description": "A dashboard with sidebar, charts and data table. (Column drag-reorder omitted — no DnD in ui.DataTable.)",
     "categories": [
       "dashboard",
       "analytics"
@@ -527,6 +535,41 @@
     ]
   },
   {
+    "name": "login-03",
+    "title": "Login 03",
+    "type": "scala:block",
+    "registryDependencies": [
+      "button",
+      "card",
+      "input",
+      "field",
+      "separator",
+      "icons"
+    ],
+    "description": "A login page with a muted background and brand header.",
+    "categories": [
+      "authentication",
+      "login"
+    ]
+  },
+  {
+    "name": "login-04",
+    "title": "Login 04",
+    "type": "scala:block",
+    "registryDependencies": [
+      "button",
+      "card",
+      "input",
+      "field",
+      "separator"
+    ],
+    "description": "A login page with form and image.",
+    "categories": [
+      "authentication",
+      "login"
+    ]
+  },
+  {
     "name": "otp-01",
     "title": "OTP 01",
     "type": "scala:block",
@@ -540,6 +583,38 @@
     "categories": [
       "authentication",
       "otp"
+    ]
+  },
+  {
+    "name": "sidebar-03",
+    "title": "Sidebar 03",
+    "type": "scala:block",
+    "registryDependencies": [
+      "sidebar",
+      "breadcrumb",
+      "separator",
+      "icons"
+    ],
+    "description": "A sidebar with submenus.",
+    "categories": [
+      "sidebar"
+    ]
+  },
+  {
+    "name": "sidebar-07",
+    "title": "Sidebar 07",
+    "type": "scala:block",
+    "registryDependencies": [
+      "sidebar",
+      "breadcrumb",
+      "separator",
+      "dropdown-menu",
+      "avatar",
+      "icons"
+    ],
+    "description": "A sidebar that collapses to icons.",
+    "categories": [
+      "sidebar"
     ]
   },
   {

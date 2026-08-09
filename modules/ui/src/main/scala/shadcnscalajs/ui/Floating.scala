@@ -350,38 +350,58 @@ object Floating:
     )
 
     var portal = Option.empty[RootNode]
-    var container = Option.empty[dom.Element]
+    var host = Option.empty[dom.Element]
     div(
       cls := "hidden",
       onMountUnmountCallback(
         mount = { ctx =>
-          val target = portalTarget(ctx.thisNode.ref)
-          container = Some(target).filter(_ != dom.document.body)
-          portal = Some(render(target, panel))
+          val resolved = portalTarget(ctx.thisNode.ref)
+          host = resolved.host
+          portal = Some(render(resolved.target, panel))
         },
         unmount = { _ =>
           portal.foreach(_.unmount())
           portal = None
-          container.foreach(el => el.parentNode.removeChild(el))
-          container = None
+          host.foreach(el => el.parentNode.removeChild(el))
+          host = None
         }
       )
     )
 
-  /** Where the panel is rendered. `document.body` for ordinary use, but inside a shadow root — the web-component
-    * wrappers each mount into one, with their stylesheet injected there — the panel has to stay in that root or it
-    * loses every style. `position: fixed` still escapes ancestor `overflow` clipping either way.
-    *
-    * Laminar renders into an `Element`, and a `ShadowRoot` is a fragment, so this returns a host `div` appended to it.
+  /** Where a panel is rendered, plus the host element to tear down afterwards (none when rendering straight into
+    * `document.body`, which must obviously survive).
     */
-  private def portalTarget(node: dom.Element): dom.Element =
+  private final case class PortalTarget(target: dom.Element, host: Option[dom.Element])
+
+  private def newPortalHost(parent: dom.Node): PortalTarget =
+    val host = dom.document.createElement("div")
+    host.setAttribute("data-slot", "floating-portal")
+    // `display: contents` keeps the host out of layout entirely. A plain block would take up space in its parent and
+    // sit over the very trigger that opened it, swallowing the next click. The panels inside are `position: fixed`,
+    // so they are unaffected by the host generating no box.
+    host.setAttribute("style", "display: contents")
+    parent.appendChild(host)
+    PortalTarget(host, Some(host))
+
+  /** Where the panel is rendered. `document.body` for ordinary use, with two exceptions:
+    *
+    *   - Inside a shadow root — the web-component wrappers each mount into one, with their stylesheet injected there —
+    *     the panel has to stay in that root or it loses every style.
+    *   - Inside a `<dialog>`, the panel has to stay in the dialog. `showModal()` promotes a dialog to the browser's top
+    *     layer, which paints above the entire normal document regardless of `z-index`, so a panel left in `<body>`
+    *     would be buried behind an open sheet or drawer. Nesting it means it joins the top layer too.
+    *
+    * `position: fixed` still escapes ancestor `overflow` clipping in every case.
+    *
+    * Laminar renders into an `Element`, and a `ShadowRoot` is a fragment, so both exceptions go through a host `div`.
+    */
+  private def portalTarget(node: dom.Element): PortalTarget =
     // `getRootNode` is absent from the pinned scalajs-dom facade.
     val root = node.asInstanceOf[js.Dynamic].getRootNode().asInstanceOf[dom.Node]
     val isShadowRoot =
       root.nodeType == dom.Node.DOCUMENT_FRAGMENT_NODE && !js.isUndefined(root.asInstanceOf[js.Dynamic].host)
-    if !isShadowRoot then dom.document.body
+    if isShadowRoot then newPortalHost(root)
     else
-      val host = dom.document.createElement("div")
-      host.setAttribute("data-slot", "floating-portal")
-      root.appendChild(host)
-      host
+      // Not gated on `dialog.open`: the trigger usually mounts while its dialog is still closed, so the open state at
+      // mount time says nothing about where the panel will need to be when it is finally shown.
+      Option(node.closest("dialog")).fold(PortalTarget(dom.document.body, None))(newPortalHost)

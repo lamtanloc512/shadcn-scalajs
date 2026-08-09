@@ -1,0 +1,13 @@
+{
+  "name": "login-03",
+  "title": "Login 03",
+  "type": "scala:block",
+  "description": "A login page with a muted background and brand header.",
+  "categories": ["authentication", "login"],
+  "registryDependencies": ["button", "card", "input", "field", "separator", "icons"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "login03/Login03.scala", "type": "scala:page" },
+    { "path": "login03/LoginForm.scala", "type": "scala:component" }
+  ]
+}

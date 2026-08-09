@@ -36,6 +36,13 @@ object Sidebar:
   private val CookieMaxAge = 60 * 60 * 24 * 7
   private val WidthMobile = "18rem"
 
+  // Rail drag bounds, in pixels. `CollapsedWidthThreshold` sits above the icon rail width so a measurement can tell a
+  // collapsed sidebar from an expanded one; `DragThreshold` is the slop that separates a click from a drag.
+  private val MinWidth = 160.0
+  private val MaxWidth = 480.0
+  private val CollapsedWidthThreshold = 64.0
+  private val DragThreshold = 3.0
+
   private val menuButtonBase: String =
     "cn-sidebar-menu-button peer/menu-button group/menu-button flex w-full items-center overflow-hidden outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate"
 
@@ -166,22 +173,25 @@ object Sidebar:
         }
       )
 
+  /** On mobile the sidebar is a [[Drawer]] sliding in from its own side, rather than an inline panel. */
   private def mobileRoot(side: Side, ctx: SidebarContext)(mods: Modifier[HtmlElement]*): HtmlElement =
-    val sidePosition =
-      if side == Side.Left then "left-0 right-auto border-r"
-      else "right-0 left-auto border-l"
-    Dialog.element(
-      ctx.openMobileVar,
-      s"sheet fixed z-50 flex flex-col shadow-lg inset-y-0 m-0 h-full w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground $sidePosition"
-    )(
-      dataAttr("sidebar") := "sidebar",
-      dataAttr("slot") := "sidebar",
-      dataAttr("mobile") := "true",
-      dataAttr("side") := sheetSideName(side),
+    val direction = if side == Side.Left then Drawer.Direction.Left else Drawer.Direction.Right
+    Drawer(ctx.openMobileVar, direction)(
       styleAttr := s"--sidebar-width: $WidthMobile;",
-      cls := "[&>div>button]:hidden",
+      // Drawer sizes its side panels `w-3/4 sm:max-w-sm` in the popover palette; the sidebar has its own width token
+      // and surface colors, and `!` is what wins against the component's own utilities.
+      cls := "w-(--sidebar-width)! max-w-(--sidebar-width)! bg-sidebar! p-0 text-sidebar-foreground",
       div(cls := "sr-only", h2("Sidebar"), p("Displays the mobile sidebar.")),
-      div(cls := "flex h-full w-full flex-col", mods)
+      // The sidebar markers go here, not on the drawer's content div: `Dialog.element` finds that div by its
+      // `data-slot="drawer-content"` to drive the enter/exit animation, so overwriting the slot would break it.
+      div(
+        dataAttr("sidebar") := "sidebar",
+        dataAttr("slot") := "sidebar",
+        dataAttr("mobile") := "true",
+        dataAttr("side") := sheetSideName(side),
+        cls := "flex h-full w-full flex-col",
+        mods
+      )
     )
 
   private def desktopRoot(
@@ -337,6 +347,25 @@ object Sidebar:
       mods.map(_(MenuButtonApi))
     )
 
+  /** Anchor-rendered menu button, for rows that navigate. Upstream spreads the menu-button props onto an `<a>` via a
+    * child snippet; nesting an `<a>` inside [[menuButton]]'s `<button>` instead is invalid markup and drops the anchor
+    * out of the button's flex row.
+    */
+  def menuButtonLink(
+      isActive: Boolean = false,
+      variant: MenuButtonVariant = MenuButtonVariant.Default,
+      size: MenuButtonSize = MenuButtonSize.Default
+  )(mods: Modifier[HtmlElement]*): HtmlElement =
+    a(
+      dataAttr("slot") := "sidebar-menu-button",
+      dataAttr("sidebar") := "menu-button",
+      dataAttr("variant") := variant.toString.toLowerCase,
+      dataAttr("size") := size.toString.toLowerCase,
+      cls := s"$menuButtonBase ${menuButtonVariantClasses(variant)} ${menuButtonSizeClasses(size)}",
+      if isActive then dataAttr("active") := "true" else emptyMod,
+      mods
+    )
+
   object MenuButtonApi:
     def variant(value: MenuButtonVariant): Modifier[HtmlElement] =
       val name = value.toString.toLowerCase
@@ -417,17 +446,107 @@ object Sidebar:
       mods
     )
 
+  /** Drag the rail to resize the sidebar, or click it to toggle.
+    *
+    * Upstream's `sidebar-rail` is click-only despite showing a resize cursor; dragging is an addition here. Width is
+    * written to the wrapper's `--sidebar-width`, so it survives collapse/expand and is inherited by the gap and the
+    * fixed container alike.
+    */
   def rail(openVar: Var[Boolean])(mods: Modifier[HtmlElement]*): HtmlElement =
     val ctx = contextFor(openVar)
+    var dragging = false
+    var didDrag = false
+    var startX = 0.0
+    var startWidth = 256.0
+    var lastExpandedWidth = 256.0
+    var resizeDirection = 1.0
+    var wrapper = Option.empty[dom.html.Element]
+    var pendingWidth = 0.0
+    var frameId = 0
+    var frozen = List.empty[dom.html.Element]
+
+    // Pointer moves arrive faster than the browser paints, and each width write invalidates the layout of the whole
+    // page. Coalescing to one write per frame keeps the drag from queueing up redundant reflows.
+    def scheduleWidth(width: Double): Unit =
+      pendingWidth = width
+      if frameId == 0 then
+        frameId = dom.window.requestAnimationFrame { _ =>
+          frameId = 0
+          wrapper.foreach(_.style.setProperty("--sidebar-width", s"${pendingWidth}px"))
+        }
+
+    // The gap and the container ease `width` over 200ms, which is right for a toggle but wrong for a drag: every frame
+    // would restart the animation, so the panel trails the pointer. Suspend the easing until the drag ends.
+    def freezeTransitions(root: dom.Element): Unit =
+      val nodes = root.querySelectorAll("[data-slot='sidebar-gap'],[data-slot='sidebar-container']")
+      var i = 0
+      var collected = List.empty[dom.html.Element]
+      while i < nodes.length do
+        val element = nodes.item(i).asInstanceOf[dom.html.Element]
+        element.style.setProperty("transition", "none")
+        collected = element :: collected
+        i += 1
+      frozen = collected
+
+    def endDrag(): Unit =
+      dragging = false
+      frozen.foreach(_.style.removeProperty("transition"))
+      frozen = Nil
+      dom.document.body.style.removeProperty("user-select")
+      wrapper = None
+
     button(
       typ := "button",
       dataAttr("sidebar") := "rail",
       dataAttr("slot") := "sidebar-rail",
-      aria.label := "Toggle Sidebar",
+      aria.label := "Resize or toggle Sidebar",
       tabIndex := -1,
-      title := "Toggle Sidebar",
+      title := "Drag to resize or click to toggle Sidebar",
       cls := "cn-sidebar-rail absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar [[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
-      onClick --> { _ => ctx.toggle() },
+      onMountCallback { mountCtx =>
+        val sidebar = mountCtx.thisNode.ref.closest("[data-slot='sidebar']")
+        if sidebar != null then
+          val measured = sidebar.getBoundingClientRect().width
+          if measured > CollapsedWidthThreshold then lastExpandedWidth = measured
+      },
+      onMouseDown --> { (ev: dom.MouseEvent) =>
+        if ev.button == 0 then
+          val railElement = ev.currentTarget.asInstanceOf[dom.html.Element]
+          val sidebar = railElement.closest("[data-slot='sidebar']")
+          wrapper = Option(railElement.closest("[data-slot='sidebar-wrapper']")).map(_.asInstanceOf[dom.html.Element])
+          val measured = if sidebar == null then 0.0 else sidebar.getBoundingClientRect().width
+          startX = ev.clientX
+          // A collapsed sidebar measures the icon width, which would make the drag jump; resume from the last
+          // expanded width instead.
+          startWidth = if openVar.now() && measured > CollapsedWidthThreshold then measured else lastExpandedWidth
+          resizeDirection = if sidebar != null && sidebar.getAttribute("data-side") == "right" then -1.0 else 1.0
+          dragging = true
+          didDrag = false
+          ev.preventDefault()
+      },
+      documentEvents(_.onMouseMove) --> { (ev: dom.MouseEvent) =>
+        if dragging then
+          val delta = (ev.clientX - startX) * resizeDirection
+          if math.abs(delta) >= DragThreshold then
+            if !didDrag then
+              didDrag = true
+              wrapper.foreach(freezeTransitions)
+              dom.document.body.style.setProperty("user-select", "none")
+            if !openVar.now() then ctx.setOpen(true)
+            val nextWidth = (startWidth + delta).max(MinWidth).min(MaxWidth)
+            lastExpandedWidth = nextWidth
+            scheduleWidth(nextWidth)
+            ev.preventDefault()
+      },
+      documentEvents(_.onMouseUp) --> { _ => if dragging then endDrag() },
+      onClick --> { (ev: dom.MouseEvent) =>
+        // A drag ends with a click on the rail; swallow it so resizing doesn't also collapse the sidebar.
+        if didDrag then
+          didDrag = false
+          ev.preventDefault()
+          ev.stopPropagation()
+        else ctx.toggle()
+      },
       mods
     )
 

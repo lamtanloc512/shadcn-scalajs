@@ -124,7 +124,10 @@ object Dialog:
       rootClass: String,
       contentSlot: String,
       contentClass: String,
-      options: Options = Options()
+      options: Options = Options(),
+      // Applied to the `<dialog>` itself rather than the content panel — some surfaces are styled by rules that key
+      // off an attribute on the dialog and select the panel as its child.
+      rootMods: Seq[Modifier[HtmlElement]] = Nil
   )(mods: Modifier[HtmlElement]*): HtmlElement =
     // Closing is asynchronous: `data-closed` has to paint and finish its animation before `close()` hides the dialog.
     var closing = false
@@ -196,6 +199,7 @@ object Dialog:
 
     dialogTag(
       cls := s"$rootClass ${rootExitClass(options.exitMs)}",
+      rootMods,
       dataAttr("state") <-- isOpenVar.signal.map(open => if open then "open" else "closed"),
       onMountBind { ctx =>
         val el = ctx.thisNode.ref.asInstanceOf[dom.html.Dialog]

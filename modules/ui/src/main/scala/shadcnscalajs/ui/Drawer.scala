@@ -44,7 +44,11 @@ object Drawer:
       "drawer m-0 max-h-none max-w-none bg-transparent p-0 text-inherit",
       "drawer-content",
       contentClass(direction),
-      Dialog.Options(exitMs = 220)
+      Dialog.Options(exitMs = 220),
+      // Basecoat lays the panel out with `.drawer[data-side=…] > *`, and its fallback arm is
+      // `.drawer:not([data-side]) > *` — the bottom geometry. Without this attribute a left or right drawer is given
+      // `bottom-0 mt-24 max-h-[80vh]` and renders as a bottom sheet.
+      rootMods = Seq(dataAttr("side") := directionName(direction))
     )(
       // Pack rules and the handle gate on this attribute, which vaul would set.
       dataAttr("vaul-drawer-direction") := directionName(direction),
