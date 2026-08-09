@@ -21,17 +21,19 @@ final class CreateState(urlSync: Boolean = true):
 
   private var shortcutsInstalled = false
 
-  private def initialPresetCode: String =
-    readUrlPreset
-      .orElse(readStoredPreset)
-      .getOrElse(Preset.encode(Preset.default))
-
-  private def initialDarkMode: Boolean =
-    ThemeConfig.load().darkMode
-
+  /** `index.html` links a style pack before first paint straight from `ThemeConfig`'s stored JSON, so seeding from
+    * anything that can disagree with it repaints the whole page in a second pack as soon as the bundle runs — now that
+    * each pack is its own stylesheet, that restyle is plainly visible. `ThemeConfig.load` is therefore the single
+    * source both sides read; it already falls back to the stored preset code, which is what a visitor who has only
+    * ever used `/create` has. A `?preset=` in the URL is the one intentional override: a shared customizer link is
+    * asking for a specific theme, and it still costs one restyle because the pre-paint script cannot decode it.
+    */
   private def initialConfig: ThemeConfig =
-    val preset = Preset.decode(initialPresetCode).getOrElse(Preset.default)
-    ThemeConfig.fromPreset(preset, darkMode = initialDarkMode)
+    val stored = ThemeConfig.load()
+    readUrlPreset
+      .flatMap(Preset.decode)
+      .map(preset => ThemeConfig.fromPreset(preset, darkMode = stored.darkMode))
+      .getOrElse(stored)
 
   private def initialHistoryLog: Vector[String] =
     Vector(Preset.encode(ThemeConfig.toPreset(initialConfig)))
@@ -206,10 +208,6 @@ final class CreateState(urlSync: Boolean = true):
     val params = new dom.URLSearchParams(dom.window.location.search)
     val code = params.get("preset")
     if code != null && Preset.isPresetCode(code) then Some(code) else None
-
-  private def readStoredPreset: Option[String] =
-    val raw = dom.window.localStorage.getItem(presetStorageKey)
-    if raw != null && Preset.isPresetCode(raw) then Some(raw) else None
 
   private def loadLocks(): Map[String, Boolean] =
     val defaults = CreateState.LockKeys.map(_ -> false).toMap
