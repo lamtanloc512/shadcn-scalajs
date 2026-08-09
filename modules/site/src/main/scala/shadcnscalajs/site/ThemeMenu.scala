@@ -67,7 +67,8 @@ object ThemeMenu:
         typ := "button",
         cls := iconButtonClasses,
         aria.label := "Toggle dark mode",
-        onClick --> { _ => state.toggleDark() },
+        dataAttr("theme-toggle") := "",
+        onClick --> { ev => state.toggleDark(ThemeTransition.originOf(ev)) },
         span(cls := "hidden dark:block", Icons.sun()),
         span(cls := "block dark:hidden", Icons.moon())
       ),

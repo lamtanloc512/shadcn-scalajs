@@ -6,7 +6,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import scala.util.Random
 import scala.util.Try
-import shadcnscalajs.site.ThemeConfig
+import shadcnscalajs.site.{ThemeConfig, ThemeTransition}
 
 /** Create-page customizer state: preset persistence, per-field locks, undo/redo history, biased randomization, and URL
   * sync. Ported from shadcn-svelte's `design-system-provider-state.svelte.ts`.
@@ -174,10 +174,13 @@ final class CreateState(urlSync: Boolean = true):
   def reset(): Unit =
     update(_ => Preset.default)
 
-  def toggleDark(): Unit =
-    val next = config.now().copy(darkMode = !config.now().darkMode)
-    config.set(next)
-    ThemeConfig.store(next)
+  /** `origin` is the click point the reveal grows from; keyboard and menu callers pass `None`. */
+  def toggleDark(origin: Option[(Double, Double)] = None): Unit =
+    ThemeTransition.run(origin) { () =>
+      val next = config.now().copy(darkMode = !config.now().darkMode)
+      config.set(next)
+      ThemeConfig.store(next)
+    }
 
   def shareUrl: String =
     s"${dom.window.location.origin}/create?preset=${Preset.encode(ThemeConfig.toPreset(config.now()))}"

@@ -155,6 +155,7 @@ object ThemeConfig:
     html.setAttribute("data-menu-color", cfg.menuColor)
     html.setAttribute("data-menu-accent", cfg.menuAccent)
     if cfg.darkMode then html.classList.add("dark") else html.classList.remove("dark")
+    applyStylePack(doc, cfg.stylePack)
 
     currentMenuColor = cfg.menuColor
     if doc eq dom.document then
@@ -164,6 +165,48 @@ object ThemeConfig:
 
   private def coerce(raw: String, allowed: List[String], fallback: String): String =
     if allowed.contains(raw) then raw else fallback
+
+  private val stylePackLinkAttr = "data-style-pack-css"
+
+  def stylePackHref(pack: String): String = s"/styles/pack-$pack.css"
+
+  /** Links the active pack's stylesheet, which is shipped separately rather than bundled.
+    *
+    * Only one of the eight packs is ever active, and Chromium buckets rules by their rightmost simple selector, so
+    * bundling all eight made every full-document style recalc match each element against eight copies of the same rule.
+    * That is what made `dialog.showModal()` cost 52ms on `/blocks/dashboard-01` (4ms with one pack).
+    *
+    * `index.html` links the stored pack before first paint; this only has to handle changes made after load.
+    */
+  private def applyStylePack(doc: dom.Document, pack: String): Unit =
+    val head = doc.asInstanceOf[dom.HTMLDocument].head
+    if head == null then return
+    val href = stylePackHref(pack)
+    val links = doc.querySelectorAll(s"link[$stylePackLinkAttr]")
+
+    var alreadyLinked = false
+    var i = 0
+    while i < links.length do
+      val link = links.item(i).asInstanceOf[dom.html.Element]
+      if link.getAttribute(stylePackLinkAttr) == pack then alreadyLinked = true
+      i += 1
+    if alreadyLinked then return
+
+    val link = doc.createElement("link").asInstanceOf[dom.html.Element]
+    link.setAttribute(stylePackLinkAttr, pack)
+    link.setAttribute("rel", "stylesheet")
+    link.setAttribute("href", href)
+    // Drop the outgoing pack only once its replacement has parsed; removing it first flashes the page unstyled.
+    link.addEventListener("load", (_: dom.Event) => dropOtherPackLinks(doc, link))
+    head.appendChild(link)
+
+  private def dropOtherPackLinks(doc: dom.Document, keep: dom.html.Element): Unit =
+    val links = doc.querySelectorAll(s"link[$stylePackLinkAttr]")
+    var i = 0
+    while i < links.length do
+      val link = links.item(i).asInstanceOf[dom.html.Element]
+      if (link ne keep) && link.parentNode != null then link.parentNode.removeChild(link)
+      i += 1
 
   private def scheduleMenuUpdate(doc: dom.Document): Unit =
     if menuFrameId != 0 then return

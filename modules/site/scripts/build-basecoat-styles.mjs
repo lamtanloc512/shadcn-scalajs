@@ -6,7 +6,6 @@ const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, "../../..");
 const sourceRoot = join(projectRoot, "vendor/basecoat-source");
 const output = join(projectRoot, "modules/site/src/styles/basecoat.generated.css");
-const packs = ["lyra", "vega", "nova", "maia", "mira", "luma", "sera", "rhea"];
 
 function layerBody(source, file) {
   const marker = "@layer components";
@@ -36,15 +35,10 @@ const componentCss = readdirSync(componentDir)
   .map(([name, source]) => layerBody(source, name))
   .join("\n\n");
 
-const packCss = packs
-  .map((pack) => {
-    const file = join(sourceRoot, "styles", `${pack}.css`);
-    const body = layerBody(readFileSync(file, "utf8"), file).replaceAll("has-[.kbd]:pe-1.5 ", "");
-    return `[data-style-pack="${pack}"] {\n${body}\n}`;
-  })
-  .join("\n\n");
-
+// Per-pack rules deliberately live in their own stylesheets (scripts/build-style-packs.mjs) so only the active pack
+// is ever parsed. Bundling all eight here made every full-document style recalc — notably dialog.showModal() — match
+// each element against eight copies of the same rule.
 writeFileSync(
   output,
-  `/* Generated from vendor/basecoat-source. Run npm run build:basecoat-styles after updating the vendor snapshot. */\n@layer components {\n${componentCss}\n\n${packCss}\n}\n\n@keyframes toast-up {\n  from { opacity: 0; transform: translateY(100%); }\n}\n`,
+  `/* Generated from vendor/basecoat-source. Run npm run build:basecoat-styles after updating the vendor snapshot. */\n@layer components {\n${componentCss}\n}\n\n@keyframes toast-up {\n  from { opacity: 0; transform: translateY(100%); }\n}\n`,
 );

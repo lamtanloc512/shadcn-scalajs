@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./basecoat.generated.css";
-@import "./shadcn-presets.generated.css";
+/* The eight style packs are NOT imported here. Each is compiled to its own public/styles/pack-<name>.css by
+   scripts/build-style-packs.mjs and only the active one is linked at runtime — see ThemeConfig.applyStylePack. */
 
 /* Tailwind v4's automatic content detection is scoped to this Vite project's own root
    (modules/site) — it never sees modules/ui's or modules/blocks's Scala sources directly. Most of
@@ -2064,6 +2065,27 @@
   dialog::backdrop {
     background: rgb(0 0 0 / 0.45);
   }
+}
+
+/* Circular-reveal theme switch, driven by ThemeTransition.scala. The browser's default
+   cross-fade between the two snapshots is cancelled so a single clip-path wipe reads as one
+   theme sliding over the other; the light snapshot is the one that always animates, which is
+   what the z-index pairs below select. Unlayered on purpose — these pseudo-elements live
+   outside the cascade origin Tailwind's layers describe. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root),
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root),
+.dark::view-transition-old(root) {
+  z-index: 9999;
 }
 
 /* Basecoat component contracts. Components expose these semantic class names so

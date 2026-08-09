@@ -8,8 +8,40 @@
        with default styling before the persisted theme applies. This synchronous, blocking script
        mirrors ThemeConfig.applyToDocument by reading the same localStorage key directly, before any
        stylesheet or the deferred module script runs. Duplicating the attribute list here (rather
-       than sharing code with the Scala side) is intentional, matching shadcn/ui's own docs site. -->
+       than sharing code with the Scala side) is intentional, matching shadcn/ui's own docs site.
+
+       It also links the active style pack. The eight packs ship as separate stylesheets (only one is
+       ever active) because bundling them made every full-document style recalc — anything promoting
+       an element to the top layer, e.g. dialog.showModal() — match each element against eight copies
+       of the same rule. Linking it here, blocking, keeps the pack applied on first paint. -->
   <script>
+    (function () {
+      var pack = "nova";
+      try {
+        var stored = JSON.parse(localStorage.getItem("shadcn-scalajs:theme") || "{}");
+        if (stored && stored.stylePack) pack = stored.stylePack;
+      } catch (e) {}
+      var href = "/styles/pack-" + pack + ".css";
+
+      // Start the download now, but do not apply it yet: Vite injects the main stylesheet at the end of
+      // <head>, and a pack rule only overrides the base component rule it shadows when its sheet comes
+      // after. Attaching during head parsing would place it first and invert that.
+      var preload = document.createElement("link");
+      preload.rel = "preload";
+      preload.as = "style";
+      preload.href = href;
+      document.head.appendChild(preload);
+
+      // #root is empty until the deferred module runs, so nothing has painted yet and attaching the
+      // (render-blocking) stylesheet here costs no flash while guaranteeing it lands last.
+      document.addEventListener("DOMContentLoaded", function () {
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        link.setAttribute("data-style-pack-css", pack);
+        document.head.appendChild(link);
+      });
+    })();
     (function () {
       try {
         var raw = localStorage.getItem("shadcn-scalajs:theme");

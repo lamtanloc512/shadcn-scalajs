@@ -2,7 +2,7 @@ package shadcnscalajs.site.create
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
-import shadcnscalajs.site.{Main, SiteChrome, ThemeConfig}
+import shadcnscalajs.site.{Main, SiteChrome, ThemeConfig, ThemeTransition}
 import shadcnscalajs.ui.*
 
 /** Create-page shell: site header, designer main, preview frame slot, and customizer column. */
@@ -38,7 +38,8 @@ object CreateShell:
           Button.ButtonApi.size(Button.Size.Icon),
           cls := "hidden sm:inline-flex",
           aria.label := "Toggle dark mode",
-          onClick --> { _ => state.toggleDark() },
+          dataAttr("theme-toggle") := "",
+          onClick --> { ev => state.toggleDark(ThemeTransition.originOf(ev)) },
           span(cls := "hidden dark:block", Main.rawIcon(Main.iconSun)),
           span(cls := "block dark:hidden", Main.rawIcon(Main.iconMoon))
         )
