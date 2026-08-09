@@ -17,11 +17,29 @@ import scala.scalajs.js
   */
 object Dialog:
 
+  /** A CSS animation drops back to its pre-animation style the instant it ends, so without this the panel snaps back to
+    * full opacity for the gap between `animate-out` finishing and `close()` hiding the dialog — and the basecoat
+    * `.dialog` opacity transition then fades that fully visible panel out a second time. Holding the exit frame makes
+    * the two hand off invisibly.
+    */
+  private[ui] val exitFillClass: String = "data-closed:fill-mode-forwards"
+
+  /** The mask has to be driven from here rather than left to the stylesheet. Basecoat only fades `.dialog`/
+    * `.alert-dialog` backdrops, and only once `[open]` goes away — which is after the panel's exit has finished, so the
+    * mask sits at full strength over an empty screen and then fades on its own schedule. Sheet and Drawer backdrops
+    * have no transition at all and would cut instantly instead. Both are fixed by fading the mask on `data-closed`, on
+    * the same clock as the panel, and by cutting the root's own transition so `close()` takes effect immediately.
+    * Basecoat pins the mask to `opacity-100` while `[open]` from an unlayered rule, hence `!`.
+    */
+  private def rootExitClass(exitMs: Double): String =
+    val maskDuration = if exitMs > 150 then "backdrop:duration-200" else "backdrop:duration-100"
+    s"backdrop:transition-opacity $maskDuration data-closed:transition-none! data-closed:backdrop:opacity-0!"
+
   /** Position, surface, and animation for the content panel — everything except the box model, which callers may need
     * to replace wholesale.
     */
   val contentShellClass: String =
-    "cn-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-popover text-sm text-popover-foreground outline-none ring-1 ring-foreground/10 duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
+    s"cn-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-popover text-sm text-popover-foreground outline-none ring-1 ring-foreground/10 duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 $exitFillClass"
 
   /** Upstream's default box model for the content panel. */
   val contentBoxClass: String = "gap-6 p-6 sm:max-w-md"
@@ -49,7 +67,7 @@ object Dialog:
   def overlay(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "dialog-overlay",
-      cls := "cn-dialog-overlay fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+      cls := s"cn-dialog-overlay fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 $exitFillClass",
       mods
     )
 
@@ -112,15 +130,22 @@ object Dialog:
     var closing = false
     var exitTimer: Option[Int] = None
     var returnFocus: Option[dom.html.Element] = None
+    var removeExitListeners: () => Unit = () => ()
 
     def clearExitTimer(): Unit =
       exitTimer.foreach(dom.window.clearTimeout)
       exitTimer = None
 
-    def finishClose(el: dom.html.Dialog): Unit =
+    def endExitPhase(): Unit =
       clearExitTimer()
+      removeExitListeners()
+      removeExitListeners = () => ()
       closing = false
-      if el.open then el.close()
+
+    def contentOf(el: dom.html.Dialog): Option[dom.Element] =
+      Option(el.querySelector(s"[data-slot='$contentSlot']"))
+
+    def restoreFocus(): Unit =
       returnFocus.foreach { node =>
         // The trigger may have been removed (route change); focusing a detached node is a no-op that throws in some
         // browsers, so only restore when it is still in the document.
@@ -128,9 +153,17 @@ object Dialog:
       }
       returnFocus = None
 
+    def finishClose(el: dom.html.Dialog): Unit =
+      endExitPhase()
+      if el.open then el.close()
+      restoreFocus()
+
     def openDialog(el: dom.html.Dialog): Unit =
-      clearExitTimer()
-      closing = false
+      endExitPhase()
+      // Attributes first: the panel is still holding the previous exit frame, and `showModal()` would paint one frame
+      // of it before the enter state landed.
+      syncOpenAttrs(el, open = true)
+      contentOf(el).foreach(syncOpenAttrs(_, open = true))
       if !el.open then
         Option(dom.document.activeElement)
           .collect {
@@ -140,18 +173,12 @@ object Dialog:
           }
           .foreach { focused => returnFocus = Some(focused) }
         el.showModal()
-      syncOpenAttrs(el, open = true)
-      el.querySelector(s"[data-slot='$contentSlot']") match
-        case content: dom.Element => syncOpenAttrs(content, open = true)
-        case _                    => ()
 
     def requestClose(el: dom.html.Dialog): Unit =
       if el.open && !closing then
         closing = true
         syncOpenAttrs(el, open = false)
-        el.querySelector(s"[data-slot='$contentSlot']") match
-          case content: dom.Element => syncOpenAttrs(content, open = false)
-          case _                    => ()
+        contentOf(el).foreach(syncOpenAttrs(_, open = false))
         // Prefer the content panel's animationend; fall back to the exit duration so a panel with no animation still
         // closes. Multiple animationend events fire for fade+zoom, so only the first one that finds us still closing
         // finishes — later ones are no-ops once `closing` is cleared.
@@ -162,10 +189,13 @@ object Dialog:
             case _ => ()
         el.addEventListener("animationend", onEnd)
         el.addEventListener("transitionend", onEnd)
+        removeExitListeners = () =>
+          el.removeEventListener("animationend", onEnd)
+          el.removeEventListener("transitionend", onEnd)
         exitTimer = Some(dom.window.setTimeout(() => if closing then finishClose(el), options.exitMs))
 
     dialogTag(
-      cls := rootClass,
+      cls := s"$rootClass ${rootExitClass(options.exitMs)}",
       dataAttr("state") <-- isOpenVar.signal.map(open => if open then "open" else "closed"),
       onMountBind { ctx =>
         val el = ctx.thisNode.ref.asInstanceOf[dom.html.Dialog]
@@ -176,13 +206,9 @@ object Dialog:
           if options.dismissOnEscape then isOpenVar.set(false)
         // Native form method=dialog or an explicit el.close() from outside still need to mirror into the Var.
         val onNativeClose: js.Function1[dom.Event, Unit] = (_: dom.Event) =>
-          clearExitTimer()
-          closing = false
+          endExitPhase()
           if isOpenVar.now() then isOpenVar.set(false)
-          returnFocus.foreach { node =>
-            if dom.document.contains(node) then node.focus()
-          }
-          returnFocus = None
+          restoreFocus()
         el.addEventListener("cancel", onCancel)
         el.addEventListener("close", onNativeClose)
         isOpenVar.signal --> { (open: Boolean) =>

@@ -34,7 +34,7 @@ object Drawer:
   )
 
   private def contentClass(direction: Direction): String =
-    s"cn-drawer-content group/drawer-content fixed z-50 flex h-auto flex-col bg-popover text-sm text-popover-foreground duration-200 ${directionClasses(direction)}"
+    s"cn-drawer-content group/drawer-content fixed z-50 flex h-auto flex-col bg-popover text-sm text-popover-foreground duration-200 ${Dialog.exitFillClass} ${directionClasses(direction)}"
 
   def apply(isOpenVar: Var[Boolean], direction: Direction = Direction.Bottom)(
       mods: Modifier[HtmlElement]*
@@ -62,7 +62,7 @@ object Drawer:
   def overlay(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "drawer-overlay",
-      cls := "cn-drawer-overlay fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+      cls := s"cn-drawer-overlay fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 ${Dialog.exitFillClass}",
       mods
     )
 
