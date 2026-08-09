@@ -20,7 +20,7 @@ object Combobox:
   private val triggerBase =
     "inline-flex w-full items-center justify-between gap-2 rounded-md border bg-background shadow-xs outline-none transition-all hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 
-  private val panelBoxClass = "w-full min-w-48 overflow-hidden p-0!"
+  private val panelBoxClass = "w-auto min-w-48 overflow-hidden p-0!"
 
   def apply(
       selectedVar: Var[Option[String]],
@@ -114,7 +114,7 @@ object Combobox:
       multiSelect: Boolean = false
   ): HtmlElement =
     Command(
-      Command.input(placeholder := searchPlaceholder),
+      Command.input(placeholder := searchPlaceholder, size := 1),
       Command.list(
         role := "listbox",
         if multiSelect then aria.multiSelectable := true else emptyMod,
