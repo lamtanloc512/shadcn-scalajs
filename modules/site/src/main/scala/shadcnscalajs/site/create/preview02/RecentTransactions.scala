@@ -61,7 +61,7 @@ object RecentTransactions:
   )
 
   private def rowMenu: HtmlElement =
-    DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses, DropdownMenu.Align.End)(Icons.moreHorizontal())(
+    DropdownMenu.withTrigger(DropdownMenu.ghostIconTrigger, DropdownMenu.Align.End)(Icons.moreHorizontal())(
       DropdownMenu.Item("View details", () => ()),
       DropdownMenu.Item("Add note", () => ()),
       DropdownMenu.Item("Categorize", () => ()),

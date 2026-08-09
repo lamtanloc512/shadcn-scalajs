@@ -33,7 +33,7 @@ object Payments:
             Breadcrumb.item(Breadcrumb.link("#/", "Home")),
             Breadcrumb.separator(),
             Breadcrumb.item(
-              DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses)(
+              DropdownMenu.withTrigger(DropdownMenu.ghostIconTrigger)(
                 Icons.moreHorizontal(),
                 span(cls := "sr-only", "Account options")
               )(

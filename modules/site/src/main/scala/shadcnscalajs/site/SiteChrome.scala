@@ -54,25 +54,66 @@ object SiteChrome:
       )
     )
 
-  def primaryNav(active: Active, includeGitHub: Boolean = false, showHome: Boolean = true): HtmlElement =
-    def item(target: Active, href: String, label: String): HtmlElement =
-      if active == target then navGhostActive(href, label) else navGhost(href, label)
+  private val githubHref = "https://github.com/lamtanloc512/shadcn-scalajs"
 
+  /** The destinations every header shows, in order. `Home` is dropped on pages whose brand link already goes there. */
+  private def entries(showHome: Boolean): Seq[(Active, String, String)] =
+    val all = Seq(
+      (Active.Home, "/", "Home"),
+      (Active.Components, "/components", "Components"),
+      (Active.Blocks, "/blocks", "Blocks"),
+      (Active.Create, "/create", "Create")
+    )
+    if showHome then all else all.tail
+
+  def primaryNav(active: Active, includeGitHub: Boolean = false, showHome: Boolean = true): HtmlElement =
     navTag(
-      cls := "hidden items-center gap-1 sm:flex",
+      cls := "hidden items-center gap-1 md:flex",
       aria.label := "Primary",
-      if showHome then item(Active.Home, "/", "Home") else emptyNode,
-      item(Active.Components, "/components", "Components"),
-      item(Active.Blocks, "/blocks", "Blocks"),
-      item(Active.Create, "/create", "Create"),
-      if includeGitHub then
-        navGhost(
-          "https://github.com/lamtanloc512/shadcn-scalajs",
-          target := "_blank",
-          rel := "noopener",
-          "GitHub"
-        )
+      entries(showHome).map { (target, href, label) =>
+        if active == target then navGhostActive(href, label) else navGhost(href, label)
+      },
+      if includeGitHub then navGhost(githubHref, target := "_blank", rel := "noopener", "GitHub")
       else emptyNode
+    )
+
+  /** The same destinations for viewports too narrow for [[primaryNav]], in a sheet behind a hamburger button. */
+  def mobileNav(active: Active, includeGitHub: Boolean = false, showHome: Boolean = true): HtmlElement =
+    val isOpen = Var(false)
+
+    def item(target: Active, href: String, label: String, mods: Modifier[HtmlElement]*): HtmlElement =
+      Button.anchor(
+        href,
+        Button.ButtonApi.variant(if active == target then Button.Variant.Secondary else Button.Variant.Ghost),
+        // `justify-start` and the base `justify-center` are the same property, so source order does not decide it.
+        cls := "w-full justify-start!",
+        onClick --> { _ => isOpen.set(false) },
+        mods,
+        label
+      )
+
+    div(
+      cls := "md:hidden",
+      Button(
+        Button.ButtonApi.variant(Button.Variant.Ghost),
+        Button.ButtonApi.size(Button.Size.Icon),
+        aria.label := "Open menu",
+        aria.expanded <-- isOpen.signal,
+        onClick --> { _ => isOpen.set(true) },
+        Icons.menu()
+      ),
+      Sheet(isOpen, Sheet.Side.Left)(
+        cls := "w-72 sm:max-w-xs",
+        Sheet.close(onClick --> { _ => isOpen.set(false) }),
+        Sheet.header(Sheet.title("Menu"), Sheet.description("Jump to another part of the docs.")),
+        navTag(
+          cls := "flex flex-col gap-1 px-6 pb-6",
+          aria.label := "Mobile",
+          entries(showHome).map(item(_, _, _)),
+          if includeGitHub then item(Active.None, githubHref, "GitHub", target := "_blank", rel := "noopener")
+          else emptyNode
+        )
+      )
     )
 
   /** Docs page nav keeps the historical "Docs" label for `/components` while highlighting the open component. */
@@ -107,6 +148,7 @@ object SiteChrome:
         cls := "flex h-14 w-full items-center justify-between gap-2 px-4",
         div(
           cls := "flex min-w-0 items-center gap-1",
+          mobileNav(active, includeGitHub = includeGitHub, showHome = showHome),
           brand(),
           nav.getOrElse(primaryNav(active, includeGitHub = includeGitHub, showHome = showHome))
         ),

@@ -39,8 +39,15 @@ object DatePicker:
     "Dec"
   )
 
-  private val triggerClasses =
-    "inline-flex h-9 w-[280px] items-center justify-start gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium shadow-xs hover:bg-accent hover:text-accent-foreground"
+  /** The trigger is a real outline button — [[Button.appearance]] rather than a copied class string, so its height,
+    * padding, and radius follow the active style pack like every other button on the page. `justify-start!` has to
+    * outrank the button's own `justify-center`, which Tailwind may emit later.
+    */
+  private val triggerStyle: Modifier[HtmlElement] =
+    Seq[Modifier[HtmlElement]](
+      Button.appearance(Button.Variant.Outline),
+      cls := "w-[280px] justify-start!"
+    )
 
   private def formatSingle(d: js.Date): String =
     s"${monthNames(d.getMonth().toInt)} ${d.getDate().toInt}, ${d.getFullYear().toInt}"
@@ -59,7 +66,7 @@ object DatePicker:
     Popover(
       Popover.trigger(
         dataAttr("slot") := "popover-trigger",
-        cls := triggerClasses,
+        triggerStyle,
         Icons.calendar(),
         span(
           child.text <-- selected.signal.map {
@@ -94,7 +101,7 @@ object DatePicker:
     Popover(
       Popover.trigger(
         dataAttr("slot") := "popover-trigger",
-        cls := triggerClasses,
+        triggerStyle,
         Icons.calendar(),
         span(
           child.text <-- selected.signal.map { range =>

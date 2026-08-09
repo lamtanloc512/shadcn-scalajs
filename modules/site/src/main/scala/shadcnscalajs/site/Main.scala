@@ -55,7 +55,10 @@ object Main:
     val el = dom.document.createElement("div"); el.innerHTML = html
     foreignHtmlElement(el.firstElementChild.asInstanceOf[dom.html.Element])
 
-  lazy val logoEl: dom.html.Element =
+  /** A fresh node per call: a shared one gets *moved* when a second place mounts it, which is how the create page's
+    * header lost its mark to the welcome dialog.
+    */
+  def logoEl: dom.html.Element =
     val div = dom.document.createElement("div"); div.innerHTML = logoSvg
     div.firstElementChild.asInstanceOf[dom.html.Element]
 
@@ -249,7 +252,7 @@ object Main:
         id = "actions",
         header = () => span(cls := "sr-only", "Actions"),
         cell = p =>
-          DropdownMenu.withTrigger(DropdownMenu.ghostIconTriggerClasses, DropdownMenu.Align.End)(
+          DropdownMenu.withTrigger(DropdownMenu.ghostIconTrigger, DropdownMenu.Align.End)(
             span(cls := "sr-only", "Open menu"),
             Icons.moreHorizontal()
           )(
@@ -490,9 +493,16 @@ object Main:
         label
       )
 
+    /** The docs frames are `Card`s so their radius, ring, and shadow follow the active style pack, but they stay flush:
+      * the preview canvas and the code block own their own padding. The `!` carries that intent — packs set `py` and
+      * `gap` on `.cn-card` from an unlayered rule, which a plain `py-0` cannot outrank, so without it every pack pushes
+      * a 16–32px band above and below the content.
+      */
+    val docsFrame = "gap-0! overflow-hidden py-0!"
+
     def codeBlock(language: String, source: String): HtmlElement =
       Card(
-        cls := "mt-4 gap-0 overflow-hidden py-0",
+        cls := s"mt-4 $docsFrame",
         div(
           cls := "flex h-9 items-center justify-between border-b px-3 text-xs text-muted-foreground",
           span(language),
@@ -873,7 +883,7 @@ object Main:
           )
         previewCanvas(
           Popover(
-            Popover.trigger(cls := Button.classes(Button.Variant.Outline), "Open popover"),
+            Popover.trigger(Button.appearance(Button.Variant.Outline), "Open popover"),
             Popover.content(
               Floating.Placement(),
               "w-80 p-4",
@@ -1508,7 +1518,7 @@ Input(placeholder := "you@example.com")"""
       case "native-select" => """NativeSelect(option("Choose a plan"), option("Pro"), option("Team"))"""
       case "popover" =>
         """Popover(
-  Popover.trigger(cls := Button.classes(Button.Variant.Outline), "Open popover"),
+  Popover.trigger(Button.appearance(Button.Variant.Outline), "Open popover"),
   Popover.content(
     Floating.Placement(),
     "w-80 p-4",
@@ -1789,7 +1799,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
-      SiteChrome.header(nav = Some(SiteChrome.docsNav(componentName))),
+      SiteChrome.header(active = SiteChrome.Active.Components, nav = Some(SiteChrome.docsNav(componentName))),
       div(
         cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
         asideTag(
@@ -1857,7 +1867,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               ),
               Tabs.content(
                 display <-- exampleTab.signal.map(v => if v == "preview" then "block" else "none"),
-                Card(cls := "gap-0 overflow-hidden py-0", liveExample())
+                Card(cls := docsFrame, liveExample())
               ),
               Tabs.content(
                 display <-- exampleTab.signal.map(v => if v == "code" then "block" else "none"),
@@ -1908,7 +1918,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                   "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
                 else "Compose this primitive with Card, Field, Button, and the other Laminar components."
               ),
-              Card(cls := "mt-4 gap-0 overflow-hidden py-0", liveExample())
+              Card(cls := s"mt-4 $docsFrame", liveExample())
             ),
             div(
               cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",

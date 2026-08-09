@@ -35,8 +35,14 @@ object Calendar:
   private val rangeDayClasses =
     "flex size-8 flex-col items-center justify-center gap-1 rounded-md p-0 text-sm leading-none font-normal whitespace-nowrap select-none not-data-selected:hover:bg-accent/50 not-data-selected:hover:text-accent-foreground data-[range-middle]:rounded-none [&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:hover:text-foreground data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:hover:text-foreground data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground data-[disabled]:opacity-50 focus:relative focus:border-ring focus:ring-ring/50"
 
-  private val navButtonClasses =
-    "inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-accent hover:text-accent-foreground select-none disabled:pointer-events-none disabled:opacity-50 rtl:rotate-180 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+  /** Month arrows are the `variant="ghost"` icon buttons upstream, so they take their look from [[Button.appearance]]
+    * and follow the active style pack's radius and size rather than freezing at `rounded-md size-8`.
+    */
+  private val navButtonStyle: Modifier[HtmlElement] =
+    Seq[Modifier[HtmlElement]](
+      Button.appearance(Button.Variant.Ghost, Button.Size.IconSm),
+      cls := "bg-transparent select-none rtl:rotate-180 [&_svg]:size-4"
+    )
 
   private def startOfMonth(d: js.Date): js.Date = new js.Date(d.getFullYear().toInt, d.getMonth().toInt, 1)
 
@@ -184,7 +190,7 @@ object Calendar:
               button(
                 typ := "button",
                 dataAttr("slot") := s"$slotPrefix-prev-button",
-                cls := navButtonClasses,
+                navButtonStyle,
                 aria.label := "Previous month",
                 onClick --> { _ => shiftMonth(-1) },
                 Icons.chevronRight(svg.cls := "rotate-180")
@@ -192,7 +198,7 @@ object Calendar:
               button(
                 typ := "button",
                 dataAttr("slot") := s"$slotPrefix-next-button",
-                cls := navButtonClasses,
+                navButtonStyle,
                 aria.label := "Next month",
                 onClick --> { _ => shiftMonth(1) },
                 Icons.chevronRight()

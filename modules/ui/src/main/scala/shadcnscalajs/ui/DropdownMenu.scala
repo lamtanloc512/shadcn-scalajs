@@ -35,13 +35,15 @@ object DropdownMenu:
   enum Align derives CanEqual:
     case Start, End
 
-  /** Trigger base — same Tailwind classes as Button.outline. */
-  val outlineTriggerClasses: String =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+  /** Trigger base — the `variant="outline"` trigger upstream. Borrowed from [[Button]] rather than copied: a
+    * hand-written utility string drifts from the real button and misses the `data-variant`/`cn-button-*` hooks that
+    * basecoat and the style packs skin and size buttons through, leaving the trigger a different height from every
+    * button beside it.
+    */
+  val outlineTrigger: Modifier[HtmlElement] = Button.appearance(Button.Variant.Outline)
 
   /** Borderless square trigger for row/card action menus — the `variant="ghost" size="icon"` trigger upstream. */
-  val ghostIconTriggerClasses: String =
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground size-8"
+  val ghostIconTrigger: Modifier[HtmlElement] = Button.appearance(Button.Variant.Ghost, Button.Size.IconSm)
 
   private val slotPrefix = "dropdown-menu"
 
@@ -55,30 +57,33 @@ object DropdownMenu:
     * need the open state of *this* menu — a nested submenu gets its own context for the same reason.
     */
   def items(trigger: Modifier[HtmlElement]*)(build: Menu.Ctx => Seq[Modifier[HtmlElement]]): HtmlElement =
-    render(outlineTriggerClasses, Align.Start, trigger, build)
+    render(outlineTrigger, Align.Start, trigger, build)
 
-  /** As [[items]], but replacing the trigger's class list — the overload is named rather than added to `items` because
-    * a `String` is itself a `Modifier`, which would make the two forms ambiguous.
+  /** As [[items]], but with a different trigger look — [[ghostIconTrigger]], say, or any [[Button.appearance]]. The
+    * overload is named rather than added to `items` because the styling is itself a `Modifier`, which would make the
+    * two forms ambiguous.
     */
-  def itemsWithTrigger(triggerClasses: String, align: Align = Align.Start)(trigger: Modifier[HtmlElement]*)(
+  def itemsWithTrigger(triggerStyle: Modifier[HtmlElement], align: Align = Align.Start)(
+      trigger: Modifier[HtmlElement]*
+  )(
       build: Menu.Ctx => Seq[Modifier[HtmlElement]]
   ): HtmlElement =
-    render(triggerClasses, align, trigger, build)
+    render(triggerStyle, align, trigger, build)
 
   def apply(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
-    render(outlineTriggerClasses, Align.Start, trigger, adapt(items))
+    render(outlineTrigger, Align.Start, trigger, adapt(items))
 
   /** Menu anchored to the trigger's inline end — the `align="end"` content of the canonical component. */
   def alignEnd(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
-    render(outlineTriggerClasses, Align.End, trigger, adapt(items))
+    render(outlineTrigger, Align.End, trigger, adapt(items))
 
-  /** Replaces the trigger's class list outright. Appending overrides instead loses to the base classes whenever
-    * Tailwind emits the conflicting utility later (e.g. `p-0` never beats `px-4`).
+  /** Replaces the trigger's look outright. Appending overrides instead loses to the base classes whenever Tailwind
+    * emits the conflicting utility later (e.g. `p-0` never beats `px-4`).
     */
-  def withTrigger(triggerClasses: String, align: Align = Align.Start)(trigger: Modifier[HtmlElement]*)(
+  def withTrigger(triggerStyle: Modifier[HtmlElement], align: Align = Align.Start)(trigger: Modifier[HtmlElement]*)(
       items: Item*
   ): HtmlElement =
-    render(triggerClasses, align, trigger, adapt(items))
+    render(triggerStyle, align, trigger, adapt(items))
 
   /** Bridges the flat `Item` list onto the composable parts, so both APIs render the same markup and share behavior. */
   private def adapt(items: Seq[Item])(ctx: Menu.Ctx): Seq[Modifier[HtmlElement]] =
@@ -95,7 +100,7 @@ object DropdownMenu:
     else emptyMod
 
   private def render(
-      triggerClasses: String,
+      triggerStyle: Modifier[HtmlElement],
       align: Align,
       trigger: Seq[Modifier[HtmlElement]],
       build: Menu.Ctx => Seq[Modifier[HtmlElement]]
@@ -109,7 +114,7 @@ object DropdownMenu:
       button(
         typ := "button",
         dataAttr("slot") := "dropdown-menu-trigger",
-        cls := triggerClasses,
+        triggerStyle,
         aria.hasPopup := true,
         Floating.triggerBase(anchor),
         Floating.clickToToggle(anchor),

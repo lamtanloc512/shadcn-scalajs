@@ -47,11 +47,34 @@ object Button:
   def anchor(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
     a(href := hrefValue, dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
 
-  /** The class list for a given variant and size, upstream's `buttonVariants({ variant, size })`. For parts that must
-    * look like a button without being one — a popover or menu trigger, an anchor styled as a button.
+  private def variantName(value: Variant): String = value.toString.toLowerCase
+
+  private def sizeName(value: Size): String =
+    value.toString.replace("Icon", "icon-").stripSuffix("-").toLowerCase match
+      case "icon-" => "icon"
+      case other   => other
+
+  /** Everything a real button carries — base classes, variant, and size — for parts that must look like one without
+    * being one: a menu or popover trigger, an anchor styled as a button.
+    *
+    * Prefer this over [[classes]]. Half of a button's skin hangs off `data-variant`/`data-size`, which no class list
+    * can set: basecoat paints `.btn:not([data-variant])` as a solid primary button, and style packs size through the
+    * `cn-button-*` hooks, so a trigger dressed in classes alone comes out filled and a different height from the
+    * buttons beside it.
+    */
+  def appearance(variant: Variant = Variant.Primary, size: Size = Size.Default): Modifier[HtmlElement] =
+    Seq[Modifier[HtmlElement]](
+      cls := s"btn cn-button group/button $base",
+      ButtonApi.variant(variant),
+      ButtonApi.size(size)
+    )
+
+  /** The class list alone, upstream's `buttonVariants({ variant, size })`, for the rare caller that can only pass a
+    * string — a reactive `cls <--` whose variant changes, say. Such a caller must set `data-variant` and `data-size`
+    * itself; [[appearance]] does both and is what most parts want.
     */
   def classes(variant: Variant = Variant.Primary, size: Size = Size.Default): String =
-    s"btn cn-button group/button $base ${variantClasses(variant)} ${sizeClasses(size)}"
+    s"btn cn-button group/button $base cn-button-variant-${variantName(variant)} ${variantClasses(variant)} cn-button-size-${sizeName(size)} ${sizeClasses(size)}"
 
   /** Builder-style: `Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Save")` */
   def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =
@@ -59,10 +82,8 @@ object Button:
 
   object ButtonApi:
     def variant(value: Variant): Modifier[HtmlElement] =
-      val name = value.toString.toLowerCase
+      val name = variantName(value)
       Seq(dataAttr("variant") := name, cls(s"cn-button-variant-$name"), cls(variantClasses(value)))
     def size(value: Size): Modifier[HtmlElement] =
-      val name = value.toString.replace("Icon", "icon-").stripSuffix("-").toLowerCase match
-        case "icon-" => "icon"
-        case other   => other
+      val name = sizeName(value)
       Seq(dataAttr("size") := name, cls(s"cn-button-size-$name"), cls(sizeClasses(value)))
