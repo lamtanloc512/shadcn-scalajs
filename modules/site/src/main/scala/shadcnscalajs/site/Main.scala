@@ -1039,14 +1039,17 @@ object Main:
       case "slider"   => previewCanvas(Slider(value := "50", cls := "w-full max-w-sm"))
       case "sonner" =>
         previewCanvas(
-          div(
-            cls := "flex flex-wrap items-center justify-center gap-2",
-            Button(onClick --> { _ => Sonner.toast("Event has been created") }, "Toast"),
-            Button(onClick --> { _ => Sonner.success("Successfully saved") }, "Success"),
-            Button(onClick --> { _ => Sonner.error("Something went wrong") }, "Error"),
-            Button(onClick --> { _ => Sonner.info("Did you know?") }, "Info"),
-            Button(onClick --> { _ => Sonner.warning("Please review") }, "Warning"),
-            Button(onClick --> { _ => Sonner.loading("Loading…") }, "Loading")
+          Button.of(
+            _.variant(Button.Variant.Outline),
+            _ =>
+              onClick --> { _ =>
+                Sonner.toast(
+                  "Event has been created",
+                  Some("Sunday, December 03, 2023 at 9:00 AM"),
+                  Some(Sonner.ToastAction("Undo", () => ()))
+                )
+              },
+            _ => "Show Toast"
           )
         )
       case "spinner" => previewCanvas(Spinner())
@@ -1281,15 +1284,43 @@ object Main:
             Sheet.footer(Button(onClick --> { _ => drawerOpen.set(false) }, "Save changes"))
           )
         )
-      case "toggle" => previewCanvas(Toggle(Var(false), Toggle.Variant.Default, Toggle.Size.Default, "B"))
+      case "toggle" =>
+        previewCanvas(
+          Toggle(
+            Var(false),
+            Toggle.Variant.Outline,
+            Toggle.Size.Sm,
+            aria.label := "Toggle bookmark",
+            cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-blue-500 data-[state=on]:[&>svg]:stroke-blue-500",
+            Icons.bookmark(),
+            "Bookmark"
+          )
+        )
       case "toggle-group" =>
         previewCanvas(
-          ToggleGroup.single(
-            Var(Option("bold")),
-            Toggle.Variant.Default,
-            Toggle.Size.Default,
-            ToggleGroup.Item("bold", "B"),
-            ToggleGroup.Item("italic", "I")
+          ToggleGroup.multiple(
+            Var(Set.empty[String]),
+            Toggle.Variant.Outline,
+            Toggle.Size.Sm,
+            2,
+            ToggleGroup.Item(
+              "star",
+              Seq[Modifier[HtmlElement]](Icons.star(), "Star"),
+              aria.label := "Toggle star",
+              cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-yellow-500 data-[state=on]:[&>svg]:stroke-yellow-500"
+            ),
+            ToggleGroup.Item(
+              "heart",
+              Seq[Modifier[HtmlElement]](Icons.heart(), "Heart"),
+              aria.label := "Toggle heart",
+              cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-red-500 data-[state=on]:[&>svg]:stroke-red-500"
+            ),
+            ToggleGroup.Item(
+              "bookmark",
+              Seq[Modifier[HtmlElement]](Icons.bookmark(), "Bookmark"),
+              aria.label := "Toggle bookmark",
+              cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-blue-500 data-[state=on]:[&>svg]:stroke-blue-500"
+            )
           )
         )
       case _ =>
@@ -1639,7 +1670,19 @@ Select(plan, "Choose a plan") { ctx =>
 Sonner.Toaster()
 
 // Fire from event handlers anywhere
-Sonner.toast("Event has been created")
+Button.of(
+  _.variant(Button.Variant.Outline),
+  _ => onClick --> { _ =>
+    Sonner.toast(
+      "Event has been created",
+      Some("Sunday, December 03, 2023 at 9:00 AM"),
+      Some(Sonner.ToastAction("Undo", () => ()))
+    )
+  },
+  _ => "Show Toast"
+)
+
+// Typed variants also take an optional description
 Sonner.success("Successfully saved")
 Sonner.error("Something went wrong")
 Sonner.info("Did you know?")
@@ -1826,13 +1869,44 @@ Sheet(isOpen)(
   Sheet.header(Sheet.title("Edit profile"), Sheet.description("Make changes to your profile here.")),
   Sheet.footer(Button(onClick --> { _ => isOpen.set(false) }, "Save changes"))
 )"""
-      case "toggle" => """val pressed = Var(false)
-Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
+      case "toggle" =>
+        """val pressed = Var(false)
+
+Toggle(
+  pressed,
+  Toggle.Variant.Outline,
+  Toggle.Size.Sm,
+  aria.label := "Toggle bookmark",
+  cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-blue-500 data-[state=on]:[&>svg]:stroke-blue-500",
+  Icons.bookmark(),
+  "Bookmark"
+)"""
       case "toggle-group" =>
-        """ToggleGroup.single(
-  Var(Option("bold")),
-  ToggleGroup.Item("bold", "B"),
-  ToggleGroup.Item("italic", "I")
+        """val selected = Var(Set.empty[String])
+
+ToggleGroup.multiple(
+  selected,
+  Toggle.Variant.Outline,
+  Toggle.Size.Sm,
+  spacing = 2,
+  ToggleGroup.Item(
+    "star",
+    Seq[Modifier[HtmlElement]](Icons.star(), "Star"),
+    aria.label := "Toggle star",
+    cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-yellow-500 data-[state=on]:[&>svg]:stroke-yellow-500"
+  ),
+  ToggleGroup.Item(
+    "heart",
+    Seq[Modifier[HtmlElement]](Icons.heart(), "Heart"),
+    aria.label := "Toggle heart",
+    cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-red-500 data-[state=on]:[&>svg]:stroke-red-500"
+  ),
+  ToggleGroup.Item(
+    "bookmark",
+    Seq[Modifier[HtmlElement]](Icons.bookmark(), "Bookmark"),
+    aria.label := "Toggle bookmark",
+    cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-blue-500 data-[state=on]:[&>svg]:stroke-blue-500"
+  )
 )"""
       case _ => s"""$componentTitle(/* Laminar modifiers */)"""
 

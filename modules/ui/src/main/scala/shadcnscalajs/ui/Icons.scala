@@ -27,6 +27,7 @@ object Icons:
     "audio-lines",
     "bell",
     "book-open",
+    "bookmark",
     "building-2",
     "calendar",
     "camera",
@@ -46,6 +47,7 @@ object Icons:
     "file-text",
     "gauge",
     "globe",
+    "heart",
     "image",
     "layout-dashboard",
     "lock",
@@ -68,6 +70,7 @@ object Icons:
     "square-lock",
     "square-terminal",
     "square-unlock",
+    "star",
     "sun",
     "target",
     "thermometer",
@@ -157,6 +160,7 @@ object Icons:
   def audioLines(mods: Modifier[SvgElement]*): SvgElement = icon("audio-lines")(mods*)
   def bell(mods: Modifier[SvgElement]*): SvgElement = icon("bell")(mods*)
   def bookOpen(mods: Modifier[SvgElement]*): SvgElement = icon("book-open")(mods*)
+  def bookmark(mods: Modifier[SvgElement]*): SvgElement = icon("bookmark")(mods*)
   def building2(mods: Modifier[SvgElement]*): SvgElement = icon("building-2")(mods*)
   def calendar(mods: Modifier[SvgElement]*): SvgElement = icon("calendar")(mods*)
   def camera(mods: Modifier[SvgElement]*): SvgElement = icon("camera")(mods*)
@@ -176,6 +180,7 @@ object Icons:
   def fileText(mods: Modifier[SvgElement]*): SvgElement = icon("file-text")(mods*)
   def gauge(mods: Modifier[SvgElement]*): SvgElement = icon("gauge")(mods*)
   def globe(mods: Modifier[SvgElement]*): SvgElement = icon("globe")(mods*)
+  def heart(mods: Modifier[SvgElement]*): SvgElement = icon("heart")(mods*)
   def image(mods: Modifier[SvgElement]*): SvgElement = icon("image")(mods*)
   def layoutDashboard(mods: Modifier[SvgElement]*): SvgElement = icon("layout-dashboard")(mods*)
   def lock(mods: Modifier[SvgElement]*): SvgElement = icon("lock")(mods*)
@@ -198,6 +203,7 @@ object Icons:
   def squareLock(mods: Modifier[SvgElement]*): SvgElement = icon("square-lock")(mods*)
   def squareTerminal(mods: Modifier[SvgElement]*): SvgElement = icon("square-terminal")(mods*)
   def squareUnlock(mods: Modifier[SvgElement]*): SvgElement = icon("square-unlock")(mods*)
+  def star(mods: Modifier[SvgElement]*): SvgElement = icon("star")(mods*)
   def sun(mods: Modifier[SvgElement]*): SvgElement = icon("sun")(mods*)
   def target(mods: Modifier[SvgElement]*): SvgElement = icon("target")(mods*)
   def thermometer(mods: Modifier[SvgElement]*): SvgElement = icon("thermometer")(mods*)

@@ -16,17 +16,21 @@ object Toggle:
 
   private val ariaPressedAttr: HtmlAttr[Boolean] = htmlAttr("aria-pressed", BooleanAsTrueFalseStringCodec)
 
-  private val base =
+  private[ui] val base =
     "cn-toggle group/toggle inline-flex items-center justify-center whitespace-nowrap outline-none hover:bg-muted focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
 
-  private def variantClasses(variant: Variant): String = variant match
+  private[ui] def variantClasses(variant: Variant): String = variant match
     case Variant.Default => "cn-toggle-variant-default"
     case Variant.Outline => "cn-toggle-variant-outline"
 
-  private def sizeClasses(size: Size): String = size match
+  private[ui] def sizeClasses(size: Size): String = size match
     case Size.Default => "cn-toggle-size-default"
     case Size.Sm      => "cn-toggle-size-sm"
     case Size.Lg      => "cn-toggle-size-lg"
+
+  /** Full class recipe shared by ToggleGroup items, mirroring upstream's exported `toggleVariants`. */
+  private[ui] def classes(variant: Variant, size: Size): String =
+    s"$base ${variantClasses(variant)} ${sizeClasses(size)}"
 
   def apply(
       pressedVar: Var[Boolean],
@@ -46,7 +50,7 @@ object Toggle:
     button(
       typ := "button",
       dataAttr("slot") := "toggle",
-      cls := s"$base ${variantClasses(variant)} ${sizeClasses(size)}",
+      cls := classes(variant, size),
       dataAttr("state") <-- pressedVar.signal.map(if _ then "on" else "off"),
       ariaPressedAttr <-- pressedVar.signal,
       disabled <-- isDisabled,

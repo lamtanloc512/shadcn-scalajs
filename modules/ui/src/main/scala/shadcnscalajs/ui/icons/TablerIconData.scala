@@ -44,6 +44,9 @@ object TablerIconData extends IconDataSource:
       "M12 6l0 13",
       "M21 6l0 13"
     ),
+    "bookmark" -> Seq(
+      "M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z"
+    ),
     "building-2" -> Seq(
       "M3 21l18 0",
       "M3 10l18 0",
@@ -149,6 +152,9 @@ object TablerIconData extends IconDataSource:
       "M11.5 3a17 17 0 0 0 0 18",
       "M12.5 3a17 17 0 0 1 0 18"
     ),
+    "heart" -> Seq(
+      "M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"
+    ),
     "image" -> Seq(
       "M15 8h.01",
       "M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z",
@@ -253,6 +259,9 @@ object TablerIconData extends IconDataSource:
       "M3 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z",
       "M9 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0",
       "M13 11v-4a4 4 0 1 1 8 0v4"
+    ),
+    "star" -> Seq(
+      "M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"
     ),
     "sun" -> Seq(
       "M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0",
