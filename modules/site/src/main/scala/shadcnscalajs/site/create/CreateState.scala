@@ -62,6 +62,16 @@ final class CreateState(urlSync: Boolean = true):
     syncUrl(code)
   }
 
+  /** Re-reads what is persisted, for a menu that outlives the page it was opened on.
+    *
+    * The site header is built once for the session now, so its customizer can be remounted after `/create` — which
+    * runs its own [[CreateState]] — has changed the theme underneath it. Without this the header would reapply the
+    * config it was constructed with and silently undo that edit.
+    */
+  def syncFromStorage(): Unit =
+    val next = initialConfig
+    if next != config.now() then config.set(next)
+
   def update(f: PresetConfig => PresetConfig): Unit =
     val next = f(ThemeConfig.toPreset(config.now()))
     commitPreset(Preset.encode(next), recordHistory = true)

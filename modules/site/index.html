@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Router-less multi-page app: every navigation is a real page load, and the Scala.js bundle
-       (which calls ThemeConfig.applyToDocument) is deferred, so without this the page would paint
-       with default styling before the persisted theme applies. This synchronous, blocking script
-       mirrors ThemeConfig.applyToDocument by reading the same localStorage key directly, before any
-       stylesheet or the deferred module script runs. Duplicating the attribute list here (rather
-       than sharing code with the Scala side) is intentional, matching shadcn/ui's own docs site.
+  <!-- The Scala.js bundle (which calls ThemeConfig.applyToDocument) is deferred, so without this a
+       cold load — the first visit, a refresh, or any deep link — would paint with default styling
+       before the persisted theme applies. In-app navigation is client-side and never comes back
+       through here. This synchronous, blocking script mirrors ThemeConfig.applyToDocument by reading
+       the same localStorage key directly, before any stylesheet or the deferred module script runs.
+       Duplicating the attribute list here (rather than sharing code with the Scala side) is
+       intentional, matching shadcn/ui's own docs site.
 
        It also links the active style pack. The eight packs ship as separate stylesheets (only one is
        ever active) because bundling them made every full-document style recalc — anything promoting

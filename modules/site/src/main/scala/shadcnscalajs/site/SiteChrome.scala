@@ -128,6 +128,46 @@ object SiteChrome:
       navGhost("/create", "Create")
     )
 
+  private def isLanding(route: Router.Route): Boolean = route == Router.Route.Landing
+
+  private def activeOf(route: Router.Route): Active = route match
+    case Router.Route.ComponentsIndex | Router.Route.Component(_) => Active.Components
+    case Router.Route.BlocksIndex | Router.Route.Block(_) | Router.Route.BlockPreview(_) => Active.Blocks
+    case Router.Route.Create | Router.Route.CreatePreview => Active.Create
+    case Router.Route.Landing => Active.None
+
+  private def navFor(route: Router.Route): HtmlElement = route match
+    case Router.Route.Component(slug) => docsNav(if slug.isEmpty then "drawer" else slug)
+    case other => primaryNav(activeOf(other), includeGitHub = isLanding(other), showHome = !isLanding(other))
+
+  /** One header for the whole session.
+    *
+    * Rebuilding it per navigation meant rebuilding [[ThemeMenu]] with it, and that constructs a `CreateState` and the
+    * full customizer field set every time. Only the parts that genuinely differ by route — the nav links, the search
+    * stub, and whether the bar is bordered — are reactive; `trailing` is held as one instance for the session.
+    */
+  def persistent(route: Signal[Router.Route], trailing: HtmlElement): HtmlElement =
+    val bordered = route.map(r => !isLanding(r)).distinct
+    headerTag(
+      cls := "sticky inset-x-0 top-0 flex shrink-0 items-center gap-2",
+      cls("z-40", "border-b", "bg-background/95", "backdrop-blur") <-- bordered,
+      cls("z-30", "isolate", "bg-background") <-- bordered.map(!_),
+      div(
+        cls := "flex h-14 w-full items-center justify-between gap-2 px-4",
+        div(
+          cls := "flex min-w-0 items-center gap-1",
+          child <-- route.map(r => mobileNav(activeOf(r), includeGitHub = isLanding(r), showHome = !isLanding(r))),
+          brand(),
+          child <-- route.map(navFor)
+        ),
+        div(
+          cls := "ml-auto flex min-w-0 flex-1 items-center justify-end gap-2",
+          child.maybe <-- route.map(r => Option.when(isLanding(r))(searchStub)),
+          trailing
+        )
+      )
+    )
+
   /** Sticky top bar. `trailing` replaces the default [[ThemeMenu]] when the page already owns theme controls. */
   def header(
       active: Active = Active.None,

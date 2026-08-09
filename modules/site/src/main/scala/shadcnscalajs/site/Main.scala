@@ -11,21 +11,68 @@ object Main:
   private lazy val kbdEl = htmlTag("kbd")
 
   def main(args: Array[String]): Unit =
-    val pathname = dom.window.location.pathname
-    val page =
-      if pathname == "/components" || pathname == "/components/" then componentsGalleryPage()
-      else if pathname.startsWith("/components/") then componentDocsPage()
-      else if pathname.startsWith("/blocks/") && pathname.endsWith("/preview") then
-        BlockPreviewPage(pathname.stripPrefix("/blocks/").stripSuffix("/preview"))
-      else if pathname == "/blocks" || pathname == "/blocks/" then BlocksIndexPage()
-      else if pathname.startsWith("/blocks/") then BlockDocsPage(pathname.stripPrefix("/blocks/").stripSuffix("/"))
-      else if pathname == "/create" || pathname == "/create/" then
-        dom.window.location.replace("/create/preview-02" + dom.window.location.search)
-        div()
-      else if pathname == "/create/preview-02" then shadcnscalajs.site.create.CreatePageEntry()
-      else if pathname == "/preview/preview-02" then shadcnscalajs.site.create.PreviewOnlyPage()
-      else app()
-    render(dom.document.getElementById("root"), page)
+    Router.install()
+    render(dom.document.getElementById("root"), shell())
+
+  /** Everything that outlives a navigation lives here: the page background, the header, the toaster, and — for the
+    * component docs — the sidebar. Only the routed subtree below is rebuilt when a link is clicked.
+    */
+  private def shell(): HtmlElement =
+    val route = Router.current
+    val docsSlug = Var("drawer")
+    val header = SiteChrome.persistent(route, ThemeMenu())
+    val toaster = Sonner.Toaster()
+    val hasChrome = route.map(usesSharedChrome).distinct
+
+    // Two component routes share one body, so moving between components rebuilds the article but not the sidebar.
+    val bodyKey = route
+      .map {
+        case Router.Route.Component(_) => Router.Route.Component("")
+        case other                     => other
+      }
+      .distinct
+
+    div(
+      cls := "min-h-dvh bg-background text-foreground antialiased",
+      cls("overflow-x-clip") <-- route.map(_ == Router.Route.Landing),
+      route --> { r =>
+        dom.document.title = titleFor(r)
+        r match
+          case Router.Route.Component(slug) => docsSlug.set(if slug.isEmpty then "drawer" else slug)
+          case _                            => ()
+      },
+      child.maybe <-- hasChrome.map(Option.when(_)(header)),
+      child <-- bodyKey.map(bodyFor(_, docsSlug.signal)),
+      child.maybe <-- hasChrome.map(Option.when(_)(toaster))
+    )
+
+  /** `/create` owns theme controls in its own header, and the two preview routes are iframed at a real viewport. */
+  private def usesSharedChrome(route: Router.Route): Boolean = route match
+    case Router.Route.Create | Router.Route.CreatePreview | Router.Route.BlockPreview(_) => false
+    case _                                                                               => true
+
+  private def bodyFor(route: Router.Route, docsSlug: Signal[String]): HtmlElement = route match
+    case Router.Route.Component(_)       => componentDocsBody(docsSlug)
+    case Router.Route.ComponentsIndex    => componentsGalleryPage()
+    case Router.Route.BlockPreview(name) => BlockPreviewPage(name)
+    case Router.Route.BlocksIndex        => BlocksIndexPage()
+    case Router.Route.Block(name)        => BlockDocsPage(name)
+    case Router.Route.Create             => shadcnscalajs.site.create.CreatePageEntry()
+    case Router.Route.CreatePreview      => shadcnscalajs.site.create.PreviewOnlyPage()
+    case Router.Route.Landing            => app()
+
+  /** The document title used to come from the server's HTML per route; the router has to keep it current itself. */
+  private def titleFor(route: Router.Route): String =
+    def titleCase(slug: String) = slug.split("-").map(_.capitalize).mkString(" ")
+    route match
+      case Router.Route.ComponentsIndex    => "Components – shadcn-scalajs"
+      case Router.Route.Component(slug)    => s"${titleCase(if slug.isEmpty then "drawer" else slug)} – shadcn-scalajs"
+      case Router.Route.BlockPreview(name) => s"${titleCase(name)} preview – shadcn-scalajs"
+      case Router.Route.BlocksIndex        => "Blocks – shadcn-scalajs"
+      case Router.Route.Block(name)        => s"${titleCase(name)} – shadcn-scalajs"
+      case Router.Route.Create             => "Customizer – shadcn-scalajs"
+      case Router.Route.CreatePreview      => "Preview – shadcn-scalajs"
+      case Router.Route.Landing            => "shadcn-scalajs"
 
   // ── SVG Icons ──
   private def iconSvg(p: String) =
@@ -338,16 +385,8 @@ object Main:
 
   // ── App ──
   private def app(): HtmlElement =
-    div(
-      cls := "min-h-dvh overflow-x-clip bg-background text-foreground antialiased",
-      SiteChrome.header(
-        includeSearch = true,
-        includeGitHub = true,
-        showHome = false,
-        bordered = false
-      ),
-      mainTag(
-        cls := "flex flex-1 flex-col",
+    mainTag(
+      cls := "flex flex-1 flex-col",
 
         // ── Hero ──
         sectionTag(
@@ -409,53 +448,96 @@ object Main:
           ),
           "."
         )
-      ),
-      Sonner.Toaster()
     )
 
   /** Interactive component gallery. Each preview is composed from the same Laminar primitives exported by modules/ui,
     * making this page a useful smoke test as well as documentation.
     */
   private def componentsGalleryPage(): HtmlElement =
-    div(
-      cls := "min-h-dvh bg-background text-foreground antialiased",
-      SiteChrome.header(active = SiteChrome.Active.Components),
-      mainTag(
-        cls := "mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8",
-        div(
-          cls := "mb-10 max-w-2xl",
-          p(cls := "mb-2 text-sm font-medium text-primary", "Laminar component library"),
-          h1(cls := "text-4xl font-semibold tracking-tight", "Components"),
-          p(
-            cls := "mt-3 text-lg text-muted-foreground",
-            "Browse every component in the shadcn-scalajs registry. Each links to its full docs page with a live preview, usage code, and install instructions."
-          )
-        ),
-        div(
-          cls := "grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3",
-          componentNavList.map { name =>
-            a(
-              href := s"/components/${slugify(name)}",
-              cls := "text-sm text-foreground underline-offset-4 hover:text-primary hover:underline",
-              name
-            )
-          }
+    mainTag(
+      cls := "mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8",
+      div(
+        cls := "mb-10 max-w-2xl",
+        p(cls := "mb-2 text-sm font-medium text-primary", "Laminar component library"),
+        h1(cls := "text-4xl font-semibold tracking-tight", "Components"),
+        p(
+          cls := "mt-3 text-lg text-muted-foreground",
+          "Browse every component in the shadcn-scalajs registry. Each links to its full docs page with a live preview, usage code, and install instructions."
         )
       ),
-      Sonner.Toaster()
+      div(
+        cls := "grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3",
+        componentNavList.map { name =>
+          a(
+            href := s"/components/${slugify(name)}",
+            cls := "text-sm text-foreground underline-offset-4 hover:text-primary hover:underline",
+            name
+          )
+        }
+      )
+    )
+
+  /** The docs grid, whose sidebar survives moving between components.
+    *
+    * Keeping it mounted is what preserves its scroll offset — the sidebar used to be rebuilt by every navigation and
+    * had to have its scrollTop saved to sessionStorage and restored by hand.
+    */
+  private def componentDocsBody(slug: Signal[String]): HtmlElement =
+    div(
+      cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
+      asideTag(
+        cls := "hidden border-r lg:block",
+        ScrollArea(
+          cls := "sticky top-14 h-[calc(100svh-3.5rem)]",
+          navTag(
+            cls := "px-4 py-8",
+            aria.label := "Component navigation",
+            p(cls := "mb-2 px-2 text-xs font-medium text-muted-foreground", "SECTIONS"),
+            a(
+              href := "/",
+              cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
+              "Introduction"
+            ),
+            a(
+              href := "/components",
+              cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium",
+              "Components"
+            ),
+            a(
+              href := "/blocks",
+              cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
+              "Blocks"
+            ),
+            p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
+            componentNavList.map(docsNavLink(_, slug))
+          )
+        )
+      ),
+      child <-- slug.map(componentDocsPage)
+    )
+
+  private def docsNavLink(name: String, activeSlug: Signal[String]): HtmlElement =
+    val slug = slugify(name)
+    val isActive = activeSlug.map(_ == slug).distinct
+    a(
+      href := s"/components/$slug",
+      cls := "block rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+      cls("bg-accent", "font-medium", "text-accent-foreground") <-- isActive,
+      cls("text-muted-foreground") <-- isActive.map(!_),
+      aria.current <-- isActive.map(active => if active then "page" else "false"),
+      name
     )
 
   /** Documentation-style component route. `/components/drawer` is the first full page; other component links use the
     * same shell and live primitive preview so the route structure scales as examples are added.
     */
-  private def componentDocsPage(): HtmlElement =
+  private def componentDocsPage(slug: String): HtmlElement =
     val themeConfig = Var(ThemeConfig.load())
     val switchOn = Var(true)
     val tabsDefaultSelected = Var("overview")
     val tabsLineSelected = Var("overview")
     val previewTheme = Var(ThemeSwitcher.Theme.System)
-    val pathParts = dom.window.location.pathname.stripPrefix("/components").stripPrefix("/").split("/").toList
-    val componentName = pathParts.find(_.nonEmpty).getOrElse("drawer")
+    val componentName = if slug.isEmpty then "drawer" else slug
     val componentTitle = componentName.split("-").map(_.capitalize).mkString(" ")
     val componentDescription = componentName match
       case "accordion" => "A vertically stacked set of interactive headings that each reveal a section of content."
@@ -469,8 +551,6 @@ object Main:
       case "typography" =>
         "Styles for headings, paragraphs, lists, and inline code — utility-class recipes, not a registry component."
       case _ => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
-
-    dom.document.title = s"$componentTitle – shadcn-scalajs"
 
     val navIndex = componentNavList.indexWhere(name => slugify(name) == componentName)
     val prevEntry = if navIndex > 0 then Some(componentNavList(navIndex - 1)) else None
@@ -512,15 +592,6 @@ object Main:
           styleAttr := "white-space:pre",
           source
         )
-      )
-
-    def navLink(name: String): HtmlElement =
-      val slug = slugify(name)
-      a(
-        href := s"/components/$slug",
-        cls := s"block rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${if slug == componentName then "bg-accent font-medium text-accent-foreground" else "text-muted-foreground"}",
-        if slug == componentName then aria.current := "page" else emptyMod,
-        name
       )
 
     val docExamples = ComponentExamples(componentName)
@@ -1912,40 +1983,8 @@ ToggleGroup.multiple(
       case _ => s"""$componentTitle(/* Laminar modifiers */)"""
 
     div(
-      cls := "min-h-dvh bg-background text-foreground antialiased",
-      SiteChrome.header(active = SiteChrome.Active.Components, nav = Some(SiteChrome.docsNav(componentName))),
-      div(
-        cls := "mx-auto grid w-full max-w-[1800px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_15rem]",
-        asideTag(
-          cls := "hidden border-r lg:block",
-          ScrollArea(
-            cls := "sticky top-14 h-[calc(100svh-3.5rem)]",
-            DocsNavScroll.preserve,
-            navTag(
-              cls := "px-4 py-8",
-              aria.label := "Component navigation",
-              p(cls := "mb-2 px-2 text-xs font-medium text-muted-foreground", "SECTIONS"),
-              a(
-                href := "/",
-                cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
-                "Introduction"
-              ),
-              a(
-                href := "/components",
-                cls := "block rounded-md bg-accent px-2 py-1.5 text-sm font-medium",
-                "Components"
-              ),
-              a(
-                href := "/blocks",
-                cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
-                "Blocks"
-              ),
-              p(cls := "mb-2 mt-7 px-2 text-xs font-medium text-muted-foreground", "COMPONENTS"),
-              componentNavList.map(navLink)
-            )
-          )
-        ),
-        mainTag(
+      cls := "contents",
+      mainTag(
           cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
           articleTag(
             cls := articleWidthCls,
@@ -2044,8 +2083,6 @@ ToggleGroup.multiple(
                 case None => emptyNode
             )
           )
-        ),
-        tableOfContents
       ),
-      Sonner.Toaster()
+      tableOfContents
     )

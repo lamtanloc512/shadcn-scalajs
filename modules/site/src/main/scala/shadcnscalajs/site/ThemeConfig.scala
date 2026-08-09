@@ -6,10 +6,11 @@ import scala.scalajs.js
 import scala.util.Try
 import shadcnscalajs.site.create.{Preset, PresetConfig}
 
-/** Site-wide theme/customizer state, persisted to `localStorage` so it survives real browser navigations — this site
-  * has no client-side router, so `Main.main()` re-runs from scratch on every page load with fresh `Var`s. Every page's
-  * mount function seeds a `Var[ThemeConfig]` from `load()` and applies it via `applyToDocument`; any control that
-  * changes a field calls `store` so the next page load picks it up. See
+/** Site-wide theme/customizer state, persisted to `localStorage`.
+  *
+  * Storage rather than a single in-memory `Var` because the theme has to survive a real page load — `index.html` reads
+  * the same key before first paint to link the active style pack — and because `/create` runs its own customizer state
+  * alongside the site header's. Any control that changes a field calls `store`; anything that mounts reads `load`. See
   * docs/superpowers/specs/2026-08-06-create-theme-customizer-design.md for the full design.
   */
 final case class ThemeConfig(

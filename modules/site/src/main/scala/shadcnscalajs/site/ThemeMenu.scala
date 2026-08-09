@@ -40,6 +40,7 @@ object ThemeMenu:
 
     div(
       cls := "relative flex items-center gap-2",
+      onMountCallback(_ => state.syncFromStorage()),
       state.config.signal --> { cfg => ThemeConfig.applyToDocument(cfg) },
       onMountBind { ctx =>
         documentEvents(_.onMouseDown) --> { (ev: dom.MouseEvent) =>
