@@ -198,7 +198,11 @@ object Dialog:
         exitTimer = Some(dom.window.setTimeout(() => if closing then finishClose(el), options.exitMs))
 
     dialogTag(
-      cls := s"$rootClass ${rootExitClass(options.exitMs)}",
+      // `whitespace-normal` resets what the dialog inherits from wherever it was mounted. A dialog is a top-layer
+      // overlay, but it is still a DOM descendant of its trigger: the dashboard's row drawer lives inside a
+      // `whitespace-nowrap` table cell, whose nowrap otherwise inherited into the whole panel and stopped every
+      // paragraph from wrapping, overflowing the content sideways.
+      cls := s"$rootClass whitespace-normal ${rootExitClass(options.exitMs)}",
       rootMods,
       dataAttr("state") <-- isOpenVar.signal.map(open => if open then "open" else "closed"),
       onMountBind { ctx =>

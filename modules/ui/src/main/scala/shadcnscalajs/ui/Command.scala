@@ -3,8 +3,6 @@ package shadcnscalajs.ui
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 
-import scala.scalajs.js
-
 /** shadcn/ui Command — a command palette that filters its own items as you type.
   *
   * Upstream gets the behavior from cmdk. Here the root runs it by delegation: it listens for `input` and `keydown`
@@ -96,7 +94,19 @@ object Command:
     row.foreach { el =>
       el.setAttribute("data-selected", "true")
       el.setAttribute("aria-selected", "true")
-      el.asInstanceOf[js.Dynamic].scrollIntoView(js.Dynamic.literal(block = "nearest"))
+      revealInList(el)
+    }
+
+  /** `scrollIntoView` walks every scrollable ancestor, so highlighting the first row on mount would drag the whole page
+    * to the command palette. Scroll the list itself instead.
+    */
+  private def revealInList(row: dom.html.Element): Unit =
+    Option(row.closest("[data-slot=command-list]")).map(_.asInstanceOf[dom.html.Element]).foreach { list =>
+      val rowRect = row.getBoundingClientRect()
+      val rowTop = rowRect.top - list.getBoundingClientRect().top + list.scrollTop
+      val rowBottom = rowTop + rowRect.height
+      if rowTop < list.scrollTop then list.scrollTop = rowTop
+      else if rowBottom > list.scrollTop + list.clientHeight then list.scrollTop = rowBottom - list.clientHeight
     }
 
   /** Arrow keys move the highlight and Enter runs it. Focus stays in the search input throughout — that is why the

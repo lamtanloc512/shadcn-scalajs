@@ -18,12 +18,6 @@ object Dashboard01:
   def apply(): HtmlElement =
     val openVar = Var(true)
     Sidebar.provider(openVar)(
-      // `Sidebar.provider` hardcodes `--sidebar-width: 16rem; --sidebar-width-icon: 3rem;` as an inline `styleAttr`.
-      // Laminar's `styleAttr :=` replaces the whole attribute value rather than merging individual properties (unlike
-      // `cls :=`, which is additive), so overriding it here has to restate `--sidebar-width-icon` too — dropping it
-      // would break the icon-collapsed rail width, which several `cn-sidebar-*` classes read via `var(...)`. This
-      // mod is applied after `provider`'s own `styleAttr :=` (it comes later in the `div(...)` argument list), so it
-      // wins outright; no change to `modules/ui`'s `Sidebar.provider` signature was needed.
       styleAttr := "--sidebar-width: calc(var(--spacing) * 72); --sidebar-width-icon: 3rem; --header-height: calc(var(--spacing) * 12);",
       AppSidebar(openVar)(),
       Sidebar.inset(

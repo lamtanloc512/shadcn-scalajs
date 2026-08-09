@@ -519,6 +519,7 @@ object Main:
       a(
         href := s"/components/$slug",
         cls := s"block rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${if slug == componentName then "bg-accent font-medium text-accent-foreground" else "text-muted-foreground"}",
+        if slug == componentName then aria.current := "page" else emptyMod,
         name
       )
 
@@ -1036,7 +1037,7 @@ object Main:
           )
         )
       case "skeleton" => previewCanvas(Skeleton(cls := "h-20 w-full max-w-sm"))
-      case "slider"   => previewCanvas(Slider(value := "50", cls := "w-full max-w-sm"))
+      case "slider"   => previewCanvas(Slider(cls := "w-full max-w-sm"))
       case "sonner" =>
         previewCanvas(
           Button.of(
@@ -1664,7 +1665,7 @@ Select(plan, "Choose a plan") { ctx =>
   Sidebar.content(Sidebar.menu(Sidebar.menuItem("Overview"), Sidebar.menuItem("Settings")))
 )"""
       case "skeleton" => """Skeleton(cls := "h-20 w-full")"""
-      case "slider"   => """Slider(value := "50")"""
+      case "slider"   => """Slider(cls := "w-full max-w-sm")"""
       case "sonner" =>
         """// Mount once near your app root
 Sonner.Toaster()
@@ -1919,6 +1920,7 @@ ToggleGroup.multiple(
           cls := "hidden border-r lg:block",
           ScrollArea(
             cls := "sticky top-14 h-[calc(100svh-3.5rem)]",
+            DocsNavScroll.preserve,
             navTag(
               cls := "px-4 py-8",
               aria.label := "Component navigation",

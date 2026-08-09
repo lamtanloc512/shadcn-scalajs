@@ -201,15 +201,22 @@ object Floating:
     var right = dom.window.innerWidth.toDouble
     var bottom = dom.window.innerHeight.toDouble
     var node = trigger.parentElement
-    while node != null && node != dom.document.body do
-      val style = dom.window.getComputedStyle(node)
-      if style.overflow != "visible" || style.overflowX != "visible" || style.overflowY != "visible" then
-        val rect = node.getBoundingClientRect()
-        top = math.max(top, rect.top)
-        left = math.max(left, rect.left)
-        right = math.min(right, rect.right)
-        bottom = math.min(bottom, rect.bottom)
-      node = node.parentElement
+    var inTopLayer = false
+    while node != null && node != dom.document.body && !inTopLayer do
+      // A modal `<dialog>` paints in the top layer at the viewport, so nothing above it in the DOM clips the panel —
+      // and the dialog's own box is usually 0×0 because its visible panel is a child, which would collapse the clip
+      // region to nothing. Both matter here: sheets are rendered inside the table cell that opened them, so the walk
+      // would otherwise intersect the cell's scroll container, wherever the table happens to be scrolled to.
+      if node.tagName.toLowerCase == "dialog" then inTopLayer = true
+      else
+        val style = dom.window.getComputedStyle(node)
+        if style.overflow != "visible" || style.overflowX != "visible" || style.overflowY != "visible" then
+          val rect = node.getBoundingClientRect()
+          top = math.max(top, rect.top)
+          left = math.max(left, rect.left)
+          right = math.min(right, rect.right)
+          bottom = math.min(bottom, rect.bottom)
+        node = node.parentElement
     (top, left, right, bottom)
 
   private def opposite(side: Side): Side = side match

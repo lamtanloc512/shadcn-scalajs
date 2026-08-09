@@ -20,8 +20,9 @@ object Slider:
   private val thumbClasses =
     "cn-slider-thumb block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50"
 
-  /** Uncontrolled native range — kept for `/components/slider` preview (`Slider(value := "50", …)`). */
-  def apply(mods: Modifier[HtmlElement]*): HtmlElement = Range(mods*)
+  /** Uncontrolled single-thumb slider. Owns its value so docs previews and one-liners do not need a `Var`. */
+  def apply(mods: Modifier[HtmlElement]*): HtmlElement =
+    single(Var(50.0), mods = mods*)
 
   def single(
       valueVar: Var[Double],
