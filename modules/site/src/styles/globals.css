@@ -84,7 +84,7 @@
      preset can override body/heading/code independently. */
   --font-body: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading-token: var(--font-body);
-  --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-code: "SF Mono", "Cascadia Code", "DejaVu Sans Mono", ui-monospace, monospace;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0% 0 0);
