@@ -54,11 +54,11 @@ object Main:
   private def bodyFor(route: Router.Route, docsSlug: Signal[String]): HtmlElement = route match
     case Router.Route.Component(_)       => componentDocsBody(docsSlug)
     case Router.Route.ComponentsIndex    => componentsGalleryPage()
-    case Router.Route.BlockPreview(name) => BlockPreviewPage(name)
-    case Router.Route.BlocksIndex        => BlocksIndexPage()
-    case Router.Route.Block(name)        => BlockDocsPage(name)
-    case Router.Route.Create             => shadcnscalajs.site.create.CreatePageEntry()
-    case Router.Route.CreatePreview      => shadcnscalajs.site.create.PreviewOnlyPage()
+    case Router.Route.BlockPreview(name) => LazyRoutes.blockPreview(name)
+    case Router.Route.BlocksIndex        => LazyRoutes.blocksIndex()
+    case Router.Route.Block(name)        => LazyRoutes.blockDocs(name)
+    case Router.Route.Create             => LazyRoutes.create()
+    case Router.Route.CreatePreview      => LazyRoutes.createPreview()
     case Router.Route.Landing            => app()
 
   /** The document title used to come from the server's HTML per route; the router has to keep it current itself. */
@@ -424,7 +424,7 @@ object Main:
         // ── Preview mosaic ──
         sectionTag(
           cls := "flex-1 p-0",
-          shadcnscalajs.site.create.preview02.Preview02()
+          LazyRoutes.landingMosaic()
         ),
 
         // ── Footer ──

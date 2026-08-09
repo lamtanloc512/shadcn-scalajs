@@ -38,9 +38,10 @@ lazy val jsSettings = Seq(
       // sources through this pipeline anyway.
       .withSourceMap(false)
   },
-  // Production link (fullLinkJS / vite build): one module, size-oriented ES
-  // features. sbt-scalajs already enables minify + Semantics.optimized on
-  // fullOpt; Closure stays off for ESModule (unsupported) — Vite minifies.
+  // Production link (fullLinkJS / vite build): as few modules as the entry points and
+  // `js.dynamicImport` boundaries allow. LazyRoutes wraps blocks/create so those land in
+  // async chunks; everything else stays in the entry. sbt-scalajs already enables minify +
+  // Semantics.optimized on fullOpt; Closure stays off for ESModule (unsupported) — Vite minifies.
   Compile / fullOptJS / scalaJSLinkerConfig ~= { cfg =>
     cfg
       .withModuleSplitStyle(ModuleSplitStyle.FewestModules)

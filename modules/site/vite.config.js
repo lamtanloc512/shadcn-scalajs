@@ -23,6 +23,7 @@ export default defineConfig({
     minify: "esbuild",
     cssMinify: true,
     reportCompressedSize: true,
-    chunkSizeWarningLimit: 1500
+    // Entry stays large (docs + ui); async chunks from LazyRoutes are much smaller.
+    chunkSizeWarningLimit: 1200
   }
 });
