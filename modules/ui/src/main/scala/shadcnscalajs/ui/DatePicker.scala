@@ -83,7 +83,7 @@ object DatePicker:
       Popover.content(
         Floating.Placement(align = Floating.Align.Start),
         "w-auto p-0!",
-        Calendar(selected)
+        Calendar(selected, Calendar.CaptionLayout.Dropdown)
       )
     )
 
@@ -116,6 +116,6 @@ object DatePicker:
       Popover.content(
         Floating.Placement(align = Floating.Align.Start),
         "w-auto p-0!",
-        RangeCalendar(selected, isDisabled)
+        RangeCalendar(selected, isDisabled, Calendar.CaptionLayout.Dropdown)
       )
     )

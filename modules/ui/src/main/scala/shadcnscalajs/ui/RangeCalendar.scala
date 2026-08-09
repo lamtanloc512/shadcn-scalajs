@@ -10,11 +10,19 @@ import scala.scalajs.js
 object RangeCalendar:
 
   def apply(selected: Var[Calendar.DateRange], mods: Modifier[HtmlElement]*): HtmlElement =
-    Calendar.rangeCalendar(selected, _ => false, mods*)
+    Calendar.rangeCalendar(selected, _ => false, Calendar.CaptionLayout.Label, mods*)
 
   def apply(
       selected: Var[Calendar.DateRange],
       isDisabled: js.Date => Boolean,
       mods: Modifier[HtmlElement]*
   ): HtmlElement =
-    Calendar.rangeCalendar(selected, isDisabled, mods*)
+    Calendar.rangeCalendar(selected, isDisabled, Calendar.CaptionLayout.Label, mods*)
+
+  def apply(
+      selected: Var[Calendar.DateRange],
+      isDisabled: js.Date => Boolean,
+      captionLayout: Calendar.CaptionLayout,
+      mods: Modifier[HtmlElement]*
+  ): HtmlElement =
+    Calendar.rangeCalendar(selected, isDisabled, captionLayout, mods*)

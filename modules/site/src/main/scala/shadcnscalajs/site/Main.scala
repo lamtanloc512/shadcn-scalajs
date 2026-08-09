@@ -472,7 +472,6 @@ object Main:
 
     dom.document.title = s"$componentTitle – shadcn-scalajs"
 
-    val exampleTab = Var("preview")
     val navIndex = componentNavList.indexWhere(name => slugify(name) == componentName)
     val prevEntry = if navIndex > 0 then Some(componentNavList(navIndex - 1)) else None
     val nextEntry =
@@ -523,6 +522,8 @@ object Main:
         name
       )
 
+    val docExamples = ComponentExamples(componentName)
+
     def tableOfContents: HtmlElement =
       asideTag(
         cls := "hidden xl:block",
@@ -534,6 +535,13 @@ object Main:
           a(href := "#installation", cls := "block text-muted-foreground hover:text-foreground", "Installation"),
           a(href := "#usage", cls := "block text-muted-foreground hover:text-foreground", "Usage"),
           a(href := "#examples", cls := "block text-muted-foreground hover:text-foreground", "Examples"),
+          docExamples.map { example =>
+            a(
+              href := s"#${example.anchor}",
+              cls := "block pl-3 text-muted-foreground hover:text-foreground",
+              example.title
+            )
+          },
           if componentName == "drawer" then
             a(href := "#sides", cls := "block text-muted-foreground hover:text-foreground", "Sides")
           else emptyNode
@@ -549,6 +557,37 @@ object Main:
 
     def previewCanvas(content: Modifier[HtmlElement]*): HtmlElement =
       div(cls := "flex min-h-[450px] w-full items-center justify-center gap-3 p-10", content)
+
+    /** Each demo owns its tab state, so opening the Code tab on one example leaves the others on Preview. */
+    def previewTabs(preview: HtmlElement, source: String, rootClass: String): HtmlElement =
+      val tab = Var("preview")
+      Tabs(
+        cls := rootClass,
+        Tabs.list(
+          Tabs.ListVariant.Default,
+          docsTabTrigger(tab, "preview", "Preview"),
+          docsTabTrigger(tab, "code", "Code")
+        ),
+        Tabs.content(
+          display <-- tab.signal.map(v => if v == "preview" then "block" else "none"),
+          Card(cls := docsFrame, preview)
+        ),
+        Tabs.content(
+          display <-- tab.signal.map(v => if v == "code" then "block" else "none"),
+          codeBlock("scala", source)
+        )
+      )
+
+    def exampleBlock(example: DocExample): HtmlElement =
+      div(
+        idAttr := example.anchor,
+        cls := "mt-8 scroll-mt-24",
+        h3(cls := "text-base font-semibold", example.title),
+        example.description match
+          case Some(text) => p(cls := "mt-2 text-sm leading-6 text-muted-foreground", text)
+          case None       => emptyNode,
+        previewTabs(previewCanvas(example.preview), example.code, "mt-4 gap-4")
+      )
 
     def liveExample(): HtmlElement = componentName match
       case "accordion" =>
@@ -1858,22 +1897,7 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
                 else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
               )
             ),
-            Tabs(
-              cls := "mt-8 gap-4",
-              Tabs.list(
-                Tabs.ListVariant.Default,
-                docsTabTrigger(exampleTab, "preview", "Preview"),
-                docsTabTrigger(exampleTab, "code", "Code")
-              ),
-              Tabs.content(
-                display <-- exampleTab.signal.map(v => if v == "preview" then "block" else "none"),
-                Card(cls := docsFrame, liveExample())
-              ),
-              Tabs.content(
-                display <-- exampleTab.signal.map(v => if v == "code" then "block" else "none"),
-                codeBlock("scala", usageSource)
-              )
-            ),
+            previewTabs(liveExample(), usageSource, "mt-8 gap-4"),
             if componentName != "typography" then
               div(
                 idAttr := "installation",
@@ -1907,18 +1931,22 @@ Toggle(pressed, Toggle.Variant.Default, Toggle.Size.Default, "B")"""
               idAttr := "examples",
               cls := "mt-12 scroll-mt-24",
               h2(cls := "text-xl font-semibold", "Examples"),
-              h3(
-                idAttr := "sides",
-                cls := "mt-6 text-base font-semibold",
-                if componentName == "drawer" then "Sides" else "Composition"
-              ),
-              p(
-                cls := "mt-2 text-sm leading-6 text-muted-foreground",
-                if componentName == "drawer" then
-                  "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
-                else "Compose this primitive with Card, Field, Button, and the other Laminar components."
-              ),
-              Card(cls := s"mt-4 $docsFrame", liveExample())
+              if docExamples.nonEmpty then docExamples.map(exampleBlock)
+              else
+                Seq(
+                  h3(
+                    idAttr := "sides",
+                    cls := "mt-6 text-base font-semibold",
+                    if componentName == "drawer" then "Sides" else "Composition"
+                  ),
+                  p(
+                    cls := "mt-2 text-sm leading-6 text-muted-foreground",
+                    if componentName == "drawer" then
+                      "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
+                    else "Compose this primitive with Card, Field, Button, and the other Laminar components."
+                  ),
+                  Card(cls := s"mt-4 $docsFrame", liveExample())
+                )
             ),
             div(
               cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
