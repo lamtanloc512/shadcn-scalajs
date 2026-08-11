@@ -20,31 +20,28 @@ class ScSelect extends ScElementBase:
   private val selectedVar = Var("")
   private val placeholderVar = Var("Select…")
 
-  observeAttribute("options")(v => optionsVar.set(v.flatMap(parseOptions).getOrElse(Nil)))
-  observeAttribute("value")(v => selectedVar.set(v.getOrElse("")))
-  observeAttribute("placeholder")(v => placeholderVar.set(v.getOrElse("Select…")))
+  private val echo = EchoGuard[String]()
 
-  selectedVar.signal.changes.foreach { value =>
-    this.dispatchEvent(
-      new dom.CustomEvent("change", js.Dynamic.literal(detail = value).asInstanceOf[dom.CustomEventInit])
-    )
-  }(unsafeWindowOwner)
+  observeAttribute("options")(v => optionsVar.set(parseOptions(v.orNull)))
+  observeAttribute("value")(v => { echo.wrote(v.getOrElse("")); selectedVar.set(v.getOrElse("")) })
+  observeAttribute("placeholder")(v => placeholderVar.set(v.getOrElse("Select…")))
+  jsonProperty("options")(v => optionsVar.set(parseOptions(v)))
+  stringProperty("value")
+  stringProperty("placeholder")
+
+  selectedVar.signal.changes.foreach(value => if !echo.isEcho(value) then emit("sc-change", value))(unsafeWindowOwner)
 
   mount(ScSelect.view(optionsVar, selectedVar, placeholderVar))
 
-  private def parseOptions(json: String): Option[List[(String, String)]] =
-    try
-      val parsed = js.JSON.parse(json).asInstanceOf[js.Array[js.Dynamic]]
-      Some(parsed.toList.map { raw =>
-        val optValue = raw.value.asInstanceOf[String]
-        val optLabel = raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(optValue)
-        optValue -> optLabel
-      })
-    catch case _: Throwable => None
+  private def parseOptions(value: js.Any): List[(String, String)] =
+    ScElements.toArray(value).map(_.toList.map { raw =>
+      val optValue = raw.value.asInstanceOf[String]
+      optValue -> raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(optValue)
+    }).getOrElse(Nil)
 
 object ScSelect:
   def register(): Unit =
-    dom.window.customElements.define("sc-select", js.constructorOf[ScSelect])
+    ScElements.define("sc-select", js.constructorOf[ScSelect], "options", "value", "placeholder")
 
   // Built outside the ScElementBase subclass for the same reason as ScDropdownMenu: HTMLElement's own `children` member
   // would shadow Laminar's `children <-- signal` receiver.

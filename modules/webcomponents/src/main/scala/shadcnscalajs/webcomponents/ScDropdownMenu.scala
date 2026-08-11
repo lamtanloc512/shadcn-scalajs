@@ -16,30 +16,23 @@ class ScDropdownMenu extends ScElementBase:
 
   private val itemsVar = Var(List.empty[DropdownMenu.Item])
 
-  observeAttribute("items")(v => itemsVar.set(v.flatMap(parseItems).getOrElse(Nil)))
+  observeAttribute("items")(v => itemsVar.set(parseItems(v.orNull)))
+  jsonProperty("items")(v => itemsVar.set(parseItems(v)))
 
   mount(ScDropdownMenu.view(itemsVar))
 
-  private def parseItems(json: String): Option[List[DropdownMenu.Item]] =
-    try
-      val parsed = js.JSON.parse(json).asInstanceOf[js.Array[js.Dynamic]]
-      Some(parsed.toList.zipWithIndex.map { case (raw, idx) =>
-        val label = raw.label.asInstanceOf[String]
-        val disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
-        DropdownMenu.Item(
-          label = label,
-          onSelect = () =>
-            this.dispatchEvent(
-              new dom.CustomEvent("select", js.Dynamic.literal(detail = idx).asInstanceOf[dom.CustomEventInit])
-            ),
-          disabled = disabled
-        )
-      })
-    catch case _: Throwable => None
+  private def parseItems(value: js.Any): List[DropdownMenu.Item] =
+    ScElements.toArray(value).map(_.toList.zipWithIndex.map { case (raw, idx) =>
+      DropdownMenu.Item(
+        label = raw.label.asInstanceOf[String],
+        onSelect = () => emit("sc-select", idx),
+        disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+      )
+    }).getOrElse(Nil)
 
 object ScDropdownMenu:
   def register(): Unit =
-    dom.window.customElements.define("sc-dropdown-menu", js.constructorOf[ScDropdownMenu])
+    ScElements.define("sc-dropdown-menu", js.constructorOf[ScDropdownMenu], "items")
 
   // Built outside the ScElementBase/HTMLElement subclass: HTMLElement itself
   // declares a `children: HTMLCollection` member, which would otherwise

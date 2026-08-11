@@ -8,8 +8,10 @@
     "build:basecoat-styles": "node scripts/build-basecoat-styles.mjs",
     "build:style-packs": "node scripts/build-style-packs.mjs",
     "build:registry": "node scripts/build-registry.mjs",
-    "predev": "npm run build:basecoat-styles && npm run build:style-packs && npm run build:registry",
-    "prebuild": "npm run build:basecoat-styles && npm run build:style-packs && npm run build:registry",
+    "build:webcomponents": "node scripts/build-webcomponents.mjs",
+    "build:wc-mosaic-css": "node scripts/build-wc-mosaic-css.mjs",
+    "predev": "npm run build:basecoat-styles && npm run build:style-packs && npm run build:registry && npm run build:webcomponents && npm run build:wc-mosaic-css",
+    "prebuild": "npm run build:basecoat-styles && npm run build:style-packs && npm run build:registry && npm run build:webcomponents && npm run build:wc-mosaic-css",
     "build": "vite build",
     "build:opt": "vite build",
     "preview": "vite preview"

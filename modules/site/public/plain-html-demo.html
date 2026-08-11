@@ -1,47 +1,1795 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>shadcn-scalajs — plain HTML / Web Component demo</title>
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>shadcn-scalajs — Web Component mosaic</title>
   <!--
-    No Scala.js entry point, no Vite, no Laminar import on this page at all —
-    just the compiled Web Component bundle loaded like any other JS library
-    (Shoelace, UI5, etc). Proves the "any frontend project can use it" story:
-    <sc-button>/<sc-badge>/<sc-dialog>/<sc-accordion>/<sc-dropdown-menu> work
-    from plain HTML/JS with zero Scala toolchain on this page.
+    sc-components.css is preloaded as a fetch, not linked as a stylesheet: the bundle fetches it and adopts it into every
+    shadow root, so the component chrome never touches this document. /wc-mosaic.css only carries the light-DOM layout
+    utilities the page itself (and the slotted card children) need.
   -->
-  <h1>shadcn-scalajs Web Components</h1>
-  <p>This page has no Scala.js runtime beyond <code>sc-components.js</code>.</p>
+  <link rel="preload" href="./sc-components.css" as="fetch" crossorigin />
+  <link rel="stylesheet" href="/wc-mosaic.css" />
+  <script>
+    try {
+      const theme = JSON.parse(localStorage.getItem("shadcn-scalajs:theme") || "{}");
+      const attributes = {
+        stylePack: "data-style-pack",
+        baseColor: "data-base-color",
+        themeColor: "data-theme-color",
+        chartColor: "data-chart-color",
+        headingFont: "data-heading-font",
+        bodyFont: "data-body-font",
+        iconLibrary: "data-icon-library",
+        radius: "data-radius",
+        menuColor: "data-menu-color",
+        menuAccent: "data-menu-accent"
+      };
+      for (const [field, attribute] of Object.entries(attributes)) {
+        if (typeof theme[field] === "string") document.documentElement.setAttribute(attribute, theme[field]);
+      }
+      document.documentElement.classList.toggle("dark", theme.darkMode === true);
+    } catch {}
+  </script>
+  <style>
+    :not(:defined) {
+      visibility: hidden;
+    }
 
-  <sc-button variant="primary">Primary</sc-button>
-  <sc-button variant="outline" size="sm">Outline</sc-button>
-  <sc-badge variant="destructive">New</sc-badge>
+    sc-site-header {
+      display: block;
+      min-height: 3.5rem;
+    }
 
-  <p>
-    <button id="open-dialog" type="button">Open dialog</button>
-  </p>
-  <sc-dialog id="dialog">
-    <p>Opened from plain JS via <code>el.setAttribute('open', '')</code>, closed natively.</p>
-  </sc-dialog>
+    /* Custom elements are inline by default; the block-level ones need a box before their shadow content can size. */
+    sc-card,
+    sc-card-header,
+    sc-card-title,
+    sc-card-description,
+    sc-card-action,
+    sc-card-content,
+    sc-card-footer,
+    sc-accordion,
+    sc-calendar,
+    sc-chart,
+    sc-combobox,
+    sc-empty,
+    sc-field,
+    sc-input,
+    sc-input-group,
+    sc-item,
+    sc-label,
+    sc-native-select,
+    sc-progress,
+    sc-radio-group,
+    sc-select,
+    sc-separator,
+    sc-sidebar,
+    sc-skeleton,
+    sc-slider,
+    sc-table,
+    sc-tabs,
+    sc-textarea,
+    sc-toggle-group {
+      display: block;
+    }
 
-  <sc-accordion
-    sections='[{"title":"What is this?","content":"A Web Component, compiled from Scala.js + Laminar."},{"title":"Any framework?","content":"Yes — React, Vue, Svelte, or plain HTML, no Scala toolchain required."}]'
-  ></sc-accordion>
 
-  <sc-dropdown-menu id="menu" items='[{"label":"Profile"},{"label":"Log out"}]'>
-    <button slot="trigger" type="button">Open menu</button>
-  </sc-dropdown-menu>
+    sc-card {
+      display: block;
+      min-width: 0;
+      max-width: 100%;
+    }
+    sc-card-header,
+    sc-card-title,
+    sc-card-description,
+    sc-card-action,
+    sc-card-content,
+    sc-card-footer {
+      display: block;
+      min-width: 0;
+    }
+    /* Utilities on the host reinforce these; fallbacks cover pre-CSS upgrade. */
+    sc-card-header { display: grid; }
+    sc-card-footer { display: flex; align-items: center; }
+    sc-table {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    sc-badge,
+    sc-button,
+    sc-checkbox,
+    sc-dropdown-menu,
+    sc-spinner,
+    sc-switch {
+      display: inline-flex;
+      vertical-align: middle;
+    }
+
+    sc-button.w-full,
+    sc-slider.w-full,
+    sc-toggle-group.w-full {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <sc-site-header></sc-site-header>
+
+  <div class="overflow-x-auto overflow-y-hidden bg-muted contain-[paint] [--gap:--spacing(4)] 3xl:[--gap:--spacing(12)] md:[--gap:--spacing(10)] dark:bg-background style-lyra:md:[--gap:--spacing(6)] style-mira:md:[--gap:--spacing(6)]">
+    <div class="flex w-full min-w-max justify-center">
+      <div class="grid w-[2400px] grid-cols-7 items-start gap-(--gap) bg-muted p-(--gap) md:w-[3000px] dark:bg-background style-lyra:md:w-[2600px] style-mira:md:w-[2600px] *:[div]:gap-(--gap)" data-slot="capture-target">
+
+        <!-- ============================== column 1 ============================== -->
+        <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
+
+          <sc-card data-card="contribution-history">
+            <sc-card-header>
+              <sc-card-title>Contribution History</sc-card-title>
+              <sc-card-description>Last 6 months of activity</sc-card-description>
+              <sc-card-action>
+                <sc-badge variant="secondary">+12% vs last month</sc-badge>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content>
+              <sc-chart class="h-[200px] w-full" type="bar" show-labels tooltip-label="Contribution"
+                data='[["Dec",800],["Jan",1100],["Feb",900],["Mar",1300],["Apr",750],["May",1400]]'></sc-chart>
+            </sc-card-content>
+            <sc-card-footer class="flex-col items-stretch gap-4">
+              <div class="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
+                <sc-item variant="muted">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Upcoming</span>
+                    <span class="text-lg font-semibold">May 25, 2024</span>
+                    <span class="text-sm text-muted-foreground">$1,000 scheduled</span>
+                  </div>
+                </sc-item>
+                <sc-item variant="muted">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Auto-Save Plan</span>
+                    <span class="text-lg font-semibold">Accelerated</span>
+                    <span class="text-sm text-muted-foreground">Recurring weekly</span>
+                  </div>
+                </sc-item>
+              </div>
+              <sc-button variant="primary" class="w-full">View Full Report</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="empty-distribute-track">
+            <sc-card-content>
+              <sc-empty>
+                <div class="flex flex-col items-center gap-4 py-4 text-center">
+                  <div class="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="M12 5v14" />
+                    </svg>
+                  </div>
+                  <div class="flex max-w-sm flex-col gap-1">
+                    <div class="font-medium">Distribute Track</div>
+                    <div class="text-sm text-muted-foreground">Upload your first master to start reaching listeners on
+                      Spotify, Apple Music, and more.</div>
+                  </div>
+                  <sc-button variant="primary">Create Release</sc-button>
+                </div>
+              </sc-empty>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="qr-connect">
+            <sc-card-content class="justify-center pt-6">
+              <div class="rounded-xl border bg-white p-4 text-black">
+                <svg width="160" height="160" viewBox="0 0 33 33" role="img" aria-label="QR code placeholder"
+                  class="block">
+                  <defs>
+                    <pattern id="qr-modules" width="2" height="2" patternUnits="userSpaceOnUse">
+                      <rect width="1" height="1" fill="currentColor" />
+                      <rect x="1" y="1" width="1" height="1" fill="currentColor" />
+                    </pattern>
+                  </defs>
+                  <rect width="33" height="33" fill="#fff" />
+                  <rect x="2" y="2" width="29" height="29" fill="url(#qr-modules)" />
+                  <rect x="12" y="6" width="9" height="4" fill="currentColor" />
+                  <rect x="6" y="18" width="5" height="6" fill="currentColor" />
+                  <rect x="20" y="20" width="7" height="3" fill="currentColor" />
+                  <g fill="currentColor">
+                    <path d="M2 2h9v9H2z" />
+                    <path d="M22 2h9v9h-9z" />
+                    <path d="M2 22h9v9H2z" />
+                  </g>
+                  <g fill="#fff">
+                    <path d="M4 4h5v5H4z" />
+                    <path d="M24 4h5v5h-5z" />
+                    <path d="M4 24h5v5H4z" />
+                  </g>
+                  <g fill="currentColor">
+                    <path d="M5.5 5.5h2v2h-2z" />
+                    <path d="M25.5 5.5h2v2h-2z" />
+                    <path d="M5.5 25.5h2v2h-2z" />
+                  </g>
+                </svg>
+              </div>
+            </sc-card-content>
+            <sc-card-header class="text-center">
+              <sc-card-title>Scan to connect your mobile device</sc-card-title>
+              <sc-card-description>Open the Ledger mobile app and scan this code to link your
+                device.</sc-card-description>
+            </sc-card-header>
+            <sc-card-footer>
+              <sc-button variant="secondary" class="w-full">Got it</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="dividend-income">
+            <sc-card-header>
+              <sc-card-title>Q2 Dividend Income</sc-card-title>
+              <sc-card-description>Quarterly dividend payouts across your portfolio holdings.
+              </sc-card-description>
+              <sc-card-action>
+                <sc-button variant="ghost" size="icon-sm" class="rounded-md bg-muted">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-2">
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col">
+                  <span class="text-sm font-medium">Vanguard VIG</span>
+                  <span class="text-sm text-muted-foreground">450 Shares</span>
+                </div>
+                <sc-chart class="hidden h-8 w-24 md:block" type="bar"
+                  data='[["Q1",380],["Q2",420],["Q3",390],["Q4",652]]'></sc-chart>
+                <span class="text-sm font-semibold tabular-nums">$1,842.10</span>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col">
+                  <span class="text-sm font-medium">S&amp;P 500 VOO</span>
+                  <span class="text-sm text-muted-foreground">112 Shares</span>
+                </div>
+                <sc-chart class="hidden h-8 w-24 md:block" type="bar"
+                  data='[["Q1",180],["Q2",210],["Q3",320],["Q4",218]]'></sc-chart>
+                <span class="text-sm font-semibold tabular-nums">$928.40</span>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col">
+                  <span class="text-sm font-medium">Apple AAPL</span>
+                  <span class="text-sm text-muted-foreground">85 Shares</span>
+                </div>
+                <sc-chart class="hidden h-8 w-24 md:block" type="bar"
+                  data='[["Q1",60],["Q2",70],["Q3",120],["Q4",90]]'></sc-chart>
+                <span class="text-sm font-semibold tabular-nums">$340.00</span>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col">
+                  <span class="text-sm font-medium">Realty Income</span>
+                  <span class="text-sm text-muted-foreground">320 Shares</span>
+                </div>
+                <sc-chart class="hidden h-8 w-24 md:block" type="bar"
+                  data='[["Q1",240],["Q2",260],["Q3",280],["Q4",360]]'></sc-chart>
+                <span class="text-sm font-semibold tabular-nums">$1,139.50</span>
+              </sc-item>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="index-investing">
+            <sc-card-header>
+              <sc-card-title>Dollar-Cost Averaging</sc-card-title>
+              <sc-card-description>A strategy for building wealth over time.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content>
+              <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <a href="#/" class="underline underline-offset-4 hover:text-primary">Over time</a>, this smooths out the
+                average cost of your investments. When prices drop, your fixed amount buys more shares. When prices
+                rise, you buy fewer. The result is a lower average cost per share compared to lump-sum investing during
+                volatile periods.
+              </p>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="syncing-state">
+            <sc-card-content>
+              <sc-empty>
+                <div class="flex flex-col items-center gap-4 py-4 text-center">
+                  <sc-spinner></sc-spinner>
+                  <div class="flex max-w-sm flex-col gap-1">
+                    <div class="font-medium">Syncing your accounts</div>
+                    <div class="text-sm text-muted-foreground">We're pulling in your latest transactions. This usually
+                      takes a few seconds.</div>
+                  </div>
+                  <sc-button variant="outline">Cancel</sc-button>
+                </div>
+              </sc-empty>
+            </sc-card-content>
+          </sc-card>
+
+        </div>
+
+        <!-- ============================== column 2 ============================== -->
+        <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
+
+          <sc-card data-card="payout-threshold">
+            <sc-card-header>
+              <sc-card-title>Payout Threshold</sc-card-title>
+              <sc-card-description>Set the minimum balance required before a payout is triggered.
+              </sc-card-description>
+              <sc-card-action>
+                <sc-button variant="ghost" size="icon-sm" class="rounded-md bg-muted">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-6">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Preferred Currency</sc-label>
+                  <sc-select class="w-full" value="usd" placeholder="Select a currency"
+                    options='[{"value":"usd","label":"USD — United States Dollar"},{"value":"eur","label":"EUR — Euro"},{"value":"gbp","label":"GBP — British Pound"},{"value":"jpy","label":"JPY — Japanese Yen"}]'></sc-select>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-baseline justify-between">
+                    <sc-label>Minimum Payout Amount</sc-label>
+                    <span id="payout-amount" class="text-2xl font-semibold tabular-nums">$3,000.00</span>
+                  </div>
+                  <sc-slider id="payout-slider" class="w-full" min="50" max="10000" step="50" value="3000"></sc-slider>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">$50 (MIN)</span>
+                    <span class="text-sm text-muted-foreground">$10,000 (MAX)</span>
+                  </div>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Notes</sc-label>
+                  <sc-textarea class="min-h-[100px] w-full"></sc-textarea>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-button class="w-full">Save Threshold</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="claimable-balance">
+            <sc-card-header>
+              <sc-card-description>Claimable Balance</sc-card-description>
+              <div class="text-5xl leading-none font-semibold tabular-nums">$0.00</div>
+              <div>
+                <sc-badge variant="outline">
+                  <span class="mr-1 inline-block size-2 rounded-full bg-yellow-500"></span>Pending Setup
+                </sc-badge>
+              </div>
+            </sc-card-header>
+            <sc-card-content class="flex-1 flex-col justify-end">
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col gap-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Net Royalties</span>
+                    <span class="text-sm font-medium tabular-nums">$0.00</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Processing Fee</span>
+                    <span class="text-sm font-medium tabular-nums">-$0.00</span>
+                  </div>
+                  <sc-separator></sc-separator>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Total Ready to Claim</span>
+                    <span class="text-sm font-semibold tabular-nums">$0.00 USD</span>
+                  </div>
+                </div>
+              </sc-item>
+            </sc-card-content>
+            <sc-card-footer>
+              <p class="text-sm text-muted-foreground">Once your bank is connected, balances over $10.00 are
+                automatically eligible for monthly distribution on the 15th of each month.</p>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="preferences">
+            <sc-card-header>
+              <sc-card-title>Preferences</sc-card-title>
+              <sc-card-description>Manage your account settings and notifications.</sc-card-description>
+              <sc-card-action>
+                <sc-button variant="ghost" size="icon-sm" class="rounded-md bg-muted">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Default Currency</sc-label>
+                  <sc-select class="w-full" value="usd" placeholder="Select a currency"
+                    options='[{"value":"usd","label":"USD — United States Dollar"},{"value":"eur","label":"EUR — Euro"},{"value":"gbp","label":"GBP — British Pound"},{"value":"jpy","label":"JPY — Japanese Yen"}]'></sc-select>
+                </div>
+              </sc-field>
+              <sc-separator></sc-separator>
+              <sc-field>
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Public Statistics</sc-label>
+                    <span class="text-sm text-muted-foreground">Allow others to see your total stream count and
+                      listening activity</span>
+                  </div>
+                  <sc-switch checked></sc-switch>
+                </div>
+              </sc-field>
+              <sc-separator></sc-separator>
+              <sc-field>
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Email Notifications</sc-label>
+                    <span class="text-sm text-muted-foreground">Monthly royalty reports and distribution updates</span>
+                  </div>
+                  <sc-switch checked></sc-switch>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-button variant="outline">Reset</sc-button>
+              <sc-button class="ml-auto">Save Preferences</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="savings-progress">
+            <sc-card-content>
+              <div class="relative mx-auto aspect-square max-h-[220px] w-full">
+                <sc-chart class="absolute inset-0" type="donut" inner-radius="0.8"
+                  data='[["saved",24000],["remaining",6000]]'></sc-chart>
+                <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <div class="text-2xl font-bold">$24,000</div>
+                  <div class="mt-2 text-sm text-muted-foreground">80% of $30,000</div>
+                </div>
+              </div>
+            </sc-card-content>
+            <sc-card-footer class="flex-col items-stretch">
+              <div class="flex w-full items-center justify-between py-3">
+                <span class="text-sm text-muted-foreground">Projected Finish</span>
+                <span class="text-sm font-semibold">October 2024</span>
+              </div>
+              <sc-separator></sc-separator>
+              <div class="flex w-full items-center justify-between py-3">
+                <span class="text-sm text-muted-foreground">Monthly Average</span>
+                <span class="text-sm font-semibold tabular-nums">$1,250</span>
+              </div>
+              <sc-separator></sc-separator>
+              <div class="flex w-full items-center justify-between py-3">
+                <span class="text-sm text-muted-foreground">Top Contributor</span>
+                <span class="text-sm font-semibold">Auto-Transfer</span>
+              </div>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="kitchen-island">
+            <sc-card-header>
+              <sc-card-title>Kitchen Island</sc-card-title>
+              <sc-card-description>Hue Color Ambient</sc-card-description>
+              <sc-card-action>
+                <sc-switch id="kitchen-power" checked></sc-switch>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-toggle-group id="kitchen-scene" class="w-full" type="single" value="cooking" variant="outline"
+                size="default"
+                items='[{"value":"cooking","label":"Cooking"},{"value":"dining","label":"Dining"},{"value":"nightlight","label":"Nightlight"},{"value":"focus","label":"Focus"}]'></sc-toggle-group>
+              <div class="flex flex-col gap-2">
+                <sc-item variant="outline" size="sm">
+                  <div class="flex w-full items-center gap-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" />
+                    </svg>
+                    <span class="shrink-0 text-sm font-medium">Brightness</span>
+                    <sc-slider id="kitchen-brightness" class="w-full flex-1" min="0" max="100" step="1"
+                      value="90"></sc-slider>
+                  </div>
+                </sc-item>
+                <sc-item variant="outline" size="sm">
+                  <div class="flex w-full items-center gap-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <path d="M14 14.76V4a2 2 0 0 0-4 0v10.76a4 4 0 1 0 4 0z" />
+                    </svg>
+                    <span class="shrink-0 text-sm font-medium">Color Temp</span>
+                    <sc-slider id="kitchen-color-temp" class="w-full flex-1" min="0" max="100" step="1"
+                      value="70"></sc-slider>
+                  </div>
+                </sc-item>
+                <sc-item variant="outline" size="sm">
+                  <div class="flex w-full items-center gap-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <path d="M11 5 6 9H2v6h4l5 4z" />
+                      <path d="M16 9a4 4 0 0 1 0 6" />
+                    </svg>
+                    <span class="shrink-0 text-sm font-medium">Volume</span>
+                    <sc-slider id="kitchen-volume" class="w-full flex-1" min="0" max="100" step="1"
+                      value="30"></sc-slider>
+                  </div>
+                </sc-item>
+                <sc-item variant="outline" size="sm">
+                  <div class="flex w-full items-center gap-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <circle cx="12" cy="13" r="8" />
+                      <path d="M12 9v4l2 2M9 2h6" />
+                    </svg>
+                    <span class="shrink-0 text-sm font-medium">Fade</span>
+                    <sc-slider id="kitchen-fade" class="w-full flex-1" min="0" max="100" step="1" value="0"></sc-slider>
+                  </div>
+                </sc-item>
+              </div>
+            </sc-card-content>
+          </sc-card>
+
+        </div>
+
+        <!-- ============================== column 3 (wide) ============================== -->
+        <div class="col-span-2 flex flex-col p-1 [contain-intrinsic-size:760px_1200px] [content-visibility:auto]">
+
+          <div data-card="savings-targets" class="grid grid-cols-2 items-start gap-4">
+            <sc-card>
+              <sc-card-header>
+                <sc-card-title>Savings Targets</sc-card-title>
+                <sc-card-description>Active milestones for 2024</sc-card-description>
+                <sc-card-action>
+                  <sc-button variant="outline" size="sm">New Goal</sc-button>
+                </sc-card-action>
+              </sc-card-header>
+              <sc-card-content class="flex-col gap-3">
+                <sc-item variant="muted">
+                  <div class="flex flex-1 flex-col gap-3">
+                    <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Retirement</span>
+                    <span class="text-3xl font-semibold tabular-nums">$420,000</span>
+                    <sc-progress value="65"></sc-progress>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-muted-foreground">65% achieved</span>
+                      <span class="text-sm font-medium tabular-nums">$273,000</span>
+                    </div>
+                  </div>
+                </sc-item>
+                <sc-item variant="muted">
+                  <div class="flex flex-1 flex-col gap-3">
+                    <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Real Estate</span>
+                    <span class="text-3xl font-semibold tabular-nums">$85,000</span>
+                    <sc-progress value="32"></sc-progress>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-muted-foreground">32% achieved</span>
+                      <span class="text-sm font-medium tabular-nums">$27,200</span>
+                    </div>
+                  </div>
+                </sc-item>
+              </sc-card-content>
+              <sc-card-footer class="justify-center">
+                <p class="text-center text-sm text-muted-foreground">You have not met your targets for this year.</p>
+              </sc-card-footer>
+            </sc-card>
+            <sc-card>
+              <sc-card-header>
+                <sc-card-title>Buy Investment</sc-card-title>
+              </sc-card-header>
+              <sc-card-content class="flex-1 flex-col gap-4">
+                <sc-field>
+                  <div class="flex flex-col gap-2">
+                    <sc-label>Amount to Invest</sc-label>
+                    <sc-input-group class="w-full">
+                      <span class="pl-3 text-sm text-muted-foreground">$</span>
+                      <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none" value="1,000.00" />
+                    </sc-input-group>
+                  </div>
+                </sc-field>
+                <sc-field>
+                  <div class="flex flex-col gap-2">
+                    <sc-label>Order Type</sc-label>
+                    <sc-native-select class="w-full">
+                      <option value="market">Market Order</option>
+                      <option value="limit">Limit Order</option>
+                      <option value="stop">Stop Order</option>
+                    </sc-native-select>
+                    <span class="text-sm text-muted-foreground">Market orders execute at the current price.</span>
+                  </div>
+                </sc-field>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Estimated Shares</span>
+                    <span class="text-sm font-semibold tabular-nums">1.95</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Buying Power</span>
+                    <span class="text-sm font-semibold tabular-nums">$12,450.00</span>
+                  </div>
+                </div>
+              </sc-card-content>
+              <sc-card-footer class="flex-col items-stretch gap-3">
+                <sc-button class="w-full">Review Order</sc-button>
+                <p class="text-center text-sm text-muted-foreground">Trades are typically executed within minutes during
+                  market hours.</p>
+              </sc-card-footer>
+            </sc-card>
+          </div>
+
+          <sc-card data-card="recent-transactions">
+            <sc-card-header>
+              <sc-card-title>Recent Transactions</sc-card-title>
+              <sc-card-description>Your latest account activity.</sc-card-description>
+              <sc-card-action>
+                <sc-button variant="outline" size="sm">View All</sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content>
+              <sc-table>
+                <table data-slot="table" class="cn-table w-full caption-bottom text-sm">
+                <tbody is="sc-table-body">
+                  <tr is="sc-table-row">
+                    <td is="sc-table-cell" class="w-10">
+                      <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+                          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell">
+                      <div class="flex flex-col">
+                        <span class="font-medium">Blue Bottle Coffee</span>
+                        <span class="text-sm text-muted-foreground">Food &amp; Drink</span>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell" class="text-sm text-muted-foreground">Today, 10:24 AM</td>
+                    <td is="sc-table-cell" class="text-right">
+                      <span class="text-sm font-semibold tabular-nums">-$6.50</span>
+                    </td>
+                    <td is="sc-table-cell" class="w-8">
+                      <sc-dropdown-menu items='[{"label":"View details"},{"label":"Add note"},{"label":"Categorize"},{"label":"Dispute"}]'>
+                        <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.6" />
+                            <circle cx="12" cy="12" r="1.6" />
+                            <circle cx="19" cy="12" r="1.6" />
+                          </svg>
+                        </sc-button>
+                      </sc-dropdown-menu>
+                    </td>
+                  </tr>
+                  <tr is="sc-table-row">
+                    <td is="sc-table-cell" class="w-10">
+                      <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <circle cx="8" cy="21" r="1" />
+                          <circle cx="19" cy="21" r="1" />
+                          <path d="M2 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21 7H6" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell">
+                      <div class="flex flex-col">
+                        <span class="font-medium">Whole Foods Market</span>
+                        <span class="text-sm text-muted-foreground">Groceries</span>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell" class="text-sm text-muted-foreground">Yesterday</td>
+                    <td is="sc-table-cell" class="text-right">
+                      <span class="text-sm font-semibold tabular-nums">-$142.30</span>
+                    </td>
+                    <td is="sc-table-cell" class="w-8">
+                      <sc-dropdown-menu items='[{"label":"View details"},{"label":"Add note"},{"label":"Categorize"},{"label":"Dispute"}]'>
+                        <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.6" />
+                            <circle cx="12" cy="12" r="1.6" />
+                            <circle cx="19" cy="12" r="1.6" />
+                          </svg>
+                        </sc-button>
+                      </sc-dropdown-menu>
+                    </td>
+                  </tr>
+                  <tr is="sc-table-row">
+                    <td is="sc-table-cell" class="w-10">
+                      <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="M20 12V8H6a2 2 0 0 1 0-4h12v4" />
+                          <path d="M4 6v12a2 2 0 0 0 2 2h14v-4" />
+                          <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell">
+                      <div class="flex flex-col">
+                        <span class="font-medium">Stripe Payout</span>
+                        <span class="text-sm text-muted-foreground">Income</span>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell" class="text-sm text-muted-foreground">Oct 12</td>
+                    <td is="sc-table-cell" class="text-right">
+                      <span class="text-sm font-semibold text-emerald-500 tabular-nums">+$4,200.00</span>
+                    </td>
+                    <td is="sc-table-cell" class="w-8">
+                      <sc-dropdown-menu items='[{"label":"View details"},{"label":"Add note"},{"label":"Categorize"},{"label":"Dispute"}]'>
+                        <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.6" />
+                            <circle cx="12" cy="12" r="1.6" />
+                            <circle cx="19" cy="12" r="1.6" />
+                          </svg>
+                        </sc-button>
+                      </sc-dropdown-menu>
+                    </td>
+                  </tr>
+                  <tr is="sc-table-row">
+                    <td is="sc-table-cell" class="w-10">
+                      <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="M5 17h14l-1.5-6.5A2 2 0 0 0 15.6 9H8.4a2 2 0 0 0-1.9 1.5z" />
+                          <circle cx="7.5" cy="17.5" r="1.5" />
+                          <circle cx="16.5" cy="17.5" r="1.5" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell">
+                      <div class="flex flex-col">
+                        <span class="font-medium">Uber Technologies</span>
+                        <span class="text-sm text-muted-foreground">Transport</span>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell" class="text-sm text-muted-foreground">Oct 11</td>
+                    <td is="sc-table-cell" class="text-right">
+                      <span class="text-sm font-semibold tabular-nums">-$24.10</span>
+                    </td>
+                    <td is="sc-table-cell" class="w-8">
+                      <sc-dropdown-menu items='[{"label":"View details"},{"label":"Add note"},{"label":"Categorize"},{"label":"Dispute"}]'>
+                        <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.6" />
+                            <circle cx="12" cy="12" r="1.6" />
+                            <circle cx="19" cy="12" r="1.6" />
+                          </svg>
+                        </sc-button>
+                      </sc-dropdown-menu>
+                    </td>
+                  </tr>
+                  <tr is="sc-table-row">
+                    <td is="sc-table-cell" class="w-10">
+                      <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <rect x="2" y="7" width="20" height="13" rx="2" />
+                          <path d="m8 3 4 4 4-4" />
+                        </svg>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell">
+                      <div class="flex flex-col">
+                        <span class="font-medium">Netflix Subscription</span>
+                        <span class="text-sm text-muted-foreground">Entertainment</span>
+                      </div>
+                    </td>
+                    <td is="sc-table-cell" class="text-sm text-muted-foreground">Oct 10</td>
+                    <td is="sc-table-cell" class="text-right">
+                      <span class="text-sm font-semibold tabular-nums">-$19.99</span>
+                    </td>
+                    <td is="sc-table-cell" class="w-8">
+                      <sc-dropdown-menu items='[{"label":"View details"},{"label":"Add note"},{"label":"Categorize"},{"label":"Dispute"}]'>
+                        <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.6" />
+                            <circle cx="12" cy="12" r="1.6" />
+                            <circle cx="19" cy="12" r="1.6" />
+                          </svg>
+                        </sc-button>
+                      </sc-dropdown-menu>
+                    </td>
+                  </tr>
+                </tbody>
+                </table>
+              </sc-table>
+            </sc-card-content>
+          </sc-card>
+
+          <div class="grid grid-cols-2 items-start gap-(--gap)">
+            <div class="flex flex-col gap-(--gap)">
+
+              <div data-card="sidebar-nav" class="grid grid-cols-2 items-start gap-4">
+                <sc-card>
+                  <sc-card-content class="px-2">
+                    <sc-sidebar
+                      menus='[{"label":"Overview","items":[{"label":"Dashboard","active":true},{"label":"Transactions"},{"label":"Investments"},{"label":"Accounts"},{"label":"Spending"}]},{"label":"Planning","items":[{"label":"Goals"},{"label":"Budget"},{"label":"Reports"},{"label":"Documents"}]}]'></sc-sidebar>
+                  </sc-card-content>
+                </sc-card>
+                <sc-card>
+                  <sc-card-content class="px-2">
+                    <sc-sidebar
+                      menus='[{"label":"Account","items":[{"label":"Profile"},{"label":"Billing","active":true},{"label":"Notifications"},{"label":"Security"},{"label":"Appearance"}]},{"label":"Support","items":[{"label":"Help Center"},{"label":"Contact Us"},{"label":"Documentation"},{"label":"Status"}]}]'></sc-sidebar>
+                  </sc-card-content>
+                </sc-card>
+              </div>
+
+              <sc-card data-card="faq">
+                <sc-card-content>
+                  <sc-tabs class="w-full" value="general"
+                    items='[{"value":"general","label":"General"},{"value":"billing","label":"Billing"},{"value":"goals","label":"Goals"}]'>
+                    <div slot="panel-general">
+                      <sc-accordion
+                        sections='[{"title":"How secure is my financial data with Ledger?","content":"We use bank-level AES-256 encryption, SOC 2 Type II certified infrastructure, and never store your credentials. All connections use read-only access tokens."},{"title":"How do I connect my bank or investment accounts?","content":"Go to Settings > Linked Accounts and search for your institution. We support over 12,000 banks and brokerages via Plaid and MX."},{"title":"Can I export my data for tax purposes?","content":"Yes. Navigate to Reports > Tax Export to download a CSV or PDF summary of your transactions, dividends, and capital gains for any tax year."}]'></sc-accordion>
+                    </div>
+                    <div slot="panel-billing">
+                      <sc-accordion
+                        sections='[{"title":"What is the difference between Basic and Pro pricing tiers?","content":"Basic includes budgeting, goal tracking, and up to 3 linked accounts. Pro adds unlimited accounts, dividend tracking, portfolio analysis, and priority support."},{"title":"How do I cancel my subscription?","content":"Go to Settings > Billing > Manage Plan and click Cancel. Your access continues until the end of your current billing period."},{"title":"Do you offer a free trial?","content":"Yes. All new accounts start with a 14-day Pro trial. No credit card required."}]'></sc-accordion>
+                    </div>
+                    <div slot="panel-goals">
+                      <sc-accordion
+                        sections='[{"title":"How do I set up a custom financial goal?","content":"Click New Goal from the Savings Targets card. Choose a category, set a target amount and date, and we will calculate the monthly contribution needed."},{"title":"Can I track multiple goals at once?","content":"Yes. Pro accounts can track unlimited goals. Basic accounts support up to 3 active goals."},{"title":"How are monthly contributions calculated?","content":"We divide the remaining amount by the number of months until your target date, adjusted for your current savings rate."}]'></sc-accordion>
+                    </div>
+                  </sc-tabs>
+                </sc-card-content>
+                <sc-card-footer class="flex-col items-stretch gap-2">
+                  <sc-button variant="outline" class="w-full">Contact Support</sc-button>
+                  <sc-button variant="link" class="w-full">Learn More</sc-button>
+                </sc-card-footer>
+              </sc-card>
+
+            </div>
+            <div class="flex flex-col gap-(--gap)">
+
+              <sc-card data-card="payments">
+                <sc-card-header class="flex-col gap-3">
+                  <nav class="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <a href="#/" class="hover:text-foreground">Home</a>
+                    <span>/</span>
+                    <sc-dropdown-menu items='[{"label":"Profile"},{"label":"Statements"},{"label":"Documents"}]'>
+                      <sc-button slot="trigger" variant="ghost" size="icon-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <circle cx="5" cy="12" r="1.6" />
+                          <circle cx="12" cy="12" r="1.6" />
+                          <circle cx="19" cy="12" r="1.6" />
+                        </svg>
+                      </sc-button>
+                    </sc-dropdown-menu>
+                    <span>/</span>
+                    <span class="text-foreground">Payments</span>
+                  </nav>
+                </sc-card-header>
+                <sc-card-content class="flex-col gap-2">
+                  <sc-item variant="muted">
+                    <div class="flex w-full items-center gap-3">
+                      <span class="flex size-8 items-center justify-center rounded-md bg-background text-muted-foreground">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="M12 14 15 9" />
+                          <path d="M3.5 17a9 9 0 1 1 17 0" />
+                        </svg>
+                      </span>
+                      <span class="flex flex-1 flex-col">
+                        <span class="text-sm font-medium">Change transfer limit</span>
+                        <span class="text-sm text-muted-foreground">Adjust how much you can send from your
+                          balance.</span>
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" class="text-muted-foreground" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </div>
+                  </sc-item>
+                  <sc-item variant="muted">
+                    <div class="flex w-full items-center gap-3">
+                      <span class="flex size-8 items-center justify-center rounded-md bg-background text-muted-foreground">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <rect x="3" y="4" width="18" height="18" rx="2" />
+                          <path d="M8 2v4M16 2v4M3 10h18" />
+                        </svg>
+                      </span>
+                      <span class="flex flex-1 flex-col">
+                        <span class="text-sm font-medium">Scheduled transfers</span>
+                        <span class="text-sm text-muted-foreground">Set up a transfer to send at a later date.</span>
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" class="text-muted-foreground" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </div>
+                  </sc-item>
+                  <sc-item variant="muted">
+                    <div class="flex w-full items-center gap-3">
+                      <span class="flex size-8 items-center justify-center rounded-md bg-background text-muted-foreground">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="m17 2 4 4-4 4" />
+                          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                          <path d="m7 22-4-4 4-4" />
+                          <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                        </svg>
+                      </span>
+                      <span class="flex flex-1 flex-col">
+                        <span class="text-sm font-medium">Direct Debits</span>
+                        <span class="text-sm text-muted-foreground">Set up and manage regular payments.</span>
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" class="text-muted-foreground" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </div>
+                  </sc-item>
+                  <sc-item variant="muted">
+                    <div class="flex w-full items-center gap-3">
+                      <span class="flex size-8 items-center justify-center rounded-md bg-background text-muted-foreground">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                          <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+                          <path d="M21 3v5h-5" />
+                        </svg>
+                      </span>
+                      <span class="flex flex-1 flex-col">
+                        <span class="text-sm font-medium">Recurring card payments</span>
+                        <span class="text-sm text-muted-foreground">Manage your repeated card transactions.</span>
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" class="text-muted-foreground" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </div>
+                  </sc-item>
+                </sc-card-content>
+              </sc-card>
+
+              <sc-card data-card="front-door">
+                <sc-card-header>
+                  <sc-card-title>Front Door</sc-card-title>
+                  <sc-card-description>Smart Lock Pro</sc-card-description>
+                  <sc-card-action>
+                    <div class="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      Locked
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <rect x="4" y="11" width="16" height="10" rx="2" />
+                        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                      </svg>
+                    </sc-card-action>
+                  </div>
+                </sc-card-header>
+                <sc-card-content>
+                  <div
+                    class="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-muted bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,var(--border)_10px,var(--border)_11px)]">
+                    <sc-badge variant="destructive" class="absolute top-2 right-2">Live</sc-badge>
+                  </div>
+                </sc-card-content>
+              </sc-card>
+
+            </div>
+          </div>
+
+          <sc-card data-card="release-catalog">
+            <sc-card-header class="justify-between gap-3">
+              <sc-input-group class="max-w-sm flex-1">
+                <span class="pl-3 text-muted-foreground">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                </span>
+                <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                  placeholder="Search holdings or tickers..." />
+              </sc-input-group>
+              <sc-toggle-group type="multiple" variant="outline" size="default" value='["etfs"]'
+                items='[{"value":"stocks","label":"Stocks"},{"value":"etfs","label":"ETFs"},{"value":"reits","label":"REITs"}]'></sc-toggle-group>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-2">
+              <sc-item variant="muted">
+                <div class="flex w-full items-center gap-4">
+                  <div class="flex size-12 items-center justify-center rounded-lg border text-sm font-semibold">VOO
+                  </div>
+                  <div class="flex flex-1 flex-col">
+                    <span class="text-sm font-medium">Vanguard S&amp;P 500 ETF</span>
+                    <span class="text-xs tracking-wider text-muted-foreground uppercase">112 Shares · Jan 2021</span>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-6">
+                    <sc-badge variant="outline">ETF</sc-badge>
+                    <div class="flex flex-col items-end gap-0.5">
+                      <span class="text-xs tracking-wider text-muted-foreground uppercase">Value</span>
+                      <span class="font-medium tabular-nums">$48,230.40</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex w-full items-center gap-4">
+                  <div class="flex size-12 items-center justify-center rounded-lg border text-sm font-semibold">VIG
+                  </div>
+                  <div class="flex flex-1 flex-col">
+                    <span class="text-sm font-medium">Vanguard Dividend Appreciation</span>
+                    <span class="text-xs tracking-wider text-muted-foreground uppercase">450 Shares · Mar 2022</span>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-6">
+                    <sc-badge variant="outline">ETF</sc-badge>
+                    <div class="flex flex-col items-end gap-0.5">
+                      <span class="text-xs tracking-wider text-muted-foreground uppercase">Value</span>
+                      <span class="font-medium tabular-nums">$26,033.79</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex w-full items-center gap-4">
+                  <div class="flex size-12 items-center justify-center rounded-lg border text-sm font-semibold">AAPL
+                  </div>
+                  <div class="flex flex-1 flex-col">
+                    <span class="text-sm font-medium">Apple Inc.</span>
+                    <span class="text-xs tracking-wider text-muted-foreground uppercase">85 Shares · Nov 2020</span>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-6">
+                    <sc-badge variant="outline">Stock</sc-badge>
+                    <div class="flex flex-col items-end gap-0.5">
+                      <span class="text-xs tracking-wider text-muted-foreground uppercase">Value</span>
+                      <span class="font-medium tabular-nums">$18,488.90</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-item>
+              <sc-item variant="muted">
+                <div class="flex w-full items-center gap-4">
+                  <div class="flex size-12 items-center justify-center rounded-lg border text-sm font-semibold">O</div>
+                  <div class="flex flex-1 flex-col">
+                    <span class="text-sm font-medium">Realty Income Corp</span>
+                    <span class="text-xs tracking-wider text-muted-foreground uppercase">320 Shares · Jun 2023</span>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-6">
+                    <sc-badge variant="outline">REIT</sc-badge>
+                    <div class="flex flex-col items-end gap-0.5">
+                      <span class="text-xs tracking-wider text-muted-foreground uppercase">Value</span>
+                      <span class="font-medium tabular-nums">$15,136.59</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-item>
+            </sc-card-content>
+          </sc-card>
+
+        </div>
+
+        <!-- ============================== column 4 ============================== -->
+        <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
+
+          <sc-card data-card="account-access">
+            <sc-card-header>
+              <sc-card-title>Account Access</sc-card-title>
+              <sc-card-description>Update your credentials or re-authenticate.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Email Address</sc-label>
+                  <sc-input-group class="w-full">
+                    <input type="email" class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      value="artist@studio.inc" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <sc-label>Current Password</sc-label>
+                    <a href="#/"
+                      class="text-xs font-medium tracking-wider text-muted-foreground uppercase hover:text-foreground">Forgot?</a>
+                  </div>
+                  <sc-input-group class="w-full">
+                    <input type="password" class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      value="password123" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer class="flex-col items-stretch gap-4">
+              <sc-button class="w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" aria-hidden="true">
+                  <rect x="4" y="11" width="16" height="10" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  <circle cx="12" cy="16" r="1" />
+                </svg>
+                Update Security
+              </sc-button>
+              <sc-item id="danger-zone" variant="muted" class="cursor-pointer">
+                <div class="flex w-full items-center gap-3">
+                  <span class="flex size-8 items-center justify-center rounded-md bg-background text-destructive">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 8v4M12 16h.01" />
+                    </svg>
+                  </span>
+                  <span class="flex flex-1 flex-col">
+                    <span class="text-sm font-medium">Danger Zone</span>
+                    <span class="text-sm text-muted-foreground">Archive account and remove catalog</span>
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" class="text-muted-foreground" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </div>
+              </sc-item>
+            </sc-card-footer>
+            <sc-dialog id="archive-dialog">
+              <div class="flex flex-col gap-3">
+                <div class="text-base font-semibold">Archive this account?</div>
+                <p class="text-sm text-muted-foreground">Your catalog will be delisted from every store within 48 hours.
+                  This cannot be undone from the web app.</p>
+                <div class="flex justify-end gap-2">
+                  <sc-button variant="outline" data-close-dialog>Keep account</sc-button>
+                  <sc-button variant="destructive" data-close-dialog>Archive</sc-button>
+                </div>
+              </div>
+            </sc-dialog>
+          </sc-card>
+
+          <div data-card="card-overview" class="grid grid-cols-2 gap-3">
+            <sc-card>
+              <sc-card-content class="flex-col gap-1">
+                <div class="text-sm text-muted-foreground">Card Balance</div>
+                <div class="text-2xl leading-none font-semibold tabular-nums">US$12.94</div>
+                <div class="text-sm text-muted-foreground tabular-nums">US$11,337.06 Available</div>
+              </sc-card-content>
+            </sc-card>
+            <sc-card>
+              <sc-card-content class="flex-1 flex-col justify-between">
+                <div class="flex flex-col gap-1">
+                  <div class="text-sm text-muted-foreground">Payment Due</div>
+                  <div class="text-2xl leading-none font-semibold">1 Apr</div>
+                </div>
+                <sc-button variant="outline" size="sm" class="mt-3 w-full">Pay Early</sc-button>
+              </sc-card-content>
+            </sc-card>
+            <sc-card class="col-span-2">
+              <sc-card-content class="flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm text-muted-foreground">Yearly Activity</div>
+                  <sc-badge variant="secondary">+US$0.25 Daily Cash</sc-badge>
+                </div>
+                <sc-chart class="h-20 w-full" type="bar" show-labels tooltip-label="Activity"
+                  data='[["Jan",40],["Feb",55],["Mar",35],["Apr",60],["May",45],["Jun",50],["Jul",65],["Aug",40],["Sep",55],["Oct",70],["Nov",45],["Dec",80]]'></sc-chart>
+              </sc-card-content>
+            </sc-card>
+          </div>
+
+          <sc-card data-card="transfer-funds">
+            <sc-card-header>
+              <sc-card-title>Transfer Funds</sc-card-title>
+              <sc-card-description>Move money between your connected accounts.</sc-card-description>
+              <sc-card-action>
+                <sc-button variant="ghost" size="icon-sm" class="rounded-md bg-muted">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Amount to Transfer</sc-label>
+                  <sc-input-group class="w-full">
+                    <span class="pl-3 text-sm text-muted-foreground">$</span>
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none" value="1,200.00" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>From Account</sc-label>
+                  <sc-select class="w-full" value="checking" placeholder="Select an account"
+                    options='[{"value":"checking","label":"Main Checking (··8402) — $12,450.00"},{"value":"business","label":"Business (··7731) — $8,920.00"}]'></sc-select>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>To Account</sc-label>
+                  <sc-select class="w-full" value="savings" placeholder="Select an account"
+                    options='[{"value":"savings","label":"High Yield Savings (··1192) — $42,100.00"},{"value":"investment","label":"Investment (··3349) — $18,200.00"}]'></sc-select>
+                </div>
+              </sc-field>
+              <sc-item variant="muted">
+                <div class="flex flex-1 flex-col gap-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Estimated arrival</span>
+                    <span class="text-sm font-medium">Today, Apr 14</span>
+                  </div>
+                  <sc-separator></sc-separator>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-muted-foreground">Transaction fee</span>
+                    <span class="text-sm font-medium tabular-nums">$0.00</span>
+                  </div>
+                  <sc-separator></sc-separator>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium">Total amount</span>
+                    <span class="text-sm font-semibold tabular-nums">$1,200.00</span>
+                  </div>
+                </div>
+              </sc-item>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-button class="w-full">Confirm Transfer</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="cover-art">
+            <sc-card-content class="flex-col gap-3">
+              <sc-label class="text-center">
+                <span class="text-xs font-normal tracking-wider text-muted-foreground uppercase">Cover Art</span>
+              </sc-label>
+              <sc-item variant="outline" class="aspect-square">
+                <div class="flex size-full cursor-pointer items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" class="size-10 text-muted-foreground/50" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="9" cy="9" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                </div>
+              </sc-item>
+            </sc-card-content>
+            <sc-card-footer class="flex-col items-stretch gap-2">
+              <sc-button variant="secondary" class="w-full">Upload Artwork</sc-button>
+              <p class="text-center text-xs text-muted-foreground">Minimum 3000 × 3000px<br />JPEG or PNG only</p>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="loading-card">
+            <sc-card-header>
+              <sc-skeleton class="h-5 w-32"></sc-skeleton>
+              <sc-skeleton class="h-4 w-48"></sc-skeleton>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-skeleton class="h-32 w-full rounded-lg"></sc-skeleton>
+              <div class="flex flex-col gap-2">
+                <sc-skeleton class="h-4 w-full"></sc-skeleton>
+                <sc-skeleton class="h-4 w-3/4"></sc-skeleton>
+                <sc-skeleton class="h-4 w-1/2"></sc-skeleton>
+              </div>
+              <div class="flex gap-2">
+                <sc-skeleton class="h-9 flex-1 rounded-md"></sc-skeleton>
+                <sc-skeleton class="h-9 flex-1 rounded-md"></sc-skeleton>
+              </div>
+            </sc-card-content>
+          </sc-card>
+
+        </div>
+
+        <!-- ============================== column 5 ============================== -->
+        <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
+
+          <sc-card data-card="receiving-method">
+            <sc-card-header>
+              <sc-card-description>Payout Preferences</sc-card-description>
+              <sc-card-title>Receiving Method</sc-card-title>
+              <sc-card-action>
+                <sc-button variant="ghost" size="icon-sm" class="rounded-md bg-muted">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </sc-button>
+              </sc-card-action>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Account Holder Name</sc-label>
+                  <sc-input-group class="w-full">
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      value="Synthetic Horizons Music LLC" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Receiving Method</sc-label>
+                  <sc-radio-group name="method" value="bank"
+                    items='[{"value":"bank","label":"Bank Transfer","description":"SWIFT / IBAN"},{"value":"paypal","label":"PayPal","description":"Instant Payout"}]'></sc-radio-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>IBAN / Account Number</sc-label>
+                  <sc-input class="w-full"></sc-input>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-button class="w-full">Save Payout Settings</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="power-usage">
+            <sc-card-header>
+              <sc-card-title>Power Usage</sc-card-title>
+              <sc-card-description>Whole Home</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-chart class="h-[140px] w-full" type="bar" show-labels tooltip-label="Usage (kW)"
+                data='[["6a",1.2],["8a",2.8],["10a",3.1],["12p",2.4],["2p",3.4],["4p",2.9],["6p",3.8],["8p",3.2]]'></sc-chart>
+              <sc-separator></sc-separator>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm text-muted-foreground">Currently Using</span>
+                  <span class="text-lg font-semibold tabular-nums">3.4 kW</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm text-muted-foreground">Solar Gen</span>
+                  <span class="text-lg font-semibold text-chart-1 tabular-nums">+1.2 kW</span>
+                </div>
+              </div>
+            </sc-card-content>
+            <sc-card-footer class="flex-col gap-1">
+              <span class="text-sm text-muted-foreground">Battery Level</span>
+              <div class="flex w-full items-center gap-2">
+                <sc-progress class="flex-1" value="85"></sc-progress>
+                <span class="text-sm font-medium tabular-nums">85%</span>
+              </div>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="empty-connect-bank">
+            <sc-card-content>
+              <sc-empty>
+                <div class="flex flex-col items-center gap-4 py-4 text-center">
+                  <div class="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <path d="M2 10h20" />
+                    </svg>
+                  </div>
+                  <div class="flex max-w-sm flex-col gap-1">
+                    <div class="font-medium">Connect Bank</div>
+                    <div class="text-sm text-muted-foreground">Link your payout method to receive monthly royalty
+                      distributions automatically.</div>
+                  </div>
+                  <sc-button variant="primary">Set Up Payouts</sc-button>
+                </div>
+              </sc-empty>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="upcoming-payments">
+            <sc-card-header>
+              <sc-card-title>Upcoming Payments</sc-card-title>
+              <sc-card-description>Select a date to view scheduled payments.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-item variant="outline">
+                <div class="flex w-full justify-center">
+                  <sc-calendar class="w-full" value="2026-08-10"></sc-calendar>
+                </div>
+              </sc-item>
+              <div class="flex flex-col gap-2">
+                <sc-item variant="muted">
+                  <div class="flex w-full items-center gap-3">
+                    <span class="flex flex-1 flex-col">
+                      <span class="text-sm font-medium">Netflix Subscription</span>
+                      <span class="text-sm text-muted-foreground">Apr 15, 2024</span>
+                    </span>
+                    <sc-badge variant="secondary">$19.99</sc-badge>
+                  </div>
+                </sc-item>
+                <sc-item variant="muted">
+                  <div class="flex w-full items-center gap-3">
+                    <span class="flex flex-1 flex-col">
+                      <span class="text-sm font-medium">Rent Payment</span>
+                      <span class="text-sm text-muted-foreground">Apr 1, 2024</span>
+                    </span>
+                    <sc-badge variant="secondary">$2,400.00</sc-badge>
+                  </div>
+                </sc-item>
+                <sc-item variant="muted">
+                  <div class="flex w-full items-center gap-3">
+                    <span class="flex flex-1 flex-col">
+                      <span class="text-sm font-medium">Auto Insurance</span>
+                      <span class="text-sm text-muted-foreground">Apr 22, 2024</span>
+                    </span>
+                    <sc-badge variant="secondary">$186.00</sc-badge>
+                  </div>
+                </sc-item>
+              </div>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="roller-shades">
+            <sc-card-header>
+              <sc-card-title>Living Room</sc-card-title>
+              <sc-card-description>Roller Shades</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <div class="flex h-32 flex-col overflow-hidden rounded-lg border bg-muted">
+                <div id="shades-fill" class="bg-muted-foreground transition-all duration-300" style="height:50%"></div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Open</span>
+                <sc-slider id="shades-slider" class="w-full flex-1" min="0" max="100" step="1" value="50"></sc-slider>
+                <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Close</span>
+              </div>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-toggle-group id="shades-preset" class="w-full" type="single" variant="outline" size="default"
+                value="half"
+                items='[{"value":"open","label":"Open"},{"value":"half","label":"Half"},{"value":"closed","label":"Closed"}]'></sc-toggle-group>
+            </sc-card-footer>
+          </sc-card>
+
+        </div>
+
+        <!-- ============================== column 6 ============================== -->
+        <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
+
+          <sc-card data-card="stock-performance">
+            <sc-card-header>
+              <sc-card-title>Stock Performance</sc-card-title>
+              <sc-card-description>6-month price history.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Ticker</sc-label>
+                  <sc-combobox id="ticker-combobox" class="w-full" placeholder="VOO" search-placeholder="Search ticker…"
+                    empty-text="No tickers found."
+                    items='[{"value":"VOO","label":"VOO"},{"value":"VIG","label":"VIG"},{"value":"AAPL","label":"AAPL"},{"value":"MSFT","label":"MSFT"},{"value":"GOOGL","label":"GOOGL"},{"value":"AMZN","label":"AMZN"},{"value":"TSLA","label":"TSLA"}]'></sc-combobox>
+                </div>
+              </sc-field>
+              <sc-separator></sc-separator>
+              <sc-chart id="stock-chart" class="h-[200px] w-full" type="area" tooltip-label="Price"
+                data='[["Jan",412],["Feb",438],["Mar",395],["Apr",450],["May",420],["Jun",462]]'></sc-chart>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="empty-explore-catalog">
+            <sc-card-content>
+              <sc-empty>
+                <div class="flex flex-col items-center gap-4 py-4 text-center">
+                  <div class="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" aria-hidden="true">
+                      <path d="M4 10v4M8 6v12M12 9v6M16 4v16M20 11v2" />
+                    </svg>
+                  </div>
+                  <div class="flex max-w-sm flex-col gap-1">
+                    <div class="font-medium">Explore Catalog</div>
+                    <div class="text-sm text-muted-foreground">Check your ISRC codes, metadata, and visual assets before
+                      going live.</div>
+                  </div>
+                  <sc-button variant="primary">View Catalog</sc-button>
+                </div>
+              </sc-empty>
+            </sc-card-content>
+          </sc-card>
+
+          <sc-card data-card="new-milestone">
+            <sc-card-header>
+              <sc-card-title>Set a new milestone</sc-card-title>
+              <sc-card-description>Define your financial target and we'll help you pace your
+                savings.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Goal Name</sc-label>
+                  <sc-input class="w-full"></sc-input>
+                </div>
+              </sc-field>
+              <div class="grid grid-cols-2 gap-3">
+                <sc-field>
+                  <div class="flex flex-col gap-2">
+                    <sc-label>Target Amount</sc-label>
+                    <sc-input-group class="w-full">
+                      <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none" value="$15,000" />
+                    </sc-input-group>
+                  </div>
+                </sc-field>
+                <sc-field>
+                  <div class="flex flex-col gap-2">
+                    <sc-label>Target Date</sc-label>
+                    <sc-input-group class="w-full">
+                      <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none" value="Dec 2025" />
+                    </sc-input-group>
+                  </div>
+                </sc-field>
+              </div>
+            </sc-card-content>
+            <sc-card-footer class="flex-col items-stretch gap-2">
+              <sc-button class="w-full">Create Goal</sc-button>
+              <sc-button variant="outline" class="w-full">Cancel</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="social-links">
+            <sc-card-header>
+              <sc-card-title>Social Links</sc-card-title>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Spotify Artist URL</sc-label>
+                  <sc-input-group class="w-full">
+                    <span class="pl-3 text-muted-foreground">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M8 14c2.5-1 5.5-1 8 .5M7.5 11c3-1.2 6.5-1 9.5 1" />
+                      </svg>
+                    </span>
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      value="spotify.com/artist/3j...2k" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Instagram Handle</sc-label>
+                  <sc-input-group class="w-full">
+                    <span class="pl-3 text-muted-foreground">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" />
+                        <circle cx="12" cy="13" r="3.5" />
+                      </svg>
+                    </span>
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none" value="@julianduryea_music" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>SoundCloud URL</sc-label>
+                  <sc-input-group class="w-full">
+                    <span class="pl-3 text-muted-foreground">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <path d="M17.5 19H7a4 4 0 1 1 .5-8 5.5 5.5 0 0 1 10.6 1.5A3.5 3.5 0 0 1 17.5 19z" />
+                      </svg>
+                    </span>
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      placeholder="soundcloud.com/username" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex flex-col gap-2">
+                  <sc-label>Website</sc-label>
+                  <sc-input-group class="w-full">
+                    <span class="pl-3 text-muted-foreground">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18" />
+                      </svg>
+                    </span>
+                    <input class="h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+                      placeholder="https://yoursite.com" />
+                  </sc-input-group>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer class="justify-end gap-2">
+              <sc-button variant="secondary">Discard</sc-button>
+              <sc-button>Save Changes</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+          <sc-card data-card="notification-settings">
+            <sc-card-header>
+              <sc-card-title>Notifications</sc-card-title>
+              <sc-card-description>Choose what you want to be notified about.</sc-card-description>
+            </sc-card-header>
+            <sc-card-content class="flex-col gap-4">
+              <sc-field>
+                <div class="flex items-center gap-3">
+                  <sc-checkbox id="notify-all"></sc-checkbox>
+                  <sc-label>Select all</sc-label>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex items-start gap-3">
+                  <sc-checkbox data-notify="transactions" checked></sc-checkbox>
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Transaction alerts</sc-label>
+                    <span class="text-sm text-muted-foreground">Deposits, withdrawals, and transfers.</span>
+                  </div>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex items-start gap-3">
+                  <sc-checkbox data-notify="security" checked></sc-checkbox>
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Security alerts</sc-label>
+                    <span class="text-sm text-muted-foreground">Login attempts and account changes.</span>
+                  </div>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex items-start gap-3">
+                  <sc-checkbox data-notify="goals"></sc-checkbox>
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Goal milestones</sc-label>
+                    <span class="text-sm text-muted-foreground">Updates at 25%, 50%, 75%, and 100%.</span>
+                  </div>
+                </div>
+              </sc-field>
+              <sc-field>
+                <div class="flex items-start gap-3">
+                  <sc-checkbox data-notify="market"></sc-checkbox>
+                  <div class="flex flex-col gap-1">
+                    <sc-label>Market updates</sc-label>
+                    <span class="text-sm text-muted-foreground">Daily portfolio summary and price alerts.</span>
+                  </div>
+                </div>
+              </sc-field>
+            </sc-card-content>
+            <sc-card-footer>
+              <sc-button class="w-full">Save Preferences</sc-button>
+            </sc-card-footer>
+          </sc-card>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./sc-components.js"></script>
   <script type="module">
-    document.getElementById('open-dialog').addEventListener('click', () => {
-      document.getElementById('dialog').setAttribute('open', '');
+    // Attributes, not properties: the elements upgrade only after the bundle has fetched its stylesheet, and observed
+    // attributes are the one channel that works identically before and after that upgrade.
+    const setAttr = (element, name, value) => {
+      if (value === null) element?.removeAttribute(name);
+      else element?.setAttribute(name, value);
+    };
+
+    // --- Kitchen Island: a scene preset drives all four sliders -------------------------------------------------
+    const scenePresets = {
+      cooking: [90, 70, 30, 0],
+      dining: [50, 40, 20, 60],
+      nightlight: [15, 20, 0, 80],
+      focus: [100, 85, 0, 0]
+    };
+    const kitchenSliders = ["kitchen-brightness", "kitchen-color-temp", "kitchen-volume", "kitchen-fade"].map(id =>
+      document.getElementById(id)
+    );
+    document.getElementById("kitchen-scene")?.addEventListener("sc-change", event => {
+      const preset = scenePresets[event.detail];
+      if (!preset) return;
+      preset.forEach((value, index) => setAttr(kitchenSliders[index], "value", String(value)));
     });
-    document.getElementById('menu').addEventListener('select', (ev) => {
-      console.log('selected index', ev.detail);
+
+    // Power switch disables the scene toggles and sliders (Preview02 KitchenIsland parity).
+    const kitchenScene = document.getElementById("kitchen-scene");
+    const setKitchenEnabled = enabled => {
+      for (const slider of kitchenSliders) {
+        if (!slider) continue;
+        setAttr(slider, "data-disabled", enabled ? null : "");
+        const track = slider.shadowRoot?.querySelector(".cn-slider, [data-slot='slider']");
+        if (track) {
+          if (enabled) track.removeAttribute("data-disabled");
+          else track.setAttribute("data-disabled", "");
+        }
+      }
+      const buttons = kitchenScene?.shadowRoot?.querySelectorAll("button, [data-slot='toggle-group-item']") ?? [];
+      for (const button of buttons) button.disabled = !enabled;
+    };
+    document.getElementById("kitchen-power")?.addEventListener("sc-change", event => {
+      setKitchenEnabled(event.detail === true);
     });
+    setKitchenEnabled(document.getElementById("kitchen-power")?.hasAttribute("checked") ?? true);
+
+    // --- Roller Shades: slider and preset toggle mirror each other ----------------------------------------------
+    const shadesSlider = document.getElementById("shades-slider");
+    const shadesPreset = document.getElementById("shades-preset");
+    const shadesFill = document.getElementById("shades-fill");
+    const presetPositions = { open: 0, half: 50, closed: 100 };
+    const presetFor = position => (position <= 10 ? "open" : position >= 90 ? "closed" : "half");
+    // No cycle-breaking flag needed here: sc-change reports user interaction only, so writing `value` on one element
+    // never bounces an event back off the other.
+    shadesSlider?.addEventListener("sc-change", event => {
+      const position = Number(event.detail) || 0;
+      if (shadesFill) shadesFill.style.height = `${position}%`;
+      setAttr(shadesPreset, "value", presetFor(position));
+    });
+
+    shadesPreset?.addEventListener("sc-change", event => {
+      const position = presetPositions[event.detail];
+      if (position === undefined) return;
+      setAttr(shadesSlider, "value", String(position));
+      if (shadesFill) shadesFill.style.height = `${position}%`;
+    });
+
+    // --- Notifications: master checkbox drives the rest, and reflects their state -------------------------------
+    const notifyAll = document.getElementById("notify-all");
+    const notifyBoxes = [...document.querySelectorAll("[data-notify]")];
+    // A checkbox reports its state through sc-change and does not reflect it back into the `checked` attribute, so the
+    // page keeps the tally the master box needs.
+    const notifyState = new Map(notifyBoxes.map(box => [box, box.hasAttribute("checked")]));
+
+    const refreshNotifyAll = () => {
+      const checked = [...notifyState.values()].filter(Boolean).length;
+      setAttr(notifyAll, "checked", checked === notifyBoxes.length ? "" : null);
+      setAttr(notifyAll, "indeterminate", checked > 0 && checked < notifyBoxes.length ? "" : null);
+    };
+
+    notifyAll?.addEventListener("sc-change", event => {
+      const next = event.detail?.checked === true;
+      for (const box of notifyBoxes) {
+        notifyState.set(box, next);
+        setAttr(box, "checked", next ? "" : null);
+      }
+      refreshNotifyAll();
+    });
+
+    for (const box of notifyBoxes) {
+      box.addEventListener("sc-change", event => {
+        notifyState.set(box, event.detail?.checked === true);
+        refreshNotifyAll();
+      });
+    }
+    refreshNotifyAll();
+
+    // --- Payout threshold: slider writes the currency label ----------------------------------------------------
+    const payoutLabel = document.getElementById("payout-amount");
+    document.getElementById("payout-slider")?.addEventListener("sc-change", event => {
+      const amount = Number(event.detail) || 0;
+      if (payoutLabel) {
+        payoutLabel.textContent = `$${amount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`;
+      }
+    });
+
+    // --- Stock performance: the ticker combobox swaps the area series ------------------------------------------
+    const tickerSeries = {
+      VOO: [["Jan", 412], ["Feb", 438], ["Mar", 395], ["Apr", 450], ["May", 420], ["Jun", 462]],
+      AAPL: [["Jan", 185], ["Feb", 210], ["Mar", 172], ["Apr", 198], ["May", 178], ["Jun", 215]]
+    };
+    const fallbackSeries = [["Jan", 100], ["Feb", 118], ["Mar", 95], ["Apr", 125], ["May", 108], ["Jun", 130]];
+    const stockChart = document.getElementById("stock-chart");
+    document.getElementById("ticker-combobox")?.addEventListener("sc-change", event => {
+      const ticker = event.detail;
+      if (!ticker) return;
+      setAttr(stockChart, "data", JSON.stringify(tickerSeries[ticker] ?? fallbackSeries));
+    });
+
+    // --- Danger zone dialog -----------------------------------------------------------------------------------
+    const archiveDialog = document.getElementById("archive-dialog");
+    document.getElementById("danger-zone")?.addEventListener("click", () => {
+      setAttr(archiveDialog, "open", "");
+    });
+    for (const button of document.querySelectorAll("[data-close-dialog]")) {
+      button.addEventListener("click", () => setAttr(archiveDialog, "open", null));
+    }
   </script>
 </body>
+
 </html>

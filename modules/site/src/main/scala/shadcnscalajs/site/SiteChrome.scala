@@ -12,7 +12,7 @@ object SiteChrome:
 
   /** Which primary-nav item should look selected. */
   enum Active derives CanEqual:
-    case None, Home, Components, Blocks, Create
+    case None, Home, Components, Blocks, Create, WebComponents
 
   def navGhost(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
     Button.anchor(hrefValue, Button.ButtonApi.variant(Button.Variant.Ghost), mods)
@@ -62,7 +62,10 @@ object SiteChrome:
       (Active.Home, "/", "Home"),
       (Active.Components, "/components", "Components"),
       (Active.Blocks, "/blocks", "Blocks"),
-      (Active.Create, "/create", "Create")
+      (Active.Create, "/create", "Create"),
+      // Full document load: the demo is a static HTML page outside the SPA, and Router.owns leaves it alone.
+      // Never selected by activeOf — leaving the SPA means this header is gone.
+      (Active.WebComponents, "/plain-html-demo.html", "Web Components")
     )
     if showHome then all else all.tail
 
@@ -125,7 +128,8 @@ object SiteChrome:
       navGhost("/components", "Docs"),
       navGhostActive(s"/components/$componentName", "Components"),
       navGhost("/blocks", "Blocks"),
-      navGhost("/create", "Create")
+      navGhost("/create", "Create"),
+      navGhost("/plain-html-demo.html", "Web Components")
     )
 
   private def isLanding(route: Router.Route): Boolean = route == Router.Route.Landing

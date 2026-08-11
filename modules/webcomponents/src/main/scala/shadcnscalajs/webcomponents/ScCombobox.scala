@@ -18,10 +18,14 @@ class ScCombobox extends ScElementBase:
   private val searchPlaceholderVar = Var("Search…")
   private val emptyTextVar = Var("No results found.")
 
-  observeAttribute("items")(v => itemsVar.set(v.flatMap(ScCombobox.parseItems).getOrElse(Nil)))
+  observeAttribute("items")(v => itemsVar.set(ScCombobox.parseItems(v.orNull)))
   observeAttribute("placeholder")(v => v.foreach(placeholderVar.set))
   observeAttribute("search-placeholder")(v => v.foreach(searchPlaceholderVar.set))
   observeAttribute("empty-text")(v => v.foreach(emptyTextVar.set))
+  jsonProperty("items")(v => itemsVar.set(ScCombobox.parseItems(v)))
+  stringProperty("placeholder")
+  stringProperty("search-placeholder")
+  stringProperty("empty-text")
 
   mount(
     ScCombobox.view(
@@ -30,17 +34,21 @@ class ScCombobox extends ScElementBase:
       placeholderVar,
       searchPlaceholderVar,
       emptyTextVar,
-      value =>
-        this.dispatchEvent(
-          new dom.CustomEvent("change", js.Dynamic.literal(detail = value.orNull).asInstanceOf[dom.CustomEventInit])
-        )
+      value => emit("sc-change", value.orNull)
     )
   )
 
 object ScCombobox:
 
   def register(): Unit =
-    dom.window.customElements.define("sc-combobox", js.constructorOf[ScCombobox])
+    ScElements.define(
+      "sc-combobox",
+      js.constructorOf[ScCombobox],
+      "items",
+      "placeholder",
+      "search-placeholder",
+      "empty-text"
+    )
 
   // Built outside the ScElementBase/HTMLElement subclass: HTMLElement itself
   // declares a `children: HTMLCollection` member, which would otherwise
@@ -62,12 +70,8 @@ object ScCombobox:
         }
     )
 
-  private def parseItems(json: String): Option[List[Combobox.Item]] =
-    try
-      val parsed = js.JSON.parse(json).asInstanceOf[js.Array[js.Dynamic]]
-      Some(parsed.toList.map { raw =>
-        val value = raw.value.asInstanceOf[String]
-        val label = raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(value)
-        Combobox.Item(value = value, label = label)
-      })
-    catch case _: Throwable => None
+  private def parseItems(value: js.Any): List[Combobox.Item] =
+    ScElements.toArray(value).map(_.toList.map { raw =>
+      val v = raw.value.asInstanceOf[String]
+      Combobox.Item(value = v, label = raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(v))
+    }).getOrElse(Nil)

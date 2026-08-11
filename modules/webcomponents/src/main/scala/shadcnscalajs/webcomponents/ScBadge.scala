@@ -12,6 +12,7 @@ class ScBadge extends ScElementBase:
   private val variantVar = Var(Badge.Variant.Primary)
 
   observeAttribute("variant")(v => ScBadge.parseVariant(v).foreach(variantVar.set))
+  stringProperty("variant")
 
   mount(
     span(
@@ -24,7 +25,7 @@ class ScBadge extends ScElementBase:
 object ScBadge:
 
   def register(): Unit =
-    dom.window.customElements.define("sc-badge", js.constructorOf[ScBadge])
+    ScElements.define("sc-badge", js.constructorOf[ScBadge], "variant")
 
   private def parseVariant(v: Option[String]): Option[Badge.Variant] = v.collect {
     case "primary" => Badge.Variant.Primary; case "secondary"   => Badge.Variant.Secondary

@@ -14,6 +14,8 @@ class ScButton extends ScElementBase:
 
   observeAttribute("variant")(v => ScButton.parseVariant(v).foreach(variantVar.set))
   observeAttribute("size")(v => ScButton.parseSize(v).foreach(sizeVar.set))
+  stringProperty("variant")
+  stringProperty("size")
 
   mount(
     button(
@@ -28,7 +30,7 @@ class ScButton extends ScElementBase:
 object ScButton:
 
   def register(): Unit =
-    dom.window.customElements.define("sc-button", js.constructorOf[ScButton])
+    ScElements.define("sc-button", js.constructorOf[ScButton], "variant", "size")
 
   private def parseVariant(v: Option[String]): Option[Button.Variant] = v.collect {
     case "primary"     => Button.Variant.Primary; case "secondary" => Button.Variant.Secondary

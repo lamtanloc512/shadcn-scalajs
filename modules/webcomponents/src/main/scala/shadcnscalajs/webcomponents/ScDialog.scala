@@ -24,6 +24,7 @@ class ScDialog extends ScElementBase:
     val newOpen = v.isDefined
     if isOpenVar.now() != newOpen then isOpenVar.set(newOpen)
   }
+  booleanProperty("open")
 
   mount(
     Dialog(isOpenVar)(
@@ -31,7 +32,7 @@ class ScDialog extends ScElementBase:
         isOpenVar.signal.changes --> { (open: Boolean) =>
           if !open then
             if this.hasAttribute("open") then this.removeAttribute("open")
-            this.dispatchEvent(new dom.CustomEvent("close", js.undefined))
+            emit("sc-close", js.undefined)
         }
       },
       slotTag()
@@ -40,4 +41,4 @@ class ScDialog extends ScElementBase:
 
 object ScDialog:
   def register(): Unit =
-    dom.window.customElements.define("sc-dialog", js.constructorOf[ScDialog])
+    ScElements.define("sc-dialog", js.constructorOf[ScDialog], "open")

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WC FOUC fixture</title>
+  <link rel="preload" href="./sc-components.css" as="fetch" crossorigin />
+  <script>
+    try {
+      const theme = JSON.parse(localStorage.getItem("shadcn-scalajs:theme") || "{}");
+      document.documentElement.classList.toggle("dark", theme.darkMode === true);
+      if (typeof theme.stylePack === "string") {
+        document.documentElement.setAttribute("data-style-pack", theme.stylePack);
+      }
+    } catch {}
+  </script>
+  <style>
+    :not(:defined) { visibility: hidden; }
+  </style>
+</head>
+<body>
+  <sc-button variant="primary">Primary</sc-button>
+  <script type="module" src="./sc-components.js"></script>
+</body>
+</html>

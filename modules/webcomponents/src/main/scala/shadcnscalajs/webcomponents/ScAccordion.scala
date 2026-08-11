@@ -16,14 +16,15 @@ class ScAccordion extends ScElementBase:
   private val sectionsVar = Var(List.empty[Accordion.Section])
   private val openIndexVar = Var(Option.empty[Int])
 
-  observeAttribute("sections")(v => sectionsVar.set(v.flatMap(ScAccordion.parseSections).getOrElse(Nil)))
+  observeAttribute("sections")(v => sectionsVar.set(ScAccordion.parseSections(v.orNull)))
+  jsonProperty("sections")(v => sectionsVar.set(ScAccordion.parseSections(v)))
 
   mount(ScAccordion.view(sectionsVar, openIndexVar))
 
 object ScAccordion:
 
   def register(): Unit =
-    dom.window.customElements.define("sc-accordion", js.constructorOf[ScAccordion])
+    ScElements.define("sc-accordion", js.constructorOf[ScAccordion], "sections")
 
   // `children` must be built outside the ScElementBase/HTMLElement subclass:
   // HTMLElement itself declares a `children: HTMLCollection` member, which
@@ -33,13 +34,11 @@ object ScAccordion:
       children <-- sectionsVar.signal.map(sections => List(Accordion(openIndexVar, sections*)))
     )
 
-  private def parseSections(json: String): Option[List[Accordion.Section]] =
-    try
-      val parsed = js.JSON.parse(json).asInstanceOf[js.Array[js.Dynamic]]
-      Some(parsed.toList.map { raw =>
-        val title = raw.title.asInstanceOf[String]
-        val content = raw.content.asInstanceOf[String]
-        val disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
-        Accordion.Section(title = title, content = content, disabled = disabled)
-      })
-    catch case _: Throwable => None
+  private def parseSections(value: js.Any): List[Accordion.Section] =
+    ScElements.toArray(value).map(_.toList.map { raw =>
+      Accordion.Section(
+        title = raw.title.asInstanceOf[String],
+        content = raw.content.asInstanceOf[String],
+        disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+      )
+    }).getOrElse(Nil)

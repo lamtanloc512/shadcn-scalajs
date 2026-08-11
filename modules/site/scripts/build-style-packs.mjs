@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
@@ -97,4 +97,5 @@ async function build() {
   console.log(`Built ${packs.length} style packs -> public/styles`);
 }
 
-await build();
+// Guarded so build-webcomponents.mjs can import the pack helpers without triggering a full pack build.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await build();
