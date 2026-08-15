@@ -1,18 +1,10 @@
 # shadcn-scalajs
 
-<!-- franky:base @include .franky/base/instructions.md -->
-
-## Agent skill
-
-Cursor loads `.cursor/skills/franky/SKILL.md` automatically — it contains the full `franky help` instructions. Run `franky help` to refresh from CLI.
-
 ## Project rules
-
-Add project-specific agent instructions below. Franky base rules above always apply.
 
 ### What this is
 
-A port of shadcn/ui's philosophy to Scala.js + Laminar: components you copy into your own project (CLI + registry, like real shadcn/ui — not just a published library), styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly (not basecoat CSS — see "History" below), and every component also compiles to a standalone Web Component so non-Scala frontends can use it too. Read `.franky/memory/PROGRESS.md` for what's currently in progress and what's next.
+A port of shadcn/ui's philosophy to Scala.js + Laminar: components you copy into your own project (CLI + registry, like real shadcn/ui — not just a published library), styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly (not basecoat CSS — see "History" below), and every component also compiles to a standalone Web Component so non-Scala frontends can use it too.
 
 ### History
 
@@ -43,7 +35,7 @@ export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 sbt core/compile ui/compile webcomponents/compile site/compile   # compile everything
 sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS       # Scala.js link (dev / per module)
 sbt siteOpt                                                      # size-optimized site/fullLinkJS (or `sbt opt` for ui+wc+site)
-sbt scalafmtAll                                                  # format — CI (franky verify / scripts/lint) checks this, run it before committing
+ sbt scalafmtAll                                                  # format before committing
 sbt core/publishLocal                                            # publish core to ~/.ivy2/local (needed for consumer fixtures / real CLI testing)
 
 cd modules/site && npm install && npm run dev   # predev runs build-basecoat-styles + build-shadcn-presets + build-registry, then Vite
@@ -58,7 +50,7 @@ cd packages/cli && npm install && npm run build  # -> dist/index.js
 node packages/cli/dist/index.js init --registry <path-or-url> --source-dir <path>
 node packages/cli/dist/index.js add <component...>
 
-./scripts/test   # franky's ground-truth check: build + registry rebuild + CLI init/add smoke test against a temp dir
+./scripts/test   # build + registry rebuild + CLI init/add smoke test against a temp dir
 ```
 
 ### Things that will bite you if you don't know them
@@ -78,38 +70,15 @@ node packages/cli/dist/index.js add <component...>
 ### Verification checklist for new work
 
 - `sbt <module>/compile` for anything touched, then `sbt scalafmtAll` before committing.
-- For `ui`/`webcomponents`/`site` changes: actually load a page in a browser (claude-in-chrome or manual) and click through the interaction, not just eyeball it — several real bugs in this codebase were invisible from source review or compilation alone (the composedPath bug, the double-fire dialog-close bug, the CSS-not-applying-in-shadow-DOM bug — all found via live testing, see git history / `.franky/memory/decisions.log`).
+- For `ui`/`webcomponents`/`site` changes: actually load a page in a browser (Playwright or manual) and click through the interaction, not just eyeball it — several real bugs in this codebase were invisible from source review or compilation alone.
 - New component checklist: `.scala` in `modules/ui` (Tailwind classes matching the real shadcn/ui source) → `.registry.json` sidecar → add the display name to `componentNavList` in `modules/site/Main.scala` → add a `liveExample()` case and a matching `usageSource` case (keep these two matches in exact 1:1 correspondence — the Usage code block shown is only accurate if it matches what actually rendered) → `node scripts/build-registry.mjs` (or just let `predev`/`prebuild` do it).
 - New block checklist: directory + `.scala` files + `<name>.registry.json` sidecar under `modules/blocks` (sidecar needs `type: "scala:block"`, `description`, `categories`, and per-file `type` of `scala:page`/`scala:component`) → add a `Blocks.Meta` entry to `Blocks.all` **and** a case to `Blocks.render` in `modules/site/Blocks.scala` (both, or the block is unreachable) → `node scripts/build-registry.mjs` → browser-check all three routes (`/blocks`, `/blocks/<name>`, `/blocks/<name>/preview`).
 - **`Button(...)` with no variant/size is unstyled** — unlike upstream's cva, `Button.apply` has no `defaultVariants`, so a bare `Button("Save")` renders at 20px tall with no background. Always `Button.of(_.variant(...), _.size(...), ...)`. This bit the block ports; see PROGRESS.md "Next".
 - For `cli` changes: run `init`+`add` against a scratch directory and, ideally, `sbt compile` the result against a `core/publishLocal`'d build (`./scripts/test` does the smoke-test part of this automatically; the full sbt-compile check is still manual — see `scripts/test`'s own comment).
 
-## Slash commands
+## Verification
 
-Use deterministic commands from `.franky/commands.toml` — run `franky commands` to list them.
-
-**Start every session with `franky help` and follow its instructions.**
-
-| Command | Action |
-|---|---|
-| help | `franky help` — read first |
-| verify | `franky verify` — run before completing work |
-| test | `scripts/test` |
-| doctor | `franky doctor` |
-
-Full reference: franky `docs/slash-commands.md`.
-
-## Scripts
-
-```bash
-franky verify          # setup → build → lint → test
-scripts/test           # ground truth test step only
-```
-
-## Specs
-
-Feature specs live in `specs/features/*.spec.md`. Read the active spec before implementing.
-
-## Memory
-
-Update `.franky/memory/PROGRESS.md` (done / next / blockers) as you work.
+- Compile touched Scala modules with `sbt <module>/compile`.
+- Run `sbt scalafmtAll` before committing.
+- Run `./scripts/test` for the build, registry, and CLI smoke checks.
+- Load affected site and Web Component pages in a browser and exercise their interactions.

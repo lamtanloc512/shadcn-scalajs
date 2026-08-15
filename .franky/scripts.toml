@@ -1,6 +1,0 @@
-[commands]
-setup = "./.franky/scripts/setup"
-build = "./.franky/scripts/build"
-lint = "./.franky/scripts/lint"
-test = "./.franky/scripts/test"
-serve = "./.franky/scripts/serve"
