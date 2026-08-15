@@ -48,8 +48,7 @@ object ScSidebar:
           Sidebar.provider(openVar)(
             cls := "min-h-0",
             Sidebar.root(collapsible = Sidebar.Collapsible.None, openVar = openVar)(
-              cls := "w-full bg-transparent",
-              {
+              cls := "w-full bg-transparent", {
                 val contentMods: List[Modifier[HtmlElement]] =
                   (cls := "gap-0") :: groups.zipWithIndex.flatMap { (group, idx) =>
                     val entries = group.items.map { entry =>

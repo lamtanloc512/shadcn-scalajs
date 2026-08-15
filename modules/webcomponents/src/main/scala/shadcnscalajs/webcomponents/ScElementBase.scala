@@ -85,7 +85,9 @@ abstract class ScElementBase extends dom.HTMLElement:
     defineProperty(
       name,
       () => this.hasAttribute(name),
-      v => if js.DynamicImplicits.truthValue(v.asInstanceOf[js.Dynamic]) then this.setAttribute(name, "") else this.removeAttribute(name)
+      v =>
+        if js.DynamicImplicits.truthValue(v.asInstanceOf[js.Dynamic]) then this.setAttribute(name, "")
+        else this.removeAttribute(name)
     )
 
   private def defineProperty(name: String, get: () => js.Any, set: js.Any => Unit): Unit =

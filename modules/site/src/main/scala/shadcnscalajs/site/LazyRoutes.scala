@@ -28,6 +28,10 @@ object LazyRoutes:
   def createPreview(): HtmlElement =
     LazyMount(js.dynamicImport(PreviewOnlyPage()))
 
-  /** Landing mosaic — heavy cards (charts, QR, forms). Kept off the entry chunk so component-docs cold loads stay lean. */
+  def webComponents(): HtmlElement =
+    LazyMount(js.dynamicImport(WebComponentsPage()))
+
+  /** Landing mosaic — heavy cards (charts, QR, forms). Kept off the entry chunk so component-docs cold loads stay lean.
+    */
   def landingMosaic(): HtmlElement =
     LazyMount(js.dynamicImport(shadcnscalajs.site.create.preview02.Preview02()))

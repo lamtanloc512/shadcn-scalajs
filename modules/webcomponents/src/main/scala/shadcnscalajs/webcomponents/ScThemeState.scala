@@ -8,7 +8,8 @@ import scala.scalajs.js
   *
   * Deliberately the same `localStorage` key, JSON shape and `<html>` attributes as the site's own `ThemeConfig`, so a
   * pack chosen on a plain HTML page survives navigating into the Laminar app and back. This bundle cannot depend on
-  * `modules/site` — the site depends on *it* — so the key and the attribute list are duplicated here rather than shared.
+  * `modules/site` — the site depends on *it* — so the key and the attribute list are duplicated here rather than
+  * shared.
   *
   * `/create` seeds its own customizer from a separate preset-code key that this object doesn't write, so a pack chosen
   * here shows up in every site header but not preselected in the customizer itself.
@@ -32,6 +33,8 @@ private[webcomponents] object ScThemeState:
     "data-menu-color" -> "menuColor",
     "data-menu-accent" -> "menuAccent"
   )
+
+  val cssAttributes: js.Array[String] = js.Array(attributes.map(_._1)*)
 
   /** Mirrors the stored theme onto `<html>`, so components match whatever was last chosen anywhere on the site. */
   def applyStored(): Unit =

@@ -32,9 +32,8 @@ class ScToggleGroup extends ScElementBase:
   stringProperty("size")
 
   singleVar.signal.changes.foreach(o => if !singleEcho.isEcho(o) then emit("sc-change", o.orNull))(unsafeWindowOwner)
-  multiVar.signal.changes.foreach(s =>
-    if !multiEcho.isEcho(s) then emit("sc-change", js.Array(s.toSeq*))
-  )(unsafeWindowOwner)
+  multiVar.signal.changes
+    .foreach(s => if !multiEcho.isEcho(s) then emit("sc-change", js.Array(s.toSeq*)))(unsafeWindowOwner)
 
   mount(ScToggleGroup.view(typeVar, singleVar, multiVar, itemsVar, variantVar, sizeVar, revision))
 

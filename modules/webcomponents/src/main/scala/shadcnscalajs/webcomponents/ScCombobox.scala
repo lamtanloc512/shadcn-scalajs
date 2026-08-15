@@ -62,7 +62,7 @@ object ScCombobox:
       onChange: Option[String] => Unit
   ): HtmlElement =
     div(
-      onMountBind { _ => selectedVar.signal --> onChange },
+      onMountBind { _ => selectedVar.signal.changes --> onChange },
       children <-- itemsVar.signal
         .combineWith(placeholderVar.signal, searchPlaceholderVar.signal, emptyTextVar.signal)
         .map { case (items, placeholder, searchPlaceholder, emptyText) =>
@@ -71,7 +71,10 @@ object ScCombobox:
     )
 
   private def parseItems(value: js.Any): List[Combobox.Item] =
-    ScElements.toArray(value).map(_.toList.map { raw =>
-      val v = raw.value.asInstanceOf[String]
-      Combobox.Item(value = v, label = raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(v))
-    }).getOrElse(Nil)
+    ScElements
+      .toArray(value)
+      .map(_.toList.map { raw =>
+        val v = raw.value.asInstanceOf[String]
+        Combobox.Item(value = v, label = raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(v))
+      })
+      .getOrElse(Nil)

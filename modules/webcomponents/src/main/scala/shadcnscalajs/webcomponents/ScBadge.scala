@@ -16,8 +16,11 @@ class ScBadge extends ScElementBase:
 
   mount(
     span(
+      dataAttr("slot") := "badge",
       cls := BadgeStyles.base,
+      cls := "badge cn-badge group/badge",
       cls <-- variantVar.signal.map(BadgeStyles.variantClass),
+      dataAttr("variant") <-- variantVar.signal.map(_.toString.toLowerCase),
       slotTag()
     )
   )

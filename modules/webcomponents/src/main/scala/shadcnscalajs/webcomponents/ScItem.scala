@@ -22,6 +22,8 @@ class ScItem extends ScElementBase:
       cls := Item.baseClass,
       cls <-- variantVar.signal.map(Item.variantClass),
       cls <-- sizeVar.signal.map(Item.sizeClass),
+      dataAttr("variant") <-- variantVar.signal.map(_.toString.toLowerCase),
+      dataAttr("size") <-- sizeVar.signal.map(_.toString.toLowerCase),
       slotTag()
     )
   )

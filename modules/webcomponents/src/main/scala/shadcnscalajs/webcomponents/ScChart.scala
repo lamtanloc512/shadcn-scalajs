@@ -77,7 +77,7 @@ object ScChart:
       revision: Var[Int]
   ): HtmlElement =
     val hover = Chart.hoverVar()
-    div(
+    Chart(
       cls := "relative h-full w-full min-h-[120px]",
       child <-- revision.signal.map { _ =>
         val kind = typeVar.now()

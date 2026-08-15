@@ -34,10 +34,13 @@ class ScSelect extends ScElementBase:
   mount(ScSelect.view(optionsVar, selectedVar, placeholderVar))
 
   private def parseOptions(value: js.Any): List[(String, String)] =
-    ScElements.toArray(value).map(_.toList.map { raw =>
-      val optValue = raw.value.asInstanceOf[String]
-      optValue -> raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(optValue)
-    }).getOrElse(Nil)
+    ScElements
+      .toArray(value)
+      .map(_.toList.map { raw =>
+        val optValue = raw.value.asInstanceOf[String]
+        optValue -> raw.label.asInstanceOf[js.UndefOr[String]].getOrElse(optValue)
+      })
+      .getOrElse(Nil)
 
 object ScSelect:
   def register(): Unit =

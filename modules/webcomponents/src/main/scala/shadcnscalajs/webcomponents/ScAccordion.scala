@@ -35,10 +35,13 @@ object ScAccordion:
     )
 
   private def parseSections(value: js.Any): List[Accordion.Section] =
-    ScElements.toArray(value).map(_.toList.map { raw =>
-      Accordion.Section(
-        title = raw.title.asInstanceOf[String],
-        content = raw.content.asInstanceOf[String],
-        disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
-      )
-    }).getOrElse(Nil)
+    ScElements
+      .toArray(value)
+      .map(_.toList.map { raw =>
+        Accordion.Section(
+          title = raw.title.asInstanceOf[String],
+          content = raw.content.asInstanceOf[String],
+          disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+        )
+      })
+      .getOrElse(Nil)

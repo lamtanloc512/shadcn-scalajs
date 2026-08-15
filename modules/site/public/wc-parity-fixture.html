@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Component parity fixture</title>
+  <script>
+    document.documentElement.setAttribute("data-style-pack", "nova");
+    document.documentElement.setAttribute("data-base-color", "neutral");
+    document.documentElement.setAttribute("data-theme-color", "blue");
+    document.documentElement.setAttribute("data-radius", "default");
+  </script>
+  <style>:not(:defined) { visibility: hidden; }</style>
+</head>
+<body>
+  <sc-button variant="primary">Primary</sc-button>
+  <sc-badge variant="outline">Outline</sc-badge>
+  <sc-tooltip text="Helpful context"><span>Hover me</span></sc-tooltip>
+  <sc-card>
+    <sc-card-content>Card content</sc-card-content>
+  </sc-card>
+  <script type="module" src="./sc-components.js"></script>
+</body>
+</html>

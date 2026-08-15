@@ -26,12 +26,15 @@ object Router:
     case BlockPreview(name: String)
     case Create
     case CreatePreview
+    case WebComponents
 
-  /** `/create` has no page of its own; it is the customizer's canonical entry and normalises to `/create/preview-02`. */
+  /** `/create` has no page of its own; it is the customizer's canonical entry and normalises to `/create/preview-02`.
+    */
   private val CreatePath = "/create/preview-02"
 
   def parse(pathname: String): Route =
-    if pathname == "/components" || pathname == "/components/" then Route.ComponentsIndex
+    if pathname == "/web-components" || pathname == "/web-components/" then Route.WebComponents
+    else if pathname == "/components" || pathname == "/components/" then Route.ComponentsIndex
     else if pathname.startsWith("/components/") then
       Route.Component(pathname.stripPrefix("/components/").stripSuffix("/"))
     else if pathname.startsWith("/blocks/") && pathname.endsWith("/preview") then
@@ -64,11 +67,14 @@ object Router:
     if dom.window.location.pathname == "/create" || dom.window.location.pathname == "/create/" then
       replaceUrl(CreatePath + dom.window.location.search + dom.window.location.hash)
 
-    dom.window.addEventListener("popstate", (ev: dom.PopStateEvent) => {
-      currentVar.set(parse(dom.window.location.pathname))
-      val restored = scrollOf(ev.state)
-      afterRender(() => dom.window.scrollTo(0, restored))
-    })
+    dom.window.addEventListener(
+      "popstate",
+      (ev: dom.PopStateEvent) => {
+        currentVar.set(parse(dom.window.location.pathname))
+        val restored = scrollOf(ev.state)
+        afterRender(() => dom.window.scrollTo(0, restored))
+      }
+    )
 
     // Capture phase, so a handler that stops propagation on the way up cannot strand a link on the old page.
     dom.document.addEventListener(
@@ -114,8 +120,7 @@ object Router:
 
   private def scrollOf(state: js.Any): Int =
     if state == null then 0
-    else
-      state.asInstanceOf[js.Dynamic].selectDynamic("scrollY").asInstanceOf[js.UndefOr[Int]].getOrElse(0)
+    else state.asInstanceOf[js.Dynamic].selectDynamic("scrollY").asInstanceOf[js.UndefOr[Int]].getOrElse(0)
 
   private def scrollToHash(hash: String): Unit =
     val target = dom.document.querySelector(hash)
@@ -159,7 +164,8 @@ object Router:
       pathname.startsWith("/components") ||
       pathname.startsWith("/blocks") ||
       pathname.startsWith("/create") ||
-      pathname == "/preview/preview-02"
+      pathname == "/preview/preview-02" ||
+      pathname.startsWith("/web-components")
 
   private def anchorFor(ev: dom.MouseEvent): dom.html.Anchor =
     val path = ev.asInstanceOf[js.Dynamic].composedPath().asInstanceOf[js.Array[dom.EventTarget]]

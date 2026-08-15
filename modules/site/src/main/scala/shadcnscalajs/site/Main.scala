@@ -25,12 +25,10 @@ object Main:
     val hasChrome = route.map(usesSharedChrome).distinct
 
     // Two component routes share one body, so moving between components rebuilds the article but not the sidebar.
-    val bodyKey = route
-      .map {
-        case Router.Route.Component(_) => Router.Route.Component("")
-        case other                     => other
-      }
-      .distinct
+    val bodyKey = route.map {
+      case Router.Route.Component(_) => Router.Route.Component("")
+      case other                     => other
+    }.distinct
 
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
@@ -59,6 +57,7 @@ object Main:
     case Router.Route.Block(name)        => LazyRoutes.blockDocs(name)
     case Router.Route.Create             => LazyRoutes.create()
     case Router.Route.CreatePreview      => LazyRoutes.createPreview()
+    case Router.Route.WebComponents      => LazyRoutes.webComponents()
     case Router.Route.Landing            => app()
 
   /** The document title used to come from the server's HTML per route; the router has to keep it current itself. */
@@ -72,6 +71,7 @@ object Main:
       case Router.Route.Block(name)        => s"${titleCase(name)} – shadcn-scalajs"
       case Router.Route.Create             => "Customizer – shadcn-scalajs"
       case Router.Route.CreatePreview      => "Preview – shadcn-scalajs"
+      case Router.Route.WebComponents      => "Web Components – shadcn-scalajs"
       case Router.Route.Landing            => "shadcn-scalajs"
 
   // ── SVG Icons ──
@@ -388,66 +388,66 @@ object Main:
     mainTag(
       cls := "flex flex-1 flex-col",
 
-        // ── Hero ──
-        sectionTag(
-          cls := "md:[&_.container]:pb-8 lg:[&_.container]:pb-12",
+      // ── Hero ──
+      sectionTag(
+        cls := "md:[&_.container]:pb-8 lg:[&_.container]:pb-12",
+        div(
+          cls := "mx-auto w-full px-2 max-w-[1400px]",
           div(
-            cls := "mx-auto w-full px-2 max-w-[1400px]",
+            cls := "mx-auto flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4",
+            h1(
+              cls := "text-3xl font-semibold tracking-tight text-balance text-primary lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter max-w-4xl",
+              "shadcn/ui, ported to Scala.js"
+            ),
+            p(
+              cls := "max-w-4xl text-base text-balance text-foreground sm:text-lg",
+              "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes — every component also compiles to a standalone Web Component for any frontend."
+            ),
             div(
-              cls := "mx-auto flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4",
-              h1(
-                cls := "text-3xl font-semibold tracking-tight text-balance text-primary lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter max-w-4xl",
-                "shadcn/ui, ported to Scala.js"
+              cls := "flex w-full items-center justify-center gap-2 pt-2",
+              Button.anchor(
+                "/create",
+                Button.ButtonApi.variant(Button.Variant.Primary),
+                "Build Your Own ",
+                Icons.arrowRight(svg.cls := "size-4")
               ),
-              p(
-                cls := "max-w-4xl text-base text-balance text-foreground sm:text-lg",
-                "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes — every component also compiles to a standalone Web Component for any frontend."
-              ),
-              div(
-                cls := "flex w-full items-center justify-center gap-2 pt-2",
-                Button.anchor(
-                  "/create",
-                  Button.ButtonApi.variant(Button.Variant.Primary),
-                  "Build Your Own ",
-                  Icons.arrowRight(svg.cls := "size-4")
-                ),
-                Button.anchor(
-                  "/components",
-                  Button.ButtonApi.variant(Button.Variant.Outline),
-                  "Get started"
-                )
+              Button.anchor(
+                "/components",
+                Button.ButtonApi.variant(Button.Variant.Outline),
+                "Get started"
               )
             )
           )
-        ),
-
-        // ── Preview mosaic ──
-        sectionTag(
-          cls := "flex-1 p-0",
-          LazyRoutes.landingMosaic()
-        ),
-
-        // ── Footer ──
-        footerTag(
-          cls := "px-6 py-8 text-center text-sm text-muted-foreground",
-          "Built by ",
-          a(
-            href := "https://x.com/ethandev512",
-            target := "_blank",
-            rel := "noopener",
-            cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
-            "Ethan Lam"
-          ),
-          ". ",
-          a(
-            href := "https://github.com/lamtanloc512",
-            target := "_blank",
-            rel := "noopener",
-            cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
-            "Sponsor me"
-          ),
-          "."
         )
+      ),
+
+      // ── Preview mosaic ──
+      sectionTag(
+        cls := "flex-1 p-0",
+        LazyRoutes.landingMosaic()
+      ),
+
+      // ── Footer ──
+      footerTag(
+        cls := "px-6 py-8 text-center text-sm text-muted-foreground",
+        "Built by ",
+        a(
+          href := "https://x.com/ethandev512",
+          target := "_blank",
+          rel := "noopener",
+          cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
+          "Ethan Lam"
+        ),
+        ". ",
+        a(
+          href := "https://github.com/lamtanloc512",
+          target := "_blank",
+          rel := "noopener",
+          cls := "underline underline-offset-2 decoration-muted-foreground/50 transition-all hover:decoration-foreground/50",
+          "Sponsor me"
+        ),
+        "."
+      )
     )
 
   /** Interactive component gallery. Each preview is composed from the same Laminar primitives exported by modules/ui,
@@ -1985,104 +1985,104 @@ ToggleGroup.multiple(
     div(
       cls := "contents",
       mainTag(
-          cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
-          articleTag(
-            cls := articleWidthCls,
+        cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
+        articleTag(
+          cls := articleWidthCls,
+          div(
+            cls := "mb-8 flex items-start justify-between gap-4",
             div(
-              cls := "mb-8 flex items-start justify-between gap-4",
-              div(
-                h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
-                p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
-              ),
-              Button.of(
-                _.variant(Button.Variant.Outline),
-                _.size(Button.Size.Sm),
-                _ => cls := "hidden shrink-0 sm:inline-flex",
-                _ => "Copy page"
-              )
+              h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
+              p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
             ),
+            Button.of(
+              _.variant(Button.Variant.Outline),
+              _.size(Button.Size.Sm),
+              _ => cls := "hidden shrink-0 sm:inline-flex",
+              _ => "Copy page"
+            )
+          ),
+          div(
+            idAttr := "about",
+            cls := "scroll-mt-24",
+            h2(cls := "text-xl font-semibold", "About"),
+            p(
+              cls := "mt-3 text-sm leading-6 text-muted-foreground",
+              if componentName == "typography" then
+                "We do not ship typography styles by default. This page shows utility-class recipes you can copy into your Laminar elements."
+              else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
+            )
+          ),
+          previewTabs(liveExample(), usageSource, "mt-8 gap-4"),
+          if componentName != "typography" then
             div(
-              idAttr := "about",
-              cls := "scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "About"),
-              p(
-                cls := "mt-3 text-sm leading-6 text-muted-foreground",
-                if componentName == "typography" then
-                  "We do not ship typography styles by default. This page shows utility-class recipes you can copy into your Laminar elements."
-                else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
-              )
-            ),
-            previewTabs(liveExample(), usageSource, "mt-8 gap-4"),
-            if componentName != "typography" then
-              div(
-                idAttr := "installation",
-                cls := "mt-12 scroll-mt-24",
-                h2(cls := "text-xl font-semibold", "Installation"),
-                p(cls := "mt-3 text-sm text-muted-foreground", "Add the component through the local registry CLI."),
-                codeBlock("shell", s"npx shadcn-scalajs add $componentName")
-              )
-            else
-              div(
-                idAttr := "installation",
-                cls := "mt-12 scroll-mt-24",
-                h2(cls := "text-xl font-semibold", "Installation"),
-                p(
-                  cls := "mt-3 text-sm text-muted-foreground",
-                  "No registry component — upstream shadcn/ui documents typography as Tailwind utility recipes. Copy the class strings from the preview below."
-                )
-              )
-            ,
-            div(
-              idAttr := "usage",
+              idAttr := "installation",
               cls := "mt-12 scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "Usage"),
+              h2(cls := "text-xl font-semibold", "Installation"),
+              p(cls := "mt-3 text-sm text-muted-foreground", "Add the component through the local registry CLI."),
+              codeBlock("shell", s"npx shadcn-scalajs add $componentName")
+            )
+          else
+            div(
+              idAttr := "installation",
+              cls := "mt-12 scroll-mt-24",
+              h2(cls := "text-xl font-semibold", "Installation"),
               p(
                 cls := "mt-3 text-sm text-muted-foreground",
-                "Import the primitive and compose it with Laminar modifiers."
-              ),
-              codeBlock("scala", usageSource)
-            ),
-            div(
-              idAttr := "examples",
-              cls := "mt-12 scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "Examples"),
-              if docExamples.nonEmpty then docExamples.map(exampleBlock)
-              else
-                Seq(
-                  h3(
-                    idAttr := "sides",
-                    cls := "mt-6 text-base font-semibold",
-                    if componentName == "drawer" then "Sides" else "Composition"
-                  ),
-                  p(
-                    cls := "mt-2 text-sm leading-6 text-muted-foreground",
-                    if componentName == "drawer" then
-                      "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
-                    else "Compose this primitive with Card, Field, Button, and the other Laminar components."
-                  ),
-                  Card(cls := s"mt-4 $docsFrame", liveExample())
-                )
-            ),
-            div(
-              cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
-              prevEntry match
-                case Some(name) =>
-                  a(
-                    href := s"/components/${slugify(name)}",
-                    cls := "text-muted-foreground hover:text-foreground",
-                    s"← $name"
-                  )
-                case None => emptyNode,
-              nextEntry match
-                case Some(name) =>
-                  a(
-                    href := s"/components/${slugify(name)}",
-                    cls := "text-muted-foreground hover:text-foreground",
-                    s"$name →"
-                  )
-                case None => emptyNode
+                "No registry component — upstream shadcn/ui documents typography as Tailwind utility recipes. Copy the class strings from the preview below."
+              )
             )
+          ,
+          div(
+            idAttr := "usage",
+            cls := "mt-12 scroll-mt-24",
+            h2(cls := "text-xl font-semibold", "Usage"),
+            p(
+              cls := "mt-3 text-sm text-muted-foreground",
+              "Import the primitive and compose it with Laminar modifiers."
+            ),
+            codeBlock("scala", usageSource)
+          ),
+          div(
+            idAttr := "examples",
+            cls := "mt-12 scroll-mt-24",
+            h2(cls := "text-xl font-semibold", "Examples"),
+            if docExamples.nonEmpty then docExamples.map(exampleBlock)
+            else
+              Seq(
+                h3(
+                  idAttr := "sides",
+                  cls := "mt-6 text-base font-semibold",
+                  if componentName == "drawer" then "Sides" else "Composition"
+                ),
+                p(
+                  cls := "mt-2 text-sm leading-6 text-muted-foreground",
+                  if componentName == "drawer" then
+                    "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
+                  else "Compose this primitive with Card, Field, Button, and the other Laminar components."
+                ),
+                Card(cls := s"mt-4 $docsFrame", liveExample())
+              )
+          ),
+          div(
+            cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
+            prevEntry match
+              case Some(name) =>
+                a(
+                  href := s"/components/${slugify(name)}",
+                  cls := "text-muted-foreground hover:text-foreground",
+                  s"← $name"
+                )
+              case None => emptyNode,
+            nextEntry match
+              case Some(name) =>
+                a(
+                  href := s"/components/${slugify(name)}",
+                  cls := "text-muted-foreground hover:text-foreground",
+                  s"$name →"
+                )
+              case None => emptyNode
           )
+        )
       ),
       tableOfContents
     )

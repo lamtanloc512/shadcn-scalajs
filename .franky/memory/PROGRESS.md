@@ -15,6 +15,9 @@
 
 - **shadcn-svelte fidelity Wave 5 (minimal, complete)** — keep current design; compose docs chrome from own components in `Main.scala`: `Button.anchor` nav, landing `InputGroup`+`Kbd` search, `ScrollArea` docs sidebar, `Card` preview/code blocks, `Command.input` via `InputGroup`. Headers unified via `SiteChrome`; Preview|Code `Tabs` on component docs + block docs. Deferred: shadcn-svelte docs redesign.
 
+- **Web Component parity hardening (partial)** — `Main` now applies the persisted theme before registration, uses a configurable asset base, keeps the CSS upgrade gate on fetch failure, and installs the fetched component stylesheet at document level for light-DOM components. Shadow roots mirror all CSS-driving theme attributes. Button, Badge, Item, and Chart wrappers now carry Laminar's canonical hooks; Tooltip accepts `text` and renders real hover content; native input/textarea properties, checkbox/switch disabled state, slider disabled guards, and Dialog/Dropdown/Select/Combobox event names were aligned. Added `wc-parity-fixture.html` and a passing Playwright parity check, including Shadow DOM tooltip hover. Compound slot-based wrappers still need a dedicated protocol redesign for full parity.
+- **Web Components docs and mosaic polish** — Added the lazy `/web-components` docs route with a theme-aware reusable code presentation, live custom-element preview, event/slot examples, and a link to the standalone mosaic. The standalone mosaic now seeds Nova on first load and restores missing flex/group spacing without changing the intentional desktop grid gap.
+
 ## Known residual deltas vs the reference (Task 30)
 
 Intentional / accepted gaps vs shadcn-svelte `/create/preview-02` (LayerChart + bits-ui):

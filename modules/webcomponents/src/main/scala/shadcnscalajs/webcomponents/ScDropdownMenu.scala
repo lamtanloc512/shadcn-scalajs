@@ -22,13 +22,16 @@ class ScDropdownMenu extends ScElementBase:
   mount(ScDropdownMenu.view(itemsVar))
 
   private def parseItems(value: js.Any): List[DropdownMenu.Item] =
-    ScElements.toArray(value).map(_.toList.zipWithIndex.map { case (raw, idx) =>
-      DropdownMenu.Item(
-        label = raw.label.asInstanceOf[String],
-        onSelect = () => emit("sc-select", idx),
-        disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
-      )
-    }).getOrElse(Nil)
+    ScElements
+      .toArray(value)
+      .map(_.toList.zipWithIndex.map { case (raw, idx) =>
+        DropdownMenu.Item(
+          label = raw.label.asInstanceOf[String],
+          onSelect = () => emit("sc-select", idx),
+          disabled = raw.disabled.asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+        )
+      })
+      .getOrElse(Nil)
 
 object ScDropdownMenu:
   def register(): Unit =

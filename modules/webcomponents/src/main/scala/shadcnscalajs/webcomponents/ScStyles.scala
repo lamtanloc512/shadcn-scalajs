@@ -25,6 +25,12 @@ object ScStyles:
   private val registeredProperties = mutable.Set.empty[String]
   private val fallbackRoots = js.Array[dom.ShadowRoot]()
 
+  def baseHref: String =
+    val base = Option(dom.document.documentElement.getAttribute("data-sc-assets-base"))
+      .filter(_.nonEmpty)
+      .getOrElse(".")
+    s"${base.stripSuffix("/")}/sc-components.css"
+
   // scalajs-dom 2.8.0 doesn't type the Constructable Stylesheets API.
   private def construct(): Option[js.Dynamic] =
     if js.isUndefined(js.Dynamic.global.CSSStyleSheet) then None
@@ -45,6 +51,7 @@ object ScStyles:
     baked = packMarker.findFirstMatchIn(css).map(_.group(1))
     registerProperties(css)
     fill(baseSheet, "data-sc-base", css)
+    installDocumentSheet(css)
     // Light-DOM compounds (sc-card-*) need pack hooks on the document, including the baked pack, before first paint
     // of upgraded hosts — not only when the user later switches packs.
     baked.foreach(ScPacks.linkDocumentPack)
@@ -98,8 +105,19 @@ object ScStyles:
         root.appendChild(style)
       case existing => existing.textContent = css
 
-/** Mirrors the document element's dark flag and `data-style-pack` onto the top-level containers of each shadow root,
-  * since both are ancestor selectors that cannot reach across the boundary. One document observer feeds every root.
+  private def installDocumentSheet(css: String): Unit =
+    val head = dom.document.head
+    if head != null then
+      head.querySelector("style[data-sc-document]") match
+        case null =>
+          val style = dom.document.createElement("style")
+          style.setAttribute("data-sc-document", "")
+          style.textContent = css
+          head.appendChild(style)
+        case existing => existing.textContent = css
+
+/** Mirrors the document theme onto the top-level containers of each shadow root, since ancestor selectors cannot reach
+  * across the boundary. One document observer feeds every root.
   */
 private[webcomponents] object ScTheme:
 
@@ -142,14 +160,16 @@ private[webcomponents] object ScTheme:
   private def apply(el: dom.Element): Unit =
     val docEl = dom.document.documentElement
     if docEl.classList.contains("dark") then el.classList.add("dark") else el.classList.remove("dark")
-    Option(docEl.getAttribute("data-style-pack")) match
-      case Some(pack) => el.setAttribute("data-style-pack", pack)
-      case None       => el.removeAttribute("data-style-pack")
+    ScThemeState.cssAttributes.foreach { attr =>
+      Option(docEl.getAttribute(attr)) match
+        case Some(value) => el.setAttribute(attr, value)
+        case None        => el.removeAttribute(attr)
+    }
 
-  /** Floating content — dropdown menus, select and combobox panels — is portaled into a container appended to the shadow
-    * root, making it a *sibling* of the theme host rather than a descendant. Left alone it inherits the light `:host`
-    * tokens and matches no pack rule, so a menu stayed white on a dark page. Menus are also built on open, hence
-    * `subtree`: the container can appear before the panel inside it.
+  /** Floating content — dropdown menus, select and combobox panels — is portaled into a container appended to the
+    * shadow root, making it a *sibling* of the theme host rather than a descendant. Left alone it inherits the light
+    * `:host` tokens and matches no pack rule, so a menu stayed white on a dark page. Menus are also built on open,
+    * hence `subtree`: the container can appear before the panel inside it.
     */
   private def observeRoot(root: dom.ShadowRoot): Unit =
     val observer = new dom.MutationObserver((records, _) => {
@@ -218,7 +238,7 @@ private[webcomponents] object ScTheme:
         dom.document.documentElement,
         new dom.MutationObserverInit {
           attributes = true
-          attributeFilter = js.Array("class", "data-style-pack")
+          attributeFilter = js.Array("class") ++ ScThemeState.cssAttributes
         }
       )
 

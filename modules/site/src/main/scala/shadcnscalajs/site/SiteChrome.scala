@@ -65,7 +65,7 @@ object SiteChrome:
       (Active.Create, "/create", "Create"),
       // Full document load: the demo is a static HTML page outside the SPA, and Router.owns leaves it alone.
       // Never selected by activeOf — leaving the SPA means this header is gone.
-      (Active.WebComponents, "/plain-html-demo.html", "Web Components")
+      (Active.WebComponents, "/web-components", "Web Components")
     )
     if showHome then all else all.tail
 
@@ -129,16 +129,17 @@ object SiteChrome:
       navGhostActive(s"/components/$componentName", "Components"),
       navGhost("/blocks", "Blocks"),
       navGhost("/create", "Create"),
-      navGhost("/plain-html-demo.html", "Web Components")
+      navGhost("/web-components", "Web Components")
     )
 
   private def isLanding(route: Router.Route): Boolean = route == Router.Route.Landing
 
   private def activeOf(route: Router.Route): Active = route match
-    case Router.Route.ComponentsIndex | Router.Route.Component(_) => Active.Components
+    case Router.Route.ComponentsIndex | Router.Route.Component(_)                        => Active.Components
     case Router.Route.BlocksIndex | Router.Route.Block(_) | Router.Route.BlockPreview(_) => Active.Blocks
-    case Router.Route.Create | Router.Route.CreatePreview => Active.Create
-    case Router.Route.Landing => Active.None
+    case Router.Route.Create | Router.Route.CreatePreview                                => Active.Create
+    case Router.Route.WebComponents                                                      => Active.WebComponents
+    case Router.Route.Landing                                                            => Active.None
 
   private def navFor(route: Router.Route): HtmlElement = route match
     case Router.Route.Component(slug) => docsNav(if slug.isEmpty then "drawer" else slug)

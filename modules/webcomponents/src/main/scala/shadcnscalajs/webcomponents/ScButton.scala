@@ -20,9 +20,13 @@ class ScButton extends ScElementBase:
   mount(
     button(
       typ := "button",
+      dataAttr("slot") := "button",
       cls := ButtonStyles.base,
+      cls := "btn cn-button group/button",
       cls <-- variantVar.signal.map(ButtonStyles.variantClass),
       cls <-- sizeVar.signal.map(ButtonStyles.sizeClass),
+      dataAttr("variant") <-- variantVar.signal.map(_.toString.toLowerCase),
+      dataAttr("size") <-- sizeVar.signal.map(_.toString.toLowerCase),
       slotTag()
     )
   )

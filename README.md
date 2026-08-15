@@ -23,7 +23,8 @@ cd modules/site && npm install && npm run dev
 # → http://localhost:4300/                     landing page
 # → http://localhost:4300/components           components index
 # → http://localhost:4300/components/<name>    per-component docs + live preview
-# → http://localhost:4300/plain-html-demo.html  Web Component demo (zero Scala.js on the page)
+# → http://localhost:4300/web-components       Web Component docs + live preview
+# → http://localhost:4300/plain-html-demo.html  Standalone Web Component mosaic (zero Scala.js on the page)
 
 # production bundle (runs site/fullLinkJS via the Vite plugin, then minifies)
 cd modules/site && npm run build

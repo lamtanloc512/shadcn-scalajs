@@ -10,13 +10,16 @@ class ScCheckbox extends ScElementBase:
 
   private val checkedVar = Var(false)
   private val indeterminateVar = Var(false)
+  private val disabledVar = Var(false)
 
   private val echo = EchoGuard[Boolean]()
 
   observeAttribute("checked")(v => { echo.wrote(v.isDefined); checkedVar.set(v.isDefined) })
   observeAttribute("indeterminate")(v => indeterminateVar.set(v.isDefined))
+  observeAttribute("disabled")(v => disabledVar.set(v.isDefined))
   booleanProperty("checked")
   booleanProperty("indeterminate")
+  booleanProperty("disabled")
 
   checkedVar.signal.changes.foreach { checked =>
     if !echo.isEcho(checked) then
@@ -26,8 +29,8 @@ class ScCheckbox extends ScElementBase:
       )
   }(unsafeWindowOwner)
 
-  mount(Checkbox(checkedVar, indeterminateVar.signal, slotTag()))
+  mount(Checkbox(checkedVar, indeterminateVar.signal, slotTag(), disabled <-- disabledVar.signal))
 
 object ScCheckbox:
   def register(): Unit =
-    ScElements.define("sc-checkbox", js.constructorOf[ScCheckbox], "checked", "indeterminate")
+    ScElements.define("sc-checkbox", js.constructorOf[ScCheckbox], "checked", "indeterminate", "disabled")

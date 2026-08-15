@@ -133,9 +133,11 @@ object Slider:
         cls := trackClasses,
         onMountCallback { ctx => trackRef.set(Some(ctx.thisNode.ref)) },
         onMouseDown --> { ev =>
-          activeIndexVar.set(0)
-          updateFromClientX(ev.clientX)
-          draggingVar.set(true)
+          val track = ev.currentTarget.asInstanceOf[dom.html.Element]
+          if track.closest("[data-disabled]") == null then
+            activeIndexVar.set(0)
+            updateFromClientX(ev.clientX)
+            draggingVar.set(true)
         },
         span(
           dataAttr("slot") := "slider-range",
@@ -161,10 +163,12 @@ object Slider:
             // beside the track. An inline style outranks them and keeps the pack's hit area working.
             styleAttr := s"position:absolute;top:50%;left:${pct(v, min, max)}%;transform:translate(-50%, -50%)",
             onMouseDown --> { ev =>
-              ev.preventDefault()
-              ev.stopPropagation()
-              activeIndexVar.set(idx)
-              draggingVar.set(true)
+              val thumb = ev.currentTarget.asInstanceOf[dom.html.Element]
+              if thumb.closest("[data-disabled]") == null then
+                ev.preventDefault()
+                ev.stopPropagation()
+                activeIndexVar.set(idx)
+                draggingVar.set(true)
             }
           )
         }

@@ -11,6 +11,7 @@ class ScSlider extends ScElementBase:
   private val minVar = Var(0.0)
   private val maxVar = Var(100.0)
   private val stepVar = Var(1.0)
+  private val disabledVar = Var(false)
   private val revision = Var(0)
 
   private val echo = EchoGuard[Double]()
@@ -23,26 +24,27 @@ class ScSlider extends ScElementBase:
   observeAttribute("min")(v => { v.flatMap(_.toDoubleOption).foreach(minVar.set); bump() })
   observeAttribute("max")(v => { v.flatMap(_.toDoubleOption).foreach(maxVar.set); bump() })
   observeAttribute("step")(v => { v.flatMap(_.toDoubleOption).foreach(stepVar.set); bump() })
+  observeAttribute("disabled")(v => { disabledVar.set(v.isDefined); bump() })
   jsonProperty("value")(v => write(ScSlider.parseSingle(v)))
   stringProperty("min")
   stringProperty("max")
   stringProperty("step")
+  booleanProperty("disabled")
 
   valueVar.signal.changes.foreach(value => if !echo.isEcho(value) then emit("sc-change", value))(unsafeWindowOwner)
 
-  mount(ScSlider.view(valueVar, minVar, maxVar, stepVar, revision))
+  mount(ScSlider.view(valueVar, minVar, maxVar, stepVar, disabledVar, revision))
 
 object ScSlider:
   def register(): Unit =
-    ScElements.define("sc-slider", js.constructorOf[ScSlider], "value", "min", "max", "step")
+    ScElements.define("sc-slider", js.constructorOf[ScSlider], "value", "min", "max", "step", "disabled")
 
   private def parseSingle(value: js.Any): Double =
     if value == null then 50.0
     else if js.typeOf(value) == "number" then value.asInstanceOf[Double]
     else if js.typeOf(value) == "string" then
       val s = value.asInstanceOf[String].trim
-      if s.startsWith("[") then
-        ScElements.toArray(s).flatMap(_.headOption).map(_.asInstanceOf[Double]).getOrElse(50.0)
+      if s.startsWith("[") then ScElements.toArray(s).flatMap(_.headOption).map(_.asInstanceOf[Double]).getOrElse(50.0)
       else s.toDoubleOption.getOrElse(50.0)
     else if js.Array.isArray(value) then value.asInstanceOf[js.Array[Double]].headOption.getOrElse(50.0)
     else 50.0
@@ -52,10 +54,24 @@ object ScSlider:
       minVar: Var[Double],
       maxVar: Var[Double],
       stepVar: Var[Double],
+      disabledVar: Var[Boolean],
       revision: Var[Int]
   ): HtmlElement =
     div(
       children <-- revision.signal.map { _ =>
-        List(Slider.single(valueVar, min = minVar.now(), max = maxVar.now(), step = stepVar.now()))
+        List(
+          Slider.single(
+            valueVar,
+            min = minVar.now(),
+            max = maxVar.now(),
+            step = stepVar.now(),
+            inContext { thisNode =>
+              disabledVar.signal --> { disabled =>
+                if disabled then thisNode.ref.setAttribute("data-disabled", "")
+                else thisNode.ref.removeAttribute("data-disabled")
+              }
+            }
+          )
+        )
       }
     )

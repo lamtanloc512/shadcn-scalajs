@@ -66,4 +66,3 @@ object ScTableParts:
         case el: dom.Element => TablePart.stamp(el, slotName, className)
         case null            => ()
       i += 1
-

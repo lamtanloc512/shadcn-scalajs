@@ -66,7 +66,13 @@ class ScScrollbar extends SlotPrimitive(Scrollbar(slotTag()))
 class ScSkeleton extends SlotPrimitive(Skeleton(slotTag()))
 class ScTextarea extends SlotPrimitive(Textarea(slotTag()))
 class ScToast extends SlotPrimitive(Toast(Toast.Variant.Default, slotTag()))
-class ScTooltip extends SlotPrimitive(Tooltip("", slotTag()))
+class ScTooltip extends ScElementBase:
+  private val textVar = Var("")
+
+  observeAttribute("text")(v => textVar.set(v.getOrElse("")))
+  stringProperty("text")
+
+  mount(ScTooltip.view(textVar))
 
 object ScPrimitives:
   def register(): Unit =
@@ -80,7 +86,7 @@ object ScPrimitives:
     register("sc-field", js.constructorOf[ScField])
     register("sc-form", js.constructorOf[ScForm])
     register("sc-input-group", js.constructorOf[ScInputGroup])
-    register("sc-input", js.constructorOf[ScInput])
+    ScElements.define("sc-input", js.constructorOf[ScInput], "value", "placeholder", "name", "disabled")
     register("sc-kbd", js.constructorOf[ScKbd])
     register("sc-label", js.constructorOf[ScLabel])
     register("sc-native-select", js.constructorOf[ScNativeSelect])
@@ -89,9 +95,15 @@ object ScPrimitives:
     register("sc-range", js.constructorOf[ScRange])
     register("sc-scrollbar", js.constructorOf[ScScrollbar])
     register("sc-skeleton", js.constructorOf[ScSkeleton])
-    register("sc-textarea", js.constructorOf[ScTextarea])
+    ScElements.define("sc-textarea", js.constructorOf[ScTextarea], "value", "placeholder", "name", "disabled")
     register("sc-toast", js.constructorOf[ScToast])
-    register("sc-tooltip", js.constructorOf[ScTooltip])
+    ScElements.define("sc-tooltip", js.constructorOf[ScTooltip], "text")
 
   private def register(name: String, constructor: js.Dynamic): Unit =
     ScElements.define(name, constructor)
+
+object ScTooltip:
+  private def view(textVar: Var[String]): HtmlElement =
+    div(
+      children <-- textVar.signal.map(text => List(Tooltip(Tooltip.trigger(slotTag()), Tooltip.content(text))))
+    )

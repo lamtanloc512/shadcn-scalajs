@@ -5,12 +5,12 @@ import shadcnscalajs.ui.{Button, DropdownMenu, Icons}
 
 import scala.scalajs.js
 
-/** `<sc-site-header>` — the site's sticky header for pages outside the Laminar app, with a working style-pack picker and
-  * dark-mode toggle.
+/** `<sc-site-header>` — the site's sticky header for pages outside the Laminar app, with a working style-pack picker
+  * and dark-mode toggle.
   *
   * A clone rather than a reuse of `SiteChrome`: `modules/site` depends on this module, so importing it back would be a
-  * cycle. The layout and the nav destinations are copied from `SiteChrome.header`; the theme control is the pack and dark
-  * parts of `ThemeMenu` only, and links to `/create` for the rest of the customizer, exactly as that menu does.
+  * cycle. The layout and the nav destinations are copied from `SiteChrome.header`; the theme control is the pack and
+  * dark parts of `ThemeMenu` only, and links to `/create` for the rest of the customizer, exactly as that menu does.
   */
 class ScSiteHeader extends ScElementBase:
 
@@ -56,7 +56,7 @@ object ScSiteHeader:
             navGhost("/components", "Components"),
             navGhost("/blocks", "Blocks"),
             navGhost("/create", "Create"),
-            navGhost("/plain-html-demo.html", cls := "bg-accent text-accent-foreground", "Web Components")
+            navGhost("/web-components", cls := "bg-accent text-accent-foreground", "Web Components")
           )
         ),
         div(

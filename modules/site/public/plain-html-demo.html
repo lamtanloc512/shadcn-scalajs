@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/wc-mosaic.css" />
   <script>
     try {
+      document.documentElement.setAttribute("data-style-pack", "nova");
       const theme = JSON.parse(localStorage.getItem("shadcn-scalajs:theme") || "{}");
       const attributes = {
         stylePack: "data-style-pack",
@@ -93,6 +94,7 @@
     }
     /* Utilities on the host reinforce these; fallbacks cover pre-CSS upgrade. */
     sc-card-header { display: grid; }
+    sc-card-content.flex-col { display: flex; }
     sc-card-footer { display: flex; align-items: center; }
     sc-table {
       min-width: 0;
@@ -547,7 +549,7 @@
         <!-- ============================== column 3 (wide) ============================== -->
         <div class="col-span-2 flex flex-col p-1 [contain-intrinsic-size:760px_1200px] [content-visibility:auto]">
 
-          <div data-card="savings-targets" class="grid grid-cols-2 items-start gap-4">
+          <div data-card="savings-targets" class="grid grid-cols-2 items-start gap-(--gap)">
             <sc-card>
               <sc-card-header>
                 <sc-card-title>Savings Targets</sc-card-title>
@@ -812,7 +814,7 @@
           <div class="grid grid-cols-2 items-start gap-(--gap)">
             <div class="flex flex-col gap-(--gap)">
 
-              <div data-card="sidebar-nav" class="grid grid-cols-2 items-start gap-4">
+              <div data-card="sidebar-nav" class="grid grid-cols-2 items-start gap-6">
                 <sc-card>
                   <sc-card-content class="px-2">
                     <sc-sidebar
@@ -855,7 +857,7 @@
             <div class="flex flex-col gap-(--gap)">
 
               <sc-card data-card="payments">
-                <sc-card-header class="flex-col gap-3">
+                <sc-card-header class="flex flex-col gap-3">
                   <nav class="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <a href="#/" class="hover:text-foreground">Home</a>
                     <span>/</span>
