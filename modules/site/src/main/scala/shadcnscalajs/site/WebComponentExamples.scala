@@ -322,9 +322,9 @@ object WebComponentExamples:
       |<sc-textarea style="width:min(24rem,100%);min-height:6rem" placeholder="Write a short note" value="Ship the docs tonight." name="notes"></sc-textarea>
       |"""),
     "toast" -> entry("sc-toast", "Saved")("""
-      |<sc-toast style="display:block;width:min(22rem,100%);border:1px solid var(--border);border-radius:.75rem;padding:.75rem 1rem">
+      |<sc-toast class="block w-full max-w-[22rem] rounded-xl border border-border px-4 py-3">
       |  <strong>Saved</strong>
-      |  <div style="color:var(--muted-foreground)">Your changes are live.</div>
+      |  <div class="text-muted-foreground">Your changes are live.</div>
       |</sc-toast>
       |"""),
     "toggle-group" -> entry("sc-toggle-group", "Center")("""

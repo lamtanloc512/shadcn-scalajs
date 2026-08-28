@@ -10,6 +10,7 @@
     "build:registry": "node scripts/build-registry.mjs",
     "build:webcomponents": "node scripts/build-webcomponents.mjs",
     "build:wc-mosaic-css": "node scripts/build-wc-mosaic-css.mjs",
+    "test:editor-validation": "node scripts/test-editor-validation.mjs",
     "test:webcomponents-parity": "node scripts/test-webcomponents-parity.mjs",
     "test:webcomponent-catalog": "node scripts/test-webcomponent-catalog.mjs",
     "predev": "npm run build:basecoat-styles && npm run build:style-packs && npm run build:registry && npm run build:webcomponents && npm run build:wc-mosaic-css",
@@ -28,7 +29,9 @@
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "@tailwindcss/browser": "^4.3.3",
     "monaco-editor": "^0.56.0",
+    "parse5": "^7.3.0",
     "puppeteer": "^25.5.0",
     "qrcode": "^1.5.4"
   }

@@ -3,6 +3,7 @@ package shadcnscalajs.site
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.codecs.StringAsIsCodec
 import shadcnscalajs.site.create.Preset
+import shadcnscalajs.ui.Switch
 
 import scala.scalajs.js
 
@@ -13,6 +14,7 @@ object WebComponentsPage:
 
   private final case class Example(name: String, source: String)
   private final case class PlaygroundTheme(pack: String, accent: String, dark: Boolean)
+  private final case class HtmlDiagnostic(line: Int, column: Int, message: String)
 
   private val curatedExamples = List(
     Example(
@@ -99,15 +101,52 @@ object WebComponentsPage:
 
   private val srcDocAttr = htmlAttr("srcdoc", StringAsIsCodec)
   private val sandboxAttr = htmlAttr("sandbox", StringAsIsCodec)
+  private val editorHtmlFile = "html"
+  private val editorCssFile = "css"
+  private val defaultTailwindCss = """/* Tailwind v4 runs in this preview only. Customize tokens or add CSS here. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-brand: oklch(0.62 0.24 300);
+}
+"""
 
   def apply(): HtmlElement =
     val selectedExampleVar = Var(0)
     val sourceVar = Var(examples.head.source)
+    val tailwindCssVar = Var(defaultTailwindCss)
+    val activeEditorFileVar = Var(editorHtmlFile)
     val themeVar = Var(PlaygroundTheme(Preset.Styles.head, "blue", dark = false))
     val sourceSignal = sourceVar.signal
+    val tailwindCssSignal = tailwindCssVar.signal
+    val activeEditorFileSignal = activeEditorFileVar.signal
     val themeSignal = themeVar.signal
-    val documentSignal = sourceSignal.combineWithFn(themeSignal)(renderDocument)
+    val htmlDiagnosticVar = Var(Option.empty[HtmlDiagnostic])
+    val htmlDiagnosticSignal = htmlDiagnosticVar.signal
+    val showErrorVar = Var(true)
+    val showErrorSignal = showErrorVar.signal
+    val dismissedDiagnosticVar = Var(Option.empty[HtmlDiagnostic])
+    val dismissedDiagnosticSignal = dismissedDiagnosticVar.signal
+    val visibleDiagnosticSignal = htmlDiagnosticSignal
+      .combineWithFn(showErrorSignal) { (diagnostic, showError) =>
+        if showError then diagnostic else None
+      }
+      .combineWithFn(dismissedDiagnosticSignal) { (diagnostic, dismissed) =>
+        diagnostic.filter(_ != dismissed)
+      }
+      .distinct
+    val documentSignal = sourceSignal
+      .combineWithFn(tailwindCssSignal)((source, tailwindCss) => source -> tailwindCss)
+      .combineWithFn(themeSignal) { case ((source, tailwindCss), theme) =>
+        renderDocument(source, tailwindCss, theme)
+      }
     var updateEditor: String => Unit = _ => ()
+    var updateEditorFile: String => Unit = _ => ()
     var updateEditorTheme: Boolean => Unit = _ => ()
     div(
       cls := "flex min-h-dvh flex-col bg-muted/20",
@@ -128,24 +167,43 @@ object WebComponentsPage:
           cls <-- themeSignal.map(theme =>
             if theme.dark then "!bg-zinc-950 !text-zinc-100" else "!bg-white !text-zinc-900"
           ),
-          panelTitle("HTML", "Import the bundle, then use native custom-element markup.", themeSignal),
+          editorTabs(
+            activeEditorFileSignal,
+            themeSignal,
+            Observer[String] { file =>
+              activeEditorFileVar.set(file)
+              updateEditorFile(file)
+            }
+          ),
           div(
+            idAttr := "web-components-editor-panel",
             cls := "min-h-0 flex-1 overflow-hidden text-[13px]",
             cls <-- themeSignal.map(theme => if theme.dark then "!bg-zinc-950" else "!bg-white"),
-            aria.label := "Web Component HTML source",
-            role := "textbox",
-            tabIndex := 0,
+            aria.label := "Playground code editor",
+            role := "tabpanel",
             onMountUnmountCallback(
               mount = { mountCtx =>
                 val host = mountCtx.thisNode.ref.asInstanceOf[js.Dynamic]
                 val controller: js.Dynamic = js.Dynamic.global.ScPlaygroundEditor.mount(
                   mountCtx.thisNode.ref,
                   sourceVar.now(),
+                  tailwindCssVar.now(),
                   ((next: String) => sourceVar.set(next)): js.Function1[String, Unit],
-                  themeVar.now().dark
+                  ((next: String) => tailwindCssVar.set(next)): js.Function1[String, Unit],
+                  themeVar.now().dark,
+                  ((raw: js.Dynamic) =>
+                    val diagnostic =
+                      if raw == null || js.isUndefined(raw) then None
+                      else
+                        Some(HtmlDiagnostic(raw.line.toString.toInt, raw.column.toString.toInt, raw.message.toString))
+                    if diagnostic != htmlDiagnosticVar.now() then
+                      htmlDiagnosticVar.set(diagnostic)
+                      dismissedDiagnosticVar.set(None)
+                  ): js.Function1[js.Dynamic, Unit]
                 )
                 host.__scEditor = controller
-                updateEditor = next => controller.setValue(next)
+                updateEditor = next => controller.setHtmlValue(next)
+                updateEditorFile = file => controller.setActive(file)
                 updateEditorTheme = dark => controller.setTheme(dark)
               },
               unmount = mountCtx =>
@@ -156,11 +214,19 @@ object WebComponentsPage:
             ),
             onMountBind { mountCtx =>
               val host = mountCtx.thisNode.ref.asInstanceOf[js.Dynamic]
-              // Editor.setValue is equality-guarded + suppress-flagged so Laminar sourceVar updates
-              // from typing never echo back into Monaco (no feedback loop / caret jump).
+              // Model updates are equality-guarded and suppress-flagged so edits never echo
+              // from Laminar back into Monaco (no feedback loop or caret jump).
               sourceSignal.changes --> Observer[String] { next =>
                 val editor = host.__scEditor
-                if editor != null && !js.isUndefined(editor) then editor.setValue(next)
+                if editor != null && !js.isUndefined(editor) then editor.setHtmlValue(next)
+              }
+              tailwindCssSignal.changes --> Observer[String] { next =>
+                val editor = host.__scEditor
+                if editor != null && !js.isUndefined(editor) then editor.setCssValue(next)
+              }
+              activeEditorFileSignal.changes --> Observer[String] { file =>
+                val editor = host.__scEditor
+                if editor != null && !js.isUndefined(editor) then editor.setActive(file)
               }
               themeSignal.changes --> Observer[PlaygroundTheme] { theme =>
                 val editor = host.__scEditor
@@ -174,7 +240,17 @@ object WebComponentsPage:
           cls <-- themeSignal.map(theme =>
             if theme.dark then "!bg-zinc-950 !text-zinc-100" else "!bg-white !text-zinc-900"
           ),
-          panelTitle("Preview", "Runs in an isolated document using sc-components.js.", themeSignal),
+          panelTitle(
+            "Preview",
+            "Runs in an isolated document using sc-components.js.",
+            themeSignal,
+            showErrorToggle(showErrorVar)
+          ),
+          child.maybe <-- visibleDiagnosticSignal.map(
+            _.map(diagnostic =>
+              errorBanner(diagnostic, themeSignal, Observer(_ => dismissedDiagnosticVar.set(Some(diagnostic))))
+            )
+          ),
           iframe(
             cls := "min-h-0 flex-1 w-full bg-white",
             title := "Web Component playground preview",
@@ -270,7 +346,55 @@ object WebComponentsPage:
       )
     )
 
-  private def panelTitle(name: String, description: String, theme: Signal[PlaygroundTheme]): HtmlElement =
+  private def editorTabs(
+      activeFile: Signal[String],
+      theme: Signal[PlaygroundTheme],
+      onSelect: Observer[String]
+  ): HtmlElement =
+    div(
+      cls := "flex h-12 shrink-0 items-end gap-1 border-b px-3",
+      cls <-- theme.map(theme =>
+        if theme.dark then "!bg-zinc-950 !text-zinc-100 !border-zinc-800"
+        else "!bg-white !text-zinc-900 !border-zinc-200"
+      ),
+      role := "tablist",
+      aria.label := "Playground files",
+      editorTab("index.html", editorHtmlFile, activeFile, theme, onSelect),
+      editorTab("tailwind.css", editorCssFile, activeFile, theme, onSelect)
+    )
+
+  private def editorTab(
+      labelText: String,
+      file: String,
+      activeFile: Signal[String],
+      theme: Signal[PlaygroundTheme],
+      onSelect: Observer[String]
+  ): HtmlElement =
+    val isActiveSignal = activeFile.map(_ == file).distinct
+    val tabClassSignal = theme.combineWithFn(isActiveSignal) { (theme, isActive) =>
+      if isActive then if theme.dark then "!border-zinc-100 !text-zinc-100" else "!border-zinc-900 !text-zinc-900"
+      else if theme.dark then "!border-transparent !text-zinc-400 hover:!text-zinc-200"
+      else "!border-transparent !text-zinc-500 hover:!text-zinc-800"
+    }
+    button(
+      idAttr := s"web-components-$file-tab",
+      typ := "button",
+      role := "tab",
+      aria.controls := "web-components-editor-panel",
+      aria.selected <-- isActiveSignal,
+      tabIndex <-- isActiveSignal.map(if _ then 0 else -1),
+      cls := "h-10 border-b-2 px-3 text-sm font-medium transition-colors",
+      cls <-- tabClassSignal,
+      onClick.mapTo(file) --> onSelect,
+      labelText
+    )
+
+  private def panelTitle(
+      name: String,
+      description: String,
+      theme: Signal[PlaygroundTheme],
+      control: HtmlElement = span()
+  ): HtmlElement =
     div(
       cls := "flex h-12 shrink-0 items-center justify-between gap-3 border-b px-4",
       cls <-- theme.map(theme =>
@@ -278,16 +402,53 @@ object WebComponentsPage:
         else "!bg-white !text-zinc-900 !border-zinc-200"
       ),
       span(cls := "text-sm font-medium", name),
-      span(cls := "truncate text-xs text-muted-foreground", description)
+      span(cls := "truncate text-xs text-muted-foreground", description),
+      control
     )
 
-  private def renderDocument(source: String, theme: PlaygroundTheme): String =
+  private def showErrorToggle(showErrorVar: Var[Boolean]): HtmlElement =
+    label(
+      cls := "flex shrink-0 items-center gap-2 text-xs font-medium",
+      Switch(showErrorVar, aria.label := "Show Error"),
+      span("Show Error")
+    )
+
+  private def errorBanner(
+      diagnostic: HtmlDiagnostic,
+      theme: Signal[PlaygroundTheme],
+      onDismiss: Observer[Unit]
+  ): HtmlElement =
+    div(
+      cls := "mx-4 mt-3 flex items-start justify-between gap-3 rounded-md border px-3 py-2 text-sm",
+      cls <-- theme.map(theme =>
+        if theme.dark then "!border-red-900 !bg-red-950/50 !text-red-200"
+        else "!border-red-200 !bg-red-50 !text-red-700"
+      ),
+      role := "alert",
+      aria.live := "polite",
+      span(s"(${diagnostic.line}:${diagnostic.column}) ${diagnostic.message}"),
+      button(
+        typ := "button",
+        cls := "shrink-0 rounded-sm p-0.5 text-lg leading-none opacity-70 hover:opacity-100",
+        aria.label := "Dismiss error",
+        onClick.mapTo(()) --> onDismiss,
+        "×"
+      )
+    )
+
+  private def renderDocument(source: String, tailwindCss: String, theme: PlaygroundTheme): String =
     val darkClass = if theme.dark then " class=\"dark\"" else ""
+    val safeTailwindCss = tailwindCss.replaceAll("(?i)</style", "<\\\\/style")
+    val tailwindRuntimeUrl = js.Dynamic.global.ScPlaygroundEditor.tailwindBrowserUrl.toString
     s"""<!doctype html>
 <html lang="en"$darkClass data-sc-assets-base="/" data-sc-pack-base="/styles" data-style-pack="${theme.pack}" data-base-color="neutral" data-theme-color="${theme.accent}" data-chart-color="${theme.accent}" data-radius="default">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style type="text/tailwindcss">
+$safeTailwindCss
+  </style>
+  <script src="$tailwindRuntimeUrl"></script>
   <style>
     * { box-sizing: border-box; }
     html { color-scheme: ${

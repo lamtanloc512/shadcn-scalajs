@@ -2,9 +2,11 @@ import * as monaco from "monaco-editor";
 // Package exports map `monaco-editor/<path>` -> `esm/vs/<path>`; pull features + HTML language via that graph.
 import "monaco-editor/editor/editor.main.js";
 import "monaco-editor/languages/definitions/html/register.js";
-import "monaco-editor/language/html/monaco.contribution.js";
+import "monaco-editor/languages/definitions/css/register.js";
 import editorWorker from "monaco-editor/editor/editor.worker?worker";
 import htmlWorker from "monaco-editor/language/html/html.worker?worker";
+import tailwindBrowserUrl from "@tailwindcss/browser?url";
+import { validateHtml } from "./html-validation.js";
 
 // Vite-friendly Monaco workers (same approach as many Monaco + Vite apps / Vue playground-style hosts).
 self.MonacoEnvironment = {
@@ -75,16 +77,31 @@ function applyTheme(dark) {
   monaco.editor.setTheme(dark ? "vs-dark" : "vs");
 }
 
+let nextMarkerOwner = 1;
+
 window.ScPlaygroundEditor = {
-  mount(container, value, onChange, dark = false) {
+  // Vite turns this into a hashed, local asset rather than a CDN dependency.
+  tailwindBrowserUrl,
+  mount(container, htmlValue, cssValue, onHtmlChange, onCssChange, dark = false, onDiagnostics = () => {}) {
     container.replaceChildren();
     container.style.height = "100%";
     container.style.minHeight = "0";
     applyTheme(dark);
     let suppress = false;
+    let activeFile = "html";
+    const viewStates = {};
+    const htmlModel = monaco.editor.createModel(
+      htmlValue ?? "",
+      "html",
+      monaco.Uri.parse(`inmemory://sc-playground/index-${nextMarkerOwner}.html`),
+    );
+    const cssModel = monaco.editor.createModel(
+      cssValue ?? "",
+      "css",
+      monaco.Uri.parse(`inmemory://sc-playground/tailwind-${nextMarkerOwner}.css`),
+    );
     const editor = monaco.editor.create(container, {
-      value: value ?? "",
-      language: "html",
+      model: htmlModel,
       theme: dark ? "vs-dark" : "vs",
       automaticLayout: true,
       minimap: { enabled: false },
@@ -102,27 +119,81 @@ window.ScPlaygroundEditor = {
       fixedOverflowWidgets: true,
       ariaLabel: "Web Component HTML source",
     });
-    editor.onDidChangeModelContent(() => {
-      if (suppress) return;
-      onChange(editor.getValue());
+    const markerOwner = `sc-playground-html-${nextMarkerOwner++}`;
+    let validationTimer = null;
+    const reportDiagnostics = () => {
+      const errors = monaco.editor.getModelMarkers({ resource: htmlModel.uri, owner: markerOwner })
+        .filter((marker) => marker.severity === monaco.MarkerSeverity.Error)
+        .sort((a, b) => a.startLineNumber - b.startLineNumber || a.startColumn - b.startColumn);
+      const first = errors[0];
+      onDiagnostics(first ? { line: first.startLineNumber, column: first.startColumn, message: first.message } : null);
+    };
+    const markerDisposable = monaco.editor.onDidChangeMarkers((uris) => {
+      if (uris.some((uri) => uri.toString() === htmlModel.uri.toString())) reportDiagnostics();
     });
+    const validate = () => {
+      validationTimer = null;
+      monaco.editor.setModelMarkers(
+        htmlModel,
+        markerOwner,
+        validateHtml(htmlModel.getValue()).map((marker) => ({
+          ...marker,
+          severity: monaco.MarkerSeverity.Error,
+        })),
+      );
+    };
+    const scheduleValidation = () => {
+      if (validationTimer !== null) window.clearTimeout(validationTimer);
+      validationTimer = window.setTimeout(validate, 100);
+    };
+    const contentDisposable = editor.onDidChangeModelContent(() => {
+      if (suppress) return;
+      if (editor.getModel() === htmlModel) {
+        onHtmlChange(editor.getValue());
+        scheduleValidation();
+      } else {
+        onCssChange(editor.getValue());
+      }
+    });
+    validate();
+    reportDiagnostics();
     return {
-      setValue(next) {
-        const current = editor.getValue();
-        if (next === current) return;
+      setHtmlValue(next) {
+        const value = next ?? "";
+        if (value === htmlModel.getValue()) return;
         suppress = true;
-        editor.setValue(next ?? "");
+        htmlModel.setValue(value);
+        suppress = false;
+        scheduleValidation();
+      },
+      setCssValue(next) {
+        const value = next ?? "";
+        if (value === cssModel.getValue()) return;
+        suppress = true;
+        cssModel.setValue(value);
         suppress = false;
       },
-      setTheme(nextDark) {
-        dark = !!nextDark;
-        applyTheme(dark);
-      },
-      focus() {
+      setActive(next) {
+        if (next === activeFile) return;
+        viewStates[activeFile] = editor.saveViewState();
+        activeFile = next === "css" ? "css" : "html";
+        editor.setModel(activeFile === "css" ? cssModel : htmlModel);
+        if (viewStates[activeFile]) editor.restoreViewState(viewStates[activeFile]);
+        editor.updateOptions({
+          ariaLabel: activeFile === "css" ? "Tailwind CSS configuration" : "Web Component HTML source",
+        });
         editor.focus();
       },
+      setTheme(nextDark) { dark = !!nextDark; applyTheme(dark); },
+      focus() { editor.focus(); },
       destroy() {
+        if (validationTimer !== null) window.clearTimeout(validationTimer);
+        monaco.editor.setModelMarkers(htmlModel, markerOwner, []);
+        markerDisposable.dispose();
+        contentDisposable.dispose();
         editor.dispose();
+        htmlModel.dispose();
+        cssModel.dispose();
         container.replaceChildren();
       },
     };
