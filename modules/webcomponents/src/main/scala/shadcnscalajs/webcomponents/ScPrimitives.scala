@@ -28,6 +28,10 @@ class ScAlert extends ScElementBase:
     )
   )
 
+/** Light-DOM title primitive so HTML authors can compose a real shadcn Alert without generic unstyled text. */
+class ScAlertTitle extends LightPrimitive(Alert.titleSlot, Alert.titleClass)
+class ScAlertDescription extends LightPrimitive(Alert.descriptionSlot, Alert.descriptionClass)
+
 object ScAlert:
   private def parseVariant(v: Option[String]): Option[Alert.Variant] = v.collect {
     case "default"     => Alert.Variant.Default
@@ -77,6 +81,8 @@ class ScTooltip extends ScElementBase:
 object ScPrimitives:
   def register(): Unit =
     ScElements.define("sc-alert", js.constructorOf[ScAlert], "variant")
+    ScElements.define("sc-alert-title", js.constructorOf[ScAlertTitle])
+    ScElements.define("sc-alert-description", js.constructorOf[ScAlertDescription])
     register("sc-avatar", js.constructorOf[ScAvatar])
     register("sc-breadcrumb", js.constructorOf[ScBreadcrumb])
     register("sc-button-group", js.constructorOf[ScButtonGroup])

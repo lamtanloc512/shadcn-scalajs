@@ -41,14 +41,17 @@ object ScSidebar:
 
   private def view(menusVar: Var[List[Group]], revision: Var[Int]): HtmlElement =
     val openVar = Var(true)
+    // Playground/docs hosts cap height (e.g. 16rem). Upstream Sidebar.provider defaults to
+    // `min-h-svh`, which would blow past that — force a contained, scrollable shell instead.
     div(
+      cls := "h-full min-h-0 max-h-full overflow-hidden",
       children <-- revision.signal.map { _ =>
         val groups = menusVar.now()
         List(
           Sidebar.provider(openVar)(
-            cls := "min-h-0",
+            cls := "min-h-0! h-full max-h-full overflow-hidden",
             Sidebar.root(collapsible = Sidebar.Collapsible.None, openVar = openVar)(
-              cls := "w-full bg-transparent", {
+              cls := "h-full max-h-full w-full overflow-hidden bg-transparent", {
                 val contentMods: List[Modifier[HtmlElement]] =
                   (cls := "gap-0") :: groups.zipWithIndex.flatMap { (group, idx) =>
                     val entries = group.items.map { entry =>

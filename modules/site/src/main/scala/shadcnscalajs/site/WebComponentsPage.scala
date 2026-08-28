@@ -14,7 +14,7 @@ object WebComponentsPage:
   private final case class Example(name: String, source: String)
   private final case class PlaygroundTheme(pack: String, accent: String, dark: Boolean)
 
-  private val examples = List(
+  private val curatedExamples = List(
     Example(
       "Card and buttons",
       """<script type="module" src="/sc-components.js"></script>
@@ -93,6 +93,10 @@ object WebComponentsPage:
     )
   )
 
+  private val examples = curatedExamples ++ WebComponentExamples.catalog.map { case (slug, example) =>
+    Example(s"Components / ${slug.split('-').map(_.capitalize).mkString(" ")}", example.source)
+  }
+
   private val srcDocAttr = htmlAttr("srcdoc", StringAsIsCodec)
   private val sandboxAttr = htmlAttr("sandbox", StringAsIsCodec)
 
@@ -152,8 +156,16 @@ object WebComponentsPage:
             ),
             onMountBind { mountCtx =>
               val host = mountCtx.thisNode.ref.asInstanceOf[js.Dynamic]
-              sourceSignal.changes --> Observer[String](next => host.__scEditor.setValue(next))
-              themeSignal.changes --> Observer[PlaygroundTheme](theme => host.__scEditor.setTheme(theme.dark))
+              // Editor.setValue is equality-guarded + suppress-flagged so Laminar sourceVar updates
+              // from typing never echo back into Monaco (no feedback loop / caret jump).
+              sourceSignal.changes --> Observer[String] { next =>
+                val editor = host.__scEditor
+                if editor != null && !js.isUndefined(editor) then editor.setValue(next)
+              }
+              themeSignal.changes --> Observer[PlaygroundTheme] { theme =>
+                val editor = host.__scEditor
+                if editor != null && !js.isUndefined(editor) then editor.setTheme(theme.dark)
+              }
             }
           )
         ),
@@ -289,6 +301,7 @@ object WebComponentsPage:
 <body>
 $source
 <script type="module">
+  import '/sc-components.js'
   // Apply playground controls after the production bundle has installed its public API.
   window.ShadcnScalaJS?.setTheme({stylePack: "${theme.pack}", themeColor: "${theme.accent}", darkMode: ${theme.dark}})
 </script>

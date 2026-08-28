@@ -2477,3 +2477,15 @@
 .cn-dashboard-01[data-menu-color="inverted"] aside nav a[data-active="true"] {
   color: var(--foreground);
 }
+/* Read-only docs source token palette; scoped to the site theme rather than editable CodeMirror. */
+.sc-doc-code { background: var(--muted); color: var(--foreground); }
+.sc-doc-token-comment { color: #64748b; }
+.sc-doc-token-string { color: #a16207; }
+.sc-doc-token-number { color: #0f766e; }
+.sc-doc-token-keyword { color: #7c3aed; }
+.sc-doc-token-tag { color: #be185d; }
+.dark .sc-doc-token-comment { color: #94a3b8; }
+.dark .sc-doc-token-string { color: #fbbf24; }
+.dark .sc-doc-token-number { color: #5eead4; }
+.dark .sc-doc-token-keyword { color: #c4b5fd; }
+.dark .sc-doc-token-tag { color: #f9a8d4; }

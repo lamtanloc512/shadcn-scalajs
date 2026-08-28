@@ -1,6 +1,7 @@
 package shadcnscalajs.site
 
 import com.raquo.laminar.api.L.*
+import com.raquo.laminar.codecs.StringAsIsCodec
 import org.scalajs.dom
 import shadcnscalajs.ui.*
 
@@ -183,6 +184,8 @@ object Main:
   )
 
   private def slugify(name: String): String = name.toLowerCase.replace(' ', '-')
+  private val webComponentCatalogCompleteness =
+    WebComponentExamples.assertComplete(componentNavList.map(slugify))
 
   /** Typography recipe page — utility classes copied from shadcn-svelte typography examples (no registry component). */
   private def typographyDemo(): HtmlElement =
@@ -559,9 +562,12 @@ object Main:
     val nextEntry =
       if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
 
-    def docsTabTrigger(selected: Var[String], value: String, label: String): HtmlElement =
+    def docsTabTrigger(selected: Var[String], value: String, label: String, controlsId: String): HtmlElement =
       Tabs.trigger(
+        idAttr := s"$controlsId-tab",
         dataAttr("value") := value,
+        role := "tab",
+        aria.controls := controlsId,
         tabIndex <-- selected.signal.map(v => if v == value then 0 else -1),
         inContext { thisNode =>
           selected.signal --> { v =>
@@ -571,6 +577,31 @@ object Main:
         },
         aria.selected <-- selected.signal.map(_ == value),
         onClick --> { _ => selected.set(value) },
+        onKeyDown --> Observer[dom.KeyboardEvent] { ev =>
+          val order = List("preview", "laminar", "web-component")
+          val idx = order.indexOf(selected.now())
+          def activate(next: String): Unit =
+            val current = selected.now()
+            selected.set(next)
+            // Roving tabindex: panel ids are `<slug>-<value>-panel`; tab ids append `-tab`.
+            val nextTabId = controlsId.replace(s"-$current-panel", s"-$next-panel") + "-tab"
+            Option(dom.document.getElementById(nextTabId))
+              .foreach(_.asInstanceOf[dom.HTMLElement].focus())
+          ev.key match
+            case "ArrowRight" if idx >= 0 =>
+              ev.preventDefault()
+              activate(order((idx + 1) % order.length))
+            case "ArrowLeft" if idx >= 0 =>
+              ev.preventDefault()
+              activate(order((idx - 1 + order.length) % order.length))
+            case "Home" if idx >= 0 =>
+              ev.preventDefault()
+              activate(order.head)
+            case "End" if idx >= 0 =>
+              ev.preventDefault()
+              activate(order.last)
+            case _ => ()
+        },
         label
       )
 
@@ -590,8 +621,12 @@ object Main:
           span("Scala.js")
         ),
         Card.content(
-          cls := "overflow-x-auto p-4! px-4! font-mono text-xs leading-6 text-foreground",
+          cls := "sc-doc-code overflow-x-auto p-4! px-4! font-mono text-xs leading-6 text-foreground",
           styleAttr := "white-space:pre",
+          dataAttr("language") := language,
+          onMountCallback { ctx =>
+            js.Dynamic.global.ScDocsHighlight.highlight(ctx.thisNode.ref, language, source)
+          },
           source
         )
       )
@@ -632,23 +667,63 @@ object Main:
     def previewCanvas(content: Modifier[HtmlElement]*): HtmlElement =
       div(cls := "flex min-h-[450px] w-full items-center justify-center gap-3 p-10", content)
 
-    /** Each demo owns its tab state, so opening the Code tab on one example leaves the others on Preview. */
+    val webComponentExample = WebComponentExamples(componentName)
+
+    /** One predictable three-tab experience: Preview (Laminar), Laminar source, and Web Component source/demo. */
     def previewTabs(preview: HtmlElement, source: String, rootClass: String): HtmlElement =
       val tab = Var("preview")
-      Tabs(
+      val ids = Map(
+        "preview" -> s"$componentName-preview-panel",
+        "laminar" -> s"$componentName-laminar-panel",
+        "web-component" -> s"$componentName-web-component-panel"
+      )
+      val wcPreview = webComponentExample
+        .map(WebComponentExamples.preview)
+        .getOrElse(
+          div(
+            cls := "flex min-h-[12rem] items-center justify-center rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground",
+            WebComponentExamples.unsupportedMessage(componentName)
+          )
+        )
+      val wcSource = webComponentExample
+        .map(_.source)
+        .getOrElse(s"<!-- ${WebComponentExamples.unsupportedMessage(componentName)} -->")
+      div(
         cls := rootClass,
-        Tabs.list(
-          Tabs.ListVariant.Default,
-          docsTabTrigger(tab, "preview", "Preview"),
-          docsTabTrigger(tab, "code", "Code")
-        ),
-        Tabs.content(
-          display <-- tab.signal.map(v => if v == "preview" then "block" else "none"),
-          Card(cls := docsFrame, preview)
-        ),
-        Tabs.content(
-          display <-- tab.signal.map(v => if v == "code" then "block" else "none"),
-          codeBlock("scala", source)
+        dataAttr("sc-docs-primary-tabs") := "true",
+        Tabs(
+          Tabs.list(
+            Tabs.ListVariant.Default,
+            role := "tablist",
+            docsTabTrigger(tab, "preview", "Preview", ids("preview")),
+            docsTabTrigger(tab, "laminar", "Laminar", ids("laminar")),
+            docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"))
+          ),
+          Tabs.content(
+            idAttr := ids("preview"),
+            role := "tabpanel",
+            aria.labelledBy := s"${ids("preview")}-tab",
+            display <-- tab.signal.map(v => if v == "preview" then "block" else "none"),
+            Card(cls := docsFrame, preview)
+          ),
+          Tabs.content(
+            idAttr := ids("laminar"),
+            role := "tabpanel",
+            aria.labelledBy := s"${ids("laminar")}-tab",
+            display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
+            codeBlock("scala", source)
+          ),
+          Tabs.content(
+            idAttr := ids("web-component"),
+            role := "tabpanel",
+            aria.labelledBy := s"${ids("web-component")}-tab",
+            display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+            div(
+              codeBlock("html", wcSource),
+              Card(cls := docsFrame, wcPreview),
+              webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
+            )
+          )
         )
       )
 
