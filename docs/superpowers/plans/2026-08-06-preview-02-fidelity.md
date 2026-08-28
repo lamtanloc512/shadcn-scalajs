@@ -70,7 +70,7 @@ Therefore, **as a worker you must NOT**:
 
 - run `sbt` (any task: `compile`, `scalafmtAll`, `fastLinkJS`, …)
 - start, restart, or kill a dev server, or kill anything on port 4300
-- run `npm run dev`, `npm install`, `franky verify`, or `git commit`
+- run `npm run dev`, `npm install`, `./scripts/test`, or `git commit`
 
 The orchestrator owns a long-running dev server on `http://localhost:4300` and runs one
 `sbt <modules>/compile + scalafmtAll` **gate** after each wave (and after each Wave 1S task), then the
@@ -1695,8 +1695,8 @@ Sequential: 30 → 31 → 32.
   (`cd /Users/elam/Personal/shadcn-svelte && pnpm --filter docs dev`), capture the same
   `[data-slot="capture-target"]` screenshots and compare side by side. If the reference cannot be built, compare
   structurally against the `.svelte` sources instead and **say so explicitly** in the audit notes.
-- [ ] **Step 5: Write down residual deltas.** Append a short "Known residual deltas vs the reference" section to
-  `.franky/memory/PROGRESS.md`. The charts are the expected source of these (hand-rolled SVG vs LayerChart);
+- [ ] **Step 5: Write down residual deltas.** Record a short "Known residual deltas vs the reference" note.
+  The charts are the expected source of these (hand-rolled SVG vs LayerChart);
   every delta must be listed and justified as intentional, per the spec's verification criteria.
 - [ ] **Step 6:** Fix only genuine ordering/dimension/copy defects found above. Compile, format, commit.
 
@@ -1745,11 +1745,7 @@ for each:
   produced by Step 2's regeneration of unrelated fields. Load `/blocks/dashboard-01` and
   `/blocks/dashboard-01/preview` and confirm both still render.
 - [ ] **Step 4:** `./scripts/test` exits 0.
-- [ ] **Step 5:** `franky verify` (setup → build → lint → test) exits 0. Inspect `.franky/verify-report.json` and
-  paste its summary.
-- [ ] **Step 6:** Update `.franky/memory/PROGRESS.md`: mark preview-02 fidelity done, keep the deferred switcher-02
-  mosaic in "Next", and link the residual-delta notes from Task 30.
-- [ ] **Step 7:** Commit any remaining changes (registry regeneration, PROGRESS.md).
+- [ ] **Step 5:** Commit any remaining changes (registry regeneration).
 
 ---
 

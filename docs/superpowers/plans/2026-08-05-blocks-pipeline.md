@@ -13,7 +13,7 @@
 - Spec: `docs/superpowers/specs/2026-08-05-blocks-pipeline-design.md`. Read it before starting.
 - `sbt` needs `export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"` first.
 - Tailwind class strings are copied **verbatim** from the upstream file named in each task. Do not reformat, reorder, or "improve" them.
-- Every component in `modules/ui` must be self-sufficient Tailwind: it must not depend on `basecoat.generated.css` or `shadcn-presets.generated.css`, because CLI consumers get neither. Keep existing `cn-*` hook classes (style packs target them) — see `.franky/memory/decisions.log`, 2026-08-05.
+- Every component in `modules/ui` must be self-sufficient Tailwind: it must not depend on `basecoat.generated.css` or `shadcn-presets.generated.css`, because CLI consumers get neither. Keep existing `cn-*` hook classes (style packs target them).
 - Laminar tag collisions: `sectionTag`, `headerTag`, `footerTag`, `navTag`, `mainTag`, `articleTag`, `asideTag`, `dialogTag`, `detailsTag`, `summaryTag`, `timeTag`, `progressTag`, `menuTag`, `commandTag`. Bare `div`, `span`, `button`, `ul`, `li`, `ol`, `p`, `a`, `form`, `label`, `input` are fine.
 - Never name a `Var` or parameter `value`, `children`, `content`, or `label` — they shadow Laminar keys.
 - Run `sbt scalafmtAll` before finishing any task that touches `.scala`.
@@ -113,7 +113,7 @@ git add modules/ui/src/main/scala/shadcnscalajs/ui/Field.scala
 
 **Files:**
 - Modify: `build.sbt`
-- Modify: `.franky/scripts/build`
+- Modify: `scripts/build`
 - Create: `modules/blocks/src/main/scala/shadcnscalajs/blocks/.gitkeep` (so the module directory exists before Task 3)
 
 **Interfaces:**
@@ -155,9 +155,9 @@ to:
   .dependsOn(ui, blocks, webcomponents)
 ```
 
-- [ ] **Step 3: Add `blocks` to the franky build script**
+- [ ] **Step 3: Add `blocks` to the build script**
 
-In `.franky/scripts/build`, change:
+In `scripts/build`, change:
 ```bash
 echo "build: sbt compile (core, ui, webcomponents, site) + Scala.js link"
 sbt "core/compile" "ui/compile" "webcomponents/compile" "site/compile" \
@@ -190,7 +190,7 @@ Expected: both `[success]`. An empty module compiles fine.
 - [ ] **Step 6: Stage**
 
 ```bash
-git add build.sbt .franky/scripts/build modules/blocks/src/main/scala/shadcnscalajs/blocks/.gitkeep
+git add build.sbt scripts/build modules/blocks/src/main/scala/shadcnscalajs/blocks/.gitkeep
 ```
 
 ---
@@ -995,7 +995,7 @@ git add modules/site/src/main/scala/shadcnscalajs/site
 `./scripts/test` currently only smoke-tests a component `add`. A block install exercises nested targets plus transitive component resolution, which is the part most likely to regress.
 
 **Files:**
-- Modify: `.franky/scripts/test`
+- Modify: `scripts/test`
 
 **Interfaces:**
 - Consumes: the registry output from Task 5.
@@ -1003,7 +1003,7 @@ git add modules/site/src/main/scala/shadcnscalajs/site
 
 - [ ] **Step 1: Read the existing script**
 
-Run: `cat .franky/scripts/test`
+Run: `cat scripts/test`
 Identify how it creates its temp directory, runs `init`, runs `add`, and asserts files exist. Reuse those exact mechanisms — do not restructure the script.
 
 - [ ] **Step 2: Add a block case using the script's existing style**
@@ -1023,34 +1023,32 @@ ui/Field.scala
 
 - [ ] **Step 3: Run it**
 
-Run: `./.franky/scripts/test`
+Run: `./scripts/test`
 Expected: exit 0, with the new block assertions visible in the output. If `ui/Field.scala` is missing, `login-01.registry.json`'s `registryDependencies` is wrong — fix the sidecar, re-run `node modules/site/scripts/build-registry.mjs`, then re-run.
 
 - [ ] **Step 4: Stage**
 
 ```bash
-git add .franky/scripts/test
+git add scripts/test
 ```
 
 ---
 
-### Task 8: Full verification and memory update
+### Task 8: Full verification
 
 **Files:**
-- Modify: `.franky/memory/PROGRESS.md`
-- Modify: `.franky/memory/decisions.log`
 - Modify: `AGENTS.md` (Layout section; new-block checklist)
 
 **Interfaces:**
 - Consumes: everything above.
-- Produces: a green `franky verify` and updated project memory.
+- Produces: a green `./scripts/test` run.
 
 - [ ] **Step 1: Run the full gate**
 
 ```bash
-franky verify
+./scripts/test
 ```
-Expected: `verify PASSED`, and `passed: true` in `.franky/verify-report.json`. On failure, read `steps[].excerpt` and fix the code — do not weaken the check.
+Expected: exit 0. On failure, read the output and fix the code — do not weaken the check.
 
 - [ ] **Step 2: Prove the blocks do not depend on pack or basecoat CSS**
 
@@ -1060,15 +1058,7 @@ With the dev server running, load `/blocks/login-01/preview`, remove `data-style
 
 Add `modules/blocks/` to the Layout block with a one-line description, and add a "New block checklist" mirroring the existing new-component checklist: directory + sidecar in `modules/blocks`, entry in `Blocks.all`, case in `Blocks.render`, regenerate the registry, browser-check all three routes.
 
-- [ ] **Step 4: Update `.franky/memory/PROGRESS.md`**
-
-Add a Done entry for the blocks pipeline and the four blocks. Add to Next: the Sidebar rebuild sub-project (needed before `sidebar-01`), generating `Blocks.all` from the sidecars, and `dashboard-01`. Keep the file under ~5,000 characters — consolidate stale Done entries if it would exceed that.
-
-- [ ] **Step 5: Append to `.franky/memory/decisions.log`**
-
-Record: blocks live in their own module because they are multi-file and `modules/ui` means components; block page files are mountable compositions rather than routed pages because Laminar has no file-based routing; the Code tab reads generated registry JSON instead of hand-maintained literals; `sidebar-01` was cut because Sidebar is a 19-line stub against upstream's 726 lines.
-
-- [ ] **Step 6: Report, do not commit**
+- [ ] **Step 4: Report, do not commit**
 
 Summarise changed files, verification results, and what was staged. Leave committing to the user.
 

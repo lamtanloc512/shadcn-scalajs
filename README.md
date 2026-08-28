@@ -1,6 +1,6 @@
 # shadcn-scalajs
 
-A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly, and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it. Covers the full shadcn/ui catalog (~60 components; the newest AI-chat-specific additions and non-component doc pages excluded — see `.franky/memory/PROGRESS.md`), documented in a basecoat-style docs site with live previews rendered by the real Laminar components, not static screenshots.
+A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly, and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it. Covers the full shadcn/ui catalog (~60 components; the newest AI-chat-specific additions and non-component doc pages excluded), documented in a basecoat-style docs site with live previews rendered by the real Laminar components, not static screenshots.
 
 ## Quick start
 
@@ -86,7 +86,7 @@ libraryDependencies ++= Seq(
 <sc-button variant="outline">Click me</sc-button>
 ```
 
-The Web Component bundle isn't built yet for the current component set — see `.franky/memory/PROGRESS.md`'s "Next" section. `modules/webcomponents` wraps most (not yet all) of the components in `Sc*`/`ScPrimitives` custom-element classes; `sbt webcomponents/fastLinkJS` produces the JS, but the matching `sc-components.css` Tailwind build output still needs wiring.
+`modules/webcomponents` wraps most (not yet all) of the components in `Sc*`/`ScPrimitives` custom-element classes — `modules/ui/CLAUDE.md` keeps the current wrapper gap list. The bundle itself is built by `modules/site/scripts/build-webcomponents.mjs` (runs in `predev`/`prebuild`): it links `webcomponents/fullLinkJS`, esbuilds it into `public/sc-components.js`, and emits `public/sc-components.css` (Tailwind output rewritten so `:root` tokens also apply to `:host`, plus one baked style pack).
 
 ## Component scope
 
@@ -111,10 +111,10 @@ sbt ~ui/fastLinkJS            # watch & rebuild ui
 sbt ~webcomponents/fastLinkJS # watch & rebuild web components
 sbt ~site/fastLinkJS          # watch & rebuild site
 sbt siteOpt                   # size-optimized site link (fullLinkJS)
-sbt scalafmtAll                # format before committing — franky verify checks this
+sbt scalafmtAll                # format before committing — scripts/lint checks this
 cd modules/site && npm run build   # fullLinkJS + Vite/esbuild minify → dist/
 ```
 
 Scala.js linker notes: `fastLinkJS` uses `SmallModulesFor` for Vite HMR; `fullLinkJS` uses `FewestModules` + Scala.js minify + `avoidClasses=false` for smaller output (Vite finishes with esbuild). Source maps from the linker are off — Vite cannot resolve Scala.js absolute `file:`/`https:` map URIs and would warn about missing sources.
 
-Full architecture notes, gotchas, and the new-component checklist: `AGENTS.md`. Session-by-session history: `.franky/memory/PROGRESS.md`.
+Full architecture notes, gotchas, and the new-component checklist: `AGENTS.md`.

@@ -46,7 +46,7 @@ positioning per component.
 
 - **Shadow-DOM-safe portaling** for `modules/webcomponents`' `Sc*` wrappers. Deferred
   to whenever the already-tracked `sc-components.css` wiring work happens (see
-  `.franky/memory/PROGRESS.md` "Next"), since it needs its own design (scoped shadow
+  `modules/ui/CLAUDE.md`'s wrapper gap list), since it needs its own design (scoped shadow
   root per floating element + token injection) and isn't needed to unblock the
   docs-site re-port work.
 - **CLI npm-dependency support.** Not needed — see Decision below.
@@ -158,7 +158,7 @@ the new API — no visual/behavioral re-port of those two beyond that.
 ### Verification
 
 No component test framework exists yet in this project (`scripts/test` only smoke-tests
-the CLI's file-writing, per `.franky/memory/PROGRESS.md`'s "Next" list) — consistent
+the CLI's file-writing) — consistent
 with that, this gets verified live in a browser, the same way every other component in
 this codebase has been:
 

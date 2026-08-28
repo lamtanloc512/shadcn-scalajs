@@ -360,7 +360,7 @@ All 33 cards must render with correct copy and structure even if some are mostly
 3. **Primitives + icons** — ui gaps + five-library Icons.  
 4. **Preview cards** — 34 files, exact grid and interactions.  
 5. **Charts + QR + dates** — SVG chart helpers, qrcode facade, Calendar wiring.  
-6. **Visual + Franky verify** — screenshots, interaction checks, compile, registry, `franky verify`.
+6. **Visual + verify** — screenshots, interaction checks, compile, registry, `./scripts/test`.
 
 ---
 
@@ -390,8 +390,7 @@ Work is done only when all of the following pass:
 - `sbt ui/compile site/compile blocks/compile` (blocks still compiles; dashboard-01 unchanged).  
 - `sbt scalafmtAll`  
 - Registry generation (`build-registry.mjs` / predev) succeeds; Icons registry present if Icons is a dependency.  
-- `./scripts/test` and `franky verify` exit 0; inspect `.franky/verify-report.json`.  
-- Update `.franky/memory/PROGRESS.md` with completion status and remaining deferred **02** mosaic work.
+- `./scripts/test` exits 0.
 
 ### Explicit non-regressions
 

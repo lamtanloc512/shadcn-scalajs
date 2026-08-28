@@ -29,7 +29,7 @@ mirror it (`build-registry.mjs` header comment; `resolveItems`' doc comment).
   `/components/:name` works and why an iframe preview route needs no extra
   HTML entry.
 - `build.sbt` has four modules (`core`, `ui`, `webcomponents`, `site`);
-  `.franky/scripts/build` names its sbt targets explicitly.
+  `scripts/build` names its sbt targets explicitly.
 - `Main.scala` is ~2,100 lines and already carries all three existing pages.
   A wholesale split is specified separately in
   `docs/superpowers/specs/2026-08-05-docs-site-ia-redesign-design.md`.
@@ -89,7 +89,7 @@ lazy val blocks = project
 
 Plus: add `blocks` to the root `.aggregate(...)`, change `site` to
 `.dependsOn(ui, webcomponents, blocks)`, and add `"blocks/compile"` to
-`.franky/scripts/build`'s sbt invocation. No `fastLinkJS` target — blocks are
+`scripts/build`'s sbt invocation. No `fastLinkJS` target — blocks are
 not an entry point; `site` links them in.
 
 Chosen over a `blocks/` subpackage inside `modules/ui` (which would force the
@@ -175,7 +175,7 @@ nested `file.target` paths. So `add login-01` writes
 Copied component files keep `package shadcnscalajs.ui`, so a copied block
 declaring `package shadcnscalajs.blocks.login01` and importing
 `shadcnscalajs.ui.*` compiles in the consumer project with no rewriting. The
-known missing package-rewriting (PROGRESS.md "Next") therefore does not block
+known missing package-rewriting therefore does not block
 blocks; it only means consumers keep our namespace.
 
 ### 6. Site routes and pages
@@ -256,9 +256,8 @@ that file nor the presets.
 
 - `sbt core/compile ui/compile blocks/compile webcomponents/compile site/compile`,
   then `sbt scalafmtAll`.
-- `franky verify` exits 0.
-- Browser (real Chrome, per the approach recorded in `decisions.log`
-  2026-08-05): `/blocks` lists all four with working links; each
+- `./scripts/test` exits 0.
+- Browser (real Chrome): `/blocks` lists all four with working links; each
   `/blocks/<name>` renders Preview (iframe loads, refresh works, Open in New
   Tab opens the bare route) and Code (file tree plus real source from the
   registry JSON); each `/blocks/<name>/preview` renders chrome-less; light and

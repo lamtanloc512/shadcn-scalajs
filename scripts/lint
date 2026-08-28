@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
-# Thin franky pass-through — canonical implementation lives in .franky/scripts/lint
+# Static analysis.
 set -euo pipefail
-exec "$(cd "$(dirname "$0")/.." && pwd)/.franky/scripts/lint" "$@"
+cd "$(dirname "$0")/../.."
+
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
+
+echo "lint: scalafmt check"
+sbt scalafmtCheckAll
+
+echo "lint: packages/cli typecheck"
+(cd packages/cli && npx tsc --noEmit)

@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
-# Thin franky pass-through — canonical implementation lives in .franky/scripts/build
+# Compile the Scala.js modules and the CLI.
 set -euo pipefail
-exec "$(cd "$(dirname "$0")/.." && pwd)/.franky/scripts/build" "$@"
+cd "$(dirname "$0")/../.."
+
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
+
+echo "build: sbt compile (core, ui, blocks, webcomponents, site) + Scala.js link"
+sbt "core/compile" "ui/compile" "blocks/compile" "webcomponents/compile" "site/compile" \
+    "ui/fastLinkJS" "webcomponents/fastLinkJS" "site/fastLinkJS"
+
+echo "build: packages/cli (tsc)"
+(cd packages/cli && npm run build)

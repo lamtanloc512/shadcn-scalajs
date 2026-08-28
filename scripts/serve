@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
-# Thin franky pass-through — canonical implementation lives in .franky/scripts/serve
+# Start the dev server (modules/site's Vite server).
+# Native Laminar demo: http://localhost:4300/
+# Web Component demo:  http://localhost:4300/plain-html-demo.html
 set -euo pipefail
-exec "$(cd "$(dirname "$0")/.." && pwd)/.franky/scripts/serve" "$@"
+cd "$(dirname "$0")/../modules/site"
+
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
+exec npm run dev

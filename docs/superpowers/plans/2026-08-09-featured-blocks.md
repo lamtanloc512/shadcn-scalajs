@@ -547,7 +547,7 @@ sbt -batch scalafmtCheckAll blocks/compile site/fastLinkJS
 | `/blocks/sidebar-07` | Collapse to icons |
 | `/blocks/dashboard-01` | Inset sidebar + cards + chart + table; no Acme Analytics leftovers |
 
-Compare each to `https://www.shadcn-svelte.com/blocks` (open the matching preview). Capture screenshots under `.franky/visual/` if useful — do not commit them unless asked.
+Compare each to `https://www.shadcn-svelte.com/blocks` (open the matching preview). Capture screenshots if useful — do not commit them unless asked.
 
 - [ ] **Step 4: Ask the user to commit**
 

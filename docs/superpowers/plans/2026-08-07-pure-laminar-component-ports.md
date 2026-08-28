@@ -77,4 +77,4 @@
 ### T12 — Typography docs page
 ### T13 — DataTable pure Scala state + demo
 
-**Wave 3 gate:** compile, registries, update `.franky/memory/PROGRESS.md`.
+**Wave 3 gate:** compile, registries.

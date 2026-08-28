@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
-# Thin franky pass-through — canonical implementation lives in .franky/scripts/setup
+# Install dependencies (idempotent).
 set -euo pipefail
-exec "$(cd "$(dirname "$0")/.." && pwd)/.franky/scripts/setup" "$@"
+cd "$(dirname "$0")/../.."
+
+export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
+
+CS_BIN="cs"
+command -v cs >/dev/null 2>&1 || CS_BIN="coursier"
+
+if ! command -v sbt >/dev/null 2>&1; then
+  echo "setup: installing sbt via coursier"
+  "$CS_BIN" install sbt
+fi
+
+echo "setup: modules/site npm deps"
+(cd modules/site && npm install --no-audit --no-fund)
+
+echo "setup: packages/cli npm deps"
+(cd packages/cli && npm install --no-audit --no-fund)

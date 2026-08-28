@@ -148,4 +148,4 @@ verify live in a browser:
 - `/components/:name` for a few different components: Preview/Code tabs both render
   correctly and match (code shown is what's actually rendered), sidebar highlight/
   prev-next still correct, page still works after the file split.
-- `sbt site/compile`, `sbt site/fastLinkJS`, `sbt scalafmtAll`, `franky verify`.
+- `sbt site/compile`, `sbt site/fastLinkJS`, `sbt scalafmtAll`, `./scripts/test`.

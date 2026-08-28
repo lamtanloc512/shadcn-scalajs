@@ -2,8 +2,8 @@
 
 This repo no longer vendors pre-compiled, patched CSS files (an earlier version of this
 notice described a `basecoat-vega.cdn.css` / `basecoat-lyra.cdn.min.css` patch workflow —
-that's gone, superseded by the Tailwind CSS v4 migration; see
-`.franky/memory/PROGRESS.md`'s "Basecoat → Tailwind CSS v4 migration" entry). What's here
+that's gone, superseded by the Tailwind CSS v4 migration; the git history around the
+`Tailwind v4 migration` commits is the record of it). What's here
 now is reference *source*, consumed by build-time generator scripts rather than shipped
 directly:
 
@@ -31,17 +31,16 @@ Design tokens and per-component Tailwind utility classes live directly in
 `.scala` file in `modules/ui` (Tailwind utility strings matching the canonical
 `button.tsx`/`badge.tsx`/etc. source) — not generated from the vendor snapshots above.
 
-## Known latent issue: `globals.css`'s `:root` won't reach a Shadow DOM
+## Shadow DOM tokens: `globals.css`'s `:root` won't reach a Shadow DOM
 
 `globals.css:66` defines the real design-token values under a bare `:root { ... }` rule.
 `:root` only ever matches the top-level document's `<html>` element — even from inside a
 stylesheet loaded in a Shadow Root, only `:host` matches the shadow host. This bit the
-project once already (see `.franky/memory/decisions.log` / earlier git history for the
-basecoat-CSS-era version of this bug) and **will bite again** the moment
-`modules/webcomponents`' `sc-components.css` bundle (currently unbuilt — see
-`.franky/memory/PROGRESS.md` "Next") is wired up to inject this same token set into each
-`Sc*` component's shadow root: every Web Component will render structurally correct but
-completely uncolored, no error, just `getComputedStyle(...).backgroundColor` silently
-returning transparent. Whoever wires up `sc-components.css` needs to either duplicate the
-`:root` block's declarations under `:host` too, or generate a shadow-root-safe variant of
-`globals.css` as part of that build step.
+project once already in the basecoat-CSS era (see the earlier git history), and it is the
+reason `modules/site/scripts/build-webcomponents.mjs` runs its `sc-shadow-scope` PostCSS
+step over `sc-components.css`: every `:root` rule is duplicated onto `:host`, and the
+baked-pack selector gets a shadow-theme-host fallback, so the tokens resolve inside each
+`Sc*` component's shadow root. Without that rewrite every Web Component renders
+structurally correct but completely uncolored — no error, just
+`getComputedStyle(...).backgroundColor` silently returning transparent. Any new build step
+that emits CSS for shadow roots must apply the same rewrite.
