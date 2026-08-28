@@ -23,9 +23,13 @@ class ScRadioGroup extends ScElementBase:
   stringProperty("value")
   jsonProperty("items")(v => { itemsVar.set(parseItems(v)); bump() })
 
-  valueVar.signal.changes.foreach(value => if !echo.isEcho(value) then emit("sc-change", value))(unsafeWindowOwner)
-
-  mount(ScRadioGroup.view(nameVar, valueVar, itemsVar, revision))
+  mount(
+    ScRadioGroup
+      .view(nameVar, valueVar, itemsVar, revision)
+      .amend(
+        valueVar.signal.changes --> Observer[String](value => if !echo.isEcho(value) then emit("sc-change", value))
+      )
+  )
 
   private def parseItems(value: js.Any): List[ScRadioGroup.Item] =
     ScElements

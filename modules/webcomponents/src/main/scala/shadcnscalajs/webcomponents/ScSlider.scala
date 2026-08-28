@@ -31,9 +31,13 @@ class ScSlider extends ScElementBase:
   stringProperty("step")
   booleanProperty("disabled")
 
-  valueVar.signal.changes.foreach(value => if !echo.isEcho(value) then emit("sc-change", value))(unsafeWindowOwner)
-
-  mount(ScSlider.view(valueVar, minVar, maxVar, stepVar, disabledVar, revision))
+  mount(
+    ScSlider
+      .view(valueVar, minVar, maxVar, stepVar, disabledVar, revision)
+      .amend(
+        valueVar.signal.changes --> Observer[Double](value => if !echo.isEcho(value) then emit("sc-change", value))
+      )
+  )
 
 object ScSlider:
   def register(): Unit =

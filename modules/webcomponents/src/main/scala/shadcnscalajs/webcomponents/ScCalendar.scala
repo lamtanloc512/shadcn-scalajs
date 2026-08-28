@@ -19,12 +19,14 @@ class ScCalendar extends ScElementBase:
   }
   stringProperty("value")
 
-  selectedVar.signal.changes.foreach { date =>
-    val iso = date.map(ScCalendar.toIso)
-    if !echo.isEcho(iso) then emit("sc-change", iso.orNull)
-  }(unsafeWindowOwner)
-
-  mount(Calendar(selectedVar))
+  mount(
+    Calendar(selectedVar).amend(
+      selectedVar.signal.changes --> Observer[Option[js.Date]] { date =>
+        val iso = date.map(ScCalendar.toIso)
+        if !echo.isEcho(iso) then emit("sc-change", iso.orNull)
+      }
+    )
+  )
 
 object ScCalendar:
   def register(): Unit =

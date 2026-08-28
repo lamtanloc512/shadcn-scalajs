@@ -29,9 +29,13 @@ class ScSelect extends ScElementBase:
   stringProperty("value")
   stringProperty("placeholder")
 
-  selectedVar.signal.changes.foreach(value => if !echo.isEcho(value) then emit("sc-change", value))(unsafeWindowOwner)
-
-  mount(ScSelect.view(optionsVar, selectedVar, placeholderVar))
+  mount(
+    ScSelect
+      .view(optionsVar, selectedVar, placeholderVar)
+      .amend(
+        selectedVar.signal.changes --> Observer[String](value => if !echo.isEcho(value) then emit("sc-change", value))
+      )
+  )
 
   private def parseOptions(value: js.Any): List[(String, String)] =
     ScElements

@@ -46,6 +46,13 @@ object ScStyles:
         baseCss.foreach(injectStyleTag(root, "data-sc-base", _))
         packCss.foreach(injectStyleTag(root, "data-sc-pack", _))
 
+  /** Stops tracking a shadow root that has been disconnected, including the no-constructable-stylesheet fallback. */
+  def release(root: dom.ShadowRoot): Unit =
+    var i = fallbackRoots.length - 1
+    while i >= 0 do
+      if fallbackRoots(i) eq root then fallbackRoots.splice(i, 1)
+      i -= 1
+
   def use(css: String): Unit =
     baseCss = Some(css)
     baked = packMarker.findFirstMatchIn(css).map(_.group(1))
@@ -121,13 +128,17 @@ object ScStyles:
   */
 private[webcomponents] object ScTheme:
 
-  private val roots = js.Array[dom.ShadowRoot]()
-  private var observingDocument = false
+  private val roots = mutable.ArrayBuffer.empty[dom.ShadowRoot]
+  private val rootObservers = mutable.Map.empty[dom.ShadowRoot, dom.MutationObserver]
+  private val hostObservers = mutable.Map.empty[dom.ShadowRoot, dom.MutationObserver]
+  private val appliedTokens = mutable.Map.empty[dom.Element, Set[String]]
+  private var documentObserver: Option[dom.MutationObserver] = None
 
   private val menuSelector = ".cn-menu-target, .cn-menu-translucent, [data-menu-translucent]"
 
   def mirror(root: dom.ShadowRoot): Unit =
-    roots.push(root)
+    if roots.contains(root) then return
+    roots += root
     refresh(root)
     observeRoot(root)
     observeDocument()
@@ -143,6 +154,25 @@ private[webcomponents] object ScTheme:
         0
       )
 
+  def unmirror(root: dom.ShadowRoot): Unit =
+    roots -= root
+    rootObservers.remove(root).foreach(_.disconnect())
+    hostObservers.remove(root).foreach(_.disconnect())
+    ScStyles.release(root)
+    if roots.isEmpty then
+      documentObserver.foreach(_.disconnect())
+      documentObserver = None
+    val children = root.childNodes
+    var i = 0
+    while i < children.length do
+      children(i) match
+        case el: dom.Element => appliedTokens.remove(el)
+        case _               => ()
+      i += 1
+
+  /** Re-applies document-level token overrides after the public theme API changes them. */
+  def refreshAll(): Unit = roots.foreach(refresh)
+
   private var packSyncScheduled = false
   private def refresh(root: dom.ShadowRoot): Unit =
     val children = root.childNodes
@@ -150,14 +180,14 @@ private[webcomponents] object ScTheme:
     while i < children.length do
       children(i) match
         case el: dom.Element =>
-          apply(el)
+          apply(root, el)
           treatMenus(el)
         case _ => ()
       i += 1
 
   // Only the `dark` class is mirrored, not the whole class attribute: portal containers carry classes of their own that
   // overwriting would drop, and `dark` is the only one the token blocks key off.
-  private def apply(el: dom.Element): Unit =
+  private def apply(root: dom.ShadowRoot, el: dom.Element): Unit =
     val docEl = dom.document.documentElement
     if docEl.classList.contains("dark") then el.classList.add("dark") else el.classList.remove("dark")
     ScThemeState.cssAttributes.foreach { attr =>
@@ -165,6 +195,29 @@ private[webcomponents] object ScTheme:
         case Some(value) => el.setAttribute(attr, value)
         case None        => el.removeAttribute(attr)
     }
+    applyTokenOverrides(root, el)
+
+  /** CSS token presets are declared on the shadow wrapper, so inherited custom properties alone cannot override them.
+    * Copy explicit inline tokens from `<html>` and then the component host onto that wrapper. This keeps the standard
+    * Web Component theming contract (`--primary`, `--radius`, …), with host-level values taking precedence globally.
+    */
+  private def applyTokenOverrides(root: dom.ShadowRoot, el: dom.Element): Unit =
+    val global = customProperties(dom.document.documentElement.asInstanceOf[dom.html.Element])
+    val host = root.asInstanceOf[js.Dynamic].host.asInstanceOf[dom.html.Element]
+    val local = customProperties(host)
+    val tokens = global ++ local
+    val previous = appliedTokens.getOrElse(el, Set.empty)
+    (previous -- tokens.keySet).foreach(el.asInstanceOf[dom.html.Element].style.removeProperty)
+    tokens.foreach((name, tokenValue) => el.asInstanceOf[dom.html.Element].style.setProperty(name, tokenValue))
+    appliedTokens(el) = tokens.keySet
+
+  private def customProperties(el: dom.html.Element): Map[String, String] =
+    val styles = el.style
+    (0 until styles.length)
+      .map(styles.item)
+      .filter(_.startsWith("--"))
+      .map(name => name -> styles.getPropertyValue(name))
+      .toMap
 
   /** Floating content — dropdown menus, select and combobox panels — is portaled into a container appended to the
     * shadow root, making it a *sibling* of the theme host rather than a descendant. Left alone it inherits the light
@@ -179,7 +232,7 @@ private[webcomponents] object ScTheme:
         while i < added.length do
           added(i) match
             case el: dom.Element =>
-              if el.parentNode eq root then apply(el)
+              if el.parentNode eq root then apply(root, el)
               treatMenus(el)
             case _ => ()
           i += 1
@@ -192,6 +245,18 @@ private[webcomponents] object ScTheme:
         subtree = true
       }
     )
+    rootObservers(root) = observer
+    // Host-level inline tokens (`<sc-button style="--primary: ...">`) can change dynamically after mount.
+    val host = root.asInstanceOf[js.Dynamic].host.asInstanceOf[dom.Element]
+    val hostObserver = new dom.MutationObserver((_, _) => refresh(root))
+    hostObserver.observe(
+      host,
+      new dom.MutationObserverInit {
+        attributes = true
+        attributeFilter = js.Array("style")
+      }
+    )
+    hostObservers(root) = hostObserver
 
   /** globals.css ships menus frosted; the site turns that off unless the chosen menu colour asks for translucency, and
     * substitutes `dark` for the inverted options. Without the same pass a plain HTML page gets translucent menus where
@@ -220,8 +285,7 @@ private[webcomponents] object ScTheme:
         el.setAttribute("data-menu-translucent", "")
 
   private def observeDocument(): Unit =
-    if !observingDocument then
-      observingDocument = true
+    if documentObserver.isEmpty then
       val observer = new dom.MutationObserver((_, _) => {
         roots.foreach(refresh)
         if !packSyncScheduled then
@@ -238,9 +302,10 @@ private[webcomponents] object ScTheme:
         dom.document.documentElement,
         new dom.MutationObserverInit {
           attributes = true
-          attributeFilter = js.Array("class") ++ ScThemeState.cssAttributes
+          attributeFilter = js.Array("class", "style") ++ ScThemeState.cssAttributes
         }
       )
+      documentObserver = Some(observer)
 
 /** Fetches the stylesheet for a style pack the bundle wasn't built with.
   *
@@ -290,12 +355,16 @@ private[webcomponents] object ScPacks:
     link.addEventListener(
       "load",
       (_: dom.Event) => {
-        val links = head.querySelectorAll("link[data-sc-pack-doc]")
-        var i = 0
-        while i < links.length do
-          val node = links.item(i)
-          if node != link && node.parentNode != null then node.parentNode.removeChild(node)
-          i += 1
+        // A slower old request may finish after the newer pack. Never let that stale load remove the current sheet.
+        val current = Option(dom.document.documentElement.getAttribute("data-style-pack"))
+          .orElse(ScStyles.bakedPack)
+        if current.contains(pack) then
+          val links = head.querySelectorAll("link[data-sc-pack-doc]")
+          var i = 0
+          while i < links.length do
+            val node = links.item(i)
+            if node != link && node.parentNode != null then node.parentNode.removeChild(node)
+            i += 1
       }
     )
     head.appendChild(link)

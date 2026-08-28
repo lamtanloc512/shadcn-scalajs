@@ -2,7 +2,6 @@ package shadcnscalajs.webcomponents
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
-import shadcnscalajs.core.Tags.slotTag
 import shadcnscalajs.ui.DropdownMenu
 
 import scala.scalajs.js
@@ -44,5 +43,18 @@ object ScDropdownMenu:
     div(
       // The trigger comes in through a named slot, matching the documented
       // `<button slot="trigger">` usage — a default `<slot>` only accepts light-DOM children with no slot attribute.
-      children <-- itemsVar.signal.map(items => List(DropdownMenu(slotTag(nameAttr := "trigger"))(items*)))
+      children <-- itemsVar.signal.map { items =>
+        List(
+          DropdownMenu.slottedItems() { ctx =>
+            items.map { item =>
+              val disabled =
+                if item.disabled then Seq[Modifier[HtmlElement]](aria.disabled := true, dataAttr("disabled") := "")
+                else Seq.empty
+              item.checked match
+                case Some(checked) => ctx.checkboxItem(checked, item.onSelect, disabled, item.label)
+                case None          => ctx.item(item.onSelect, disabled, item.label)
+            }
+          }
+        )
+      }
     )

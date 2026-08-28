@@ -13,7 +13,7 @@ import scala.scalajs.js
 abstract class ScElementBase extends dom.HTMLElement:
 
   protected val shadow: dom.ShadowRoot =
-    this.attachShadow(js.Dynamic.literal(mode = "open").asInstanceOf[dom.ShadowRootInit])
+    this.attachShadow(js.Dynamic.literal(mode = "open", delegatesFocus = true).asInstanceOf[dom.ShadowRootInit])
 
   ScStyles.adopt(shadow)
 
@@ -111,7 +111,12 @@ abstract class ScElementBase extends dom.HTMLElement:
       )
     )
 
-  def connectedCallback(): Unit = detachedRootOpt.foreach(_.activate())
-  def disconnectedCallback(): Unit = detachedRootOpt.foreach(_.deactivate())
+  def connectedCallback(): Unit =
+    ScTheme.mirror(shadow)
+    detachedRootOpt.foreach(_.activate())
+
+  def disconnectedCallback(): Unit =
+    detachedRootOpt.foreach(_.deactivate())
+    ScTheme.unmirror(shadow)
   def attributeChangedCallback(name: String, oldValue: js.Any, newValue: js.Any): Unit =
     attributeHandlers.get(name).foreach(_(Option(this.getAttribute(name))))

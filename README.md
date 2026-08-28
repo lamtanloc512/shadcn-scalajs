@@ -88,6 +88,24 @@ libraryDependencies ++= Seq(
 
 `modules/webcomponents` wraps most (not yet all) of the components in `Sc*`/`ScPrimitives` custom-element classes — `modules/ui/CLAUDE.md` keeps the current wrapper gap list. The bundle itself is built by `modules/site/scripts/build-webcomponents.mjs` (runs in `predev`/`prebuild`): it links `webcomponents/fullLinkJS`, esbuilds it into `public/sc-components.js`, and emits `public/sc-components.css` (Tailwind output rewritten so `:root` tokens also apply to `:host`, plus one baked style pack).
 
+### Theming Web Components
+
+The bundle exposes a framework-neutral API at `window.ShadcnScalaJS` after the module loads. Tokens use the same shadcn CSS custom properties as the site (`--primary`, `--primary-foreground`, `--background`, `--foreground`, `--radius`, `--ring`, and so on): set them globally with `setTokens`, or scope them to one element with an inline `style` attribute.
+
+```html
+<script type="module" src="sc-components.js"></script>
+<script>
+  ShadcnScalaJS.setTokens({ primary: "oklch(0.62 0.24 300)", radius: "1rem" });
+  // Component-local values win over global values and are safe for Shadow DOM/portaled panels:
+  // <sc-button style="--primary: oklch(0.55 0.22 25)">Delete</sc-button>
+  // Remove only API-managed globals:
+  // ShadcnScalaJS.resetTokens();
+  ShadcnScalaJS.setTheme({ stylePack: "nova", darkMode: true, themeColor: "violet" });
+</script>
+```
+
+`setTokens` accepts keys with or without the leading `--`; passing `null` removes a token. Global values are written to `<html>` and mirrored into each component shadow root, while host-scoped values are copied to the component's theme host so Tailwind preset rules cannot override them. The bundle also mirrors dark mode, style/base/theme/chart/font/radius/menu attributes and cleans observers when components disconnect, so the contract works with dynamically mounted elements, packs, dark mode, and portal content. Events such as `sc-change` are composed and bubbling, and component properties (`disabled`, `checked`, `value`, `options`, `items`) can be assigned directly from any framework.
+
 ## Component scope
 
 All ~60 components cover three architectural tiers (matching the split basecoat itself uses):

@@ -33,6 +33,7 @@ object Main:
     div(
       cls := "min-h-dvh bg-background text-foreground antialiased",
       cls("overflow-x-clip") <-- route.map(_ == Router.Route.Landing),
+      cls <-- route.map(r => if r == Router.Route.WebComponents then "!bg-transparent" else ""),
       route --> { r =>
         dom.document.title = titleFor(r)
         r match
@@ -46,8 +47,9 @@ object Main:
 
   /** `/create` owns theme controls in its own header, and the two preview routes are iframed at a real viewport. */
   private def usesSharedChrome(route: Router.Route): Boolean = route match
-    case Router.Route.Create | Router.Route.CreatePreview | Router.Route.BlockPreview(_) => false
-    case _                                                                               => true
+    case Router.Route.Create | Router.Route.CreatePreview | Router.Route.BlockPreview(_) | Router.Route.WebComponents =>
+      false
+    case _ => true
 
   private def bodyFor(route: Router.Route, docsSlug: Signal[String]): HtmlElement = route match
     case Router.Route.Component(_)       => componentDocsBody(docsSlug)

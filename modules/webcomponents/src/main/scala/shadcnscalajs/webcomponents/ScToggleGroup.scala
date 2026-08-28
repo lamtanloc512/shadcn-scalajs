@@ -31,11 +31,18 @@ class ScToggleGroup extends ScElementBase:
   stringProperty("variant")
   stringProperty("size")
 
-  singleVar.signal.changes.foreach(o => if !singleEcho.isEcho(o) then emit("sc-change", o.orNull))(unsafeWindowOwner)
-  multiVar.signal.changes
-    .foreach(s => if !multiEcho.isEcho(s) then emit("sc-change", js.Array(s.toSeq*)))(unsafeWindowOwner)
-
-  mount(ScToggleGroup.view(typeVar, singleVar, multiVar, itemsVar, variantVar, sizeVar, revision))
+  mount(
+    ScToggleGroup
+      .view(typeVar, singleVar, multiVar, itemsVar, variantVar, sizeVar, revision)
+      .amend(
+        singleVar.signal.changes --> Observer[Option[String]](o =>
+          if !singleEcho.isEcho(o) then emit("sc-change", o.orNull)
+        ),
+        multiVar.signal.changes --> Observer[Set[String]](s =>
+          if !multiEcho.isEcho(s) then emit("sc-change", js.Array(s.toSeq*))
+        )
+      )
+  )
 
   private def applyValue(value: js.Any): Unit =
     if typeVar.now() == "multiple" then

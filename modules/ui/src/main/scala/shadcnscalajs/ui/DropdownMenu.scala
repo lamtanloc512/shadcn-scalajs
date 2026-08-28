@@ -2,6 +2,9 @@ package shadcnscalajs.ui
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
+import shadcnscalajs.core.Tags.slotTag
+
+import scala.scalajs.js
 
 /** shadcn/ui DropdownMenu — a portaled, keyboard-navigable menu on [[Floating]] with the parts shared through [[Menu]].
   *
@@ -77,6 +80,76 @@ object DropdownMenu:
       build: Menu.Ctx => Seq[Modifier[HtmlElement]]
   ): HtmlElement =
     render(triggerStyle, align, trigger, build, wrapperStyle)
+
+  /** Menu whose trigger is supplied through a named slot. The slot receives behavior directly, avoiding a nested
+    * `<button>` when a consumer supplies an already interactive custom element such as `<sc-button>`.
+    */
+  def slottedItems(slotName: String = "trigger")(
+      build: Menu.Ctx => Seq[Modifier[HtmlElement]]
+  ): HtmlElement =
+    val anchor = Floating.anchor()
+    val ctx = Menu.Ctx(anchor, slotPrefix)
+    val contentId = s"sc-menu-content-${js.Date.now().toLong}"
+    div(
+      dataAttr("slot") := "dropdown-menu",
+      cls := "dropdown-menu inline-flex",
+      slotTag(
+        nameAttr := slotName,
+        dataAttr("slot") := "dropdown-menu-trigger",
+        aria.hasPopup := true,
+        dataAttr("state") <-- anchor.isOpen.signal.map(open => if open then "open" else "closed"),
+        aria.expanded <-- anchor.isOpen.signal,
+        onMountUnmountCallback(
+          mount = { mountCtx =>
+            val slot = mountCtx.thisNode.ref.asInstanceOf[js.Dynamic]
+            val syncTrigger: js.Function0[Unit] = () =>
+              slot
+                .assignedElements()
+                .asInstanceOf[js.Array[dom.html.Element]]
+                .headOption
+                .foreach { trigger =>
+                  Floating.bindTrigger(anchor, trigger)
+                  trigger.setAttribute("aria-haspopup", "menu")
+                  trigger.setAttribute("aria-controls", contentId)
+                  trigger.setAttribute("aria-expanded", anchor.isOpen.now().toString)
+                  trigger.setAttribute("data-state", if anchor.isOpen.now() then "open" else "closed")
+                }
+            val listener: js.Function1[dom.Event, Unit] = _ => syncTrigger()
+            slot.__scTriggerListener = listener
+            slot.addEventListener("slotchange", listener)
+            syncTrigger()
+          },
+          unmount = mountCtx =>
+            val slot = mountCtx.ref.asInstanceOf[js.Dynamic]
+            val listener = slot.__scTriggerListener
+            if listener != null && !js.isUndefined(listener) then slot.removeEventListener("slotchange", listener)
+            slot.__scTriggerListener = null
+        ),
+        onMountBind { mountCtx =>
+          val slot = mountCtx.thisNode.ref.asInstanceOf[js.Dynamic]
+          anchor.isOpen.signal --> Observer[Boolean] { open =>
+            slot.assignedElements().asInstanceOf[js.Array[dom.html.Element]].headOption.foreach { trigger =>
+              trigger.setAttribute("aria-expanded", open.toString)
+              trigger.setAttribute("data-state", if open then "open" else "closed")
+            }
+          }
+        },
+        Floating.clickToToggle(anchor),
+        onKeyDown --> { (ev: dom.KeyboardEvent) =>
+          if ev.key == "ArrowDown" || ev.key == "ArrowUp" then
+            ev.preventDefault()
+            if !anchor.isOpen.now() then anchor.open()
+        }
+      ),
+      Floating.content(anchor, Floating.Placement(side = Floating.Side.Bottom), Menu.contentClass(slotPrefix))(
+        dataAttr("slot") := "dropdown-menu-content",
+        idAttr := contentId,
+        role := "menu",
+        tabIndex := -1,
+        Menu.keyboardNav(anchor),
+        build(ctx)
+      )
+    )
 
   def apply(trigger: Modifier[HtmlElement]*)(items: Item*): HtmlElement =
     render(outlineTrigger, Align.Start, trigger, adapt(items))

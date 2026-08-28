@@ -12,7 +12,11 @@ export default defineConfig({
   ],
   server: {
     port: 4300,
-    strictPort: true
+    strictPort: true,
+    headers: { "Access-Control-Allow-Origin": "*" }
+  },
+  preview: {
+    headers: { "Access-Control-Allow-Origin": "*" }
   },
   build: {
     // Production: Vite plugin runs site/fullLinkJS, then esbuild minifies.

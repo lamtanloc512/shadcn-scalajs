@@ -21,15 +21,17 @@ class ScCheckbox extends ScElementBase:
   booleanProperty("indeterminate")
   booleanProperty("disabled")
 
-  checkedVar.signal.changes.foreach { checked =>
-    if !echo.isEcho(checked) then
-      emit(
-        "sc-change",
-        js.Dynamic.literal(checked = checked, indeterminate = indeterminateVar.now())
-      )
-  }(unsafeWindowOwner)
-
-  mount(Checkbox(checkedVar, indeterminateVar.signal, slotTag(), disabled <-- disabledVar.signal))
+  mount(
+    Checkbox(checkedVar, indeterminateVar.signal, slotTag(), disabled <-- disabledVar.signal).amend(
+      checkedVar.signal.changes --> Observer[Boolean] { checked =>
+        if !echo.isEcho(checked) then
+          emit(
+            "sc-change",
+            js.Dynamic.literal(checked = checked, indeterminate = indeterminateVar.now())
+          )
+      }
+    )
+  )
 
 object ScCheckbox:
   def register(): Unit =

@@ -81,6 +81,9 @@ object Floating:
   /** Ref capture plus the ARIA and `data-state` contract every trigger needs. Interaction is left to the caller, since
     * popovers and menus open on click while tooltips and hover cards open on hover.
     */
+  /** Updates the anchor to the actual interactive trigger (including a light-DOM element projected through a slot). */
+  def bindTrigger(a: Anchor, element: dom.html.Element): Unit = a.triggerRef.set(Some(element))
+
   def triggerBase(a: Anchor): Modifier[HtmlElement] =
     Seq(
       dataAttr("state") <-- a.isOpen.signal.map(open => if open then "open" else "closed"),

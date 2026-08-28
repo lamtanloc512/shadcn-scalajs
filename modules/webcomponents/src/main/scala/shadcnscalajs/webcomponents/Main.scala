@@ -6,6 +6,7 @@ import org.scalajs.dom
 object Main:
   def main(args: Array[String]): Unit =
     ScThemeState.applyStored()
+    ScThemeApi.install()
     dom
       .fetch(ScStyles.baseHref)
       .`then`[String](_.text())
