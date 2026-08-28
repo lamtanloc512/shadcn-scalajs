@@ -18,6 +18,22 @@ object ScStyles:
 
   private val baseSheet = construct()
   private val packSheet = construct()
+  private val hostSheet = construct()
+
+  /** Unknown custom elements are `display: inline`. Shadow hosts and light-DOM compounds need a real box so demos don't
+    * have to stamp `style="width:min(28rem,100%)"` on every tag. Inline chrome (button, badge, …) stays
+    * shrink-to-content.
+    */
+  private val hostLayoutCss =
+    """:host{display:block;box-sizing:border-box;max-width:100%}
+:host(sc-button),:host(sc-badge),:host(sc-avatar),:host(sc-kbd),:host(sc-spinner),:host(sc-switch),:host(sc-checkbox),:host(sc-radio),:host(sc-tooltip),:host(sc-toggle-group),:host(sc-button-group),:host(sc-label){display:inline-flex;width:auto;max-width:100%;vertical-align:middle}
+:host(sc-chart){min-height:16rem;width:100%}
+:host(sc-calendar){width:max-content;max-width:100%}
+sc-button,sc-badge,sc-avatar,sc-kbd,sc-spinner,sc-switch,sc-checkbox,sc-radio,sc-tooltip,sc-toggle-group,sc-button-group,sc-label{display:inline-flex;vertical-align:middle}
+sc-chart{min-height:16rem}
+"""
+
+  hostSheet.foreach(s => s.replaceSync(hostLayoutCss))
 
   private var baseCss: Option[String] = None
   private var packCss: Option[String] = None
@@ -39,10 +55,13 @@ object ScStyles:
       catch case _: Throwable => None
 
   def adopt(root: dom.ShadowRoot): Unit =
-    (baseSheet, packSheet) match
-      case (Some(base), Some(pack)) => root.asInstanceOf[js.Dynamic].adoptedStyleSheets = js.Array(base, pack)
+    installHostLayout()
+    (baseSheet, packSheet, hostSheet) match
+      case (Some(base), Some(pack), Some(host)) =>
+        root.asInstanceOf[js.Dynamic].adoptedStyleSheets = js.Array(host, base, pack)
       case _ =>
         fallbackRoots.push(root)
+        injectStyleTag(root, "data-sc-host", hostLayoutCss)
         baseCss.foreach(injectStyleTag(root, "data-sc-base", _))
         packCss.foreach(injectStyleTag(root, "data-sc-pack", _))
 
@@ -59,6 +78,7 @@ object ScStyles:
     registerProperties(css)
     fill(baseSheet, "data-sc-base", css)
     installDocumentSheet(css)
+    installHostLayout()
     // Light-DOM compounds (sc-card-*) need pack hooks on the document, including the baked pack, before first paint
     // of upgraded hosts — not only when the user later switches packs.
     baked.foreach(ScPacks.linkDocumentPack)
@@ -111,6 +131,17 @@ object ScStyles:
         style.textContent = css
         root.appendChild(style)
       case existing => existing.textContent = css
+
+  private def installHostLayout(): Unit =
+    val head = dom.document.head
+    if head == null then return
+    head.querySelector("style[data-sc-host-layout]") match
+      case null =>
+        val style = dom.document.createElement("style")
+        style.setAttribute("data-sc-host-layout", "")
+        style.textContent = hostLayoutCss
+        head.appendChild(style)
+      case _ => ()
 
   private def installDocumentSheet(css: String): Unit =
     val head = dom.document.head

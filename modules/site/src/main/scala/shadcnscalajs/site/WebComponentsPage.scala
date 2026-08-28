@@ -21,30 +21,24 @@ object WebComponentsPage:
       "Card and buttons",
       """<script type="module" src="/sc-components.js"></script>
 
-<sc-card style="width: min(28rem, 100%)">
+<sc-card class="w-full max-w-sm">
   <sc-card-header>
-    <sc-card-title>Ship your next interface</sc-card-title>
-    <sc-card-description>
-      Framework-agnostic components powered by Scala.js and Laminar.
-    </sc-card-description>
+    <sc-card-title>Project update</sc-card-title>
+    <sc-card-description>A Card composed from Laminar primitives.</sc-card-description>
   </sc-card-header>
-  <sc-card-content style="display:flex; gap:.75rem; align-items:center">
-    <sc-badge variant="secondary">Web Component</sc-badge>
-    <sc-button variant="primary">Get started</sc-button>
-    <sc-button variant="outline">Documentation</sc-button>
-  </sc-card-content>
+  <sc-card-content>Your latest deployment is ready.</sc-card-content>
 </sc-card>"""
     ),
     Example(
       "Form controls and events",
       """<script type="module" src="/sc-components.js"></script>
 
-<div style="display:grid; gap:1.25rem; width:min(28rem, 100%)">
+<div class="grid gap-5">
   <sc-select id="plan" placeholder="Choose a plan"
     options='[{"value":"starter","label":"Starter"},{"value":"pro","label":"Pro"}]'>
   </sc-select>
   <sc-slider id="seats" value="35" min="0" max="100"></sc-slider>
-  <label style="display:flex; align-items:center; gap:.75rem">
+  <label class="flex items-center gap-3">
     <sc-switch id="updates"></sc-switch>
     Email product updates
   </label>
@@ -62,7 +56,7 @@ object WebComponentsPage:
       "Menus and overlays",
       """<script type="module" src="/sc-components.js"></script>
 
-<div style="display:flex; gap:.75rem; align-items:center">
+<div class="flex items-center gap-3">
   <sc-dropdown-menu
     items='[{"label":"Profile"},{"label":"Billing"},{"label":"Sign out","destructive":true}]'>
     <sc-button slot="trigger" variant="outline">Open menu</sc-button>
@@ -77,7 +71,7 @@ object WebComponentsPage:
       "Token overrides",
       """<script type="module" src="/sc-components.js"></script>
 
-<div style="display:flex; gap:.75rem; align-items:center">
+<div class="flex items-center gap-3">
   <!-- Inline tokens are scoped to this component. -->
   <sc-button variant="primary"
     style="--primary:oklch(0.62 0.24 300); --radius:1.25rem">
@@ -455,6 +449,7 @@ $safeTailwindCss
         if theme.dark then "dark" else "light"
       }; background: var(--background, white); color: var(--foreground, black); font-family: var(--font-body, ui-sans-serif, system-ui); }
     body { min-height: 100vh; margin: 0; padding: clamp(1.5rem, 6vw, 4rem); display: grid; place-items: center; }
+    body > :not(script) { width: min(28rem, 100%); }
     output { color: var(--muted-foreground, #666); font: 0.8rem ui-monospace, monospace; }
     :not(:defined) { visibility: hidden; }
   </style>

@@ -6,6 +6,9 @@ import org.scalajs.dom
 import shadcnscalajs.ui.*
 
 import scala.scalajs.js
+import scala.scalajs.js.Thenable.Implicits.*
+import scala.scalajs.js.timers.setTimeout
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main:
 
@@ -562,7 +565,13 @@ object Main:
     val nextEntry =
       if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
 
-    def docsTabTrigger(selected: Var[String], value: String, label: String, controlsId: String): HtmlElement =
+    def docsTabTrigger(
+        selected: Var[String],
+        value: String,
+        label: String,
+        controlsId: String,
+        order: List[String] = List("laminar", "web-component")
+    ): HtmlElement =
       Tabs.trigger(
         idAttr := s"$controlsId-tab",
         dataAttr("value") := value,
@@ -578,7 +587,6 @@ object Main:
         aria.selected <-- selected.signal.map(_ == value),
         onClick --> { _ => selected.set(value) },
         onKeyDown --> Observer[dom.KeyboardEvent] { ev =>
-          val order = List("preview", "laminar", "web-component")
           val idx = order.indexOf(selected.now())
           def activate(next: String): Unit =
             val current = selected.now()
@@ -612,17 +620,44 @@ object Main:
       */
     val docsFrame = "gap-0! overflow-hidden py-0!"
 
-    def codeBlock(language: String, source: String): HtmlElement =
-      Card(
-        cls := s"mt-4 $docsFrame",
+    def copyButton(source: => String): HtmlElement =
+      val copiedVar = Var(false)
+      def copy(text: String): Unit =
+        if js.isUndefined(dom.window.navigator.clipboard) then dom.console.warn("Clipboard API not available")
+        else
+          val _ = dom.window.navigator.clipboard.writeText(text).toFuture.foreach { _ =>
+            copiedVar.set(true)
+            setTimeout(2000)(copiedVar.set(false))
+          }
+
+      button(
+        typ := "button",
+        aria.label := "Copy selected source",
+        dataAttr("sc-copy") := "true",
+        cls := "rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
+        text <-- copiedVar.signal.map(if _ then "Copied" else "Copy"),
+        onClick --> { (_: dom.MouseEvent) => copy(source) }
+      )
+
+    def codePane(
+        language: String,
+        source: String,
+        audience: String = "Scala.js",
+        withCopy: Boolean = true
+    ): HtmlElement =
+      div(
+        cls := "min-w-0",
         div(
           cls := "flex h-9 items-center justify-between border-b px-3 text-xs text-muted-foreground",
           span(language),
-          span("Scala.js")
+          div(
+            cls := "flex items-center gap-2",
+            span(audience),
+            if withCopy then copyButton(source) else emptyNode
+          )
         ),
-        Card.content(
-          cls := "sc-doc-code overflow-x-auto p-4! px-4! font-mono text-xs leading-6 text-foreground",
-          styleAttr := "white-space:pre",
+        div(
+          cls := "sc-doc-code min-w-0 max-w-full overflow-x-auto px-4 py-4 font-mono text-xs leading-6 break-words whitespace-pre-wrap text-foreground",
           dataAttr("language") := language,
           onMountCallback { ctx =>
             js.Dynamic.global.ScDocsHighlight.highlight(ctx.thisNode.ref, language, source)
@@ -630,6 +665,9 @@ object Main:
           source
         )
       )
+
+    def codeBlock(language: String, source: String, audience: String = "Scala.js"): HtmlElement =
+      Card(cls := s"mt-4 $docsFrame", codePane(language, source, audience))
 
     val docExamples = ComponentExamples(componentName)
 
@@ -669,59 +707,71 @@ object Main:
 
     val webComponentExample = WebComponentExamples(componentName)
 
-    /** One predictable three-tab experience: Preview (Laminar), Laminar source, and Web Component source/demo. */
-    def previewTabs(preview: HtmlElement, source: String, rootClass: String): HtmlElement =
-      val tab = Var("preview")
+    /** Demo frame with a live preview and code language tabs below (Laminar | Web Component). */
+    def previewTabs(
+        preview: HtmlElement,
+        source: String,
+        rootClass: String,
+        wcPreview: Boolean = true
+    ): HtmlElement =
+      val tab = Var("laminar")
+      val codeOrder = List("laminar", "web-component")
       val ids = Map(
-        "preview" -> s"$componentName-preview-panel",
         "laminar" -> s"$componentName-laminar-panel",
         "web-component" -> s"$componentName-web-component-panel"
       )
-      val wcPreview = webComponentExample
-        .map(WebComponentExamples.preview)
-        .getOrElse(
-          div(
-            cls := "flex min-h-[12rem] items-center justify-center rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground",
-            WebComponentExamples.unsupportedMessage(componentName)
-          )
-        )
       val wcSource = webComponentExample
         .map(_.source)
         .getOrElse(s"<!-- ${WebComponentExamples.unsupportedMessage(componentName)} -->")
-      div(
-        cls := rootClass,
+      Card(
+        cls := s"$rootClass $docsFrame",
         dataAttr("sc-docs-primary-tabs") := "true",
-        Tabs(
-          Tabs.list(
-            Tabs.ListVariant.Default,
-            role := "tablist",
-            docsTabTrigger(tab, "preview", "Preview", ids("preview")),
-            docsTabTrigger(tab, "laminar", "Laminar", ids("laminar")),
-            docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"))
-          ),
-          Tabs.content(
-            idAttr := ids("preview"),
-            role := "tabpanel",
-            aria.labelledBy := s"${ids("preview")}-tab",
-            display <-- tab.signal.map(v => if v == "preview" then "block" else "none"),
-            Card(cls := docsFrame, preview)
-          ),
-          Tabs.content(
-            idAttr := ids("laminar"),
-            role := "tabpanel",
-            aria.labelledBy := s"${ids("laminar")}-tab",
-            display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
-            codeBlock("scala", source)
-          ),
-          Tabs.content(
-            idAttr := ids("web-component"),
-            role := "tabpanel",
-            aria.labelledBy := s"${ids("web-component")}-tab",
-            display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+        // Both previews stay mounted so tab switches never unmount interactive state.
+        div(
+          dataAttr("preview-type") := "laminar",
+          display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
+          preview
+        ),
+        Option
+          .when(wcPreview)(webComponentExample)
+          .flatten
+          .map { wcExample =>
             div(
-              codeBlock("html", wcSource),
-              Card(cls := docsFrame, wcPreview),
-              webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
+              dataAttr("preview-type") := "web-component",
+              display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+              previewCanvas(WebComponentExamples.preview(wcExample))
+            )
+          }
+          .getOrElse(emptyNode),
+        div(
+          cls := "border-t bg-muted/20",
+          Tabs(
+            div(
+              cls := "flex min-h-10 items-center justify-between border-b px-2",
+              Tabs.list(
+                Tabs.ListVariant.Default,
+                role := "tablist",
+                docsTabTrigger(tab, "laminar", "Laminar", ids("laminar"), codeOrder),
+                docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"), codeOrder)
+              ),
+              copyButton(if tab.now() == "web-component" then wcSource else source)
+            ),
+            Tabs.content(
+              idAttr := ids("laminar"),
+              role := "tabpanel",
+              aria.labelledBy := s"${ids("laminar")}-tab",
+              display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
+              codePane("scala", source, "Scala.js", withCopy = false)
+            ),
+            Tabs.content(
+              idAttr := ids("web-component"),
+              role := "tabpanel",
+              aria.labelledBy := s"${ids("web-component")}-tab",
+              display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+              div(
+                codePane("html", wcSource, "HTML", withCopy = false),
+                webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
+              )
             )
           )
         )
@@ -735,7 +785,7 @@ object Main:
         example.description match
           case Some(text) => p(cls := "mt-2 text-sm leading-6 text-muted-foreground", text)
           case None       => emptyNode,
-        previewTabs(previewCanvas(example.preview), example.code, "mt-4 gap-4")
+        previewTabs(previewCanvas(example.preview), example.code, "mt-4 gap-4", wcPreview = false)
       )
 
     def liveExample(): HtmlElement = componentName match

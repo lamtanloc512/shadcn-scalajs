@@ -27,8 +27,10 @@ const runtime = (window.ScComponentsRuntime ??= {
   promise: null,
   loadScComponents(tags = []) {
     ensureBases();
-    if (!this.promise) this.promise = ensureScript();
-    return this.promise.then(async () => {
+    // Keep working if a caller detaches this method (`fn = runtime.loadScComponents; fn()`).
+    const state = this && this !== globalThis ? this : runtime;
+    if (!state.promise) state.promise = ensureScript();
+    return state.promise.then(async () => {
       const list = Array.from(tags || []).filter(Boolean);
       if (list.length) await Promise.all(list.map((tag) => customElements.whenDefined(tag)));
       return true;

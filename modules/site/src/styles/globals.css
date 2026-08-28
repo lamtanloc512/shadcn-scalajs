@@ -2477,15 +2477,33 @@
 .cn-dashboard-01[data-menu-color="inverted"] aside nav a[data-active="true"] {
   color: var(--foreground);
 }
-/* Read-only docs source token palette; scoped to the site theme rather than editable CodeMirror. */
+/* Read-only docs source (highlight.js), scoped to the site theme. */
 .sc-doc-code { background: var(--muted); color: var(--foreground); }
-.sc-doc-token-comment { color: #64748b; }
-.sc-doc-token-string { color: #a16207; }
-.sc-doc-token-number { color: #0f766e; }
-.sc-doc-token-keyword { color: #7c3aed; }
-.sc-doc-token-tag { color: #be185d; }
-.dark .sc-doc-token-comment { color: #94a3b8; }
-.dark .sc-doc-token-string { color: #fbbf24; }
-.dark .sc-doc-token-number { color: #5eead4; }
-.dark .sc-doc-token-keyword { color: #c4b5fd; }
-.dark .sc-doc-token-tag { color: #f9a8d4; }
+.sc-doc-code.hljs,
+.sc-doc-code .hljs { background: transparent; color: inherit; }
+.sc-doc-code .hljs-comment,
+.sc-doc-code .hljs-quote { color: #64748b; }
+.sc-doc-code .hljs-string,
+.sc-doc-code .hljs-meta .hljs-string { color: #a16207; }
+.sc-doc-code .hljs-number { color: #0f766e; }
+.sc-doc-code .hljs-keyword,
+.sc-doc-code .hljs-literal,
+.sc-doc-code .hljs-built_in { color: #7c3aed; }
+.sc-doc-code .hljs-tag,
+.sc-doc-code .hljs-name,
+.sc-doc-code .hljs-selector-tag { color: #be185d; }
+.sc-doc-code .hljs-attr,
+.sc-doc-code .hljs-attribute { color: #0369a1; }
+.sc-doc-code .hljs-title,
+.sc-doc-code .hljs-type { color: #1d4ed8; }
+.dark .sc-doc-code .hljs-comment,
+.dark .sc-doc-code .hljs-quote { color: #94a3b8; }
+.dark .sc-doc-code .hljs-string { color: #fbbf24; }
+.dark .sc-doc-code .hljs-number { color: #5eead4; }
+.dark .sc-doc-code .hljs-keyword,
+.dark .sc-doc-code .hljs-literal,
+.dark .sc-doc-code .hljs-built_in { color: #c4b5fd; }
+.dark .sc-doc-code .hljs-tag,
+.dark .sc-doc-code .hljs-name { color: #f9a8d4; }
+.dark .sc-doc-code .hljs-attr { color: #7dd3fc; }
+.dark .sc-doc-code .hljs-title { color: #93c5fd; }

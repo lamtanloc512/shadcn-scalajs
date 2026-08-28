@@ -21,8 +21,12 @@ export interface Config {
 
 export const CONFIG_FILE_NAME = "shadcn-scalajs.json";
 
+/** Local Vite registry (modules/site `npm run dev` → http://localhost:4300/registry).
+ * Override with `init --registry` when using a deployed host. */
+export const DEFAULT_REGISTRY = "http://localhost:4300/registry";
+
 export const defaultConfig: Config = {
-  registry: "https://shadcn-scalajs.dev/registry",
+  registry: DEFAULT_REGISTRY,
   sourceDir: "src/main/scala/shadcnscalajs"
 };
 

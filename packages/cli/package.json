@@ -3,12 +3,26 @@
   "version": "0.1.0",
   "description": "CLI for adding shadcn-scalajs components (Scala.js + Laminar) to a project.",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamtanloc512/shadcn-scalajs.git"
+  },
+  "homepage": "https://lamtanloc512.github.io/shadcn-scalajs",
   "bin": {
     "shadcn-scalajs": "./dist/index.js"
   },
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "commander": "^12.1.0"

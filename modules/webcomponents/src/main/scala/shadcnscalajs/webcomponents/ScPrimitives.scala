@@ -1,6 +1,7 @@
 package shadcnscalajs.webcomponents
 
 import com.raquo.laminar.api.L.*
+import org.scalajs.dom
 import shadcnscalajs.core.Tags.slotTag
 import shadcnscalajs.ui.*
 
@@ -10,25 +11,17 @@ import scala.scalajs.js
 abstract class SlotPrimitive(node: HtmlElement) extends ScElementBase:
   mount(node)
 
-/** Not a `SlotPrimitive`: `<sc-alert variant="destructive">` has to re-style the root when the attribute changes. */
-class ScAlert extends ScElementBase:
+/** Light-DOM host so a direct child `svg` can drive Alert's `has-[>svg]` icon column, matching Laminar. */
+class ScAlert extends LightPrimitive(Alert.rootSlot, Alert.baseClass):
+  this.setAttribute("role", "alert")
+  ScAlert.syncVariant(this, Option(this.getAttribute("variant")))
 
-  private val variantVar = Var(Alert.Variant.Default)
+  def attributeChangedCallback(name: String, oldValue: js.Any, newValue: js.Any): Unit =
+    if name == "variant" then
+      val raw =
+        if newValue == null || js.isUndefined(newValue) then None else Some(newValue.toString).filter(_.nonEmpty)
+      ScAlert.syncVariant(this, raw)
 
-  observeAttribute("variant")(v => ScAlert.parseVariant(v).foreach(variantVar.set))
-  stringProperty("variant")
-
-  mount(
-    div(
-      dataAttr("slot") := "alert",
-      role := "alert",
-      cls := Alert.baseClass,
-      cls <-- variantVar.signal.map(Alert.variantClass),
-      slotTag()
-    )
-  )
-
-/** Light-DOM title primitive so HTML authors can compose a real shadcn Alert without generic unstyled text. */
 class ScAlertTitle extends LightPrimitive(Alert.titleSlot, Alert.titleClass)
 class ScAlertDescription extends LightPrimitive(Alert.descriptionSlot, Alert.descriptionClass)
 
@@ -37,6 +30,12 @@ object ScAlert:
     case "default"     => Alert.Variant.Default
     case "destructive" => Alert.Variant.Destructive
   }
+
+  private[webcomponents] def syncVariant(el: dom.HTMLElement, raw: Option[String]): Unit =
+    val variant = parseVariant(raw).getOrElse(Alert.Variant.Default)
+    el.setAttribute("role", "alert")
+    el.setAttribute("data-slot", Alert.rootSlot)
+    el.setAttribute("class", s"${Alert.baseClass} ${Alert.variantClass(variant)}")
 
 class ScAvatar extends SlotPrimitive(Avatar(slotTag()))
 class ScBreadcrumb extends SlotPrimitive(Breadcrumb(slotTag()))

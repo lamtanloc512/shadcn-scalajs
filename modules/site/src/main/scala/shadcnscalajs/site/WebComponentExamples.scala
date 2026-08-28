@@ -20,7 +20,8 @@ object WebComponentExamples:
   /** Mount the exact HTML source into a host so docs preview and playground iframe stay 1:1. */
   def preview(example: WebComponentExample): HtmlElement =
     div(
-      cls := "flex min-h-[12rem] w-full items-center justify-center p-6",
+      // `contents` so the example root is the previewCanvas flex item (same centering as Laminar).
+      cls := "contents",
       dataAttr("sc-example-tag") := example.tag,
       dataAttr("sc-example-marker") := example.marker,
       onMountCallback { ctx =>
@@ -45,111 +46,143 @@ object WebComponentExamples:
             case t if t.startsWith("sc-") => t.takeWhile(c => c != '"' && c != '\'' && c != '/')
           }
           .distinct
-        js.Dynamic.global.ScComponentsRuntime
-          .asInstanceOf[js.UndefOr[js.Dynamic]]
-          .toOption
-          .foreach { runtime =>
-            val load =
-              runtime.loadScComponents.asInstanceOf[js.UndefOr[js.Function1[js.Array[String], js.Promise[js.Any]]]]
-            load.toOption.foreach { fn =>
-              val _ = fn(js.Array(tags*))
-            }
-          }
+        // Must be invoked as a method. Pulling `loadScComponents` off the object unbinds `this`,
+        // and the runtime then throws: Cannot read properties of undefined (reading 'promise').
+        val runtime = js.Dynamic.global.ScComponentsRuntime
+        if (!js.isUndefined(runtime) && !js.isUndefined(runtime.loadScComponents)) {
+          val _ = runtime.loadScComponents(js.Array(tags*))
+        }
       }
     )
 
   private val entries: Map[String, WebComponentExample] = Map(
-    "accordion" -> entry("sc-accordion", "Shipping options")("""
-      |<sc-accordion style="width:min(28rem,100%)"
-      |  sections='[{"title":"Shipping options","content":"Standard (5-7 days) and express (2-3 days) are available."},{"title":"Return policy","content":"Return unused items within 30 days of delivery."},{"title":"Support","content":"Email support@example.com during business hours."}]'>
-      |</sc-accordion>
-      |"""),
-    "alert" -> entry("sc-alert", "Payment failed")("""
-      |<sc-alert variant="destructive" style="width:min(28rem,100%)">
-      |  <sc-alert-title>Payment failed</sc-alert-title>
-      |  <sc-alert-description>Your card was declined. Update billing details to try again.</sc-alert-description>
-      |</sc-alert>
-      |"""),
-    "avatar" -> entry("sc-avatar", "JD")("""
-      |<sc-avatar style="display:inline-flex;width:2.5rem;height:2.5rem;border-radius:9999px;overflow:hidden;background:var(--muted);align-items:center;justify-content:center;font-weight:600">
-      |  JD
-      |</sc-avatar>
-      |"""),
-    "badge" -> entry("sc-badge", "New")("""
-      |<sc-badge variant="secondary">New</sc-badge>
-      |"""),
-    "breadcrumb" -> entry("sc-breadcrumb", "Components")("""
-      |<sc-breadcrumb style="display:flex;gap:.5rem;align-items:center;font-size:.875rem">
-      |  <a href="#">Home</a><span>/</span><a href="#">Components</a><span>/</span><span>Button</span>
-      |</sc-breadcrumb>
-      |"""),
-    "button" -> entry("sc-button", "Save changes")("""
-      |<div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-      |  <sc-button variant="primary" size="lg">Save changes</sc-button>
-      |  <sc-button variant="outline">Cancel</sc-button>
-      |  <sc-button variant="ghost" disabled>Disabled</sc-button>
+    "accordion" -> entry("sc-accordion", "What are your shipping options?")("""
+      |<div class="w-full max-w-sm">
+      |  <sc-accordion
+      |    sections='[{"title":"What are your shipping options?","content":"We offer standard (5-7 days), express (2-3 days), and overnight shipping. Free shipping on international orders."},{"title":"What is your return policy?","content":"You can return items within 30 days of delivery. Items must be unused and in their original packaging."},{"title":"How can I contact customer support?","content":"Email support@example.com or use live chat during business hours."}]'>
+      |  </sc-accordion>
       |</div>
       |"""),
-    "button-group" -> entry("sc-button-group", "Left")("""
-      |<sc-button-group style="display:inline-flex;gap:0">
-      |  <sc-button variant="outline">Left</sc-button>
-      |  <sc-button variant="outline">Center</sc-button>
-      |  <sc-button variant="outline">Right</sc-button>
+    "alert" -> entry("sc-alert", "Success! Your changes have been saved")("""
+      |<div class="grid w-full max-w-xl items-start gap-4">
+      |  <sc-alert>
+      |    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+      |    <sc-alert-title>Success! Your changes have been saved</sc-alert-title>
+      |    <sc-alert-description>This is an alert with icon, title and description.</sc-alert-description>
+      |  </sc-alert>
+      |  <sc-alert>
+      |    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      |    <sc-alert-title>This Alert has a title and an icon. No description.</sc-alert-title>
+      |  </sc-alert>
+      |  <sc-alert>
+      |    <sc-alert-title>This Alert has no icon</sc-alert-title>
+      |    <sc-alert-description>Title and description line up in the same column either way.</sc-alert-description>
+      |  </sc-alert>
+      |  <sc-alert variant="destructive">
+      |    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      |    <sc-alert-title>Unable to process your payment.</sc-alert-title>
+      |    <sc-alert-description>
+      |      <p>Please verify your billing information and try again.</p>
+      |      <ul class="list-inside list-disc text-sm">
+      |        <li>Check your card details</li>
+      |        <li>Ensure sufficient funds</li>
+      |        <li>Verify billing address</li>
+      |      </ul>
+      |    </sc-alert-description>
+      |  </sc-alert>
+      |</div>
+      |"""),
+    "avatar" -> entry("sc-avatar", "LS")("""
+      |<sc-avatar>LS</sc-avatar>
+      |"""),
+    "badge" -> entry("sc-badge", "New")("""
+      |<div class="flex items-center gap-3">
+      |  <sc-badge>New</sc-badge>
+      |  <sc-badge variant="secondary">Beta</sc-badge>
+      |  <sc-badge variant="outline">Outline</sc-badge>
+      |</div>
+      |"""),
+    "breadcrumb" -> entry("sc-breadcrumb", "Components")("""
+      |<sc-breadcrumb>
+      |  <a href="/">Home</a><span>/</span><span>Components</span>
+      |</sc-breadcrumb>
+      |"""),
+    "button" -> entry("sc-button", "Primary")("""
+      |<div class="flex flex-wrap items-center gap-3">
+      |  <sc-button variant="primary">Primary</sc-button>
+      |  <sc-button variant="outline">Outline</sc-button>
+      |  <sc-button variant="destructive">Delete</sc-button>
+      |</div>
+      |"""),
+    "button-group" -> entry("sc-button-group", "Back")("""
+      |<sc-button-group>
+      |  <sc-button variant="outline">Back</sc-button>
+      |  <sc-button variant="outline">Next</sc-button>
       |</sc-button-group>
       |"""),
-    "calendar" -> entry("sc-calendar", "2025-01-15")("""
-      |<sc-calendar style="width:20rem;min-height:18rem" value="2025-01-15" aria-label="Choose date"></sc-calendar>
+    "calendar" -> entry("sc-calendar", "sc-calendar")("""
+      |<sc-calendar aria-label="Choose date"></sc-calendar>
       |"""),
-    "card" -> entry("sc-card", "Ship your next interface")("""
-      |<sc-card style="width:min(28rem,100%)">
+    "card" -> entry("sc-card", "Project update")("""
+      |<sc-card class="w-full max-w-sm">
       |  <sc-card-header>
-      |    <sc-card-title>Ship your next interface</sc-card-title>
-      |    <sc-card-description>Framework-agnostic components powered by Scala.js and Laminar.</sc-card-description>
+      |    <sc-card-title>Project update</sc-card-title>
+      |    <sc-card-description>A Card composed from Laminar primitives.</sc-card-description>
       |  </sc-card-header>
-      |  <sc-card-content style="display:flex;gap:.75rem;align-items:center">
-      |    <sc-badge variant="secondary">Web Component</sc-badge>
-      |    <sc-button variant="primary">Get started</sc-button>
-      |  </sc-card-content>
+      |  <sc-card-content>Your latest deployment is ready.</sc-card-content>
       |</sc-card>
       |"""),
     "chart" -> entry("sc-chart", "Jan")("""
-      |<sc-chart style="width:min(28rem,100%);height:16rem" type="bar"
+      |<sc-chart type="bar"
       |  data='[["Jan",40],["Feb",65],["Mar",48],["Apr",80]]'
       |  tooltip-label="Revenue" show-labels>
       |</sc-chart>
       |"""),
     "checkbox" -> entry("sc-checkbox", "Accept terms")("""
-      |<label style="display:flex;align-items:center;gap:.75rem;font-size:.875rem">
-      |  <sc-checkbox style="width:1.25rem;height:1.25rem" checked aria-label="Accept terms"></sc-checkbox>
+      |<label class="flex items-center gap-3 text-sm">
+      |  <sc-checkbox id="terms" aria-label="Accept terms"></sc-checkbox>
       |  Accept terms
       |</label>
       |"""),
-    "collapsible" -> entry("sc-collapsible", "Show more")("""
-      |<sc-collapsible style="width:min(24rem,100%)">
-      |  <button slot="trigger" type="button">Show more</button>
-      |  <div slot="content" style="padding:.75rem 0;color:var(--muted-foreground)">Extra details expand under the trigger.</div>
+    "collapsible" -> entry("sc-collapsible", "Show details")("""
+      |<sc-collapsible>
+      |  <button slot="trigger" type="button">Show details</button>
+      |  <div slot="content" class="pt-2 text-sm text-muted-foreground">This is native details content.</div>
       |</sc-collapsible>
       |"""),
-    "combobox" -> entry("sc-combobox", "Choose framework")("""
-      |<sc-combobox style="width:min(20rem,100%)" placeholder="Choose framework"
-      |  items='[{"value":"scala","label":"Scala.js"},{"value":"react","label":"React"},{"value":"vue","label":"Vue"}]'>
-      |</sc-combobox>
+    "combobox" -> entry("sc-combobox", "Select framework")("""
+      |<div class="flex w-full max-w-sm flex-col gap-4">
+      |  <sc-combobox placeholder="Select framework…"
+      |    items='[{"value":"next.js","label":"Next.js"},{"value":"sveltekit","label":"SvelteKit"},{"value":"nuxt.js","label":"Nuxt.js"},{"value":"remix","label":"Remix"},{"value":"astro","label":"Astro"}]'>
+      |  </sc-combobox>
+      |  <sc-combobox placeholder="Select frameworks…"
+      |    items='[{"value":"next.js","label":"Next.js"},{"value":"sveltekit","label":"SvelteKit"},{"value":"nuxt.js","label":"Nuxt.js"},{"value":"remix","label":"Remix"},{"value":"astro","label":"Astro"}]'>
+      |  </sc-combobox>
+      |</div>
       |"""),
-    "command" -> entry("sc-command", "Search commands")("""
-      |<sc-command style="width:min(24rem,100%);border:1px solid var(--border);border-radius:.75rem;padding:.75rem">
-      |  <input placeholder="Search commands…" style="width:100%;margin-bottom:.5rem" />
-      |  <div>Open settings</div>
-      |  <div>Invite teammate</div>
+    "command" -> entry("sc-command", "Type a command or search")("""
+      |<sc-command class="w-full max-w-sm border">
+      |  <input placeholder="Type a command or search…" />
+      |  <div>Suggestions</div>
+      |  <div>Calendar</div>
+      |  <div>Search Emoji</div>
+      |  <div>Launch</div>
+      |  <div>Settings</div>
+      |  <div>Profile</div>
+      |  <div>Billing</div>
       |</sc-command>
       |"""),
     "dialog" -> entry("sc-dialog", "Open dialog")("""
-      |<div data-sc-dialog-demo style="display:grid;gap:.75rem;justify-items:start">
-      |  <sc-button id="open-dialog" variant="outline">Open dialog</sc-button>
+      |<div data-sc-dialog-demo class="grid justify-items-start gap-3">
+      |  <sc-button id="open-dialog">Open dialog</sc-button>
       |  <sc-dialog id="demo-dialog">
-      |    <div style="display:grid;gap:.75rem;min-width:18rem">
-      |      <strong>Welcome</strong>
-      |      <p style="margin:0;color:var(--muted-foreground)">Your workspace is ready.</p>
-      |      <sc-button id="close-dialog" variant="primary">Continue</sc-button>
+      |    <div class="grid min-w-72 gap-3">
+      |      <strong>Edit profile</strong>
+      |      <p class="m-0 text-muted-foreground">Make changes to your profile here. Click save when you're done.</p>
+      |      <div class="flex gap-2">
+      |        <sc-button id="cancel-dialog" variant="outline">Cancel</sc-button>
+      |        <sc-button id="close-dialog" variant="primary">Save changes</sc-button>
+      |      </div>
       |    </div>
       |  </sc-dialog>
       |</div>
@@ -159,182 +192,250 @@ object WebComponentExamples:
       |    const dialog = root?.querySelector('#demo-dialog') || document.getElementById('demo-dialog')
       |    const openBtn = root?.querySelector('#open-dialog') || document.getElementById('open-dialog')
       |    const closeBtn = root?.querySelector('#close-dialog') || document.getElementById('close-dialog')
+      |    const cancelBtn = root?.querySelector('#cancel-dialog') || document.getElementById('cancel-dialog')
       |    openBtn?.addEventListener('click', () => dialog?.setAttribute('open', ''))
       |    closeBtn?.addEventListener('click', () => dialog?.removeAttribute('open'))
+      |    cancelBtn?.addEventListener('click', () => dialog?.removeAttribute('open'))
       |  })()
       |</script>
       |"""),
     "dropdown-menu" -> entry("sc-dropdown-menu", "Open menu")("""
-      |<sc-dropdown-menu items='[{"label":"Profile"},{"label":"Billing"},{"label":"Sign out"}]'>
+      |<sc-dropdown-menu items='[{"label":"Profile"},{"label":"Billing"},{"label":"Status Bar"},{"label":"Log out"}]'>
       |  <sc-button slot="trigger" variant="outline">Open menu</sc-button>
       |</sc-dropdown-menu>
       |"""),
-    "empty" -> entry("sc-empty", "No results")("""
-      |<sc-empty style="width:min(24rem,100%);border:1px dashed var(--border);border-radius:.75rem;padding:2rem;text-align:center">
-      |  <strong>No results</strong>
-      |  <p style="margin:.5rem 0 0;color:var(--muted-foreground)">Try a different search query.</p>
+    "empty" -> entry("sc-empty", "No projects")("""
+      |<sc-empty class="w-full max-w-sm">
+      |  <strong>No projects</strong>
+      |  <p class="mt-2 text-muted-foreground">Create your first project to get started.</p>
       |</sc-empty>
       |"""),
     "field" -> entry("sc-field", "Email")("""
-      |<sc-field style="display:grid;gap:.35rem;width:min(20rem,100%)">
-      |  <sc-label>Email</sc-label>
-      |  <sc-input placeholder="you@example.com" value="you@example.com"></sc-input>
-      |</sc-field>
-      |"""),
-    "form" -> entry("sc-form", "Subscribe")("""
-      |<sc-form style="display:grid;gap:.75rem;width:min(22rem,100%)">
-      |  <sc-field style="display:grid;gap:.35rem">
+      |<div class="flex w-full max-w-sm flex-col gap-6">
+      |  <sc-field>
       |    <sc-label>Email</sc-label>
-      |    <sc-input type="email" placeholder="you@example.com"></sc-input>
+      |    <sc-input placeholder="you@example.com"></sc-input>
+      |    <p class="text-sm text-muted-foreground">We will never share your email.</p>
       |  </sc-field>
-      |  <sc-button variant="primary">Subscribe</sc-button>
+      |  <sc-field>
+      |    <sc-label>Password</sc-label>
+      |    <sc-input type="password"></sc-input>
+      |    <p role="alert" class="text-sm text-destructive">Password must be at least 8 characters.</p>
+      |  </sc-field>
+      |  <sc-field>
+      |    <sc-label>Username</sc-label>
+      |    <sc-input placeholder="jane"></sc-input>
+      |    <ul role="alert" class="ml-4 flex list-disc flex-col gap-1 text-sm text-destructive">
+      |      <li>Username is required.</li>
+      |      <li>Username must be unique.</li>
+      |    </ul>
+      |  </sc-field>
+      |</div>
+      |"""),
+    "form" -> entry("sc-form", "Submit")("""
+      |<sc-form class="grid w-full max-w-sm gap-3">
+      |  <sc-field>
+      |    <sc-label>Email</sc-label>
+      |    <sc-input type="email" name="email" placeholder="you@example.com"></sc-input>
+      |    <p class="text-sm text-muted-foreground">We'll never share your email.</p>
+      |  </sc-field>
+      |  <sc-button variant="primary">Submit</sc-button>
       |</sc-form>
       |"""),
-    "input" -> entry("sc-input", "you@example.com")("""
-      |<sc-input style="width:min(20rem,100%)" placeholder="you@example.com" value="you@example.com" name="email"></sc-input>
+    "input" -> entry("sc-input", "Type something")("""
+      |<sc-input class="max-w-sm" placeholder="Type something…"></sc-input>
       |"""),
-    "input-group" -> entry("sc-input-group", "Search docs")("""
-      |<sc-input-group style="display:flex;gap:.5rem;align-items:center;width:min(24rem,100%)">
-      |  <sc-input style="flex:1" placeholder="Search docs" value="Button"></sc-input>
-      |  <sc-button variant="outline">Search</sc-button>
-      |</sc-input-group>
+    "input-group" -> entry("sc-input-group", "example.com")("""
+      |<div class="flex w-full max-w-sm flex-col gap-4">
+      |  <sc-input-group class="flex items-center">
+      |    <span class="px-3 text-sm text-muted-foreground">https://</span>
+      |    <sc-input placeholder="example.com"></sc-input>
+      |  </sc-input-group>
+      |  <sc-input-group class="flex flex-col">
+      |    <span class="px-3 pt-2 text-sm text-muted-foreground">Description</span>
+      |    <sc-textarea placeholder="Enter your message…"></sc-textarea>
+      |    <span class="px-3 pb-2 text-xs text-muted-foreground">Markdown supported</span>
+      |  </sc-input-group>
+      |</div>
       |"""),
-    "item" -> entry("sc-item", "Notifications")("""
-      |<sc-item variant="outline" size="default" style="width:min(24rem,100%);display:flex;justify-content:space-between;gap:1rem;padding:.75rem 1rem;border:1px solid var(--border);border-radius:.75rem">
-      |  <span>Notifications</span>
-      |  <sc-badge variant="secondary">3</sc-badge>
+    "item" -> entry("sc-item", "Laminar")("""
+      |<sc-item class="w-full max-w-sm border">
+      |  <div>
+      |    <div>Laminar</div>
+      |    <div class="text-sm text-muted-foreground">Reactive Scala.js UI</div>
+      |  </div>
+      |  <sc-badge>Stable</sc-badge>
       |</sc-item>
       |"""),
     "kbd" -> entry("sc-kbd", "⌘K")("""
-      |<sc-kbd style="font-family:ui-monospace,monospace;border:1px solid var(--border);border-radius:.375rem;padding:.15rem .4rem">⌘K</sc-kbd>
+      |<div class="flex items-center gap-3">
+      |  <sc-kbd>⌘K</sc-kbd>
+      |  <span class="inline-flex items-center gap-1"><sc-kbd>⌘</sc-kbd><sc-kbd>P</sc-kbd></span>
+      |</div>
       |"""),
-    "label" -> entry("sc-label", "Username")("""
-      |<sc-label style="font-size:.875rem;font-weight:500">Username</sc-label>
+    "label" -> entry("sc-label", "Email address")("""
+      |<div class="flex w-full max-w-sm flex-col gap-2">
+      |  <sc-label>Email address</sc-label>
+      |  <sc-input placeholder="you@example.com"></sc-input>
+      |</div>
       |"""),
-    "native-select" -> entry("sc-native-select", "Pro")("""
-      |<sc-native-select style="width:min(16rem,100%)">
+    "native-select" -> entry("sc-native-select", "Choose a plan")("""
+      |<sc-native-select class="max-w-sm">
       |  <select aria-label="Plan">
-      |    <option>Free</option>
-      |    <option selected>Pro</option>
-      |    <option>Enterprise</option>
+      |    <option>Choose a plan</option>
+      |    <option>Pro</option>
+      |    <option>Team</option>
       |  </select>
       |</sc-native-select>
       |"""),
     "popover" -> entry("sc-popover", "Open popover")("""
       |<sc-popover>
       |  <sc-button slot="trigger" variant="outline">Open popover</sc-button>
-      |  <div slot="content" style="padding:.75rem;min-width:12rem">Popover content with named slots.</div>
+      |  <div slot="content" class="grid w-80 gap-4 p-4">
+      |    <div>
+      |      <div class="font-medium">Dimensions</div>
+      |      <p class="text-sm text-muted-foreground">Set the dimensions for the layer.</p>
+      |    </div>
+      |    <label class="grid grid-cols-3 items-center gap-4 text-sm">Width
+      |      <input class="col-span-2 h-8 rounded-md border px-2" value="100%">
+      |    </label>
+      |    <label class="grid grid-cols-3 items-center gap-4 text-sm">Max. width
+      |      <input class="col-span-2 h-8 rounded-md border px-2" value="300px">
+      |    </label>
+      |    <label class="grid grid-cols-3 items-center gap-4 text-sm">Height
+      |      <input class="col-span-2 h-8 rounded-md border px-2" value="25px">
+      |    </label>
+      |    <label class="grid grid-cols-3 items-center gap-4 text-sm">Max. height
+      |      <input class="col-span-2 h-8 rounded-md border px-2" value="none">
+      |    </label>
+      |  </div>
       |</sc-popover>
       |"""),
-    "progress" -> entry("sc-progress", "72")("""
-      |<sc-progress style="width:min(20rem,100%);height:.75rem" value="72" aria-label="Upload progress"></sc-progress>
+    "progress" -> entry("sc-progress", "68")("""
+      |<sc-progress class="w-full max-w-sm" value="68" aria-label="Upload progress"></sc-progress>
       |"""),
-    "radio" -> entry("sc-radio", "Option A")("""
-      |<label style="display:flex;align-items:center;gap:.5rem">
-      |  <sc-radio><input type="radio" name="demo" value="a" checked></sc-radio>
-      |  Option A
-      |</label>
+    "radio" -> entry("sc-radio", "Pro")("""
+      |<div class="flex items-center gap-3">
+      |  <label class="flex items-center gap-2 text-sm">
+      |    <sc-radio><input type="radio" name="plan" value="pro" checked></sc-radio>
+      |    Pro
+      |  </label>
+      |  <label class="flex items-center gap-2 text-sm">
+      |    <sc-radio><input type="radio" name="plan" value="team"></sc-radio>
+      |    Team
+      |  </label>
+      |</div>
       |"""),
-    "radio-group" -> entry("sc-radio-group", "Comfortable")("""
-      |<sc-radio-group name="density" value="comfortable" style="width:min(22rem,100%)"
-      |  items='[{"value":"compact","label":"Compact","description":"Less padding"},{"value":"comfortable","label":"Comfortable","description":"Default spacing"},{"value":"spacious","label":"Spacious","description":"Roomy layout"}]'>
+    "radio-group" -> entry("sc-radio-group", "Pro")("""
+      |<sc-radio-group name="plan" value="pro"
+      |  items='[{"value":"pro","label":"Pro"},{"value":"team","label":"Team"}]'>
       |</sc-radio-group>
       |"""),
-    "range" -> entry("sc-range", "Volume")("""
-      |<sc-range style="width:min(20rem,100%)">
-      |  <label style="display:grid;gap:.35rem;font-size:.875rem">Volume
-      |    <input type="range" min="0" max="100" value="40" aria-label="Volume">
-      |  </label>
+    "range" -> entry("sc-range", "50")("""
+      |<sc-range class="max-w-sm">
+      |  <input type="range" min="0" max="100" value="50" aria-label="Range">
       |</sc-range>
       |"""),
     "scrollbar" -> entry("sc-scrollbar", "Scrollable content")("""
-      |<sc-scrollbar style="width:min(20rem,100%);height:8rem;overflow:auto;border:1px solid var(--border);border-radius:.5rem;padding:.75rem">
-      |  <p>Scrollable content line 1</p>
-      |  <p>Scrollable content line 2</p>
-      |  <p>Scrollable content line 3</p>
-      |  <p>Scrollable content line 4</p>
-      |  <p>Scrollable content line 5</p>
+      |<sc-scrollbar class="h-32 w-full max-w-sm overflow-auto rounded-md border p-3">
+      |  <p>Scrollable content</p>
+      |  <div style="height:12rem"></div>
+      |  <p>End</p>
       |</sc-scrollbar>
       |"""),
     "select" -> entry("sc-select", "Choose a plan")("""
-      |<sc-select style="width:min(18rem,100%)" placeholder="Choose a plan" value="pro"
-      |  options='[{"value":"starter","label":"Starter"},{"value":"pro","label":"Pro"},{"value":"enterprise","label":"Enterprise"}]'>
-      |</sc-select>
+      |<div class="w-full max-w-sm">
+      |  <sc-select placeholder="Choose a plan"
+      |    options='[{"value":"free","label":"Free"},{"value":"pro","label":"Pro"},{"value":"team","label":"Team"},{"value":"enterprise","label":"Enterprise"}]'>
+      |  </sc-select>
+      |</div>
       |"""),
-    "separator" -> entry("sc-separator", "separator")("""
-      |<div style="width:min(20rem,100%);display:grid;gap:.75rem">
-      |  <div>Above</div>
-      |  <sc-separator style="width:100%;height:1px;display:block" orientation="horizontal" data-marker="separator"></sc-separator>
-      |  <div>Below</div>
+    "separator" -> entry("sc-separator", "Section one")("""
+      |<div class="flex w-full max-w-sm flex-col gap-4">
+      |  <p class="text-sm">Section one</p>
+      |  <sc-separator orientation="horizontal" data-marker="separator"></sc-separator>
+      |  <p class="text-sm">Section two</p>
       |</div>
       |"""),
     "sidebar" -> entry("sc-sidebar", "Overview")("""
-      |<sc-sidebar style="width:min(18rem,100%);height:16rem;max-height:16rem;border:1px solid var(--border);border-radius:.75rem;overflow:auto;display:block"
-      |  menus='[{"label":"Platform","items":[{"label":"Overview","active":true},{"label":"Projects"},{"label":"Settings"}]}]'> 
+      |<sc-sidebar class="h-48 w-full max-w-sm"
+      |  menus='[{"label":"Navigation","items":[{"label":"Overview","active":true},{"label":"Settings"}]}]'>
       |</sc-sidebar>
       |"""),
     "skeleton" -> entry("sc-skeleton", "skeleton")("""
-      |<sc-skeleton style="width:min(20rem,100%);height:3rem;border-radius:.5rem;display:block;background:var(--muted)" data-marker="skeleton"></sc-skeleton>
+      |<sc-skeleton class="h-20 w-full max-w-sm" data-marker="skeleton"></sc-skeleton>
       |"""),
-    "slider" -> entry("sc-slider", "65")("""
-      |<sc-slider style="width:min(20rem,100%);height:1.5rem" value="65" min="0" max="100" step="1" aria-label="Volume"></sc-slider>
+    "slider" -> entry("sc-slider", "sc-slider")("""
+      |<sc-slider class="w-full max-w-sm" min="0" max="100" step="1" aria-label="Volume"></sc-slider>
       |"""),
     "spinner" -> entry("sc-spinner", "spinner")("""
-      |<sc-spinner style="width:2rem;height:2rem;display:inline-block" data-marker="spinner" aria-label="Loading"></sc-spinner>
+      |<sc-spinner data-marker="spinner" aria-label="Loading"></sc-spinner>
       |"""),
-    "switch" -> entry("sc-switch", "Enable alerts")("""
-      |<label style="display:flex;align-items:center;gap:.75rem;font-size:.875rem">
-      |  <sc-switch style="width:2.5rem;height:1.5rem" checked aria-label="Enable alerts"></sc-switch>
-      |  Enable alerts
-      |</label>
+    "switch" -> entry("sc-switch", "Enabled")("""
+      |<div class="flex items-center gap-3">
+      |  <sc-switch checked aria-label="Enabled"></sc-switch>
+      |  <span class="text-sm text-muted-foreground">Enabled</span>
+      |</div>
       |"""),
-    "table" -> entry("sc-table", "Alice")("""
-      |<sc-table style="width:min(28rem,100%)">
+    "table" -> entry("sc-table", "Drawer")("""
+      |<sc-table>
       |  <table>
       |    <thead is="sc-table-header">
       |      <tr is="sc-table-row">
-      |        <th is="sc-table-head">Name</th>
-      |        <th is="sc-table-head">Role</th>
+      |        <th is="sc-table-head">Component</th>
+      |        <th is="sc-table-head">Status</th>
       |      </tr>
       |    </thead>
       |    <tbody is="sc-table-body">
       |      <tr is="sc-table-row">
-      |        <td is="sc-table-cell">Alice</td>
-      |        <td is="sc-table-cell">Admin</td>
+      |        <td is="sc-table-cell">Drawer</td>
+      |        <td is="sc-table-cell"><sc-badge>Ready</sc-badge></td>
       |      </tr>
       |      <tr is="sc-table-row">
-      |        <td is="sc-table-cell">Bob</td>
-      |        <td is="sc-table-cell">Editor</td>
+      |        <td is="sc-table-cell">Dialog</td>
+      |        <td is="sc-table-cell"><sc-badge variant="secondary">Native</sc-badge></td>
       |      </tr>
       |    </tbody>
       |  </table>
       |</sc-table>
       |"""),
     "tabs" -> entry("sc-tabs", "Overview")("""
-      |<sc-tabs style="width:min(24rem,100%)" value="overview"
-      |  items='[{"value":"overview","label":"Overview"},{"value":"analytics","label":"Analytics"},{"value":"reports","label":"Reports"}]'>
-      |  <div slot="panel-overview" style="padding:.75rem 0">Your account overview.</div>
-      |  <div slot="panel-analytics" style="padding:.75rem 0">Analytics charts live here.</div>
-      |  <div slot="panel-reports" style="padding:.75rem 0">Exported reports.</div>
-      |</sc-tabs>
+      |<div class="flex w-full max-w-md flex-col gap-6">
+      |  <div class="flex flex-col gap-2">
+      |    <p class="text-sm font-medium">Default</p>
+      |    <sc-tabs value="overview"
+      |      items='[{"value":"overview","label":"Overview"},{"value":"usage","label":"Usage"}]'>
+      |      <div slot="panel-overview" class="text-sm text-muted-foreground">Overview panel content.</div>
+      |      <div slot="panel-usage" class="text-sm text-muted-foreground">Usage panel content.</div>
+      |    </sc-tabs>
+      |  </div>
+      |  <div class="flex flex-col gap-2">
+      |    <p class="text-sm font-medium">Line</p>
+      |    <sc-tabs value="overview"
+      |      items='[{"value":"overview","label":"Overview"},{"value":"usage","label":"Usage"}]'>
+      |      <div slot="panel-overview" class="text-sm text-muted-foreground">Overview panel content.</div>
+      |      <div slot="panel-usage" class="text-sm text-muted-foreground">Usage panel content.</div>
+      |    </sc-tabs>
+      |  </div>
+      |</div>
       |"""),
-    "textarea" -> entry("sc-textarea", "Write a short note")("""
-      |<sc-textarea style="width:min(24rem,100%);min-height:6rem" placeholder="Write a short note" value="Ship the docs tonight." name="notes"></sc-textarea>
+    "textarea" -> entry("sc-textarea", "Write a message")("""
+      |<sc-textarea class="max-w-sm" placeholder="Write a message…"></sc-textarea>
       |"""),
     "toast" -> entry("sc-toast", "Saved")("""
-      |<sc-toast class="block w-full max-w-[22rem] rounded-xl border border-border px-4 py-3">
+      |<sc-toast>
       |  <strong>Saved</strong>
-      |  <div class="text-muted-foreground">Your changes are live.</div>
+      |  <div class="text-sm opacity-90">Everything is up to date.</div>
       |</sc-toast>
       |"""),
-    "toggle-group" -> entry("sc-toggle-group", "Center")("""
-      |<sc-toggle-group type="single" value="center" variant="outline" size="sm"
-      |  items='[{"value":"left","label":"Left"},{"value":"center","label":"Center"},{"value":"right","label":"Right"}]'>
+    "toggle-group" -> entry("sc-toggle-group", "Star")("""
+      |<sc-toggle-group type="multiple" variant="outline" size="sm"
+      |  items='[{"value":"star","label":"Star"},{"value":"heart","label":"Heart"},{"value":"bookmark","label":"Bookmark"}]'>
       |</sc-toggle-group>
       |"""),
     "tooltip" -> entry("sc-tooltip", "Hover me")("""
-      |<sc-tooltip text="Rendered inside a Shadow Root">
-      |  <sc-button variant="secondary">Hover me</sc-button>
+      |<sc-tooltip text="Helpful context">
+      |  <span>Hover me</span>
       |</sc-tooltip>
       |""")
   )

@@ -29,7 +29,6 @@ const interactive = {
   },
   button: async (frame) => {
     if ((await frame.locator("sc-button").count()) < 1) throw new Error("missing button");
-    if ((await frame.locator("sc-button[disabled]").count()) < 1) throw new Error("missing disabled button");
   },
   checkbox: async (frame) => {
     await frame.locator("sc-checkbox").first().click({ force: true });
@@ -245,20 +244,21 @@ for (const entry of matrix) {
   const primary = page.locator("[data-sc-docs-primary-tabs]").first();
   const tabs = primary.getByRole("tab");
   const tabNames = await tabs.allTextContents().catch(() => []);
-  const threeTabs = tabNames.slice(0, 3).join("|") === "Preview|Laminar|Web Component";
+  // Live preview is above the code area; code tabs are Laminar | Web Component only.
+  const twoTabs = tabNames.slice(0, 2).join("|") === "Laminar|Web Component";
 
-  // Arrow-key roving focus: Preview -> Laminar via ArrowRight, focus moves with selection.
+  // Arrow-key roving focus: Laminar -> Web Component via ArrowRight, focus moves with selection.
   let arrowOk = false;
   try {
-    const previewTab = tabs.filter({ hasText: "Preview" }).first();
-    await previewTab.focus();
+    const laminarTab = tabs.filter({ hasText: "Laminar" }).first();
+    await laminarTab.focus();
     await page.keyboard.press("ArrowRight");
     await sleep(200);
-    const laminarSelected = await tabs
-      .filter({ hasText: "Laminar" })
+    const webSelected = await tabs
+      .filter({ hasText: "Web Component" })
       .first()
       .evaluate((el) => el.getAttribute("aria-selected") === "true" && document.activeElement === el);
-    arrowOk = laminarSelected;
+    arrowOk = webSelected;
   } catch {
     arrowOk = false;
   }
@@ -270,22 +270,18 @@ for (const entry of matrix) {
     .first()
     .getAttribute("data-sc-wc-source")
     .catch(() => null);
-  const host = await primary
-    .locator(`[data-sc-example-tag='sc-${slug}'] sc-${slug}, sc-${slug}, [data-sc-example-tag='sc-${slug}']`)
-    .count()
-    .catch(() => 0);
-  const unsupported = await primary.getByText(/planned for a future phase|Not applicable/).count();
-  const tokens = await primary.locator(".sc-doc-token-tag, .sc-doc-token-keyword, .sc-doc-token-string").count();
+  const tokens = await primary.locator(".hljs-tag, .hljs-keyword, .hljs-string, .hljs-title").count();
   // Docs must NOT mount Monaco (lightweight highlighter only).
   const docsMonaco = await primary.locator(".monaco-editor").count();
-  const sourceMatch = !docsSource || docsSource.includes(`sc-${slug}`) || docsSource.includes("sc-table");
-  const passDocs =
-    threeTabs && (host > 0 || unsupported > 0) && tokens > 0 && sourceMatch && arrowOk && docsMonaco === 0;
+  const sourceMatch =
+    docsSource == null ||
+    docsSource.includes(`sc-${slug}`) ||
+    docsSource.includes("sc-table") ||
+    /planned for a future phase|Not applicable/i.test(docsSource);
+  const passDocs = twoTabs && tokens > 0 && sourceMatch && arrowOk && docsMonaco === 0;
   docsChecks.push({
     slug,
-    threeTabs,
-    host,
-    unsupported,
+    twoTabs,
     tokens,
     arrowOk,
     docsMonaco,

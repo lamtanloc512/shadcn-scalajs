@@ -1,20 +1,7 @@
+import "./monaco-env.js";
 import * as monaco from "monaco-editor";
-// Package exports map `monaco-editor/<path>` -> `esm/vs/<path>`; pull features + HTML language via that graph.
-import "monaco-editor/editor/editor.main.js";
-import "monaco-editor/languages/definitions/html/register.js";
-import "monaco-editor/languages/definitions/css/register.js";
-import editorWorker from "monaco-editor/editor/editor.worker?worker";
-import htmlWorker from "monaco-editor/language/html/html.worker?worker";
 import tailwindBrowserUrl from "@tailwindcss/browser?url";
 import { validateHtml } from "./html-validation.js";
-
-// Vite-friendly Monaco workers (same approach as many Monaco + Vite apps / Vue playground-style hosts).
-self.MonacoEnvironment = {
-  getWorker(_workerId, label) {
-    if (label === "html" || label === "handlebars" || label === "razor") return new htmlWorker();
-    return new editorWorker();
-  },
-};
 
 const scTags = [
   "sc-accordion", "sc-alert", "sc-alert-title", "sc-alert-description", "sc-avatar", "sc-badge", "sc-breadcrumb",
@@ -117,6 +104,7 @@ window.ScPlaygroundEditor = {
       find: { addExtraSpaceOnTop: false },
       padding: { top: 8, bottom: 8 },
       fixedOverflowWidgets: true,
+      colorDecorators: false,
       ariaLabel: "Web Component HTML source",
     });
     const markerOwner = `sc-playground-html-${nextMarkerOwner++}`;
@@ -200,38 +188,4 @@ window.ScPlaygroundEditor = {
   },
 };
 
-// Static docs code remains a lightweight read-only highlighter (not full Monaco per docs page).
-const escapeHtml = (text) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const highlightDocs = (node, language, source) => {
-  const escaped = escapeHtml(source);
-  const pattern =
-    language === "scala"
-      ? /(\/\/[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:val|var|def|class|object|case|match|if|else|true|false|import|private|final|extends|new)\b|\b\d+(?:\.\d+)?\b)/g
-      : /(&lt;!--[\s\S]*?--&gt;|&lt;\/?[\w-]+|\b[\w-]+(?=\s*=)|"[^"\n]*"|\b(?:const|let|var|function|return|true|false|import|from)\b|\b\d+\b)/g;
-  node.innerHTML = escaped.replace(pattern, (token) => {
-    const kind =
-      token.startsWith("//") || token.startsWith("<!--") || token.startsWith("&lt;!--")
-        ? "comment"
-        : token.startsWith('"') || token.startsWith("'")
-          ? "string"
-          : /^\d/.test(token)
-            ? "number"
-            : /^(&lt;|&lt;\/)/.test(token)
-              ? "tag"
-              : "keyword";
-    return `<span class="sc-doc-token-${kind}">${token}</span>`;
-  });
-  node.dataset.scHighlighted = "true";
-  if (!node.parentElement.querySelector("[data-sc-copy]")) {
-    const copy = document.createElement("button");
-    copy.type = "button";
-    copy.dataset.scCopy = "true";
-    copy.textContent = "Copy";
-    copy.className = "absolute right-2 top-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted";
-    copy.addEventListener("click", () => navigator.clipboard?.writeText(source));
-    node.parentElement.classList.add("relative");
-    node.parentElement.append(copy);
-  }
-};
-window.ScDocsHighlight = { highlight: highlightDocs };
+
