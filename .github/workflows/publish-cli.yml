@@ -1,18 +1,15 @@
-# Publishes packages/cli through npm Trusted Publishing (GitHub OIDC).
+# Publish packages/cli to npm through npm Trusted Publishing (GitHub OIDC).
 #
-# Required on npmjs.com → package shadcn-scalajs → Trusted Publisher:
-#   Repository owner: lamtanloc512
-#   Repository name:  shadcn-scalajs
+# npmjs.com Trusted Publisher configuration for shadcn-scalajs:
+#   Repository owner:  lamtanloc512
+#   Repository name:   shadcn-scalajs
 #   Workflow filename: publish-cli.yml
-#   Environment:      (leave empty)
-#
-# The npm package maintainer (currently ethandev512) must own that Trusted Publisher config.
-name: Publish CLI to npm
+#   Environment:       leave empty
+name: Release CLI to npm
 
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 concurrency:
   group: publish-cli
@@ -20,8 +17,8 @@ concurrency:
 
 jobs:
   publish:
+    name: Publish CLI package
     runs-on: ubuntu-latest
-    # Job-level permissions are required for npm OIDC exchange.
     permissions:
       contents: read
       id-token: write
@@ -29,38 +26,51 @@ jobs:
       run:
         working-directory: packages/cli
     steps:
-      - uses: actions/checkout@v5
+      - name: Check out the release tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
-      # registry-url is required so npm targets registry.npmjs.org.
-      # Do NOT set NODE_AUTH_TOKEN — Trusted Publishing uses OIDC instead.
-      - uses: actions/setup-node@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
+          registry-url: https://registry.npmjs.org
           cache: npm
           cache-dependency-path: packages/cli/package-lock.json
 
-      - name: Upgrade npm for Trusted Publishing
+      - name: Install npm with Trusted Publishing support
         run: npm install --global npm@latest
 
-      - name: Show npm / node versions
-        run: |
-          node -v
-          npm -v
-
-      - name: Verify release tag matches package version
-        if: github.event_name == 'release'
+      - name: Verify release tag and package metadata
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          PACKAGE_NAME="$(node --print "require('./package.json').name")"
           PACKAGE_VERSION="$(node --print "require('./package.json').version")"
-          test "$RELEASE_TAG" = "v$PACKAGE_VERSION" || {
-            echo "Release tag $RELEASE_TAG does not match package version v$PACKAGE_VERSION" >&2
+          EXPECTED_TAG="v$PACKAGE_VERSION"
+
+          test "$PACKAGE_NAME" = "shadcn-scalajs" || {
+            echo "Unexpected package name: $PACKAGE_NAME" >&2
+            exit 1
+          }
+          test "$RELEASE_TAG" = "$EXPECTED_TAG" || {
+            echo "Release tag $RELEASE_TAG does not match package version $EXPECTED_TAG" >&2
             exit 1
           }
 
-      - run: npm ci
-      - run: npm run build
+          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Preview package contents
+        run: npm pack --dry-run
+
+      # No NPM_TOKEN or NODE_AUTH_TOKEN is needed. npm exchanges GitHub's
+      # id-token with npm using the Trusted Publisher configuration above.
       - name: Publish package
         run: npm publish --access public --provenance
