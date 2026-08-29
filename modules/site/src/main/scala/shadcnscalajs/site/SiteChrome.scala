@@ -31,6 +31,11 @@ object SiteChrome:
       aria.label := "shadcn-scalajs home",
       span(cls := "[&_svg]:size-4", foreignHtmlElement(Main.logoEl)),
       span(cls := "truncate font-semibold", "shadcn-scalajs"),
+      Badge.of(
+        _.variant(Badge.Variant.Outline),
+        _ => cls := "h-5 px-1.5 text-[10px] uppercase tracking-wide text-muted-foreground",
+        _ => "Alpha"
+      ),
       mods
     )
 

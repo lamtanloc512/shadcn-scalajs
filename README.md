@@ -2,29 +2,28 @@
 
 A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly, and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it. Covers the full shadcn/ui catalog (~60 components; the newest AI-chat-specific additions and non-component doc pages excluded), documented in a basecoat-style docs site with live previews rendered by the real Laminar components, not static screenshots.
 
-## Install components (local first)
+> **Alpha:** shadcn-scalajs is ready for early use and feedback, but APIs may still change before 1.0.
 
-Start the docs site so the registry is served at `http://localhost:4300/registry`:
+## Install components
+
+From an existing Scala.js + Laminar project, initialize with a customizer preset and add components:
+
+```bash
+npx shadcn-scalajs@latest init --preset buFywLo
+npx shadcn-scalajs@latest add button dialog accordion
+```
+
+For local registry development, start the docs site and override the registry URL:
 
 ```bash
 cd modules/site && npm install && npm run dev
+npx shadcn-scalajs@latest init --registry http://localhost:4300/registry
 ```
 
-In another terminal, from an existing Scala.js + Laminar project:
+Or use generated JSON directly:
 
 ```bash
-# build the CLI once from this repo
-cd /path/to/shadcn-scalajs/packages/cli && npm install && npm run build
-
-# default registry is http://localhost:4300/registry
-node /path/to/shadcn-scalajs/packages/cli/dist/index.js init
-node /path/to/shadcn-scalajs/packages/cli/dist/index.js add button dialog accordion
-```
-
-Or against the generated JSON on disk (no dev server):
-
-```bash
-node packages/cli/dist/index.js init --registry ./modules/site/public/registry
+npx shadcn-scalajs@latest init --registry ./modules/site/public/registry
 ```
 
 `init` writes `shadcn-scalajs.json`. `add` copies Scala sources into
@@ -38,10 +37,6 @@ libraryDependencies ++= Seq(
   "com.raquo" %%% "laminar" % "17.2.1"
 )
 ```
-
-When you later publish the CLI to npm and the registry to the internet,
-the same commands become `npx shadcn-scalajs init` / `add`, with
-`init --registry <url>` pointing at the hosted `/registry`.
 
 ## Quick start
 

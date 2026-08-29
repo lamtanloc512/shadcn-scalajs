@@ -17,13 +17,14 @@ import path from "node:path";
 export interface Config {
   registry: string;
   sourceDir: string;
+  preset?: string;
 }
 
 export const CONFIG_FILE_NAME = "shadcn-scalajs.json";
 
 /** Local Vite registry (modules/site `npm run dev` → http://localhost:4300/registry).
  * Override with `init --registry` when using a deployed host. */
-export const DEFAULT_REGISTRY = "http://localhost:4300/registry";
+export const DEFAULT_REGISTRY = "https://shadcn-scalajs.vercel.app/registry";
 
 export const defaultConfig: Config = {
   registry: DEFAULT_REGISTRY,
