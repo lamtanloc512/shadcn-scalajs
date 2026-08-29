@@ -34,6 +34,56 @@ function files(options: ScaffoldOptions): Record<string, string> {
   const presetAttribute = preset ? ` data-preset="${preset}"` : "";
 
   return {
+    "README.md": `# ${projectName}
+
+A Scala.js + Laminar application scaffolded with [shadcn-scalajs](https://shadcn-scalajs.vercel.app).
+
+## Prerequisites
+
+- JDK 21
+- sbt 1.10+
+- Node.js 20+
+
+## Start the UI
+
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+Vite starts the Laminar UI at http://localhost:5173 and invokes Scala.js automatically.
+
+## Add UI components
+
+\`\`\`bash
+npx shadcn-scalajs@latest add button card dialog
+\`\`\`
+
+Components are copied into \`packages/ui/src/main/scala/shadcnscalajs/ui\` so your project owns their source.
+
+## Packages
+
+- \`packages/shared\` — domain models and contracts compiled for both Scala.js and the JVM. Keep this code platform-neutral.
+- \`packages/ui\` — the Laminar frontend, Vite entry point, Tailwind CSS, and copied shadcn-scalajs components.
+- \`packages/services\` — backend-neutral JVM services. Add your preferred HTTP framework here and depend on shared contracts.
+
+The generated Scala package prefix is \`${scalaPackage}\`.
+
+## Build and verify
+
+\`\`\`bash
+npm run compile  # compile the UI and services with sbt
+npm run build    # optimized Scala.js + Vite production build
+\`\`\`
+
+The production UI is written to \`packages/ui/dist\`.
+
+## Connect a backend
+
+Add your backend library to the \`services\` project in \`build.sbt\`. Put request/response models in
+\`packages/shared\`, implement server behavior in \`packages/services\`, and call its HTTP API from
+\`packages/ui\`. The scaffold deliberately does not force a backend framework.
+`,
     "package.json": `{
   "name": "${projectName}",
   "private": true,

@@ -27,7 +27,7 @@ node "$REPO_ROOT/packages/cli/dist/index.js" init \
   --registry "$REPO_ROOT/modules/site/public/registry" \
   --preset buFywLo \
   --project-name test-app
-for f in build.sbt project/plugins.sbt packages/shared/src/main/scala/app/shared/Shared.scala packages/ui/package.json packages/ui/src/main/scala/app/ui/Main.scala packages/ui/src/main/scala/shadcnscalajs/core/CommonAttrs.scala packages/services/src/main/scala/app/services/Services.scala; do
+for f in README.md build.sbt project/plugins.sbt packages/shared/src/main/scala/app/shared/Shared.scala packages/ui/package.json packages/ui/src/main/scala/app/ui/Main.scala packages/ui/src/main/scala/shadcnscalajs/core/CommonAttrs.scala packages/services/src/main/scala/app/services/Services.scala; do
   test -f "$f" || { echo "test: missing scaffold file $f" >&2; exit 1; }
 done
 node "$REPO_ROOT/packages/cli/dist/index.js" add button badge dialog accordion dropdown-menu
