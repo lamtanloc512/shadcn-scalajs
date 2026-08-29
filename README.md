@@ -15,11 +15,12 @@ npm install
 npm run dev
 ```
 
-`init` prompts for the project name, then creates `packages/shared` (JS/JVM), `packages/ui`
-(Laminar + Vite/Tailwind v4), and framework-neutral `packages/services`. When run from an
+`init` prompts for the project name and artifact group (for example `org.ethan.app`), then creates
+`packages/shared` (JS/JVM), `packages/ui` (Laminar + Vite/Tailwind v4), and framework-neutral
+`packages/services`. When run from an
 `examples` directory, it creates `examples/<project-name>`; elsewhere it scaffolds the current
-empty directory. Use `--project-name` to skip the prompt and `--package` to customize the Scala
-package. In an existing project use `init --no-scaffold`; initialization never overwrites files
+empty directory. Use `--project-name` and `--group` to skip the prompts; `--package` can override
+the Scala package prefix separately. In an existing project use `init --no-scaffold`; initialization never overwrites files
 unless `--force` is supplied.
 
 For local registry development, start the docs site and override the registry URL:

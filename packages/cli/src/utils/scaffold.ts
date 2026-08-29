@@ -3,6 +3,7 @@ import path from "node:path";
 
 export interface ScaffoldOptions {
   projectName: string;
+  artifactGroup: string;
   scalaPackage: string;
   preset?: string;
 }
@@ -29,7 +30,7 @@ object Tags:
 };
 
 function files(options: ScaffoldOptions): Record<string, string> {
-  const { projectName, scalaPackage, preset } = options;
+  const { projectName, artifactGroup, scalaPackage, preset } = options;
   const packagePath = scalaPackage.split(".").join("/");
   const presetAttribute = preset ? ` data-preset="${preset}"` : "";
 
@@ -67,7 +68,7 @@ Components are copied into \`packages/ui/src/main/scala/shadcnscalajs/ui\` so yo
 - \`packages/ui\` — the Laminar frontend, Vite entry point, Tailwind CSS, and copied shadcn-scalajs components.
 - \`packages/services\` — backend-neutral JVM services. Add your preferred HTTP framework here and depend on shared contracts.
 
-The generated Scala package prefix is \`${scalaPackage}\`.
+The sbt artifact group is \`${artifactGroup}\` and the generated Scala package prefix is \`${scalaPackage}\`.
 
 ## Build and verify
 
@@ -100,7 +101,7 @@ import sbtcrossproject.CrossPlugin.autoImport.*
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 
 ThisBuild / scalaVersion := "3.5.2"
-ThisBuild / organization := "${scalaPackage}"
+ThisBuild / organization := "${artifactGroup}"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
