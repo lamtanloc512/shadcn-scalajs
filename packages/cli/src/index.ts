@@ -5,8 +5,8 @@ import { addCommand } from "./commands/add.js";
 
 const program = new Command()
   .name("shadcn-scalajs")
-  .description("Add shadcn/ui-style Scala.js + Laminar components to your project")
-  .version("0.1.0");
+  .description("Scaffold Scala.js + Laminar projects and add shadcn/ui-style components")
+  .version("0.2.0");
 
 program.addCommand(initCommand);
 program.addCommand(addCommand);

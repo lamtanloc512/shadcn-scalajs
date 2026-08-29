@@ -1,7 +1,7 @@
 {
   "name": "shadcn-scalajs",
-  "version": "0.1.0",
-  "description": "CLI for adding shadcn-scalajs components (Scala.js + Laminar) to a project.",
+  "version": "0.2.0",
+  "description": "Scaffold Scala.js + Laminar projects and add shadcn-scalajs components.",
   "type": "module",
   "license": "MIT",
   "repository": {

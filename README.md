@@ -6,28 +6,36 @@ A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://
 
 ## Install components
 
-From an existing Scala.js + Laminar project, initialize with a customizer preset and add components:
+Create a working Scala.js + Laminar monorepo (in an empty directory) and add components:
 
 ```bash
 npx shadcn-scalajs@latest init --preset buFywLo
 npx shadcn-scalajs@latest add button dialog accordion
+npm install
+npm run dev
 ```
+
+`init` creates `packages/shared` (JS/JVM), `packages/ui` (Laminar + Vite/Tailwind v4), and
+framework-neutral `packages/services`. Use `--project-name` and `--package` to customize
+starter metadata. In an existing project use `init --no-scaffold`; initialization never
+overwrites files unless `--force` is supplied.
 
 For local registry development, start the docs site and override the registry URL:
 
 ```bash
 cd modules/site && npm install && npm run dev
-npx shadcn-scalajs@latest init --registry http://localhost:4300/registry
+npx shadcn-scalajs@latest init --no-scaffold --registry http://localhost:4300/registry
 ```
 
 Or use generated JSON directly:
 
 ```bash
-npx shadcn-scalajs@latest init --registry ./modules/site/public/registry
+npx shadcn-scalajs@latest init --no-scaffold --registry ./modules/site/public/registry
 ```
 
-`init` writes `shadcn-scalajs.json`. `add` copies Scala sources into
-`src/main/scala/shadcnscalajs/`.
+`init` writes `shadcn-scalajs.json`. For a scaffold, `add` copies Scala sources into
+`packages/ui/src/main/scala/shadcnscalajs/`; for an existing project it uses
+`src/main/scala/shadcnscalajs/` by default.
 
 Add to `build.sbt`:
 
@@ -103,7 +111,7 @@ sbt core/publishLocal
 cd packages/cli && npm install && npm run build
 cd /path/to/your/project
 node /path/to/shadcn-scalajs/packages/cli/dist/index.js init \
-  --registry /path/to/shadcn-scalajs/modules/site/public/registry
+  --no-scaffold --registry /path/to/shadcn-scalajs/modules/site/public/registry
 node /path/to/shadcn-scalajs/packages/cli/dist/index.js add button dialog
 ```
 

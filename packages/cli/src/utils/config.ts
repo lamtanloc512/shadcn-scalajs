@@ -8,11 +8,9 @@ import path from "node:path";
  * package declarations verbatim (no import-path rewriting, unlike shadcn-svelte's
  * transformImports) — so `sourceDir` must point at a directory literally named
  * `.../shadcnscalajs`, matching Scala's directory-matches-package convention;
- * `add` then writes e.g. `<sourceDir>/ui/Button.scala`. Consumers add
- * `shadcn-scalajs-core` as a normal sbt library dependency for the shared
- * `core` package the copied `ui` files import from (printed as a hint by
- * `add`) — package-rewriting so consumers can fully own every line under
- * their own namespace is a documented v2 follow-up, not implemented here.
+ * `add` then writes e.g. `<sourceDir>/ui/Button.scala`. A generated scaffold includes
+ * the small `core` package locally, so copied components compile without an unpublished
+ * Maven artifact. Existing projects may provide that package from their own source or dependency.
  */
 export interface Config {
   registry: string;

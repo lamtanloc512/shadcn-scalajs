@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Compile the Scala.js modules and the CLI.
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 
