@@ -127,8 +127,8 @@ Compile and link the repository:
 
 ```bash
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
-sbt core/compile ui/compile blocks/compile webcomponents/compile site/compile
-sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS
+sbt core/compile ui/compile blocks/compile site/compile
+sbt ui/fastLinkJS site/fastLinkJS
 ```
 
 Run the documentation site:
@@ -164,14 +164,16 @@ modules/
   core/             small Laminar helpers used by copied components
   ui/               Laminar component source and registry sidecars
   blocks/           multi-file compositions built from UI components
-  webcomponents/    experimental custom-element wrappers
+  webcomponents/    future Web Component work; not part of the current release
   site/             documentation, previews, registry generation, and Vercel build
 packages/
   cli/              npm scaffolder and component installer
 vendor/              pinned upstream reference sources
 ```
 
-The Laminar package is the current release target. Web Component wrappers remain experimental and are excluded from the default production site build.
+## Future feature: Web Components
+
+The current product and supported release target are Scala.js + Laminar. The repository contains early Web Component experiments, but they are not part of the public release, default site build, installation flow, or compatibility promise. Custom-element packaging, framework-neutral distribution, documentation, and support will be completed and released as a separate future feature.
 
 ## Publishing the CLI
 
