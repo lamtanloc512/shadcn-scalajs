@@ -1,14 +1,19 @@
-# Publishes packages/cli to npm so users can run:
-#   npx shadcn-scalajs init
-#   npx shadcn-scalajs add button dialog
-#
-# Requires repo secret NPM_TOKEN (npm access token with publish rights).
+# Publishes packages/cli through npm Trusted Publishing (GitHub OIDC).
+# Configure npm with this repository and workflow filename: publish-cli.yml.
 name: Publish CLI to npm
 
 on:
   release:
     types: [published]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -18,12 +23,33 @@ jobs:
         working-directory: packages/cli
     steps:
       - uses: actions/checkout@v4
+
+      # npm Trusted Publishing requires npm 11.5.1 or newer. Node 24 ships
+      # with a compatible npm, and the upgrade keeps that requirement explicit.
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: packages/cli/package-lock.json
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install --global npm@latest
+
+      - name: Verify release tag matches package version
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          PACKAGE_VERSION="$(node --print "require('./package.json').version")"
+          test "$RELEASE_TAG" = "v$PACKAGE_VERSION" || {
+            echo "Release tag $RELEASE_TAG does not match package version v$PACKAGE_VERSION" >&2
+            exit 1
+          }
+
       - run: npm ci
       - run: npm run build
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # No NODE_AUTH_TOKEN or NPM_TOKEN: npm exchanges GitHub's OIDC token
+      # using the Trusted Publisher configured on npmjs.com.
+      - name: Publish package
+        run: npm publish --access public --provenance
