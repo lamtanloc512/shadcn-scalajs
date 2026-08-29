@@ -52,35 +52,23 @@ export async function installThemeFiles(
   }
 
   const globalsPath = path.join(stylesDir, "globals.css");
-  if (await exists(globalsPath)) {
-    let css = await readFile(globalsPath, "utf8");
-    const packImport = `@import "./pack-${stylePack}.css";`;
-    const tokensImport = `@import "./tokens.css";`;
+  // Always write the canonical entry CSS. Older scaffolds inlined incomplete tokens
+  // (no sidebar/chart), which override `tokens.css` and break blocks like dashboard-01.
+  const globalsCss = `@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tokens.css";
+@import "./pack-${stylePack}.css";
+@source "../main/scala/**/*.scala";
 
-    if (!css.includes(tokensImport)) {
-      if (css.includes('@import "tw-animate-css"')) {
-        css = css.replace(
-          /@import\s+["']tw-animate-css["']\s*;/,
-          `@import "tw-animate-css";\n${tokensImport}`
-        );
-      } else if (css.includes('@import "tailwindcss"')) {
-        css = css.replace(/@import\s+["']tailwindcss["']\s*;/, `@import "tailwindcss";\n${tokensImport}`);
-      } else {
-        css = `${tokensImport}\n${css}`;
-      }
-    }
+@custom-variant dark (&:is(.dark *));
 
-    if (/@import\s+["']\.\/pack-[a-z]+\.css["']/.test(css)) {
-      css = css.replace(/@import\s+["']\.\/pack-[a-z]+\.css["']\s*;?/, packImport);
-    } else if (css.includes(tokensImport)) {
-      css = css.replace(tokensImport, `${tokensImport}\n${packImport}`);
-    } else {
-      css = `${packImport}\n${css}`;
-    }
-
-    if (await writeIfChanged(globalsPath, css)) {
-      written.push(path.relative(cwd, globalsPath));
-    }
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply m-0 bg-background text-foreground antialiased; }
+}
+`;
+  if (await writeIfChanged(globalsPath, globalsCss)) {
+    written.push(path.relative(cwd, globalsPath));
   }
 
   const htmlPath = path.join(uiRoot, "index.html");
