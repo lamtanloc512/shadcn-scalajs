@@ -284,5 +284,10 @@ export async function scaffold(cwd: string, options: ScaffoldOptions, force: boo
 
 export async function isEmptyDirectory(cwd: string): Promise<boolean> {
   const ignored = new Set([".git", ".DS_Store"]);
-  return (await readdir(cwd)).every(entry => ignored.has(entry));
+  try {
+    return (await readdir(cwd)).every(entry => ignored.has(entry));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return true;
+    throw error;
+  }
 }

@@ -15,10 +15,12 @@ npm install
 npm run dev
 ```
 
-`init` creates `packages/shared` (JS/JVM), `packages/ui` (Laminar + Vite/Tailwind v4), and
-framework-neutral `packages/services`. Use `--project-name` and `--package` to customize
-starter metadata. In an existing project use `init --no-scaffold`; initialization never
-overwrites files unless `--force` is supplied.
+`init` prompts for the project name, then creates `packages/shared` (JS/JVM), `packages/ui`
+(Laminar + Vite/Tailwind v4), and framework-neutral `packages/services`. When run from an
+`examples` directory, it creates `examples/<project-name>`; elsewhere it scaffolds the current
+empty directory. Use `--project-name` to skip the prompt and `--package` to customize the Scala
+package. In an existing project use `init --no-scaffold`; initialization never overwrites files
+unless `--force` is supplied.
 
 For local registry development, start the docs site and override the registry URL:
 
