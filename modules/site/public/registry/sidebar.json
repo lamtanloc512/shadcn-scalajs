@@ -5,7 +5,10 @@
   "type": "scala:ui",
   "registryDependencies": [
     "button",
-    "separator"
+    "separator",
+    "drawer",
+    "skeleton",
+    "input"
   ],
   "scalaDependencies": [],
   "files": [

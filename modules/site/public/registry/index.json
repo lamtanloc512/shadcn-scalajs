@@ -387,7 +387,10 @@
     "type": "scala:ui",
     "registryDependencies": [
       "button",
-      "separator"
+      "separator",
+      "drawer",
+      "skeleton",
+      "input"
     ]
   },
   {
@@ -506,6 +509,7 @@
       "toggle-group",
       "select",
       "table",
+      "data-table",
       "checkbox",
       "sheet",
       "label",
