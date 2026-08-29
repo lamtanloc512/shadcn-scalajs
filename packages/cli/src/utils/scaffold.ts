@@ -58,7 +58,7 @@ npm install
 npm run dev
 \`\`\`
 
-The dev command runs Vite and \`sbt ~ui/fastLinkJS\` together. Scala edits are relinked automatically and Vite reloads the Laminar UI at http://localhost:5173.
+The dev command starts \`sbt ~ui/fastLinkJS\` first, waits for the Scala.js bundle, then starts Vite. That avoids sbt ServerAlreadyBootingException when both processes boot at once.
 
 ## Add UI components
 
@@ -96,7 +96,7 @@ Add your backend library to the \`services\` project in \`build.sbt\`. Put reque
   "private": true,
   "workspaces": ["packages/ui"],
   "scripts": {
-    "dev": "concurrently --kill-others --names scala,vite \\\"sbt ~ui/fastLinkJS\\\" \\\"npm --workspace packages/ui run dev:vite\\\"",
+    "dev": "concurrently --kill-others --names scala,vite \\\"sbt ~ui/fastLinkJS\\\" \\\"node scripts/wait-for-scalajs.mjs && npm --workspace packages/ui run dev:vite\\\"",
     "build": "npm --workspace packages/ui run build",
     "compile": "sbt ui/compile services/compile"
   },
@@ -243,6 +243,28 @@ export default defineConfig({
 `,
     "packages/ui/index.js": `import "./src/styles/globals.css";
 import "scalajs:main.js";
+`,
+    "scripts/wait-for-scalajs.mjs": `import { access } from "node:fs/promises";
+import path from "node:path";
+
+// Vite's Scala.js plugin also starts sbt. If it races the watcher process during
+// boot, sbt throws ServerAlreadyBootingException ("Address already in use").
+// Wait until the first fastopt bundle exists so the server is already up.
+const marker = path.resolve("packages/ui/target/scala-3.5.2/ui-fastopt/main.js");
+const deadline = Date.now() + 180_000;
+
+while (Date.now() < deadline) {
+  try {
+    await access(marker);
+    console.log("[wait-for-scalajs] Scala.js bundle ready");
+    process.exit(0);
+  } catch {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+}
+
+console.error("[wait-for-scalajs] Timed out waiting for " + marker);
+process.exit(1);
 `,
     ".gitignore": `target/
 project/target/
