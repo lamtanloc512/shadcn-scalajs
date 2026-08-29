@@ -32,8 +32,9 @@ for f in README.md build.sbt project/plugins.sbt packages/shared/src/main/scala/
   test -f "$f" || { echo "test: missing scaffold file $f" >&2; exit 1; }
 done
 test -f packages/ui/src/styles/tokens.css || { echo "test: missing theme tokens.css" >&2; exit 1; }
-test -f packages/ui/src/styles/pack-nova.css || { echo "test: missing nova style pack" >&2; exit 1; }
+ls packages/ui/src/styles/pack-*.css >/dev/null 2>&1 || { echo "test: missing style pack css" >&2; exit 1; }
 grep -q 'tokens.css' packages/ui/src/styles/globals.css || { echo "test: globals.css does not import tokens.css" >&2; exit 1; }
+grep -q 'stylePack' shadcn-scalajs.json || { echo "test: missing stylePack in config" >&2; exit 1; }
 grep -q '~ui/fastLinkJS' package.json || { echo "test: scaffold dev command does not watch Scala sources" >&2; exit 1; }
 node "$REPO_ROOT/packages/cli/dist/index.js" add button badge dialog accordion dropdown-menu
 

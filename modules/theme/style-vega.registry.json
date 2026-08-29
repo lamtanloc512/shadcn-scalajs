@@ -1,0 +1,11 @@
+{
+  "name": "style-vega",
+  "title": "Style pack vega",
+  "type": "css:theme",
+  "description": "Style pack vega.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-vega.css", "type": "css:theme", "target": "src/styles/pack-vega.css" }
+  ]
+}

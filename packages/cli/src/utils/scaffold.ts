@@ -7,6 +7,7 @@ export interface ScaffoldOptions {
   artifactGroup: string;
   scalaPackage: string;
   preset?: string;
+  stylePack?: string;
 }
 
 const coreFiles: Record<string, string> = {
@@ -32,9 +33,10 @@ object Tags:
 
 function files(options: ScaffoldOptions): Record<string, string> {
   const { projectName, artifactGroup, scalaPackage, preset } = options;
+  const stylePack = options.stylePack ?? "nova";
   const packagePath = scalaPackage.split(".").join("/");
   const presetAttribute = [
-    ` data-style-pack="nova"`,
+    ` data-style-pack="${stylePack}"`,
     preset ? ` data-preset="${preset}"` : ""
   ].join("");
 
@@ -216,7 +218,7 @@ export default defineConfig({
     "packages/ui/src/styles/globals.css": `@import "tailwindcss";
 @import "tw-animate-css";
 @import "./tokens.css";
-@import "./pack-nova.css";
+@import "./pack-${stylePack}.css";
 @source "../main/scala/**/*.scala";
 
 @custom-variant dark (&:is(.dark *));
@@ -260,6 +262,7 @@ function assetsDir(): string {
 }
 
 export async function scaffold(cwd: string, options: ScaffoldOptions, force: boolean): Promise<string[]> {
+  const stylePack = options.stylePack ?? "nova";
   const generated = files(options);
   const assetCopies: Array<{ from: string; to: string }> = [
     {
@@ -267,8 +270,8 @@ export async function scaffold(cwd: string, options: ScaffoldOptions, force: boo
       to: "packages/ui/src/styles/tokens.css"
     },
     {
-      from: path.join(assetsDir(), "styles", "pack-nova.css"),
-      to: "packages/ui/src/styles/pack-nova.css"
+      from: path.join(assetsDir(), "styles", `pack-${stylePack}.css`),
+      to: `packages/ui/src/styles/pack-${stylePack}.css`
     }
   ];
 

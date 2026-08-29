@@ -1,0 +1,11 @@
+{
+  "name": "style-luma",
+  "title": "Style pack luma",
+  "type": "css:theme",
+  "description": "Style pack luma.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-luma.css", "type": "css:theme", "target": "src/styles/pack-luma.css" }
+  ]
+}

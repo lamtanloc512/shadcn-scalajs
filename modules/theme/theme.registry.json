@@ -2,11 +2,10 @@
   "name": "theme",
   "title": "Theme",
   "type": "css:theme",
-  "description": "Design tokens and the default Nova style pack required by shadcn-scalajs components and blocks.",
+  "description": "Shared design tokens required by shadcn-scalajs components and blocks.",
   "registryDependencies": [],
   "scalaDependencies": [],
   "files": [
-    { "path": "tokens.css", "type": "css:theme", "target": "src/styles/tokens.css" },
-    { "path": "pack-nova.css", "type": "css:theme", "target": "src/styles/pack-nova.css" }
+    { "path": "tokens.css", "type": "css:theme", "target": "src/styles/tokens.css" }
   ]
 }

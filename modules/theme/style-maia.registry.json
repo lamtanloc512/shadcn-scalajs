@@ -1,0 +1,11 @@
+{
+  "name": "style-maia",
+  "title": "Style pack maia",
+  "type": "css:theme",
+  "description": "Style pack maia.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-maia.css", "type": "css:theme", "target": "src/styles/pack-maia.css" }
+  ]
+}

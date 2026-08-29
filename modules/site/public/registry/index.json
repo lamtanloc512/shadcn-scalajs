@@ -640,10 +640,82 @@
     ]
   },
   {
+    "name": "style-luma",
+    "title": "Style pack luma",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack luma."
+  },
+  {
+    "name": "style-lyra",
+    "title": "Style pack lyra",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack lyra."
+  },
+  {
+    "name": "style-maia",
+    "title": "Style pack maia",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack maia."
+  },
+  {
+    "name": "style-mira",
+    "title": "Style pack mira",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack mira."
+  },
+  {
+    "name": "style-nova",
+    "title": "Style pack nova",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack nova."
+  },
+  {
+    "name": "style-rhea",
+    "title": "Style pack rhea",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack rhea."
+  },
+  {
+    "name": "style-sera",
+    "title": "Style pack sera",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack sera."
+  },
+  {
+    "name": "style-vega",
+    "title": "Style pack vega",
+    "type": "css:theme",
+    "registryDependencies": [
+      "theme"
+    ],
+    "description": "Style pack vega."
+  },
+  {
     "name": "theme",
     "title": "Theme",
     "type": "css:theme",
     "registryDependencies": [],
-    "description": "Design tokens and the default Nova style pack required by shadcn-scalajs components and blocks."
+    "description": "Shared design tokens required by shadcn-scalajs components and blocks."
   }
 ]

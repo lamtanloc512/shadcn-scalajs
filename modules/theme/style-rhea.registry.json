@@ -1,0 +1,11 @@
+{
+  "name": "style-rhea",
+  "title": "Style pack rhea",
+  "type": "css:theme",
+  "description": "Style pack rhea.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-rhea.css", "type": "css:theme", "target": "src/styles/pack-rhea.css" }
+  ]
+}

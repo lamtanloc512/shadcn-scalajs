@@ -1,0 +1,11 @@
+{
+  "name": "style-sera",
+  "title": "Style pack sera",
+  "type": "css:theme",
+  "description": "Style pack sera.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-sera.css", "type": "css:theme", "target": "src/styles/pack-sera.css" }
+  ]
+}

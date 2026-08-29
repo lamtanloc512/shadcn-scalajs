@@ -1,0 +1,11 @@
+{
+  "name": "style-nova",
+  "title": "Style pack nova",
+  "type": "css:theme",
+  "description": "Style pack nova.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-nova.css", "type": "css:theme", "target": "src/styles/pack-nova.css" }
+  ]
+}

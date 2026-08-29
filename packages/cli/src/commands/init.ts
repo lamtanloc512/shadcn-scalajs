@@ -4,6 +4,7 @@ import path from "node:path";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { defaultConfig, writeConfig, type Config } from "../utils/config.js";
+import { stylePackFromPreset } from "../utils/preset.js";
 import { isEmptyDirectory, scaffold } from "../utils/scaffold.js";
 
 const validProjectName = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
@@ -34,12 +35,13 @@ export const initCommand = new Command("init")
   .option("--registry <url>", "registry URL or local path", defaultConfig.registry)
   .option("--source-dir <path>", "directory to write component source into")
   .option("--preset <code>", "design-system preset code from the customizer")
+  .option("--style <pack>", "style pack (nova, vega, maia, lyra, mira, luma, sera, rhea)")
   .option("--project-name <name>", "project name used in generated files (skips the prompt)")
   .option("--group <group>", "sbt artifact group, e.g. org.ethan.app (skips the prompt)")
   .option("--package <name>", "Scala package prefix (defaults to the artifact group)")
   .option("--force", "overwrite generated files and an existing config")
   .option("--no-scaffold", "only write shadcn-scalajs.json (for an existing project)")
-  .action(async (opts: { registry: string; sourceDir: string; preset?: string; projectName?: string; group?: string; package?: string; force?: boolean; scaffold: boolean }) => {
+  .action(async (opts: { registry: string; sourceDir: string; preset?: string; style?: string; projectName?: string; group?: string; package?: string; force?: boolean; scaffold: boolean }) => {
     if (opts.preset && !/^[ab][0-9A-Za-z]{1,9}$/.test(opts.preset)) {
       throw new Error(`Invalid preset code: ${opts.preset}`);
     }
@@ -83,17 +85,26 @@ export const initCommand = new Command("init")
       throw new Error("Refusing to scaffold in a non-empty directory; use --no-scaffold for config-only initialization or --force.");
     }
 
+    const stylePack = opts.style ?? stylePackFromPreset(opts.preset) ?? "nova";
+
     // Components intentionally retain their canonical shadcnscalajs package so they
     // can be copied verbatim; this path is the source root expected by `add`.
     const config: Config = {
       registry: opts.registry,
       sourceDir: opts.sourceDir ?? (opts.scaffold ? "packages/ui/src/main/scala/shadcnscalajs" : defaultConfig.sourceDir),
+      stylePack,
       ...(opts.preset ? { preset: opts.preset } : {})
     };
     if (opts.scaffold) {
       const written = await scaffold(
         cwd,
-        { projectName: projectName!, artifactGroup: artifactGroup!, scalaPackage: scalaPackage!, preset: opts.preset },
+        {
+          projectName: projectName!,
+          artifactGroup: artifactGroup!,
+          scalaPackage: scalaPackage!,
+          preset: opts.preset,
+          stylePack
+        },
         Boolean(opts.force)
       );
       const destination = path.relative(invocationCwd, cwd) || ".";

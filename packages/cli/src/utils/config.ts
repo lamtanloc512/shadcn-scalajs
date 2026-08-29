@@ -16,6 +16,8 @@ export interface Config {
   registry: string;
   sourceDir: string;
   preset?: string;
+  /** Active style pack (nova, vega, ...). Detected from the project when omitted. */
+  stylePack?: string;
 }
 
 export const CONFIG_FILE_NAME = "shadcn-scalajs.json";

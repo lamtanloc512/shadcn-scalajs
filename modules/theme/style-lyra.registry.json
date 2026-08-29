@@ -1,0 +1,11 @@
+{
+  "name": "style-lyra",
+  "title": "Style pack lyra",
+  "type": "css:theme",
+  "description": "Style pack lyra.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-lyra.css", "type": "css:theme", "target": "src/styles/pack-lyra.css" }
+  ]
+}

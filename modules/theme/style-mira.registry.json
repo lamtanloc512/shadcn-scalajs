@@ -1,0 +1,11 @@
+{
+  "name": "style-mira",
+  "title": "Style pack mira",
+  "type": "css:theme",
+  "description": "Style pack mira.",
+  "registryDependencies": ["theme"],
+  "scalaDependencies": [],
+  "files": [
+    { "path": "pack-mira.css", "type": "css:theme", "target": "src/styles/pack-mira.css" }
+  ]
+}
