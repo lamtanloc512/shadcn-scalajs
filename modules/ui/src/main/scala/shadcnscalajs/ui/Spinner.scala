@@ -15,6 +15,13 @@ object Spinner:
       svg.strokeWidth := "2",
       svg.strokeLineCap := "round",
       svg.strokeLineJoin := "round",
-      svgPath(svg.d := "M21 12a9 9 0 1 1-6.219-8.56"),
+      svgPath(svg.d := "M12 2v4"),
+      svgPath(svg.d := "m16.2 7.8 2.9-2.9"),
+      svgPath(svg.d := "M18 12h4"),
+      svgPath(svg.d := "m16.2 16.2 2.9 2.9"),
+      svgPath(svg.d := "M12 18v4"),
+      svgPath(svg.d := "m4.9 19.1 2.9-2.9"),
+      svgPath(svg.d := "M2 12h4"),
+      svgPath(svg.d := "m4.9 4.9 2.9 2.9"),
       mods
     )

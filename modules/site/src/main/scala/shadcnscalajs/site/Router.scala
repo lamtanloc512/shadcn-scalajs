@@ -33,7 +33,8 @@ object Router:
   private val CreatePath = "/create/preview-02"
 
   def parse(pathname: String): Route =
-    if pathname == "/web-components" || pathname == "/web-components/" then Route.WebComponents
+    if pathname == "/web-components" || pathname == "/web-components/" then
+      if SiteFeatures.webComponents then Route.WebComponents else Route.ComponentsIndex
     else if pathname == "/components" || pathname == "/components/" then Route.ComponentsIndex
     else if pathname.startsWith("/components/") then
       Route.Component(pathname.stripPrefix("/components/").stripSuffix("/"))
@@ -45,7 +46,11 @@ object Router:
     else if pathname == "/preview/preview-02" then Route.CreatePreview
     else Route.Landing
 
-  private val currentVar = Var(parse(dom.window.location.pathname))
+  private val initialRoute = parse(dom.window.location.pathname)
+  if !SiteFeatures.webComponents && dom.window.location.pathname.startsWith("/web-components") then
+    dom.window.history.replaceState(null, "", "/components")
+
+  private val currentVar = Var(initialRoute)
 
   /** Distinct because a hash jump or a repeated link click writes the same route back, and an undeduplicated `Var`
     * would emit anyway — rebuilding the whole page to land on an anchor already on screen.

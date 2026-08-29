@@ -19,7 +19,13 @@ final case class DocExample(
 
 object ComponentExamples:
 
-  /** Components with no entry here fall back to the generic "Composition" card on the docs page. */
-  def apply(componentName: String): Seq[DocExample] = componentName match
-    case "date-picker" => DatePickerExamples.all
-    case _             => Nil
+  /** Focused recipes mirror every additional `ComponentPreview` after a page's primary demo in the local shadcn-svelte
+    * component markdown.
+    */
+  def apply(componentName: String): Seq[DocExample] =
+    if componentName == "date-picker" then DatePickerExamples.all
+    else
+      ComponentExamplesA(componentName) ++
+        ComponentExamplesB(componentName) ++
+        ComponentExamplesC(componentName) ++
+        ComponentExamplesD(componentName)

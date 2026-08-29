@@ -93,6 +93,9 @@ object Main:
   private def iconCircleAlert = iconSvg(
     "<circle cx='12' cy='12' r='10'/><path d='M12 8v4'/><path d='M12 16h.01'/>"
   )
+  private def iconPopcorn = iconSvg(
+    "<path d='M18 8.5c0-2.485-2.686-4.5-6-4.5S6 6.015 6 8.5c0 1.13.55 2.16 1.45 2.94L9 20h6l1.55-8.56C17.45 10.66 18 9.63 18 8.5Z'/><path d='M9 20h6'/><path d='M8 8.5h.01M12 8.5h.01M16 8.5h.01'/>"
+  )
 
   private val logoSvg =
     """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true"><rect width="256" height="256" fill="none"/><line x1="208" y1="128" x2="128" y2="208" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="192" y1="40" x2="40" y2="192" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>"""
@@ -409,7 +412,10 @@ object Main:
             ),
             p(
               cls := "max-w-4xl text-base text-balance text-foreground sm:text-lg",
-              "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes — every component also compiles to a standalone Web Component for any frontend."
+              if SiteFeatures.webComponents then
+                "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes — every component also compiles to a standalone Web Component for any frontend."
+              else
+                "Copy-paste Laminar components styled with real shadcn/ui Tailwind classes and install them from the Scala registry."
             ),
             div(
               cls := "flex w-full items-center justify-center gap-2 pt-2",
@@ -552,10 +558,13 @@ object Main:
       case "drawer"    => "A mobile-first drawer component for Laminar."
       case "data-table" =>
         "Pure Scala table-state utilities composing Table — sorting, filtering, pagination, and row selection without TanStack."
-      case "dialog" => "A modal dialog built with the native HTML dialog element."
-      case "button" => "A reusable action button with shadcn/ui variants."
-      case "switch" => "A reactive boolean control backed by a Laminar Var."
-      case "sonner" => "An opinionated toast component — pure Laminar, no svelte-sonner dependency."
+      case "dialog"       => "A modal dialog built with the native HTML dialog element."
+      case "aspect-ratio" => "Displays content within a desired ratio."
+      case "avatar"       => "An image element with a fallback for representing the user."
+      case "badge"        => "Displays a badge or a component that looks like a badge."
+      case "button"       => "A reusable action button with shadcn/ui variants."
+      case "switch"       => "A reactive boolean control backed by a Laminar Var."
+      case "sonner"       => "An opinionated toast component — pure Laminar, no svelte-sonner dependency."
       case "typography" =>
         "Styles for headings, paragraphs, lists, and inline code — utility-class recipes, not a registry component."
       case _ => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
@@ -723,59 +732,75 @@ object Main:
       val wcSource = webComponentExample
         .map(_.source)
         .getOrElse(s"<!-- ${WebComponentExamples.unsupportedMessage(componentName)} -->")
-      Card(
-        cls := s"$rootClass $docsFrame",
-        dataAttr("sc-docs-primary-tabs") := "true",
-        // Both previews stay mounted so tab switches never unmount interactive state.
-        div(
-          dataAttr("preview-type") := "laminar",
-          display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
-          preview
-        ),
-        Option
-          .when(wcPreview)(webComponentExample)
-          .flatten
-          .map { wcExample =>
+      if !SiteFeatures.webComponents then
+        Card(
+          cls := s"$rootClass $docsFrame",
+          div(dataAttr("preview-type") := "laminar", preview),
+          div(
+            cls := "border-t bg-muted/20",
             div(
-              dataAttr("preview-type") := "web-component",
-              display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
-              previewCanvas(WebComponentExamples.preview(wcExample))
-            )
-          }
-          .getOrElse(emptyNode),
-        div(
-          cls := "border-t bg-muted/20",
-          Tabs(
-            div(
-              cls := "flex min-h-10 items-center justify-between border-b px-2",
-              Tabs.list(
-                Tabs.ListVariant.Default,
-                role := "tablist",
-                docsTabTrigger(tab, "laminar", "Laminar", ids("laminar"), codeOrder),
-                docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"), codeOrder)
-              ),
-              copyButton(if tab.now() == "web-component" then wcSource else source)
+              cls := "flex min-h-10 items-center justify-between border-b px-3",
+              span(cls := "text-sm font-medium", "Laminar"),
+              copyButton(source)
             ),
-            Tabs.content(
-              idAttr := ids("laminar"),
-              role := "tabpanel",
-              aria.labelledBy := s"${ids("laminar")}-tab",
-              display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
-              codePane("scala", source, "Scala.js", withCopy = false)
-            ),
-            Tabs.content(
-              idAttr := ids("web-component"),
-              role := "tabpanel",
-              aria.labelledBy := s"${ids("web-component")}-tab",
-              display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+            codePane("scala", source, "Scala.js", withCopy = false)
+          )
+        )
+      else {
+        Card(
+          cls := s"$rootClass $docsFrame",
+          dataAttr("sc-docs-primary-tabs") := "true",
+          // Both previews stay mounted so tab switches never unmount interactive state.
+          div(
+            dataAttr("preview-type") := "laminar",
+            display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
+            preview
+          ),
+          Option
+            .when(wcPreview)(webComponentExample)
+            .flatten
+            .map { wcExample =>
               div(
-                codePane("html", wcSource, "HTML", withCopy = false),
-                webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
+                dataAttr("preview-type") := "web-component",
+                display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+                previewCanvas(WebComponentExamples.preview(wcExample))
+              )
+            }
+            .getOrElse(emptyNode),
+          div(
+            cls := "border-t bg-muted/20",
+            Tabs(
+              div(
+                cls := "flex min-h-10 items-center justify-between border-b px-2",
+                Tabs.list(
+                  Tabs.ListVariant.Default,
+                  role := "tablist",
+                  docsTabTrigger(tab, "laminar", "Laminar", ids("laminar"), codeOrder),
+                  docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"), codeOrder)
+                ),
+                copyButton(if tab.now() == "web-component" then wcSource else source)
+              ),
+              Tabs.content(
+                idAttr := ids("laminar"),
+                role := "tabpanel",
+                aria.labelledBy := s"${ids("laminar")}-tab",
+                display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
+                codePane("scala", source, "Scala.js", withCopy = false)
+              ),
+              Tabs.content(
+                idAttr := ids("web-component"),
+                role := "tabpanel",
+                aria.labelledBy := s"${ids("web-component")}-tab",
+                display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+                div(
+                  codePane("html", wcSource, "HTML", withCopy = false),
+                  webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
+                )
               )
             )
           )
         )
-      )
+      }
 
     def exampleBlock(example: DocExample): HtmlElement =
       div(
@@ -792,21 +817,42 @@ object Main:
       case "accordion" =>
         val previewOpen = Var(Option(0))
         previewCanvas(
-          div(
-            cls := "w-full max-w-sm",
-            Accordion(
-              previewOpen,
-              Accordion.Section(
-                "What are your shipping options?",
-                "We offer standard (5-7 days), express (2-3 days), and overnight shipping. Free shipping on international orders."
-              ),
-              Accordion.Section(
-                "What is your return policy?",
-                "You can return items within 30 days of delivery. Items must be unused and in their original packaging."
-              ),
-              Accordion.Section(
-                "How can I contact customer support?",
-                "Email support@example.com or use live chat during business hours."
+          Accordion(
+            previewOpen,
+            Accordion.Section(
+              "Product Information",
+              div(
+                cls := "flex flex-col gap-4 text-balance",
+                p(
+                  "Our flagship product combines cutting-edge technology with sleek design. Built with premium materials, it offers unparalleled performance and reliability."
+                ),
+                p(
+                  "Key features include advanced processing capabilities, and an intuitive user interface designed for both beginners and experts."
+                )
+              )
+            ),
+            Accordion.Section(
+              "Shipping Details",
+              div(
+                cls := "flex flex-col gap-4 text-balance",
+                p(
+                  "We offer worldwide shipping through trusted courier partners. Standard delivery takes 3-5 business days, while express shipping ensures delivery within 1-2 business days."
+                ),
+                p(
+                  "All orders are carefully packaged and fully insured. Track your shipment in real-time through our dedicated tracking portal."
+                )
+              )
+            ),
+            Accordion.Section(
+              "Return Policy",
+              div(
+                cls := "flex flex-col gap-4 text-balance",
+                p(
+                  "We stand behind our products with a comprehensive 30-day return policy. If you're not completely satisfied, simply return the item in its original condition."
+                ),
+                p(
+                  "Our hassle-free return process includes free return shipping and full refunds processed within 48 hours of receiving the returned item."
+                )
               )
             )
           )
@@ -825,13 +871,8 @@ object Main:
             ),
             Alert(
               Alert.Variant.Default,
-              bareIcon(iconInfo),
+              bareIcon(iconPopcorn),
               Alert.title("This Alert has a title and an icon. No description.")
-            ),
-            Alert(
-              Alert.Variant.Default,
-              Alert.title("This Alert has no icon"),
-              Alert.description("Title and description line up in the same column either way.")
             ),
             Alert(
               Alert.Variant.Destructive,
@@ -852,12 +893,13 @@ object Main:
       case "alert-dialog" =>
         val dialogOpen = Var(false)
         previewCanvas(
-          Button(onClick --> { _ => dialogOpen.set(true) }, "Open alert dialog"),
+          Button
+            .of(_.variant(Button.Variant.Outline), _ => onClick --> { _ => dialogOpen.set(true) }, _ => "Show Dialog"),
           AlertDialog(dialogOpen)(
             AlertDialog.header(
               AlertDialog.title("Are you absolutely sure?"),
               AlertDialog.description(
-                "This action cannot be undone. This will permanently delete your project and remove your data."
+                "This action cannot be undone. This will permanently delete your account and remove your data from our servers."
               )
             ),
             AlertDialog.footer(
@@ -866,12 +908,72 @@ object Main:
             )
           )
         )
-      case "avatar" => previewCanvas(Avatar(Avatar.fallback("LS")))
+      case "avatar" =>
+        previewCanvas(
+          div(
+            cls := "flex flex-row flex-wrap items-center gap-12",
+            Avatar(
+              Avatar.image("https://github.com/shadcn.png", "@shadcn"),
+              Avatar.fallback("CN")
+            ),
+            Avatar(
+              cls := "rounded-lg",
+              Avatar.image("https://github.com/evilrabbit.png", "@evilrabbit"),
+              Avatar.fallback("ER")
+            ),
+            Avatar.group(
+              cls := "*:data-[slot=avatar]:grayscale",
+              Avatar(
+                Avatar.image("https://github.com/shadcn.png", "@shadcn"),
+                Avatar.fallback("CN")
+              ),
+              Avatar(
+                Avatar.image("https://github.com/leerob.png", "@leerob"),
+                Avatar.fallback("LR")
+              ),
+              Avatar(
+                Avatar.image("https://github.com/evilrabbit.png", "@evilrabbit"),
+                Avatar.fallback("ER")
+              )
+            )
+          )
+        )
       case "badge" =>
         previewCanvas(
-          Badge("New"),
-          Badge.of(_.variant(Badge.Variant.Secondary), _ => "Beta"),
-          Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")
+          div(
+            cls := "flex flex-col items-center gap-2",
+            div(
+              cls := "flex w-full flex-wrap gap-2",
+              Badge.of(_.variant(Badge.Variant.Primary), _ => "Badge"),
+              Badge.of(_.variant(Badge.Variant.Secondary), _ => "Secondary"),
+              Badge.of(_.variant(Badge.Variant.Destructive), _ => "Destructive"),
+              Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")
+            ),
+            div(
+              cls := "flex w-full flex-wrap gap-2",
+              Badge.of(
+                _.variant(Badge.Variant.Secondary),
+                _ => cls := "bg-blue-500 text-white dark:bg-blue-600",
+                _ => Icons.badgeCheck(),
+                _ => "Verified"
+              ),
+              Badge.of(
+                _.variant(Badge.Variant.Primary),
+                _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+                _ => "8"
+              ),
+              Badge.of(
+                _.variant(Badge.Variant.Destructive),
+                _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+                _ => "99"
+              ),
+              Badge.of(
+                _.variant(Badge.Variant.Outline),
+                _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+                _ => "20+"
+              )
+            )
+          )
         )
       case "breadcrumb" =>
         previewCanvas(
@@ -879,39 +981,182 @@ object Main:
             Breadcrumb.list(
               Breadcrumb.item(Breadcrumb.link("/", "Home")),
               Breadcrumb.separator(),
-              Breadcrumb.item("Components")
+              Breadcrumb.item(
+                DropdownMenu.items(rawIcon(iconSvg("<path d='M12 12h.01M19 12h.01M5 12h.01'/>"))) { menu =>
+                  Seq(menu.item("Documentation"), menu.item("Themes"), menu.item("GitHub"))
+                }
+              ),
+              Breadcrumb.separator(),
+              Breadcrumb.item(Breadcrumb.link("/docs/components", "Components")),
+              Breadcrumb.separator(),
+              Breadcrumb.item(Breadcrumb.page("Breadcrumb"))
             )
           )
         )
       case "button" =>
         previewCanvas(
-          Button("Primary"),
-          Button.of(_.variant(Button.Variant.Outline), _ => "Outline"),
-          Button.of(_.variant(Button.Variant.Destructive), _ => "Delete")
+          div(
+            cls := "flex flex-wrap items-center gap-2 md:flex-row",
+            Button.of(_.variant(Button.Variant.Outline), _ => "Button"),
+            Button.of(
+              _.variant(Button.Variant.Outline),
+              _.size(Button.Size.Icon),
+              _ => aria.label := "Submit",
+              _ => Icons.arrowRight(svg.cls := "-rotate-90")
+            )
+          )
         )
       case "button-group" =>
+        val label = Var("personal")
         previewCanvas(
           ButtonGroup(
-            Button.of(_.variant(Button.Variant.Outline), _ => "Back"),
-            Button.of(_.variant(Button.Variant.Outline), _ => "Next")
+            ButtonGroup(
+              cls := "hidden sm:flex",
+              Button(
+                Button.appearance(Button.Variant.Outline, Button.Size.IconSm),
+                aria.label := "Go Back",
+                Icons.arrowRight(svg.cls := "rotate-180")
+              )
+            ),
+            ButtonGroup(
+              Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Archive"),
+              Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Report")
+            ),
+            ButtonGroup(
+              Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Snooze"),
+              DropdownMenu.itemsWithTrigger(Button.appearance(Button.Variant.Outline), DropdownMenu.Align.End)(
+                Button(
+                  Button.appearance(Button.Variant.Outline, Button.Size.IconSm),
+                  aria.label := "More Options",
+                  Icons.moreHorizontal()
+                )
+              ) { menu =>
+                Seq(
+                  menu.group(
+                    menu.item(Icons.check(), "Mark as Read"),
+                    menu.item(Icons.bookmark(), "Archive")
+                  ),
+                  menu.separator(),
+                  menu.group(
+                    menu.item(Icons.timer(), "Snooze"),
+                    menu.item(Icons.calendar(), "Add to Calendar"),
+                    menu.item(Icons.plus(), "Add to List"),
+                    menu.sub(Icons.bookmark(), "Label As...") { sub =>
+                      Seq(
+                        sub.radioItem(label, "personal", "Personal"),
+                        sub.radioItem(label, "work", "Work"),
+                        sub.radioItem(label, "other", "Other")
+                      )
+                    }
+                  ),
+                  menu.separator(),
+                  menu.group(menu.item(Menu.destructive, Icons.trash2(), "Trash"))
+                )
+              }
+            )
           )
         )
       case "card" =>
         previewCanvas(
           Card(
-            cls := "w-full max-w-sm",
-            Card.header(Card.title("Project update"), Card.description("A Card composed from Laminar primitives.")),
-            Card.content("Your latest deployment is ready.")
+            cls := "-my-4 w-full max-w-sm",
+            Card.header(
+              Card.title("Login to your account"),
+              Card.description("Enter your email below to login to your account"),
+              Card.action(Button.of(_.variant(Button.Variant.Link), _ => "Sign Up"))
+            ),
+            Card.content(
+              form(
+                div(
+                  cls := "flex flex-col gap-6",
+                  div(
+                    cls := "grid gap-2",
+                    Label("Email"),
+                    Input(typ := "email", placeholder := "m@example.com", required := true)
+                  ),
+                  div(
+                    cls := "grid gap-2",
+                    div(
+                      cls := "flex items-center",
+                      Label("Password"),
+                      a(
+                        href := "##",
+                        cls := "ms-auto inline-block text-sm underline-offset-4 hover:underline",
+                        "Forgot your password?"
+                      )
+                    ),
+                    Input(typ := "password", required := true)
+                  )
+                )
+              )
+            ),
+            Card.footer(
+              cls := "flex-col gap-2",
+              Button(cls := "w-full", "Login"),
+              Button.of(_.variant(Button.Variant.Outline), _ => cls := "w-full", _ => "Login with Google")
+            )
           )
         )
       case "chart" => previewCanvas(Chart("Chart preview"))
       case "checkbox" =>
-        previewCanvas(Checkbox(idAttr := "terms"), Label(forId := "terms", "Accept terms"))
+        previewCanvas(
+          div(
+            cls := "flex flex-col gap-6",
+            div(
+              cls := "flex items-center gap-3",
+              Checkbox(idAttr := "terms"),
+              Label(forId := "terms", "Accept terms and conditions")
+            ),
+            div(
+              cls := "flex items-start gap-3",
+              Checkbox(idAttr := "terms-2", checked := true),
+              div(
+                cls := "grid gap-2",
+                Label(forId := "terms-2", "Accept terms and conditions"),
+                p(
+                  cls := "text-sm text-muted-foreground",
+                  "By clicking this checkbox, you agree to the terms and conditions."
+                )
+              )
+            ),
+            div(
+              cls := "flex items-start gap-3",
+              Checkbox(idAttr := "toggle", disabled := true),
+              Label(forId := "toggle", "Enable notifications")
+            ),
+            Label(
+              cls := "flex items-start gap-3 rounded-lg border p-3 hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950",
+              Checkbox(
+                idAttr := "toggle-2",
+                checked := true,
+                cls := "data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+              ),
+              div(
+                cls := "grid gap-1.5 font-normal",
+                p(cls := "text-sm leading-none font-medium", "Enable notifications"),
+                p(cls := "text-sm text-muted-foreground", "You can enable or disable notifications at any time.")
+              )
+            )
+          )
+        )
       case "collapsible" =>
         previewCanvas(
           Collapsible(
-            Collapsible.trigger("Show details"),
-            Collapsible.content(p(cls := "pt-2 text-sm text-muted-foreground", "This is native details content."))
+            Collapsible.trigger(
+              cls := "w-[350px] space-y-2",
+              div(
+                cls := "flex items-center justify-between space-x-4 px-4",
+                h4(cls := "text-sm font-semibold", "@huntabyte starred 3 repositories"),
+                Icons.chevronsUpDown(),
+                span(cls := "sr-only", "Toggle")
+              ),
+              div(cls := "rounded-md border px-4 py-3 font-mono text-sm", "@huntabyte/bits-ui")
+            ),
+            Collapsible.content(
+              cls := "space-y-2",
+              div(cls := "rounded-md border px-4 py-3 font-mono text-sm", "@melt-ui/melt-ui"),
+              div(cls := "rounded-md border px-4 py-3 font-mono text-sm", "@sveltejs/svelte")
+            )
           )
         )
       case "combobox" =>
@@ -944,15 +1189,15 @@ object Main:
       case "command" =>
         previewCanvas(
           Command(
-            cls := "w-full max-w-sm border",
-            Command.input(placeholder := "Type a command or search…"),
+            cls := "rounded-lg border shadow-md md:min-w-[450px]",
+            Command.input(placeholder := "Type a command or search..."),
             Command.list(
               Command.empty("No results found."),
               Command.group(
                 "Suggestions",
                 Command.item(Icons.calendar(), span("Calendar")),
-                Command.item(Icons.search(), span("Search Emoji")),
-                Command.item(Icons.creditCard(), span("Launch"))
+                Command.item(Icons.circleHelp(), span("Search Emoji")),
+                Command.item(Icons.creditCard(), span("Calculator"), disabled := true)
               ),
               Command.separator(),
               Command.group(
@@ -999,20 +1244,28 @@ object Main:
           )
         )
       case "dropdown-menu" =>
-        val showStatusBar = Var(true)
         previewCanvas(
-          DropdownMenu.items("Open menu") { menu =>
+          DropdownMenu.items("Open") { menu =>
             Seq(
               DropdownMenu.label("My Account"),
-              DropdownMenu.separator(),
-              menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
-              menu.item("Billing", DropdownMenu.shortcut("⌘B")),
-              DropdownMenu.separator(),
-              menu.checkboxItem(showStatusBar, "Status Bar"),
-              DropdownMenu.separator(),
-              menu.sub("Invite users")(sub =>
-                Seq(sub.item("Email"), sub.item("Message"), sub.separator(), sub.item("More…"))
+              menu.group(
+                menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
+                menu.item("Billing", DropdownMenu.shortcut("⌘B")),
+                menu.item("Settings", DropdownMenu.shortcut("⌘S")),
+                menu.item("Keyboard shortcuts", DropdownMenu.shortcut("⌘K"))
               ),
+              DropdownMenu.separator(),
+              menu.group(
+                menu.item("Team"),
+                menu.sub("Invite users")(sub =>
+                  Seq(sub.item("Email"), sub.item("Message"), sub.separator(), sub.item("More..."))
+                ),
+                menu.item("New Team", DropdownMenu.shortcut("⌘+T"))
+              ),
+              DropdownMenu.separator(),
+              menu.item("GitHub"),
+              menu.item("Support"),
+              menu.item("API"),
               DropdownMenu.separator(),
               menu.item(Menu.destructive, "Log out", DropdownMenu.shortcut("⇧⌘Q"))
             )
@@ -1021,8 +1274,24 @@ object Main:
       case "empty" =>
         previewCanvas(
           Empty(
-            cls := "w-full max-w-sm",
-            Empty.header(Empty.title("No projects"), Empty.description("Create your first project to get started."))
+            Empty.header(
+              Empty.media(Empty.MediaVariant.Icon, Icons.folder()),
+              Empty.title("No Projects Yet"),
+              Empty.description("You haven't created any projects yet. Get started by creating your first project.")
+            ),
+            Empty.content(
+              div(
+                cls := "flex gap-2",
+                Button("Create Project"),
+                Button.of(_.variant(Button.Variant.Outline), _ => "Import Project")
+              )
+            ),
+            Button.of(
+              _.variant(Button.Variant.Link),
+              _.size(Button.Size.Sm),
+              _ => cls := "text-muted-foreground",
+              _ => a(href := "#/", "Learn More ", Icons.arrowRight(svg.cls := "inline"))
+            )
           )
         )
       case "field" =>
@@ -1078,7 +1347,7 @@ object Main:
             Form.button("Submit")
           )
         )
-      case "input" => previewCanvas(Input(placeholder := "Type something…", cls := "max-w-sm"))
+      case "input" => previewCanvas(Input(typ := "email", placeholder := "Email", cls := "max-w-xs"))
       case "input-group" =>
         previewCanvas(
           div(
@@ -1108,10 +1377,27 @@ object Main:
             Item.actions(Badge("Stable"))
           )
         )
-      case "kbd"   => previewCanvas(Kbd("⌘K"), Kbd.group(Kbd("⌘"), Kbd("P")))
-      case "label" => previewCanvas(Label("Email address"), Input(placeholder := "you@example.com", cls := "max-w-sm"))
+      case "kbd" => previewCanvas(Kbd("⌘K"), Kbd.group(Kbd("⌘"), Kbd("P")))
+      case "label" =>
+        previewCanvas(
+          div(
+            div(
+              cls := "flex items-center space-x-2",
+              Checkbox(idAttr := "terms"),
+              Label(forId := "terms", "Accept terms and conditions")
+            )
+          )
+        )
       case "native-select" =>
-        previewCanvas(NativeSelect(cls := "max-w-sm", option("Choose a plan"), option("Pro"), option("Team")))
+        previewCanvas(
+          NativeSelect(
+            option(value := "", "Select status"),
+            option(value := "todo", "Todo"),
+            option(value := "in-progress", "In Progress"),
+            option(value := "done", "Done"),
+            option(value := "cancelled", "Cancelled")
+          )
+        )
       case "popover" =>
         def dimensionRow(label: String, value: String): HtmlElement =
           div(
@@ -1154,13 +1440,27 @@ object Main:
             )
           )
         )
-      case "progress" => previewCanvas(Progress(68, cls := "w-full max-w-sm"))
+      case "progress" => previewCanvas(Progress(68, cls := "w-[60%]"))
       case "radio"    => previewCanvas(Radio("plan", checked := true), Label("Pro"), Radio("plan"), Label("Team"))
       case "radio-group" =>
         previewCanvas(
           RadioGroup(
-            Label(RadioGroup.item("plan", checked := true), "Pro"),
-            Label(RadioGroup.item("plan"), "Team")
+            value := "comfortable",
+            div(
+              cls := "flex items-center space-x-2",
+              RadioGroup.item("default", idAttr := "r1"),
+              Label(forId := "r1", "Default")
+            ),
+            div(
+              cls := "flex items-center space-x-2",
+              RadioGroup.item("comfortable", idAttr := "r2"),
+              Label(forId := "r2", "Comfortable")
+            ),
+            div(
+              cls := "flex items-center space-x-2",
+              RadioGroup.item("compact", idAttr := "r3"),
+              Label(forId := "r3", "Compact")
+            )
           )
         )
       case "range" => previewCanvas(Range(value := "50", cls := "max-w-sm"))
@@ -1174,12 +1474,19 @@ object Main:
           )
         )
       case "scroll-area" =>
+        val tags = Seq("vue", "svelte", "astro", "react", "next.js", "nuxt.js", "remix", "angular", "solidjs")
         previewCanvas(
           ScrollArea(
-            cls := "h-32 w-full max-w-sm border p-3",
-            p("Scrollable content rendered by the Laminar primitive."),
-            div(styleAttr := "height:12rem"),
-            p("End")
+            cls := "h-72 w-48 rounded-md border",
+            div(
+              (Seq[Modifier[HtmlElement]](
+                cls := "p-4",
+                h4(cls := "mb-4 text-sm leading-none font-medium", "Tags")
+              ) ++ tags
+                .flatMap(tag =>
+                  Seq(div(cls := "text-sm", tag), Separator(Separator.Orientation.Horizontal, cls := "my-2"))
+                ))*
+            )
           )
         )
       case "select" =>
@@ -1234,8 +1541,15 @@ object Main:
             )
           )
         )
-      case "skeleton" => previewCanvas(Skeleton(cls := "h-20 w-full max-w-sm"))
-      case "slider"   => previewCanvas(Slider(cls := "w-full max-w-sm"))
+      case "skeleton" =>
+        previewCanvas(
+          div(
+            cls := "flex items-center space-x-4",
+            Skeleton(cls := "size-12 rounded-full"),
+            div(cls := "space-y-2", Skeleton(cls := "h-4 w-[250px]"), Skeleton(cls := "h-4 w-[200px]"))
+          )
+        )
+      case "slider" => previewCanvas(Slider(cls := "max-w-[70%]"))
       case "sonner" =>
         previewCanvas(
           Button.of(
@@ -1251,62 +1565,162 @@ object Main:
             _ => "Show Toast"
           )
         )
-      case "spinner" => previewCanvas(Spinner())
+      case "spinner" =>
+        previewCanvas(
+          div(
+            cls := "flex w-full max-w-xs flex-col gap-4 [--radius:1rem]",
+            Item.of(
+              _.variant(Item.Variant.Muted),
+              _ => Item.media(mods = Spinner()),
+              _ => Item.content(Item.title(cls := "line-clamp-1", "Processing payment...")),
+              _ => Item.content(cls := "flex-none justify-end", span(cls := "text-sm tabular-nums", "$100.00"))
+            )
+          )
+        )
       case "switch" =>
         previewCanvas(
-          Switch(switchOn),
-          span(
-            cls := "text-sm text-muted-foreground",
-            child.text <-- switchOn.signal.map(if _ then "Enabled" else "Disabled")
+          div(
+            cls := "flex items-center space-x-2",
+            Switch(idAttr := "airplane-mode"),
+            Label(forId := "airplane-mode", "Airplane Mode")
           )
         )
       case "table" =>
         previewCanvas(
           Table(
-            Table.header(Table.row(Table.head("Component"), Table.head("Status"))),
+            Table.caption("A list of your recent invoices."),
+            Table.header(
+              Table.row(
+                Table.head(cls := "w-[100px]", "Invoice"),
+                Table.head("Status"),
+                Table.head("Method"),
+                Table.head(cls := "text-end", "Amount")
+              )
+            ),
             Table.body(
-              Table.row(Table.cell("Drawer"), Table.cell(Badge("Ready"))),
-              Table.row(Table.cell("Dialog"), Table.cell(Badge.of(_.variant(Badge.Variant.Secondary), _ => "Native")))
-            )
+              Table.row(
+                Table.cell(cls := "font-medium", "INV001"),
+                Table.cell("Paid"),
+                Table.cell("Credit Card"),
+                Table.cell(cls := "text-end", "$250.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV002"),
+                Table.cell("Pending"),
+                Table.cell("PayPal"),
+                Table.cell(cls := "text-end", "$150.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV003"),
+                Table.cell("Unpaid"),
+                Table.cell("Bank Transfer"),
+                Table.cell(cls := "text-end", "$350.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV004"),
+                Table.cell("Paid"),
+                Table.cell("Credit Card"),
+                Table.cell(cls := "text-end", "$450.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV005"),
+                Table.cell("Paid"),
+                Table.cell("PayPal"),
+                Table.cell(cls := "text-end", "$550.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV006"),
+                Table.cell("Pending"),
+                Table.cell("Bank Transfer"),
+                Table.cell(cls := "text-end", "$200.00")
+              ),
+              Table.row(
+                Table.cell(cls := "font-medium", "INV007"),
+                Table.cell("Unpaid"),
+                Table.cell("Credit Card"),
+                Table.cell(cls := "text-end", "$300.00")
+              )
+            ),
+            Table.footer(Table.row(Table.cell(colSpan := 3, "Total"), Table.cell(cls := "text-end", "$2,500.00")))
           )
         )
       case "tabs" =>
         previewCanvas(
           div(
-            cls := "flex w-full max-w-md flex-col gap-6",
-            div(
-              cls := "flex flex-col gap-2",
-              p(cls := "text-sm font-medium", "Default"),
-              Tabs.stateful(tabsDefaultSelected)(
-                ("overview", "Overview", p(cls := "text-sm text-muted-foreground", "Overview panel content.")),
-                ("usage", "Usage", p(cls := "text-sm text-muted-foreground", "Usage panel content."))
-              )
-            ),
-            div(
-              cls := "flex flex-col gap-2",
-              p(cls := "text-sm font-medium", "Line"),
-              Tabs.stateful(tabsLineSelected, Tabs.ListVariant.Line)(
-                Tabs.Tab("overview", "Overview", p(cls := "text-sm text-muted-foreground", "Overview panel content.")),
-                Tabs.Tab("usage", "Usage", p(cls := "text-sm text-muted-foreground", "Usage panel content."))
+            cls := "-mb-4 flex w-full max-w-sm flex-col gap-6",
+            Tabs.stateful(Var("account"))(
+              (
+                "account",
+                "Account",
+                Card(
+                  Card.header(
+                    Card.title("Account"),
+                    Card.description("Make changes to your account here. Click save when you're done.")
+                  ),
+                  Card.content(
+                    cls := "grid gap-6",
+                    div(
+                      cls := "grid gap-3",
+                      Label(forId := "tabs-demo-name", "Name"),
+                      Input(idAttr := "tabs-demo-name", defaultValue := "Pedro Duarte")
+                    ),
+                    div(
+                      cls := "grid gap-3",
+                      Label(forId := "tabs-demo-username", "Username"),
+                      Input(idAttr := "tabs-demo-username", defaultValue := "@peduarte")
+                    )
+                  ),
+                  Card.footer(Button("Save changes"))
+                )
+              ),
+              (
+                "password",
+                "Password",
+                Card(
+                  Card.header(
+                    Card.title("Password"),
+                    Card.description("Change your password here. After saving, you'll be logged out.")
+                  ),
+                  Card.content(
+                    cls := "grid gap-6",
+                    div(
+                      cls := "grid gap-3",
+                      Label(forId := "tabs-demo-current", "Current password"),
+                      Input(idAttr := "tabs-demo-current", typ := "password")
+                    ),
+                    div(
+                      cls := "grid gap-3",
+                      Label(forId := "tabs-demo-new", "New password"),
+                      Input(idAttr := "tabs-demo-new", typ := "password")
+                    )
+                  ),
+                  Card.footer(Button("Save password"))
+                )
               )
             )
           )
         )
-      case "textarea"       => previewCanvas(Textarea(placeholder := "Write a message…", cls := "max-w-sm"))
+      case "textarea"       => previewCanvas(Textarea(placeholder := "Type your message here."))
       case "theme-switcher" => previewCanvas(ThemeSwitcher(previewTheme))
       case "toast" =>
         previewCanvas(
           Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))
         )
-      case "tooltip"    => previewCanvas(Tooltip("Helpful context", span("Hover me")))
+      case "tooltip" =>
+        previewCanvas(Tooltip("Add to library", Button.of(_.variant(Button.Variant.Outline), _ => "Hover")))
       case "typography" => previewCanvas(typographyDemo())
       case "aspect-ratio" =>
         previewCanvas(
           div(
-            cls := "w-full max-w-sm",
+            cls := "w-full max-w-[450px]",
             AspectRatio(
               16.0 / 9.0,
-              div(cls := "flex size-full items-center justify-center rounded-md bg-muted", "16:9")
+              cls := "rounded-lg bg-muted",
+              img(
+                src := "https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80",
+                alt := "Gray by Drew Beamer",
+                cls := "h-full w-full rounded-lg object-cover dark:brightness-[0.2] dark:grayscale"
+              )
             )
           )
         )
@@ -1367,9 +1781,9 @@ object Main:
       case "date-picker" =>
         previewCanvas(
           div(
-            cls := "flex flex-col items-center gap-4",
-            DatePicker(Var(Option.empty[js.Date])),
-            DatePicker.withRange(Var((Option.empty[js.Date], Option.empty[js.Date])))
+            cls := "flex flex-col gap-3",
+            Label(cls := "px-1", "Date of birth"),
+            DatePicker(Var(Option.empty[js.Date]), "Select date")
           )
         )
       case "range-calendar" =>
@@ -1464,10 +1878,20 @@ object Main:
       case "separator" =>
         previewCanvas(
           div(
-            cls := "flex w-full max-w-sm flex-col gap-4",
-            p(cls := "text-sm", "Section one"),
-            Separator(),
-            p(cls := "text-sm", "Section two")
+            div(
+              cls := "space-y-1",
+              h4(cls := "text-sm leading-none font-medium", "Bits UI Primitives"),
+              p(cls := "text-sm text-muted-foreground", "An open-source UI component library.")
+            ),
+            Separator(Separator.Orientation.Horizontal, cls := "my-4"),
+            div(
+              cls := "flex h-5 items-center space-x-4 text-sm",
+              div("Blog"),
+              Separator(Separator.Orientation.Vertical),
+              div("Docs"),
+              Separator(Separator.Orientation.Vertical),
+              div("Source")
+            )
           )
         )
       case "sheet" =>
@@ -1539,15 +1963,17 @@ object Main:
 
 Accordion(
   openItem,
-  Accordion.Section("What are your shipping options?", "We offer standard, express, and overnight shipping."),
-  Accordion.Section("What is your return policy?", "Items can be returned within 30 days of delivery.")
+  cls := "w-full sm:max-w-[70%]",
+  Accordion.Section("Product Information", div(cls := "flex flex-col gap-4 text-balance", p("Our flagship product combines cutting-edge technology with sleek design. Built with premium materials, it offers unparalleled performance and reliability."), p("Key features include advanced processing capabilities, and an intuitive user interface designed for both beginners and experts."))),
+  Accordion.Section("Shipping Details", div(cls := "flex flex-col gap-4 text-balance", p("We offer worldwide shipping through trusted courier partners. Standard delivery takes 3-5 business days, while express shipping ensures delivery within 1-2 business days."), p("All orders are carefully packaged and fully insured. Track your shipment in real-time through our dedicated tracking portal."))),
+  Accordion.Section("Return Policy", div(cls := "flex flex-col gap-4 text-balance", p("We stand behind our products with a comprehensive 30-day return policy. If you're not completely satisfied, simply return the item in its original condition."), p("Our hassle-free return process includes free return shipping and full refunds processed within 48 hours of receiving the returned item.")))
 )"""
       case "alert" =>
         """// An icon is optional, but must be a *direct* child of Alert — that is what switches
 // on the icon grid column (has-[>svg]:grid-cols-*). A wrapper element defeats it.
 Alert(
   Alert.Variant.Default,
-  circleCheckIcon,
+  bareIcon(iconCircleCheck),
   Alert.title("Success! Your changes have been saved"),
   Alert.description("This is an alert with icon, title and description.")
 )
@@ -1555,21 +1981,14 @@ Alert(
 // Title only — the description is optional too.
 Alert(
   Alert.Variant.Default,
-  infoIcon,
+  bareIcon(iconPopcorn),
   Alert.title("This Alert has a title and an icon. No description.")
-)
-
-// No icon.
-Alert(
-  Alert.Variant.Default,
-  Alert.title("This Alert has no icon"),
-  Alert.description("Title and description line up in the same column either way.")
 )
 
 // The description is a grid, so block children stack with a gap.
 Alert(
   Alert.Variant.Destructive,
-  circleAlertIcon,
+  bareIcon(iconCircleAlert),
   Alert.title("Unable to process your payment."),
   Alert.description(
     p("Please verify your billing information and try again."),
@@ -1584,23 +2003,72 @@ Alert(
       case "alert-dialog" =>
         """val isOpen = Var(false)
 
-Button(onClick --> { _ => isOpen.set(true) }, "Open alert dialog")
+Button.of(_.variant(Button.Variant.Outline), _ => onClick --> { _ => isOpen.set(true) }, _ => "Show Dialog")
 
 AlertDialog(isOpen)(
   AlertDialog.header(
     AlertDialog.title("Are you absolutely sure?"),
-    AlertDialog.description("This action cannot be undone.")
+    AlertDialog.description("This action cannot be undone. This will permanently delete your account and remove your data from our servers.")
   ),
   AlertDialog.footer(
     AlertDialog.cancel(onClick --> { _ => isOpen.set(false) }, "Cancel"),
     AlertDialog.action(onClick --> { _ => isOpen.set(false) }, "Continue")
   )
 )"""
-      case "avatar" => """Avatar(Avatar.fallback("LS"))"""
+      case "avatar" =>
+        """div(
+  cls := "flex flex-row flex-wrap items-center gap-12",
+  Avatar(
+    Avatar.image("https://github.com/shadcn.png", "@shadcn"),
+    Avatar.fallback("CN")
+  ),
+  Avatar(
+    cls := "rounded-lg",
+    Avatar.image("https://github.com/evilrabbit.png", "@evilrabbit"),
+    Avatar.fallback("ER")
+  ),
+  Avatar.group(
+    cls := "*:data-[slot=avatar]:grayscale",
+    Avatar(Avatar.image("https://github.com/shadcn.png", "@shadcn"), Avatar.fallback("CN")),
+    Avatar(Avatar.image("https://github.com/leerob.png", "@leerob"), Avatar.fallback("LR")),
+    Avatar(Avatar.image("https://github.com/evilrabbit.png", "@evilrabbit"), Avatar.fallback("ER"))
+  )
+)"""
       case "badge" =>
-        """Badge("New")
-Badge.of(_.variant(Badge.Variant.Secondary), _ => "Beta")
-Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")"""
+        """div(
+  cls := "flex flex-col items-center gap-2",
+  div(
+    cls := "flex w-full flex-wrap gap-2",
+    Badge.of(_.variant(Badge.Variant.Primary), _ => "Badge"),
+    Badge.of(_.variant(Badge.Variant.Secondary), _ => "Secondary"),
+    Badge.of(_.variant(Badge.Variant.Destructive), _ => "Destructive"),
+    Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")
+  ),
+  div(
+    cls := "flex w-full flex-wrap gap-2",
+    Badge.of(
+      _.variant(Badge.Variant.Secondary),
+      _ => cls := "bg-blue-500 text-white dark:bg-blue-600",
+      _ => Icons.badgeCheck(),
+      _ => "Verified"
+    ),
+    Badge.of(
+      _.variant(Badge.Variant.Primary),
+      _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+      _ => "8"
+    ),
+    Badge.of(
+      _.variant(Badge.Variant.Destructive),
+      _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+      _ => "99"
+    ),
+    Badge.of(
+      _.variant(Badge.Variant.Outline),
+      _ => cls := "h-5 min-w-5 rounded-full px-1 font-mono tabular-nums",
+      _ => "20+"
+    )
+  )
+)"""
       case "breadcrumb" =>
         """Breadcrumb(
   Breadcrumb.list(
@@ -1610,22 +2078,105 @@ Badge.of(_.variant(Badge.Variant.Outline), _ => "Outline")"""
   )
 )"""
       case "button" =>
-        """Button("Primary")
-Button.of(_.variant(Button.Variant.Outline), _ => "Outline")
-Button.of(_.variant(Button.Variant.Destructive), _ => "Delete")"""
+        """div(
+  cls := "flex flex-wrap items-center gap-2 md:flex-row",
+  Button.of(_.variant(Button.Variant.Outline), _ => "Button"),
+  Button.of(
+    _.variant(Button.Variant.Outline),
+    _.size(Button.Size.Icon),
+    _ => aria.label := "Submit",
+    _ => Icons.arrowRight(svg.cls := "-rotate-90")
+  )
+)"""
       case "button-group" =>
-        """ButtonGroup(
-  Button.of(_.variant(Button.Variant.Outline), _ => "Back"),
-  Button.of(_.variant(Button.Variant.Outline), _ => "Next")
+        """val label = Var("personal")
+
+ButtonGroup(
+  ButtonGroup(
+    cls := "hidden sm:flex",
+    Button(
+      Button.appearance(Button.Variant.Outline, Button.Size.IconSm),
+      aria.label := "Go Back",
+      Icons.arrowRight(svg.cls := "rotate-180")
+    )
+  ),
+  ButtonGroup(
+    Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Archive"),
+    Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Report")
+  ),
+  ButtonGroup(
+    Button(Button.appearance(Button.Variant.Outline, Button.Size.Sm), "Snooze"),
+    DropdownMenu.itemsWithTrigger(
+      Button.appearance(Button.Variant.Outline),
+      DropdownMenu.Align.End
+    )(
+      Button(
+        Button.appearance(Button.Variant.Outline, Button.Size.IconSm),
+        aria.label := "More Options",
+        Icons.moreHorizontal()
+      )
+    ) { menu =>
+      Seq(
+        menu.group(menu.item(Icons.check(), "Mark as Read"), menu.item(Icons.bookmark(), "Archive")),
+        menu.separator(),
+        menu.group(
+          menu.item(Icons.timer(), "Snooze"),
+          menu.item(Icons.calendar(), "Add to Calendar"),
+          menu.item(Icons.plus(), "Add to List"),
+          menu.sub(Icons.bookmark(), "Label As...") { sub =>
+            Seq(
+              sub.radioItem(label, "personal", "Personal"),
+              sub.radioItem(label, "work", "Work"),
+              sub.radioItem(label, "other", "Other")
+            )
+          }
+        ),
+        menu.separator(),
+        menu.group(menu.item(Menu.destructive, Icons.trash2(), "Trash"))
+      )
+    }
+  )
 )"""
       case "card" =>
         """Card(
-  Card.header(Card.title("Project update"), Card.description("A Card composed from Laminar primitives.")),
-  Card.content("Your latest deployment is ready.")
+  cls := "-my-4 w-full max-w-sm",
+  Card.header(
+    Card.title("Login to your account"),
+    Card.description("Enter your email below to login to your account"),
+    Card.action(Button.of(_.variant(Button.Variant.Link), _ => "Sign Up"))
+  ),
+  Card.content(
+    form(
+      div(
+        cls := "flex flex-col gap-6",
+        div(cls := "grid gap-2", Label("Email"), Input(typ := "email", placeholder := "m@example.com", required := true)),
+        div(
+          cls := "grid gap-2",
+          div(cls := "flex items-center", Label("Password"), a(href := "##", cls := "ms-auto inline-block text-sm underline-offset-4 hover:underline", "Forgot your password?")),
+          Input(typ := "password", required := true)
+        )
+      )
+    )
+  ),
+  Card.footer(
+    cls := "flex-col gap-2",
+    Button(cls := "w-full", "Login"),
+    Button.of(_.variant(Button.Variant.Outline), _ => cls := "w-full", _ => "Login with Google")
+  )
 )"""
-      case "chart"    => """Chart("Chart preview")"""
-      case "checkbox" => """Checkbox(idAttr := "terms")
-Label(forId := "terms", "Accept terms")"""
+      case "chart" => """Chart("Chart preview")"""
+      case "checkbox" =>
+        """div(
+  cls := "flex flex-col gap-6",
+  div(cls := "flex items-center gap-3", Checkbox(idAttr := "terms"), Label(forId := "terms", "Accept terms and conditions")),
+  div(cls := "flex items-start gap-3", Checkbox(idAttr := "terms-2", checked := true), div(cls := "grid gap-2", Label(forId := "terms-2", "Accept terms and conditions"), p(cls := "text-sm text-muted-foreground", "By clicking this checkbox, you agree to the terms and conditions."))),
+  div(cls := "flex items-start gap-3", Checkbox(idAttr := "toggle", disabled := true), Label(forId := "toggle", "Enable notifications")),
+  Label(
+    cls := "flex items-start gap-3 rounded-lg border p-3 hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950",
+    Checkbox(idAttr := "toggle-2", checked := true, cls := "data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"),
+    div(cls := "grid gap-1.5 font-normal", p(cls := "text-sm leading-none font-medium", "Enable notifications"), p(cls := "text-sm text-muted-foreground", "You can enable or disable notifications at any time."))
+  )
+)"""
       case "collapsible" =>
         """Collapsible(
   Collapsible.trigger("Show details"),
@@ -1705,18 +2256,25 @@ Drawer(isOpen)(
   )
 )"""
       case "dropdown-menu" =>
-        """val showStatusBar = Var(true)
-
-DropdownMenu.items("Open menu") { menu =>
+        """DropdownMenu.items("Open") { menu =>
   Seq(
     DropdownMenu.label("My Account"),
+    menu.group(
+      menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
+      menu.item("Billing", DropdownMenu.shortcut("⌘B")),
+      menu.item("Settings", DropdownMenu.shortcut("⌘S")),
+      menu.item("Keyboard shortcuts", DropdownMenu.shortcut("⌘K"))
+    ),
     DropdownMenu.separator(),
-    menu.item("Profile", DropdownMenu.shortcut("⇧⌘P")),
-    menu.item(() => println("billing"), "Billing"),
+    menu.group(
+      menu.item("Team"),
+      menu.sub("Invite users")(sub => Seq(sub.item("Email"), sub.item("Message"), sub.separator(), sub.item("More..."))),
+      menu.item("New Team", DropdownMenu.shortcut("⌘+T"))
+    ),
     DropdownMenu.separator(),
-    menu.checkboxItem(showStatusBar, "Status Bar"),
-    menu.sub("Invite users")(sub => Seq(sub.item("Email"), sub.item("Message"))),
-    menu.item(Menu.destructive, "Log out")
+    menu.item("GitHub"), menu.item("Support"), menu.item("API"),
+    DropdownMenu.separator(),
+    menu.item(Menu.destructive, "Log out", DropdownMenu.shortcut("⇧⌘Q"))
   )
 }"""
       case "empty" =>
@@ -1763,7 +2321,7 @@ Form(
   ),
   Form.button("Submit")
 )"""
-      case "input" => """Input(placeholder := "Type something…")"""
+      case "input" => """Input(typ := "email", placeholder := "Email", cls := "max-w-xs")"""
       case "input-group" =>
         """InputGroup(
   InputGroup.addon(InputGroup.AddonAlign.InlineStart, InputGroup.text("https://")),
@@ -1780,11 +2338,19 @@ InputGroup(
   Item.content(Item.title("Laminar"), Item.description("Reactive Scala.js UI")),
   Item.actions(Badge("Stable"))
 )"""
-      case "kbd"           => """Kbd("⌘K")
+      case "kbd" => """Kbd("⌘K")
 Kbd.group(Kbd("⌘"), Kbd("P"))"""
-      case "label"         => """Label("Email address")
-Input(placeholder := "you@example.com")"""
-      case "native-select" => """NativeSelect(option("Choose a plan"), option("Pro"), option("Team"))"""
+      case "label" =>
+        """div(
+  div(cls := "flex items-center space-x-2", Checkbox(idAttr := "terms"), Label(forId := "terms", "Accept terms and conditions"))
+)"""
+      case "native-select" => """NativeSelect(
+  option(value := "", "Select status"),
+  option(value := "todo", "Todo"),
+  option(value := "in-progress", "In Progress"),
+  option(value := "done", "Done"),
+  option(value := "cancelled", "Cancelled")
+)"""
       case "popover" =>
         """Popover(
   Popover.trigger(Button.appearance(Button.Variant.Outline), "Open popover"),
@@ -1816,15 +2382,17 @@ Pagination(
     Pagination.item(pager.next())
   )
 )"""
-      case "progress" => """Progress(68)"""
+      case "progress" => """Progress(68, cls := "w-[60%]")"""
       case "radio"    => """Radio("plan", checked := true)
 Label("Pro")
 Radio("plan")
 Label("Team")"""
       case "radio-group" =>
         """RadioGroup(
-  Label(RadioGroup.item("plan", checked := true), "Pro"),
-  Label(RadioGroup.item("plan"), "Team")
+  value := "comfortable",
+  div(cls := "flex items-center space-x-2", RadioGroup.item("default", idAttr := "r1"), Label(forId := "r1", "Default")),
+  div(cls := "flex items-center space-x-2", RadioGroup.item("comfortable", idAttr := "r2"), Label(forId := "r2", "Comfortable")),
+  div(cls := "flex items-center space-x-2", RadioGroup.item("compact", idAttr := "r3"), Label(forId := "r3", "Compact"))
 )"""
       case "range" => """Range(value := "50")"""
       case "scrollbar" =>
@@ -1834,10 +2402,13 @@ Label("Team")"""
   p("End")
 )"""
       case "scroll-area" =>
-        """ScrollArea(
-  p("Scrollable content rendered by the Laminar primitive."),
-  div(styleAttr := "height:12rem"),
-  p("End")
+        """val tags = Seq("vue", "svelte", "astro", "react", "next.js", "nuxt.js", "remix", "angular", "solidjs")
+ScrollArea(
+  cls := "h-72 w-48 rounded-md border",
+  div(
+    (Seq[Modifier[HtmlElement]](cls := "p-4", h4(cls := "mb-4 text-sm leading-none font-medium", "Tags")) ++ tags
+      .flatMap(tag => Seq(div(cls := "text-sm", tag), Separator(Separator.Orientation.Horizontal, cls := "my-2")))*
+  )
 )"""
       case "select" =>
         """val plan = Var("")
@@ -1862,8 +2433,9 @@ Select(plan, "Choose a plan") { ctx =>
   Sidebar.header("Navigation"),
   Sidebar.content(Sidebar.menu(Sidebar.menuItem("Overview"), Sidebar.menuItem("Settings")))
 )"""
-      case "skeleton" => """Skeleton(cls := "h-20 w-full")"""
-      case "slider"   => """Slider(cls := "w-full max-w-sm")"""
+      case "skeleton" =>
+        """div(cls := "flex items-center space-x-4", Skeleton(cls := "size-12 rounded-full"), div(cls := "space-y-2", Skeleton(cls := "h-4 w-[250px]"), Skeleton(cls := "h-4 w-[200px]")))"""
+      case "slider" => """Slider(cls := "max-w-[70%]")"""
       case "sonner" =>
         """// Mount once near your app root
 Sonner.Toaster()
@@ -1887,41 +2459,65 @@ Sonner.error("Something went wrong")
 Sonner.info("Did you know?")
 Sonner.warning("Please review")
 Sonner.loading("Loading…")"""
-      case "spinner" => """Spinner()"""
-      case "switch"  => """val enabled = Var(true)
-Switch(enabled)"""
-      case "table" =>
-        """Table(
-  Table.header(Table.row(Table.head("Component"), Table.head("Status"))),
-  Table.body(
-    Table.row(Table.cell("Drawer"), Table.cell(Badge("Ready"))),
-    Table.row(Table.cell("Dialog"), Table.cell(Badge.of(_.variant(Badge.Variant.Secondary), _ => "Native")))
+      case "spinner" => """div(
+  cls := "flex w-full max-w-xs flex-col gap-4 [--radius:1rem]",
+  Item.of(
+    _.variant(Item.Variant.Muted),
+    _ => Item.media(Spinner()),
+    _ => Item.content(Item.title(cls := "line-clamp-1", "Processing payment...")),
+    _ => Item.content(cls := "flex-none justify-end", span(cls := "text-sm tabular-nums", "$100.00"))
   )
 )"""
-      case "tabs" =>
-        """val selected = Var("overview")
-Tabs.stateful(selected)(
-  ("overview", "Overview", p("Overview panel content.")),
-  ("usage", "Usage", p("Usage panel content."))
-)
-
-Tabs.stateful(selected, Tabs.ListVariant.Line, cls := "w-full")(
-  Tabs.Tab("overview", "Overview", p("Overview content."), Seq(cls := "flex-1")),
-  Tabs.Tab("usage", "Usage", p("Usage content."), Seq(cls := "flex-1"))
+      case "switch"  => """div(
+  cls := "flex items-center space-x-2",
+  Switch(idAttr := "airplane-mode"),
+  Label(forId := "airplane-mode", "Airplane Mode")
 )"""
-      case "textarea"       => """Textarea(placeholder := "Write a message…")"""
+      case "table" =>
+        """Table(
+  Table.caption("A list of your recent invoices."),
+  Table.header(Table.row(Table.head(cls := "w-[100px]", "Invoice"), Table.head("Status"), Table.head("Method"), Table.head(cls := "text-end", "Amount"))),
+  Table.body(
+    Table.row(Table.cell(cls := "font-medium", "INV001"), Table.cell("Paid"), Table.cell("Credit Card"), Table.cell(cls := "text-end", "$250.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV002"), Table.cell("Pending"), Table.cell("PayPal"), Table.cell(cls := "text-end", "$150.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV003"), Table.cell("Unpaid"), Table.cell("Bank Transfer"), Table.cell(cls := "text-end", "$350.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV004"), Table.cell("Paid"), Table.cell("Credit Card"), Table.cell(cls := "text-end", "$450.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV005"), Table.cell("Paid"), Table.cell("PayPal"), Table.cell(cls := "text-end", "$550.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV006"), Table.cell("Pending"), Table.cell("Bank Transfer"), Table.cell(cls := "text-end", "$200.00")),
+    Table.row(Table.cell(cls := "font-medium", "INV007"), Table.cell("Unpaid"), Table.cell("Credit Card"), Table.cell(cls := "text-end", "$300.00"))
+  ),
+  Table.footer(Table.row(Table.cell(colSpan := 3, "Total"), Table.cell(cls := "text-end", "$2,500.00")))
+)"""
+      case "tabs" =>
+        """val selected = Var("account")
+Tabs.stateful(selected)(
+  ("account", "Account", Card(Card.header(Card.title("Account"), Card.description("Make changes to your account here. Click save when you're done.")), Card.content(cls := "grid gap-6", div(cls := "grid gap-3", Label(forId := "tabs-demo-name", "Name"), Input(idAttr := "tabs-demo-name", defaultValue := "Pedro Duarte")), div(cls := "grid gap-3", Label(forId := "tabs-demo-username", "Username"), Input(idAttr := "tabs-demo-username", defaultValue := "@peduarte"))), Card.footer(Button("Save changes")))),
+  ("password", "Password", Card(Card.header(Card.title("Password"), Card.description("Change your password here. After saving, you'll be logged out.")), Card.content(cls := "grid gap-6", div(cls := "grid gap-3", Label(forId := "tabs-demo-current", "Current password"), Input(idAttr := "tabs-demo-current", typ := "password")), div(cls := "grid gap-3", Label(forId := "tabs-demo-new", "New password"), Input(idAttr := "tabs-demo-new", typ := "password"))), Card.footer(Button("Save password"))))
+)"""
+      case "textarea"       => """Textarea(placeholder := "Type your message here.")"""
       case "theme-switcher" => """val theme = Var(ThemeSwitcher.Theme.System)
 ThemeSwitcher(theme)"""
       case "toast" =>
         """Toast(Toast.Variant.Default, Toast.title("Saved"), Toast.description("Everything is up to date."))"""
-      case "tooltip" => """Tooltip("Helpful context", span("Hover me"))"""
+      case "tooltip" => """Tooltip("Add to library", Button.of(_.variant(Button.Variant.Outline), _ => "Hover"))"""
       case "typography" =>
         """h1(cls := "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl", "Heading 1")
 p(cls := "leading-7 [&:not(:first-child)]:mt-6", "Paragraph")
 p(cls := "text-xl text-muted-foreground", "Lead text")
 code(cls := "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold", "code")"""
       case "aspect-ratio" =>
-        """AspectRatio(16.0 / 9.0, div(cls := "bg-muted flex items-center justify-center", "16:9"))"""
+        """div(
+  cls := "w-full max-w-[450px]",
+  AspectRatio(
+    16.0 / 9.0,
+    cls := "rounded-lg bg-muted",
+    img(
+      src := "https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80",
+      alt := "Gray by Drew Beamer",
+      cls := "h-full w-full rounded-lg object-cover dark:brightness-[0.2] dark:grayscale"
+    )
+  )
+)"""
       case "calendar" => """val selected = Var(Option.empty[js.Date])
 Calendar(selected)"""
       case "carousel" =>
@@ -1984,10 +2580,11 @@ Input(
 
 table.view(_.id)"""
       case "date-picker"    => """val selected = Var(Option.empty[js.Date])
-DatePicker(selected)
-
-val range = Var((Option.empty[js.Date], Option.empty[js.Date]))
-DatePicker.withRange(range)"""
+div(
+  cls := "flex flex-col gap-3",
+  Label(cls := "px-1", "Date of birth"),
+  DatePicker(selected, "Select date")
+)"""
       case "range-calendar" => """val range = Var((Option.empty[js.Date], Option.empty[js.Date]))
 RangeCalendar(range, cls := "rounded-md border")"""
       case "hover-card" =>
@@ -2055,9 +2652,12 @@ Menubar.bar() { bar =>
       case "resizable" =>
         """val split = Var(50.0)
 Resizable.horizontal(split)(div("Left"), div("Right"))"""
-      case "separator" => """p("Section one")
-Separator()
-p("Section two")"""
+      case "separator" =>
+        """div(
+  div(cls := "space-y-1", h4(cls := "text-sm leading-none font-medium", "Bits UI Primitives"), p(cls := "text-sm text-muted-foreground", "An open-source UI component library.")),
+  Separator(cls := "my-4"),
+  div(cls := "flex h-5 items-center space-x-4 text-sm", div("Blog"), Separator(orientation := "vertical"), div("Docs"), Separator(orientation := "vertical"), div("Source"))
+)"""
       case "sheet" =>
         """val isOpen = Var(false)
 

@@ -36,6 +36,15 @@ object Empty:
       mods
     )
 
+  /** Compose root modifiers and child nodes, matching the Svelte Root component's slot. */
+  def apply(mods: Modifier[HtmlElement]*)(children: Node*): HtmlElement =
+    div(
+      dataAttr("slot") := "empty",
+      cls := base,
+      mods,
+      children
+    )
+
   def header(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "empty-header",

@@ -6,20 +6,9 @@ object Switch:
   private val base =
     "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-xs transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
 
+  /** Uncontrolled switch, matching Bits UI's default internal-state behavior. */
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    button(
-      typ := "button",
-      role := "switch",
-      aria.checked := "false",
-      dataAttr("slot") := "switch",
-      dataAttr("size") := "default",
-      cls := s"input cn-switch group/switch $base bg-input",
-      span(
-        dataAttr("slot") := "switch-thumb",
-        cls := "cn-switch-thumb pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform"
-      ),
-      mods
-    )
+    apply(Var(false), mods*)
 
   def apply(checkedVar: Var[Boolean], mods: Modifier[HtmlElement]*): HtmlElement =
     button(

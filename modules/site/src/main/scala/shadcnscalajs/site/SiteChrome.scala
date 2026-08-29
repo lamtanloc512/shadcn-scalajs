@@ -67,7 +67,8 @@ object SiteChrome:
       // Never selected by activeOf — leaving the SPA means this header is gone.
       (Active.WebComponents, "/web-components", "Web Components")
     )
-    if showHome then all else all.tail
+    val enabled = if SiteFeatures.webComponents then all else all.filterNot(_._1 == Active.WebComponents)
+    if showHome then enabled else enabled.tail
 
   def primaryNav(active: Active, includeGitHub: Boolean = false, showHome: Boolean = true): HtmlElement =
     navTag(
@@ -129,7 +130,7 @@ object SiteChrome:
       navGhostActive(s"/components/$componentName", "Components"),
       navGhost("/blocks", "Blocks"),
       navGhost("/create", "Create"),
-      navGhost("/web-components", "Web Components")
+      if SiteFeatures.webComponents then navGhost("/web-components", "Web Components") else emptyNode
     )
 
   private def isLanding(route: Router.Route): Boolean = route == Router.Route.Landing

@@ -27,6 +27,7 @@ object Icons:
     "audio-lines",
     "badge-check",
     "bell",
+    "bold",
     "book-open",
     "bookmark",
     "bot",
@@ -56,6 +57,7 @@ object Icons:
     "globe",
     "heart",
     "image",
+    "italic",
     "layout-dashboard",
     "lock",
     "lock-keyhole",
@@ -89,6 +91,7 @@ object Icons:
     "trash-2",
     "trending-up",
     "tv",
+    "underline",
     "undo",
     "user",
     "volume-2",
@@ -172,6 +175,7 @@ object Icons:
   def audioLines(mods: Modifier[SvgElement]*): SvgElement = icon("audio-lines")(mods*)
   def badgeCheck(mods: Modifier[SvgElement]*): SvgElement = icon("badge-check")(mods*)
   def bell(mods: Modifier[SvgElement]*): SvgElement = icon("bell")(mods*)
+  def bold(mods: Modifier[SvgElement]*): SvgElement = icon("bold")(mods*)
   def bookOpen(mods: Modifier[SvgElement]*): SvgElement = icon("book-open")(mods*)
   def bookmark(mods: Modifier[SvgElement]*): SvgElement = icon("bookmark")(mods*)
   def bot(mods: Modifier[SvgElement]*): SvgElement = icon("bot")(mods*)
@@ -201,6 +205,7 @@ object Icons:
   def globe(mods: Modifier[SvgElement]*): SvgElement = icon("globe")(mods*)
   def heart(mods: Modifier[SvgElement]*): SvgElement = icon("heart")(mods*)
   def image(mods: Modifier[SvgElement]*): SvgElement = icon("image")(mods*)
+  def italic(mods: Modifier[SvgElement]*): SvgElement = icon("italic")(mods*)
   def layoutDashboard(mods: Modifier[SvgElement]*): SvgElement = icon("layout-dashboard")(mods*)
   def lock(mods: Modifier[SvgElement]*): SvgElement = icon("lock")(mods*)
   def lockKeyhole(mods: Modifier[SvgElement]*): SvgElement = icon("lock-keyhole")(mods*)
@@ -234,6 +239,7 @@ object Icons:
   def trash2(mods: Modifier[SvgElement]*): SvgElement = icon("trash-2")(mods*)
   def trendingUp(mods: Modifier[SvgElement]*): SvgElement = icon("trending-up")(mods*)
   def tv(mods: Modifier[SvgElement]*): SvgElement = icon("tv")(mods*)
+  def underline(mods: Modifier[SvgElement]*): SvgElement = icon("underline")(mods*)
   def undo(mods: Modifier[SvgElement]*): SvgElement = icon("undo")(mods*)
   def user(mods: Modifier[SvgElement]*): SvgElement = icon("user")(mods*)
   def volume2(mods: Modifier[SvgElement]*): SvgElement = icon("volume-2")(mods*)
