@@ -386,6 +386,7 @@
     "title": "Sidebar",
     "type": "scala:ui",
     "registryDependencies": [
+      "theme",
       "button",
       "separator",
       "drawer",
@@ -497,6 +498,7 @@
     "title": "Dashboard 01",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "sidebar",
       "separator",
       "card",
@@ -636,5 +638,12 @@
       "authentication",
       "signup"
     ]
+  },
+  {
+    "name": "theme",
+    "title": "Theme",
+    "type": "css:theme",
+    "registryDependencies": [],
+    "description": "Design tokens and the default Nova style pack required by shadcn-scalajs components and blocks."
   }
 ]

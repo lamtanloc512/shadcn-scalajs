@@ -5,6 +5,7 @@
   "description": "A dashboard with sidebar, charts and data table. (Column drag-reorder omitted — no DnD in ui.DataTable.)",
   "categories": ["dashboard", "analytics"],
   "registryDependencies": [
+    "theme",
     "sidebar",
     "separator",
     "card",

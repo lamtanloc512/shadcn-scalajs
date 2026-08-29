@@ -4,6 +4,7 @@
   "title": "Dashboard 01",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "sidebar",
     "separator",
     "card",

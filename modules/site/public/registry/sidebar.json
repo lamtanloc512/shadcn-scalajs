@@ -4,6 +4,7 @@
   "title": "Sidebar",
   "type": "scala:ui",
   "registryDependencies": [
+    "theme",
     "button",
     "separator",
     "drawer",

@@ -30,6 +30,15 @@ const roots = [
     type: "scala:block",
     targetPrefix: "blocks/",
     recursive: true
+  },
+  {
+    // Design tokens + default Nova pack. Targets are relative to the consumer UI package root
+    // (e.g. packages/ui), not the Scala sourceDir.
+    dir: path.join(repoRoot, "modules/theme"),
+    type: "css:theme",
+    targetPrefix: "",
+    recursive: false,
+    useExplicitTargets: true
   }
 ];
 
@@ -68,7 +77,10 @@ async function main() {
       const files = await Promise.all(
         sidecar.files.map(async (file) => {
           const content = await readFile(path.join(root.dir, file.path), "utf-8");
-          return { content, type: file.type ?? root.type, target: `${root.targetPrefix}${file.path}` };
+          const target = root.useExplicitTargets && file.target
+            ? file.target
+            : `${root.targetPrefix}${file.path}`;
+          return { content, type: file.type ?? root.type, target };
         })
       );
 
