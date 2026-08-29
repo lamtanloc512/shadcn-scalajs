@@ -58,7 +58,7 @@ npm install
 npm run dev
 \`\`\`
 
-The dev command starts \`sbt ~ui/fastLinkJS\` first, waits for the Scala.js bundle, then starts Vite. That avoids sbt ServerAlreadyBootingException when both processes boot at once.
+The dev command starts the sbt watcher, waits for that run to become ready, and then starts Vite. Saving a Scala file recompiles the UI and reloads the browser without the sbt restart race.
 
 ## Add UI components
 

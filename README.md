@@ -35,7 +35,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` runs Vite and `sbt ~ui/fastLinkJS` together. Saving a Scala file recompiles the UI and reloads the browser.
+`npm run dev` starts the sbt watcher, waits for that run to become ready, and then starts Vite. Saving a Scala file recompiles the UI and reloads the browser without the sbt restart race.
 
 When `init` is run from a directory named `examples` or `.examples`, it creates a child directory using the project name:
 

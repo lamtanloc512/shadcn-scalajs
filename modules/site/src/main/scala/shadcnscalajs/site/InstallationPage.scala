@@ -59,7 +59,7 @@ object InstallationPage:
                 cls := "mt-3",
                 "The CLI asks for a project name and an artifact group such as ",
                 code(cls := "rounded bg-muted px-1.5 py-0.5 text-foreground", "org.ethan.app"),
-                "."
+                ". The preset selects the initial style pack and theme tokens for the generated UI."
               ),
               Card(
                 cls := "mt-4 gap-2 border-dashed p-4 text-sm shadow-none",
@@ -100,9 +100,7 @@ object InstallationPage:
               shellCode("npm install\nnpm run dev"),
               p(
                 cls := "mt-3",
-                "The dev command runs Vite and ",
-                code("sbt ~ui/fastLinkJS"),
-                " together, so editing Scala sources rebuilds and reloads the browser automatically."
+                "The dev command starts the sbt watcher, waits for that run to become ready, and then starts Vite. Editing Scala sources rebuilds and reloads the browser automatically without the sbt restart race."
               )
             ),
             step(
@@ -114,6 +112,8 @@ object InstallationPage:
                 cls := "mt-3",
                 "Component source is copied into ",
                 code("packages/ui/src/main/scala/shadcnscalajs"),
+                ". Theme tokens and the selected style pack live in ",
+                code("packages/ui/src/styles"),
                 ". You own and can edit every generated file."
               )
             ),
