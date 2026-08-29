@@ -12,7 +12,7 @@ object SiteChrome:
 
   /** Which primary-nav item should look selected. */
   enum Active derives CanEqual:
-    case None, Home, Components, Blocks, Create, WebComponents
+    case None, Home, Docs, Components, Blocks, Create, WebComponents
 
   def navGhost(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
     Button.anchor(hrefValue, Button.ButtonApi.variant(Button.Variant.Ghost), mods)
@@ -65,6 +65,7 @@ object SiteChrome:
   private def entries(showHome: Boolean): Seq[(Active, String, String)] =
     val all = Seq(
       (Active.Home, "/", "Home"),
+      (Active.Docs, "/docs/installation", "Docs"),
       (Active.Components, "/components", "Components"),
       (Active.Blocks, "/blocks", "Blocks"),
       (Active.Create, "/create", "Create"),
@@ -131,7 +132,7 @@ object SiteChrome:
       cls := "hidden items-center gap-1 md:flex",
       aria.label := "Primary",
       navGhost("/", "Home"),
-      navGhost("/components", "Docs"),
+      navGhost("/docs/installation", "Docs"),
       navGhostActive(s"/components/$componentName", "Components"),
       navGhost("/blocks", "Blocks"),
       navGhost("/create", "Create"),
@@ -141,6 +142,7 @@ object SiteChrome:
   private def isLanding(route: Router.Route): Boolean = route == Router.Route.Landing
 
   private def activeOf(route: Router.Route): Active = route match
+    case Router.Route.Installation                                                       => Active.Docs
     case Router.Route.ComponentsIndex | Router.Route.Component(_)                        => Active.Components
     case Router.Route.BlocksIndex | Router.Route.Block(_) | Router.Route.BlockPreview(_) => Active.Blocks
     case Router.Route.Create | Router.Route.CreatePreview                                => Active.Create

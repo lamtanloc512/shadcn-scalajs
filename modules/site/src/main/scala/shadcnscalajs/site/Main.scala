@@ -57,6 +57,7 @@ object Main:
 
   private def bodyFor(route: Router.Route, docsSlug: Signal[String]): HtmlElement = route match
     case Router.Route.Component(_)       => componentDocsBody(docsSlug)
+    case Router.Route.Installation       => InstallationPage()
     case Router.Route.ComponentsIndex    => componentsGalleryPage()
     case Router.Route.BlockPreview(name) => LazyRoutes.blockPreview(name)
     case Router.Route.BlocksIndex        => LazyRoutes.blocksIndex()
@@ -70,6 +71,7 @@ object Main:
   private def titleFor(route: Router.Route): String =
     def titleCase(slug: String) = slug.split("-").map(_.capitalize).mkString(" ")
     route match
+      case Router.Route.Installation       => "Installation – shadcn-scalajs"
       case Router.Route.ComponentsIndex    => "Components – shadcn-scalajs"
       case Router.Route.Component(slug)    => s"${titleCase(if slug.isEmpty then "drawer" else slug)} – shadcn-scalajs"
       case Router.Route.BlockPreview(name) => s"${titleCase(name)} preview – shadcn-scalajs"
@@ -431,7 +433,7 @@ object Main:
                 Icons.arrowRight(svg.cls := "size-4")
               ),
               Button.anchor(
-                "/components",
+                "/docs/installation",
                 Button.ButtonApi.variant(Button.Variant.Outline),
                 "Get started"
               )
@@ -513,9 +515,9 @@ object Main:
             aria.label := "Component navigation",
             p(cls := "mb-2 px-2 text-xs font-medium text-muted-foreground", "SECTIONS"),
             a(
-              href := "/",
+              href := "/docs/installation",
               cls := "block rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground",
-              "Introduction"
+              "Installation"
             ),
             a(
               href := "/components",

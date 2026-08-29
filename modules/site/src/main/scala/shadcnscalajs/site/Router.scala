@@ -19,6 +19,7 @@ object Router:
 
   enum Route derives CanEqual:
     case Landing
+    case Installation
     case ComponentsIndex
     case Component(slug: String)
     case BlocksIndex
@@ -33,7 +34,9 @@ object Router:
   private val CreatePath = "/create/preview-02"
 
   def parse(pathname: String): Route =
-    if pathname == "/web-components" || pathname == "/web-components/" then
+    if pathname == "/docs" || pathname == "/docs/" || pathname == "/docs/installation" || pathname == "/docs/installation/"
+    then Route.Installation
+    else if pathname == "/web-components" || pathname == "/web-components/" then
       if SiteFeatures.webComponents then Route.WebComponents else Route.ComponentsIndex
     else if pathname == "/components" || pathname == "/components/" then Route.ComponentsIndex
     else if pathname.startsWith("/components/") then
@@ -166,6 +169,7 @@ object Router:
   /** Paths the app renders itself. Unknown paths fall through to a real navigation rather than silently landing. */
   private def owns(pathname: String): Boolean =
     pathname == "/" ||
+      pathname.startsWith("/docs") ||
       pathname.startsWith("/components") ||
       pathname.startsWith("/blocks") ||
       pathname.startsWith("/create") ||

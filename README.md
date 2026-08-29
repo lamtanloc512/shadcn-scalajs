@@ -1,185 +1,189 @@
 # shadcn-scalajs
 
-A port of [shadcn/ui](https://ui.shadcn.com)'s philosophy to [Scala.js](https://www.scala-js.org/) + [Laminar](https://laminar.dev): components you copy into your own project and own, styled with Tailwind CSS v4 utilities matching shadcn/ui's canonical `new-york-v4` source exactly, and every component also compiles to a standalone Web Component so any frontend stack — not just Scala.js — can use it. Covers the full shadcn/ui catalog (~60 components; the newest AI-chat-specific additions and non-component doc pages excluded), documented in a basecoat-style docs site with live previews rendered by the real Laminar components, not static screenshots.
+Copy-and-own [shadcn/ui](https://ui.shadcn.com/) components for [Scala.js](https://www.scala-js.org/) and [Laminar](https://laminar.dev/). Components use Tailwind CSS v4 utilities that follow shadcn/ui's canonical `new-york-v4` source and are installed into your application as editable Scala files.
 
-> **Alpha:** shadcn-scalajs is ready for early use and feedback, but APIs may still change before 1.0.
+> **Alpha:** shadcn-scalajs is ready for early projects and feedback, but APIs and generated project structure may change before 1.0.
 
-## Install components
+- Documentation: https://shadcn-scalajs.vercel.app/docs/installation
+- Components: https://shadcn-scalajs.vercel.app/components
+- Customizer: https://shadcn-scalajs.vercel.app/create
+- npm CLI: https://www.npmjs.com/package/shadcn-scalajs
 
-Create a working Scala.js + Laminar monorepo (in an empty directory) and add components:
+## Installation
+
+### Create a new project
+
+Use an empty directory:
 
 ```bash
+mkdir my-app
+cd my-app
 npx shadcn-scalajs@latest init --preset buFywLo
-npx shadcn-scalajs@latest add button dialog accordion
+```
+
+The initializer asks for:
+
+```text
+Project name: my-app
+Artifact group (for example org.ethan.app): org.ethan.app
+```
+
+Then install dependencies and start development:
+
+```bash
 npm install
 npm run dev
 ```
 
-`init` prompts for the project name and artifact group (for example `org.ethan.app`), then creates
-`packages/shared` (JS/JVM), `packages/ui` (Laminar + Vite/Tailwind v4), and framework-neutral
-`packages/services`. When run from an
-`examples` directory, it creates `examples/<project-name>`; elsewhere it scaffolds the current
-empty directory. Use `--project-name` and `--group` to skip the prompts; `--package` can override
-the Scala package prefix separately. In an existing project use `init --no-scaffold`; initialization never overwrites files
-unless `--force` is supplied.
+`npm run dev` runs Vite and `sbt ~ui/fastLinkJS` together. Saving a Scala file recompiles the UI and reloads the browser.
 
-For local registry development, start the docs site and override the registry URL:
+When `init` is run from a directory named `examples` or `.examples`, it creates a child directory using the project name:
 
-```bash
-cd modules/site && npm install && npm run dev
-npx shadcn-scalajs@latest init --no-scaffold --registry http://localhost:4300/registry
+```text
+examples/
+└── my-app/
 ```
 
-Or use generated JSON directly:
+Enter that directory before running the remaining commands.
+
+### Non-interactive setup
 
 ```bash
-npx shadcn-scalajs@latest init --no-scaffold --registry ./modules/site/public/registry
+npx shadcn-scalajs@latest init \
+  --project-name my-app \
+  --group org.ethan.app \
+  --preset buFywLo
 ```
 
-`init` writes `shadcn-scalajs.json`. For a scaffold, `add` copies Scala sources into
-`packages/ui/src/main/scala/shadcnscalajs/`; for an existing project it uses
-`src/main/scala/shadcnscalajs/` by default.
+Use `--package` when the Scala package prefix should differ from the sbt artifact group.
 
-Add to `build.sbt`:
+## Generated architecture
 
-```scala
-libraryDependencies ++= Seq(
-  "dev.shadcn-scalajs" %%% "core" % "0.1.0",
-  "com.raquo" %%% "laminar" % "17.2.1"
-)
+```text
+my-app/
+├── packages/
+│   ├── shared/       # domain contracts compiled for Scala.js and the JVM
+│   ├── services/     # backend-framework-neutral JVM services
+│   └── ui/           # Laminar + Scala.js + Vite + Tailwind CSS v4
+├── project/
+├── build.sbt
+├── package.json
+├── shadcn-scalajs.json
+└── README.md
 ```
 
-## Quick start
+- **shared** contains platform-neutral models and contracts used by both the browser and backend.
+- **services** is the JVM boundary. Add http4s, ZIO HTTP, Pekko HTTP, Play, or another backend without coupling it to the UI.
+- **ui** contains the Laminar application and all copied shadcn-scalajs components.
+
+## Add components
+
+Run commands from the generated project root:
 
 ```bash
-# ensure sbt is on PATH (Coursier-installed):
+npx shadcn-scalajs@latest add button card dialog
+```
+
+The CLI resolves transitive registry dependencies and writes source under:
+
+```text
+packages/ui/src/main/scala/shadcnscalajs/
+```
+
+The files belong to your project. Edit them directly instead of treating shadcn-scalajs as a runtime component library.
+
+Browse available components at https://shadcn-scalajs.vercel.app/components.
+
+## Common commands
+
+```bash
+npm run dev      # Vite plus watched Scala.js fastLinkJS
+npm run compile  # compile UI and services
+npm run build    # optimized Scala.js and Vite production build
+```
+
+The production frontend is written to `packages/ui/dist`.
+
+## Initialize an existing project
+
+For an existing Scala.js project, write only the registry configuration:
+
+```bash
+npx shadcn-scalajs@latest init --no-scaffold \
+  --source-dir src/main/scala/shadcnscalajs
+```
+
+`init` refuses to overwrite existing generated files unless `--force` is supplied.
+
+## Repository development
+
+Prerequisites:
+
+- JDK 21
+- sbt 1.10+
+- Node.js 20+
+
+Compile and link the repository:
+
+```bash
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
-
-# build everything
-sbt compile
-
-# Scala.js link — fast (dev) vs optimized (production size)
+sbt core/compile ui/compile blocks/compile webcomponents/compile site/compile
 sbt ui/fastLinkJS webcomponents/fastLinkJS site/fastLinkJS
-sbt siteOpt   # or: sbt opt — fullLinkJS minify + FewestModules
-
-# publish core to local Ivy (needed by consumer projects)
-sbt core/publishLocal
-
-# run the demo/docs site — predev generates Tailwind CSS + the registry first
-cd modules/site && npm install && npm run dev
-# → http://localhost:4300/                     landing page
-# → http://localhost:4300/components           components index
-# → http://localhost:4300/components/<name>    per-component docs + live preview
-# → http://localhost:4300/web-components       Web Component docs + live preview
-# → http://localhost:4300/plain-html-demo.html  Standalone Web Component mosaic (zero Scala.js on the page)
-
-# production bundle (runs site/fullLinkJS via the Vite plugin, then minifies)
-cd modules/site && npm run build
-# → modules/site/dist/
-
-# build the CLI
-cd packages/cli && npm install && npm run build
-
-# regenerate registry JSON from modules/ui/*.registry.json (also runs as part of predev/prebuild)
-cd modules/site && node scripts/build-registry.mjs
 ```
 
-## Project layout
+Run the documentation site:
 
+```bash
+cd modules/site
+npm install
+npm run dev
 ```
+
+Useful routes:
+
+```text
+http://localhost:4300/docs/installation
+http://localhost:4300/components
+http://localhost:4300/components/button
+http://localhost:4300/blocks
+http://localhost:4300/create
+```
+
+Build and test everything:
+
+```bash
+./scripts/test
+```
+
+The test script compiles the repository, rebuilds the registry, scaffolds a temporary consumer project, installs components, compiles the generated shared/UI/services projects, and produces a Vite production build.
+
+## Repository layout
+
+```text
 modules/
-  core/             CommonAttrs (openAttr), Tags (slot) — styling is Tailwind classes on the components themselves
-  ui/               Laminar component source of truth — one .scala + one .registry.json per component
-  webcomponents/    ScElementBase + Sc*/ScPrimitives custom-element wrappers for non-Scala consumers
-  site/             Vite + Tailwind v4 + PostCSS: Main.scala (landing + /components/:name docs) + plain-html-demo.html + generator scripts
+  core/             small Laminar helpers used by copied components
+  ui/               Laminar component source and registry sidecars
+  blocks/           multi-file compositions built from UI components
+  webcomponents/    experimental custom-element wrappers
+  site/             documentation, previews, registry generation, and Vercel build
 packages/
-  cli/              Node/TS + Commander: `init` writes shadcn-scalajs.json, `add <names>` resolves deps and writes files
-vendor/
-  basecoat/         cloned basecoat repo (gitignored) — source of the basecoat-source/ extraction
-  basecoat-source/  reference CSS/JS/docs extracted from basecoat, consumed by scripts/build-basecoat-styles.mjs
-  shadcn-source/    real shadcn/ui v4 theme presets, consumed by scripts/build-shadcn-presets.mjs
+  cli/              npm scaffolder and component installer
+vendor/              pinned upstream reference sources
 ```
 
-No CSS is vendored pre-compiled anymore — `modules/site`'s `predev`/`prebuild` scripts generate `basecoat.generated.css`/`shadcn-presets.generated.css` from the `vendor/` snapshots on every run. See `vendor/NOTICE.md` for the full picture, including a latent Shadow-DOM bug flagged for whoever wires up the Web Component CSS bundle next.
+The Laminar package is the current release target. Web Component wrappers remain experimental and are excluded from the default production site build.
 
-## Consuming a component
+## Publishing the CLI
 
-### From Scala.js / Laminar
+npm publishing uses GitHub Trusted Publishing. To release:
 
-```bash
-# publish core locally first
-sbt core/publishLocal
+1. Bump `packages/cli/package.json`, its lockfile, and the CLI version in `packages/cli/src/index.ts`.
+2. Push the changes.
+3. Create a GitHub release whose tag exactly matches `v<package-version>`.
+4. `.github/workflows/publish-cli.yml` builds and publishes with npm provenance through OIDC.
 
-# scaffold a consumer project
-cd packages/cli && npm install && npm run build
-cd /path/to/your/project
-node /path/to/shadcn-scalajs/packages/cli/dist/index.js init \
-  --no-scaffold --registry /path/to/shadcn-scalajs/modules/site/public/registry
-node /path/to/shadcn-scalajs/packages/cli/dist/index.js add button dialog
-```
+No `NPM_TOKEN` repository secret is required.
 
-Add to your `build.sbt`:
-```scala
-libraryDependencies ++= Seq(
-  "dev.shadcn-scalajs" %%% "core" % "0.1.0",
-  "com.raquo" %%% "laminar" % "17.2.1"
-)
-```
+## License
 
-### From any other frontend stack
-
-```html
-<script type="module" src="sc-components.js"></script>
-<sc-button variant="outline">Click me</sc-button>
-```
-
-`modules/webcomponents` wraps most (not yet all) of the components in `Sc*`/`ScPrimitives` custom-element classes — `modules/ui/CLAUDE.md` keeps the current wrapper gap list. The bundle itself is built by `modules/site/scripts/build-webcomponents.mjs` (runs in `predev`/`prebuild`): it links `webcomponents/fullLinkJS`, esbuilds it into `public/sc-components.js`, and emits `public/sc-components.css` (Tailwind output rewritten so `:root` tokens also apply to `:host`, plus one baked style pack).
-
-### Theming Web Components
-
-The bundle exposes a framework-neutral API at `window.ShadcnScalaJS` after the module loads. Tokens use the same shadcn CSS custom properties as the site (`--primary`, `--primary-foreground`, `--background`, `--foreground`, `--radius`, `--ring`, and so on): set them globally with `setTokens`, or scope them to one element with an inline `style` attribute.
-
-```html
-<script type="module" src="sc-components.js"></script>
-<script>
-  ShadcnScalaJS.setTokens({ primary: "oklch(0.62 0.24 300)", radius: "1rem" });
-  // Component-local values win over global values and are safe for Shadow DOM/portaled panels:
-  // <sc-button style="--primary: oklch(0.55 0.22 25)">Delete</sc-button>
-  // Remove only API-managed globals:
-  // ShadcnScalaJS.resetTokens();
-  ShadcnScalaJS.setTheme({ stylePack: "nova", darkMode: true, themeColor: "violet" });
-</script>
-```
-
-`setTokens` accepts keys with or without the leading `--`; passing `null` removes a token. Global values are written to `<html>` and mirrored into each component shadow root, while host-scoped values are copied to the component's theme host so Tailwind preset rules cannot override them. The bundle also mirrors dark mode, style/base/theme/chart/font/radius/menu attributes and cleans observers when components disconnect, so the contract works with dynamically mounted elements, packs, dark mode, and portal content. Events such as `sc-change` are composed and bubbling, and component properties (`disabled`, `checked`, `value`, `options`, `items`) can be assigned directly from any framework.
-
-## Component scope
-
-All ~60 components cover three architectural tiers (matching the split basecoat itself uses):
-
-| Tier | Examples | Mechanism |
-|---|---|---|
-| Pure CSS | Button, Badge, Card, Separator, AspectRatio | Tailwind utility classes and native HTML semantics |
-| Native elements | Dialog, Sheet, Accordion, Collapsible, Popover, Combobox | `<dialog>` with `showModal()`/`close()`, `<details>`/`<summary>` |
-| Reactive behavior | DropdownMenu, ContextMenu, Menubar, Calendar, InputOTP, Resizable | Laminar `Var`/`EventBus` — no Radix-equivalent primitives library exists for Laminar |
-
-Every component follows the same distribution pattern: `.scala` in `modules/ui`, a `.registry.json` sidecar, a doc page under `/components/:name` in `modules/site`, and (where built) an `Sc*`/`ScPrimitives` wrapper in `modules/webcomponents`.
-
-## Things that will bite you
-
-See `AGENTS.md`'s "Things that will bite you if you don't know them" section for the full, current list (Laminar tag-name suffixes, `ScElementBase` `children` shadowing, `composedPath()` for Shadow-DOM click-outside checks, `js.Date` `Int`/`Double` mismatches, and more) — kept there rather than duplicated here since it's the file most likely to be read first by an agent picking up this repo.
-
-## Development
-
-```bash
-sbt ~ui/fastLinkJS            # watch & rebuild ui
-sbt ~webcomponents/fastLinkJS # watch & rebuild web components
-sbt ~site/fastLinkJS          # watch & rebuild site
-sbt siteOpt                   # size-optimized site link (fullLinkJS)
-sbt scalafmtAll                # format before committing — scripts/lint checks this
-cd modules/site && npm run build   # fullLinkJS + Vite/esbuild minify → dist/
-```
-
-Scala.js linker notes: `fastLinkJS` uses `SmallModulesFor` for Vite HMR; `fullLinkJS` uses `FewestModules` + Scala.js minify + `avoidClasses=false` for smaller output (Vite finishes with esbuild). Source maps from the linker are off — Vite cannot resolve Scala.js absolute `file:`/`https:` map URIs and would warn about missing sources.
-
-Full architecture notes, gotchas, and the new-component checklist: `AGENTS.md`.
+MIT
