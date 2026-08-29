@@ -1,0 +1,43 @@
+# Vercel deploys the production site and hosted registry. This workflow only
+# verifies that committed registry JSON stays reproducible.
+name: Validate registry
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: registry-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Regenerate registry JSON
+        run: node modules/site/scripts/build-registry.mjs
+
+      - name: Verify registry is current
+        run: git diff --exit-code -- modules/site/public/registry
+
+      - name: Validate registry index
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from "node:fs/promises"
+          const index = JSON.parse(await readFile("modules/site/public/registry/index.json", "utf8"))
+          if (!Array.isArray(index) || index.length === 0) {
+            throw new Error("Registry index is empty or invalid")
+          }
+          console.log(`Validated ${index.length} registry items`)
+          NODE

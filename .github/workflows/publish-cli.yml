@@ -22,11 +22,11 @@ jobs:
       run:
         working-directory: packages/cli
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # npm Trusted Publishing requires npm 11.5.1 or newer. Node 24 ships
       # with a compatible npm, and the upgrade keeps that requirement explicit.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: npm
