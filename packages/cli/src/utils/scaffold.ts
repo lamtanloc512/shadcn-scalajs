@@ -52,7 +52,7 @@ npm install
 npm run dev
 \`\`\`
 
-Vite starts the Laminar UI at http://localhost:5173 and invokes Scala.js automatically.
+The dev command runs Vite and \`sbt ~ui/fastLinkJS\` together. Scala edits are relinked automatically and Vite reloads the Laminar UI at http://localhost:5173.
 
 ## Add UI components
 
@@ -90,13 +90,16 @@ Add your backend library to the \`services\` project in \`build.sbt\`. Put reque
   "private": true,
   "workspaces": ["packages/ui"],
   "scripts": {
-    "dev": "npm --workspace packages/ui run dev",
+    "dev": "concurrently --kill-others --names scala,vite \\\"sbt ~ui/fastLinkJS\\\" \\\"npm --workspace packages/ui run dev:vite\\\"",
     "build": "npm --workspace packages/ui run build",
     "compile": "sbt ui/compile services/compile"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
 `,
-    "build.sbt": `import org.scalajs.linker.interface.{ESVersion, ModuleKind}
+    "build.sbt": `import org.scalajs.linker.interface.{ESVersion, ModuleKind, ModuleSplitStyle}
 import sbtcrossproject.CrossPlugin.autoImport.*
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 
@@ -116,6 +119,7 @@ lazy val ui = project
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("${scalaPackage}.ui", "shadcnscalajs.ui")))
         .withESFeatures(_.withESVersion(ESVersion.ES2020))
         .withSourceMap(false)
     },
@@ -180,7 +184,7 @@ object Main:
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:vite": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
