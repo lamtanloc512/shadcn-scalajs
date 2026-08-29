@@ -4,6 +4,7 @@
   "title": "OTP 01",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "button",
     "card",
     "field",

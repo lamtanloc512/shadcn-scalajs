@@ -3,11 +3,26 @@
   "title": "Signup 01",
   "type": "scala:block",
   "description": "A signup form with name, email and password fields.",
-  "categories": ["authentication", "signup"],
-  "registryDependencies": ["button", "card", "input", "field"],
+  "categories": [
+    "authentication",
+    "signup"
+  ],
+  "registryDependencies": [
+    "theme",
+    "button",
+    "card",
+    "input",
+    "field"
+  ],
   "scalaDependencies": [],
   "files": [
-    { "path": "signup01/Signup01.scala", "type": "scala:page" },
-    { "path": "signup01/SignupForm.scala", "type": "scala:component" }
+    {
+      "path": "signup01/Signup01.scala",
+      "type": "scala:page"
+    },
+    {
+      "path": "signup01/SignupForm.scala",
+      "type": "scala:component"
+    }
   ]
 }

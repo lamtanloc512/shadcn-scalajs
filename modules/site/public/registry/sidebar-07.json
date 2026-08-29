@@ -4,6 +4,7 @@
   "title": "Sidebar 07",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "sidebar",
     "breadcrumb",
     "separator",

@@ -4,6 +4,7 @@
   "title": "Login 04",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "button",
     "card",
     "input",

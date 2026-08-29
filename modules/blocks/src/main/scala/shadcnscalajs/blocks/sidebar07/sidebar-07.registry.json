@@ -3,15 +3,43 @@
   "title": "Sidebar 07",
   "type": "scala:block",
   "description": "A sidebar that collapses to icons.",
-  "categories": ["sidebar"],
-  "registryDependencies": ["sidebar", "breadcrumb", "separator", "dropdown-menu", "avatar", "icons"],
+  "categories": [
+    "sidebar"
+  ],
+  "registryDependencies": [
+    "theme",
+    "sidebar",
+    "breadcrumb",
+    "separator",
+    "dropdown-menu",
+    "avatar",
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
-    { "path": "sidebar07/Sidebar07.scala", "type": "scala:page" },
-    { "path": "sidebar07/AppSidebar.scala", "type": "scala:component" },
-    { "path": "sidebar07/TeamSwitcher.scala", "type": "scala:component" },
-    { "path": "sidebar07/NavMain.scala", "type": "scala:component" },
-    { "path": "sidebar07/NavProjects.scala", "type": "scala:component" },
-    { "path": "sidebar07/NavUser.scala", "type": "scala:component" }
+    {
+      "path": "sidebar07/Sidebar07.scala",
+      "type": "scala:page"
+    },
+    {
+      "path": "sidebar07/AppSidebar.scala",
+      "type": "scala:component"
+    },
+    {
+      "path": "sidebar07/TeamSwitcher.scala",
+      "type": "scala:component"
+    },
+    {
+      "path": "sidebar07/NavMain.scala",
+      "type": "scala:component"
+    },
+    {
+      "path": "sidebar07/NavProjects.scala",
+      "type": "scala:component"
+    },
+    {
+      "path": "sidebar07/NavUser.scala",
+      "type": "scala:component"
+    }
   ]
 }

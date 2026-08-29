@@ -4,6 +4,7 @@
   "title": "Signup 01",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "button",
     "card",
     "input",

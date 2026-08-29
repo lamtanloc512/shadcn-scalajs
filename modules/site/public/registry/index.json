@@ -485,6 +485,7 @@
     "title": "Calendar 01",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "calendar"
     ],
     "description": "A single date picker.",
@@ -529,6 +530,7 @@
     "title": "Login 01",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "button",
       "card",
       "input",
@@ -545,6 +547,7 @@
     "title": "Login 03",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "button",
       "card",
       "input",
@@ -563,6 +566,7 @@
     "title": "Login 04",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "button",
       "card",
       "input",
@@ -580,6 +584,7 @@
     "title": "OTP 01",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "button",
       "card",
       "field",
@@ -596,6 +601,7 @@
     "title": "Sidebar 03",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "sidebar",
       "breadcrumb",
       "separator",
@@ -611,6 +617,7 @@
     "title": "Sidebar 07",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "sidebar",
       "breadcrumb",
       "separator",
@@ -628,6 +635,7 @@
     "title": "Signup 01",
     "type": "scala:block",
     "registryDependencies": [
+      "theme",
       "button",
       "card",
       "input",

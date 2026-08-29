@@ -4,6 +4,7 @@
   "title": "Calendar 01",
   "type": "scala:block",
   "registryDependencies": [
+    "theme",
     "calendar"
   ],
   "scalaDependencies": [],
