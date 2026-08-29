@@ -1,15 +1,18 @@
 # Publishes packages/cli through npm Trusted Publishing (GitHub OIDC).
-# Configure npm with this repository and workflow filename: publish-cli.yml.
+#
+# Required on npmjs.com → package shadcn-scalajs → Trusted Publisher:
+#   Repository owner: lamtanloc512
+#   Repository name:  shadcn-scalajs
+#   Workflow filename: publish-cli.yml
+#   Environment:      (leave empty)
+#
+# The npm package maintainer (currently ethandev512) must own that Trusted Publisher config.
 name: Publish CLI to npm
 
 on:
   release:
     types: [published]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  id-token: write
 
 concurrency:
   group: publish-cli
@@ -18,22 +21,32 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Job-level permissions are required for npm OIDC exchange.
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: packages/cli
     steps:
       - uses: actions/checkout@v5
 
-      # npm Trusted Publishing requires npm 11.5.1 or newer. Node 24 ships
-      # with a compatible npm, and the upgrade keeps that requirement explicit.
+      # registry-url is required so npm targets registry.npmjs.org.
+      # Do NOT set NODE_AUTH_TOKEN — Trusted Publishing uses OIDC instead.
       - uses: actions/setup-node@v5
         with:
           node-version: "24"
+          registry-url: "https://registry.npmjs.org"
           cache: npm
           cache-dependency-path: packages/cli/package-lock.json
 
       - name: Upgrade npm for Trusted Publishing
         run: npm install --global npm@latest
+
+      - name: Show npm / node versions
+        run: |
+          node -v
+          npm -v
 
       - name: Verify release tag matches package version
         if: github.event_name == 'release'
@@ -49,7 +62,5 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      # No NODE_AUTH_TOKEN or NPM_TOKEN: npm exchanges GitHub's OIDC token
-      # using the Trusted Publisher configured on npmjs.com.
       - name: Publish package
         run: npm publish --access public --provenance
