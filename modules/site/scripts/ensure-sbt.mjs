@@ -22,7 +22,10 @@ async function isExecutable(path) {
 
 async function hasSbtOnPath() {
   for (const directory of (process.env.PATH ?? "").split(delimiter)) {
-    if (directory && (await isExecutable(join(directory, "sbt")))) return true;
+    const candidate = directory && join(directory, "sbt");
+    // Rewrite our managed launcher on every build so a cached older wrapper
+    // cannot survive an update to this bootstrap script.
+    if (candidate && candidate !== sbtPath && (await isExecutable(candidate))) return true;
   }
   return false;
 }
@@ -47,7 +50,23 @@ try {
 
 const wrapper = `#!/bin/sh
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-exec java -Xms512m -Xmx2048m -jar "$SCRIPT_DIR/../.cache/sbt-launch-${sbtVersion}.jar" "$@"
+JAVA_ARGS=""
+NO_COLORS=""
+
+# These are sbt runner-script options used by the Scala.js Vite plugin. The
+# launcher jar itself does not understand them, so handle them before exec.
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --batch) shift ;;
+    -no-colors) NO_COLORS="-Dsbt.log.noformat=true"; shift ;;
+    -D*) JAVA_ARGS="$JAVA_ARGS $1"; shift ;;
+    *) break ;;
+  esac
+done
+
+# JAVA_ARGS contains only JVM -D properties supplied by the trusted build tool.
+# shellcheck disable=SC2086
+exec java -Xms512m -Xmx2048m $JAVA_ARGS $NO_COLORS -jar "$SCRIPT_DIR/../.cache/sbt-launch-${sbtVersion}.jar" "$@"
 `;
 await writeFile(sbtPath, wrapper);
 await chmod(sbtPath, 0o755);
