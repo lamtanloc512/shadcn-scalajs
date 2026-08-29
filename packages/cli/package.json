@@ -1,6 +1,6 @@
 {
   "name": "shadcn-scalajs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Scaffold Scala.js + Laminar projects and add shadcn-scalajs components.",
   "type": "module",
   "license": "MIT",
@@ -13,7 +13,8 @@
     "shadcn-scalajs": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "publishConfig": {
     "access": "public"

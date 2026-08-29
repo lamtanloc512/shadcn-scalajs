@@ -1,5 +1,6 @@
-import { access, mkdir, readdir, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface ScaffoldOptions {
   projectName: string;
@@ -32,7 +33,10 @@ object Tags:
 function files(options: ScaffoldOptions): Record<string, string> {
   const { projectName, artifactGroup, scalaPackage, preset } = options;
   const packagePath = scalaPackage.split(".").join("/");
-  const presetAttribute = preset ? ` data-preset="${preset}"` : "";
+  const presetAttribute = [
+    ` data-style-pack="nova"`,
+    preset ? ` data-preset="${preset}"` : ""
+  ].join("");
 
   return {
     "README.md": `# ${projectName}
@@ -211,6 +215,7 @@ export default defineConfig({
 `,
     "packages/ui/src/styles/globals.css": `@import "tailwindcss";
 @import "tw-animate-css";
+@import "./pack-nova.css";
 @source "../main/scala/**/*.scala";
 
 @custom-variant dark (&:is(.dark *));
@@ -231,13 +236,27 @@ export default defineConfig({
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
 :root {
@@ -257,9 +276,23 @@ export default defineConfig({
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.97 0.01 17);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
+  --chart-1: #93c5fd;
+  --chart-2: #3b82f6;
+  --chart-3: #2563eb;
+  --chart-4: #1d4ed8;
+  --chart-5: #1e40af;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
@@ -278,9 +311,23 @@ export default defineConfig({
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --chart-1: #93c5fd;
+  --chart-2: #3b82f6;
+  --chart-3: #2563eb;
+  --chart-4: #1d4ed8;
+  --chart-5: #1e40af;
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.439 0 0);
 }
 
 @layer base {
@@ -316,11 +363,22 @@ dist/
   };
 }
 
+function assetsDir(): string {
+  // dist/utils/scaffold.js -> ../../assets
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../assets");
+}
+
 export async function scaffold(cwd: string, options: ScaffoldOptions, force: boolean): Promise<string[]> {
   const generated = files(options);
+  const assetCopies: Array<{ from: string; to: string }> = [
+    {
+      from: path.join(assetsDir(), "styles", "pack-nova.css"),
+      to: "packages/ui/src/styles/pack-nova.css"
+    }
+  ];
 
   if (!force) {
-    for (const relative of Object.keys(generated)) {
+    for (const relative of [...Object.keys(generated), ...assetCopies.map(copy => copy.to)]) {
       const target = path.join(cwd, relative);
       const exists = await access(target).then(() => true).catch(() => false);
       if (exists) throw new Error(`Refusing to overwrite generated file: ${relative}`);
@@ -333,6 +391,12 @@ export async function scaffold(cwd: string, options: ScaffoldOptions, force: boo
     await mkdir(path.dirname(target), { recursive: true });
     await writeFile(target, content, "utf8");
     written.push(relative);
+  }
+  for (const copy of assetCopies) {
+    const target = path.join(cwd, copy.to);
+    await mkdir(path.dirname(target), { recursive: true });
+    await copyFile(copy.from, target);
+    written.push(copy.to);
   }
   return written;
 }
