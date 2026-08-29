@@ -96,7 +96,7 @@ Add your backend library to the \`services\` project in \`build.sbt\`. Put reque
   "private": true,
   "workspaces": ["packages/ui"],
   "scripts": {
-    "dev": "concurrently --kill-others --names scala,vite \\\"sbt ~ui/fastLinkJS\\\" \\\"node scripts/wait-for-scalajs.mjs && npm --workspace packages/ui run dev:vite\\\"",
+    "dev": "concurrently --kill-others --names scala,vite \\\"node scripts/run-scalajs-watch.mjs\\\" \\\"node scripts/wait-for-scalajs.mjs && npm --workspace packages/ui run dev:vite\\\"",
     "build": "npm --workspace packages/ui run build",
     "compile": "sbt ui/compile services/compile"
   },
@@ -244,26 +244,62 @@ export default defineConfig({
     "packages/ui/index.js": `import "./src/styles/globals.css";
 import "scalajs:main.js";
 `,
+    "scripts/run-scalajs-watch.mjs": `import { spawn } from "node:child_process";
+import { rm, writeFile } from "node:fs/promises";
+import path from "node:path";
+
+const readyFile = path.resolve(".scalajs-ready");
+await rm(readyFile, { force: true });
+
+const command = process.platform === "win32" ? "sbt.bat" : "sbt";
+const sbt = spawn(command, ["~ui/fastLinkJS"], { stdio: ["inherit", "pipe", "pipe"] });
+let output = "";
+let ready = false;
+
+const forward = (chunk, stream) => {
+  const text = chunk.toString();
+  stream.write(text);
+  output = (output + text).slice(-4096);
+  if (!ready && /Monitoring source files for .*fastLinkJS/.test(output)) {
+    ready = true;
+    writeFile(readyFile, "ready\\n").catch(() => {});
+  }
+};
+
+sbt.stdout.on("data", (chunk) => forward(chunk, process.stdout));
+sbt.stderr.on("data", (chunk) => forward(chunk, process.stderr));
+
+const stop = () => {
+  rm(readyFile, { force: true }).catch(() => {});
+  sbt.kill("SIGTERM");
+};
+process.once("SIGINT", stop);
+process.once("SIGTERM", stop);
+
+sbt.once("close", async (code) => {
+  await rm(readyFile, { force: true });
+  process.exit(code ?? 1);
+});
+`,
     "scripts/wait-for-scalajs.mjs": `import { access } from "node:fs/promises";
 import path from "node:path";
 
-// Vite's Scala.js plugin also starts sbt. If it races the watcher process during
-// boot, sbt throws ServerAlreadyBootingException ("Address already in use").
-// Wait until the first fastopt bundle exists so the server is already up.
-const marker = path.resolve("packages/ui/target/scala-3.5.2/ui-fastopt/main.js");
+// The bundle can survive Ctrl+C, so do not use its existence as a readiness check.
+// Wait for run-scalajs-watch.mjs to signal that this run's sbt watcher is monitoring.
+const marker = path.resolve(".scalajs-ready");
 const deadline = Date.now() + 180_000;
 
 while (Date.now() < deadline) {
   try {
     await access(marker);
-    console.log("[wait-for-scalajs] Scala.js bundle ready");
+    console.log("[wait-for-scalajs] sbt watcher ready");
     process.exit(0);
   } catch {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
 }
 
-console.error("[wait-for-scalajs] Timed out waiting for " + marker);
+console.error("[wait-for-scalajs] Timed out waiting for the sbt watcher");
 process.exit(1);
 `,
     ".gitignore": `target/
