@@ -21,9 +21,9 @@ modules/core/           CommonAttrs (openAttr), Tags (slot) — DataAttrs was de
 modules/ui/             Laminar component source of truth — what the CLI copies into consumer projects; one .scala + one .registry.json per component
 modules/blocks/         Multi-file page/section compositions built from modules/ui (login-01, signup-01, otp-01, calendar-01) — one package-legal dir per block (`login01/`) plus a `<name>.registry.json` sidecar whose `name` keeps the hyphen (`login-01`). Laminar has no file-based routing, so a block's "page" file is a mountable `def apply(): HtmlElement`, not a route.
 modules/webcomponents/  ScElementBase + Sc*/ScPrimitives custom-element wrappers around modules/ui, for non-Scala consumers (sc-components.js/css bundle built by modules/site/scripts/build-webcomponents.mjs, run in predev/prebuild)
-modules/site/           Vite + Tailwind v4 + PostCSS dev app: Main.scala (landing page + /components/:name docs route) + plain-html-demo.html + scripts/{build-basecoat-styles,build-shadcn-presets,build-registry}.mjs
-packages/cli/           Node/TS + Commander: `init` writes shadcn-scalajs.json, `add <names...>` resolves registryDependencies and writes files
-vendor/                 reference source (basecoat + shadcn/ui snapshots) consumed by modules/site's generator scripts — see vendor/NOTICE.md, it is NOT pre-compiled CSS anymore
+modules/site/           Vite + Tailwind v4 + PostCSS dev app: Main.scala (landing page + /components/:name docs route) + plain-html-demo.html + scripts/{build-style-packs,build-registry}.mjs
+packages/cli/           Node/TS + Commander: `init` writes shadcn-scalajs.json, `add <names...>` resolves registryDependencies and writes files, `mcp` serves the registry to agents
+vendor/                 shadcn/ui style-pack snapshots consumed by build-style-packs.mjs — see vendor/NOTICE.md
 ```
 
 ### Build/dev commands
@@ -38,7 +38,7 @@ sbt siteOpt                                                      # size-optimize
  sbt scalafmtAll                                                  # format before committing
 sbt core/publishLocal                                            # publish core to ~/.ivy2/local (needed for consumer fixtures / real CLI testing)
 
-cd modules/site && npm install && npm run dev   # predev runs build-basecoat-styles + build-shadcn-presets + build-registry, then Vite
+cd modules/site && npm install && npm run dev   # predev runs build-style-packs + build-registry, then Vite
 cd modules/site && npm run build                # production: Vite plugin runs site/fullLinkJS, then esbuild minify → dist/
 # → http://localhost:4300/                    native Laminar landing page
 # → http://localhost:4300/components          components index (componentsGalleryPage)
@@ -73,7 +73,7 @@ node packages/cli/dist/index.js add <component...>
 - For `ui`/`webcomponents`/`site` changes: actually load a page in a browser (Playwright or manual) and click through the interaction, not just eyeball it — several real bugs in this codebase were invisible from source review or compilation alone.
 - New component checklist: `.scala` in `modules/ui` (Tailwind classes matching the real shadcn/ui source) → `.registry.json` sidecar → add the display name to `componentNavList` in `modules/site/Main.scala` → add a `liveExample()` case and a matching `usageSource` case (keep these two matches in exact 1:1 correspondence — the Usage code block shown is only accurate if it matches what actually rendered) → `node scripts/build-registry.mjs` (or just let `predev`/`prebuild` do it).
 - New block checklist: directory + `.scala` files + `<name>.registry.json` sidecar under `modules/blocks` (sidecar needs `type: "scala:block"`, `description`, `categories`, and per-file `type` of `scala:page`/`scala:component`) → add a `Blocks.Meta` entry to `Blocks.all` **and** a case to `Blocks.render` in `modules/site/Blocks.scala` (both, or the block is unreachable) → `node scripts/build-registry.mjs` → browser-check all three routes (`/blocks`, `/blocks/<name>`, `/blocks/<name>/preview`).
-- **`Button(...)` with no variant/size is unstyled** — unlike upstream's cva, `Button.apply` has no `defaultVariants`, so a bare `Button("Save")` renders at 20px tall with no background. Always `Button.of(_.variant(...), _.size(...), ...)`. This bit the block ports; giving `apply` the upstream `defaultVariants` would fix every bare call at once but changes all ~60 previews, so it's deferred until it can land as its own change with a browser pass.
+- **`Button(...)` with no variant/size uses the shadcn defaults** — `globals.css` paints `[data-slot=button]` without `data-variant` / `data-size` as primary and `h-9`. `Button.of` / `Button.appearance` set those attributes and opt out of the defaults. Do not also emit a second background utility on the same element; Tailwind resolves the clash by stylesheet order.
 - For `cli` changes: run `init`+`add` against a scratch directory and, ideally, `sbt compile` the result against a `core/publishLocal`'d build (`./scripts/test` does the smoke-test part of this automatically; the full sbt-compile check is still manual — see `scripts/test`'s own comment).
 
 ## Verification

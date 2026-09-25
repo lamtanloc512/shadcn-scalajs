@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "./basecoat.generated.css";
 /* The eight style packs are NOT imported here. Each is compiled to its own public/styles/pack-<name>.css by
    scripts/build-style-packs.mjs and only the active one is linked at runtime — see ThemeConfig.applyStylePack. */
 
@@ -118,16 +117,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  /* basecoat.generated.css references these icon tokens but ships no definitions (its
-     base layer is excluded so this file owns the tokens). Left undefined, the checkbox's
-     `mask-image: var(--check-icon)` resolves to `none`, and its `::after` paints as a solid
-     block that hides the checked fill. Values mirror vendor/basecoat-source/base/base.css. */
+  /* Checkbox `::after` masks with these icons. Left undefined, the mask is `none` and the
+     check paints as a solid block. */
   --chevron-down-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.556 0 0)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
   --chevron-down-icon-50: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.556 0 0 / 0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
   --check-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.556 0 0)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>');
 }
 
-/* Style packs live entirely in shadcn-presets.generated.css, which ports every pack's per-component
+/* Style packs are the per-pack stylesheets from build-style-packs.mjs. Each ports every pack's per-component
    rules (font sizes, spacing, radii, borders, shadows) from the shadcn v4 sources keyed on the
    `cn-*` class each component already emits. Nothing here may restate those values: a second
    definition keyed on utility-class combinations silently wins over the port and flattens the packs
@@ -2037,6 +2034,40 @@
   --chart-3: oklch(0.681 0.162 75.834);
   --chart-4: oklch(0.554 0.135 66.442);
   --chart-5: oklch(0.476 0.114 61.907);
+}
+
+@layer components {
+  /* shadcn defaultVariants. Callers that pass data-variant / data-size opt out and use their own utilities. */
+  [data-slot="button"]:not([data-variant]) {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  [data-slot="button"]:not([data-size]) {
+    @apply h-9 px-4 py-2 has-[>svg]:px-3;
+  }
+
+  /* Native checkbox check. The shadcn preset paints an indicator svg; this input draws the same icon itself. */
+  [data-slot="checkbox"]:checked::after {
+    content: "";
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+    background-color: currentColor;
+    mask: var(--check-icon) center / 0.875rem no-repeat;
+  }
+
+  /* Open/close height for native <details> accordions and collapsibles. */
+  details::details-content {
+    block-size: 0;
+    @apply block opacity-0 transition-discrete transition-all;
+  }
+  details[open]::details-content {
+    block-size: auto;
+    block-size: calc-size(auto, size);
+    @apply opacity-100;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
 }
 
 @layer base {

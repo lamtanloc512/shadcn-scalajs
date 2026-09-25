@@ -2,8 +2,8 @@ package shadcnscalajs.ui
 
 import com.raquo.laminar.api.L.*
 
-/** shadcn/ui Button — styled with Tailwind CSS utilities matching the canonical new-york-v4 button.tsx. Uses the same
-  * variant/size enums as the basecoat version so the Scala API is unchanged.
+/** shadcn/ui Button — Tailwind utilities from new-york-v4 `button.tsx`. A button with no `data-variant` / `data-size`
+  * gets the upstream defaults (primary, default size) from `globals.css`, the same role as cva `defaultVariants`.
   */
 object Button:
 
@@ -39,13 +39,13 @@ object Button:
 
   /** Direct usage: `Button(cls := "w-full", onClick --> observer, "Click me")` */
   def apply(mods: Modifier[HtmlElement]*): HtmlElement =
-    button(typ := "button", dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
+    button(typ := "button", dataAttr("slot") := "button", cls := s"cn-button group/button $base", mods)
 
   /** The `href` branch of upstream's button: an anchor carrying `data-slot="button"` so it picks up the same pack rules
     * and the same button-group joining selectors as a real button.
     */
   def anchor(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
-    a(href := hrefValue, dataAttr("slot") := "button", cls := s"btn cn-button group/button $base", mods)
+    a(href := hrefValue, dataAttr("slot") := "button", cls := s"cn-button group/button $base", mods)
 
   private def variantName(value: Variant): String = value.toString.toLowerCase
 
@@ -57,14 +57,12 @@ object Button:
   /** Everything a real button carries — base classes, variant, and size — for parts that must look like one without
     * being one: a menu or popover trigger, an anchor styled as a button.
     *
-    * Prefer this over [[classes]]. Half of a button's skin hangs off `data-variant`/`data-size`, which no class list
-    * can set: basecoat paints `.btn:not([data-variant])` as a solid primary button, and style packs size through the
-    * `cn-button-*` hooks, so a trigger dressed in classes alone comes out filled and a different height from the
-    * buttons beside it.
+    * Prefer this over [[classes]]. Variant and size are data attributes plus utilities. A trigger that only copies the
+    * class string, without those attributes, falls through to the primary / default-size rules in `globals.css`.
     */
   def appearance(variant: Variant = Variant.Primary, size: Size = Size.Default): Modifier[HtmlElement] =
     Seq[Modifier[HtmlElement]](
-      cls := s"btn cn-button group/button $base",
+      cls := s"cn-button group/button $base",
       ButtonApi.variant(variant),
       ButtonApi.size(size)
     )
@@ -74,7 +72,7 @@ object Button:
     * itself; [[appearance]] does both and is what most parts want.
     */
   def classes(variant: Variant = Variant.Primary, size: Size = Size.Default): String =
-    s"btn cn-button group/button $base cn-button-variant-${variantName(variant)} ${variantClasses(variant)} cn-button-size-${sizeName(size)} ${sizeClasses(size)}"
+    s"cn-button group/button $base cn-button-variant-${variantName(variant)} ${variantClasses(variant)} cn-button-size-${sizeName(size)} ${sizeClasses(size)}"
 
   /** Builder-style: `Button.of(_.variant(Button.Variant.Outline), _.size(Button.Size.Sm), _ => "Save")` */
   def of(mods: (ButtonApi.type => Modifier[HtmlElement])*): HtmlElement =

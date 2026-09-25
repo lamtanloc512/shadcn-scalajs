@@ -54,12 +54,18 @@ object InstallationPage:
               "2",
               "Create an empty project directory",
               p("Run the initializer inside the directory that should become your project."),
-              shellCode("mkdir my-app\ncd my-app\nnpx shadcn-scalajs@latest init --preset buFywLo"),
+              shellCode(
+                "mkdir my-app\ncd my-app\nnpx shadcn-scalajs@latest init \\\n  --project-name my-app \\\n  --group com.example.app"
+              ),
               p(
                 cls := "mt-3",
-                "The CLI asks for a project name and an artifact group such as ",
-                code(cls := "rounded bg-muted px-1.5 py-0.5 text-foreground", "org.ethan.app"),
-                ". The preset selects the initial style pack and theme tokens for the generated UI."
+                "Without those flags the CLI asks for a project name and an artifact group such as ",
+                code(cls := "rounded bg-muted px-1.5 py-0.5 text-foreground", "com.example.app"),
+                ". Add ",
+                code(cls := "rounded bg-muted px-1.5 py-0.5 text-foreground", "--preset"),
+                " with a code from the ",
+                a(href := "/create", cls := "text-foreground underline underline-offset-4", "customizer"),
+                " when you want a style pack other than Nova."
               ),
               Card(
                 cls := "mt-4 gap-2 border-dashed p-4 text-sm shadow-none",

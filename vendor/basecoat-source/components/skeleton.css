@@ -1,6 +1,0 @@
-/* Skeleton */
-@layer components {
-  .skeleton {
-    @apply animate-pulse;
-  }
-}

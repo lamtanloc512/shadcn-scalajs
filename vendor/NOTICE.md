@@ -7,23 +7,10 @@ that's gone, superseded by the Tailwind CSS v4 migration; the git history around
 now is reference *source*, consumed by build-time generator scripts rather than shipped
 directly:
 
-- **`vendor/basecoat/`** — a full clone of the upstream [basecoat](https://github.com/hunvreus/basecoat)
-  git repo (MIT License, copyright Ronan Berder), kept as a raw mirror. Not read by any
-  build script directly; it's the thing `basecoat-source/` was extracted from, and where
-  you'd `git pull` to refresh that extraction.
-- **`vendor/basecoat-source/`** — curated extraction from `basecoat/`: `components/*.css`
-  (structural CSS per component, no color), `styles/*.css` (the 8 style packs — lyra,
-  vega, nova, maia, mira, luma, sera, rhea), `js/*.js`, `docs/`. Consumed by
-  `modules/site/scripts/build-basecoat-styles.mjs`, which extracts each file's
-  `@layer components { ... }` block and writes
-  `modules/site/src/styles/basecoat.generated.css` (gitignored, rebuilt on every
-  `npm run dev`/`build` via the `predev`/`prebuild` script). Regenerate the extraction
-  after pulling a newer basecoat with `npm run build:basecoat-styles` in `modules/site`.
-- **`vendor/shadcn-source/styles/`** — the real shadcn/ui v4 theme presets
+- **`vendor/shadcn-source/styles/`** — the shadcn/ui v4 theme presets
   (`style-<pack>.css`, one per style pack). Consumed by
-  `modules/site/scripts/build-shadcn-presets.mjs`, which rewrites each file's `.style-X`
-  selectors to `[data-style-pack="X"]` and writes
-  `modules/site/src/styles/shadcn-presets.generated.css` (also gitignored/regenerated).
+  `modules/site/scripts/build-style-packs.mjs`, which rewrites each file's `.style-X`
+  selectors to `[data-style-pack="X"]` and writes `modules/site/public/styles/pack-<pack>.css`.
 
 Design tokens and per-component Tailwind utility classes live directly in
 `modules/site/src/styles/globals.css` (hand-written `@theme inline` token map +

@@ -23,7 +23,7 @@ async function resolveScaffoldMetadata(
   try {
     const projectName = projectNameOption ?? (await prompts.question("Project name: ")).trim();
     const artifactGroup = groupOption ?? packageOption
-      ?? (await prompts.question("Artifact group (for example org.ethan.app): ")).trim();
+      ?? (await prompts.question("Artifact group (for example com.example.app): ")).trim();
     return { projectName, artifactGroup };
   } finally {
     prompts.close();

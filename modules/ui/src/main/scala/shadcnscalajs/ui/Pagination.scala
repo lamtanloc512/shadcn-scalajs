@@ -75,7 +75,7 @@ object Pagination:
         dataAttr("size") := "icon",
         cls <-- active.map { a =>
           val variant = if a then Button.Variant.Outline else Button.Variant.Ghost
-          s"btn cn-pagination-link ${Button.classes(variant, Button.Size.Icon)}"
+          s"cn-pagination-link ${Button.classes(variant, Button.Size.Icon)}"
         },
         dataAttr("active") <-- active.map(_.toString),
         dataAttr("variant") <-- active.map(a => if a then "outline" else "ghost"),
@@ -138,7 +138,7 @@ object Pagination:
       dataAttr("slot") := "pagination-link",
       dataAttr("active") := current.toString,
       dataAttr("size") := "icon",
-      cls := s"btn cn-pagination-link ${Button.classes(
+      cls := s"cn-pagination-link ${Button.classes(
           if current then Button.Variant.Outline else Button.Variant.Ghost,
           Button.Size.Icon
         )}",

@@ -21,37 +21,11 @@ import tailwind from "@tailwindcss/postcss";
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, "../../..");
 const siteRoot = join(projectRoot, "modules/site");
-const basecoatRoot = join(projectRoot, "vendor/basecoat-source");
 const shadcnRoot = join(projectRoot, "vendor/shadcn-source/styles");
 const entryDir = join(siteRoot, "src/styles/packs");
 const outDir = join(siteRoot, "public/styles");
 
 export const packs = ["nova", "vega", "maia", "lyra", "mira", "luma", "sera", "rhea"];
-
-/** Extracts the body of a `@layer components { … }` block, brace-matched so nested rules survive. */
-function layerBody(source, file) {
-  const marker = "@layer components";
-  const markerIndex = source.indexOf(marker);
-  if (markerIndex < 0) throw new Error(`Missing ${marker} in ${file}`);
-  const start = source.indexOf("{", markerIndex);
-  let depth = 0;
-  let end = -1;
-  for (let index = start; index < source.length; index += 1) {
-    if (source[index] === "{") depth += 1;
-    if (source[index] === "}") depth -= 1;
-    if (depth === 0) {
-      end = index;
-      break;
-    }
-  }
-  if (start < 0 || end <= start) throw new Error(`Invalid component layer in ${file}`);
-  return source.slice(start + 1, end).trim();
-}
-
-export function basecoatPackBody(pack) {
-  const file = join(basecoatRoot, "styles", `${pack}.css`);
-  return layerBody(readFileSync(file, "utf8"), file).replaceAll("has-[.kbd]:pe-1.5 ", "");
-}
 
 export function shadcnPackBlock(pack) {
   const file = join(shadcnRoot, `style-${pack}.css`);
@@ -64,16 +38,7 @@ function entrySource(pack) {
     // Pulls in the theme/utility context only; @reference emits no CSS of its own.
     `@reference "../globals.css";`,
     ``,
-    // Layering must match what the bundle used to emit, or utilities stop winning. The main bundle declares the
-    // theme/base/components/utilities layers, so `components` here merges into that layer and — because this sheet is
-    // linked after the bundle — lands after the shared basecoat rules it overrides while still losing to utilities
-    // (e.g. a `px-0` on the drawer trigger). The shadcn preset block stays unlayered, as it was before.
-    `@layer components {`,
-    `  [data-style-pack="${pack}"] {`,
-    basecoatPackBody(pack),
-    `  }`,
-    `}`,
-    ``,
+    // Preset rules stay unlayered so they still beat utilities the way the shadcn v4 stylesheet does.
     shadcnPackBlock(pack),
     ``,
   ].join("\n");
