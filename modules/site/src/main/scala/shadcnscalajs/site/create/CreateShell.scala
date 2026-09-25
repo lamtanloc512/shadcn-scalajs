@@ -28,10 +28,7 @@ object CreateShell:
     // No ThemeMenu / style-pack select here: the customizer column owns theme controls on this page.
     SiteChrome.header(
       active = SiteChrome.Active.Create,
-      includeSearch = true,
-      includeGitHub = true,
-      showHome = false,
-      bordered = false,
+      bordered = true,
       trailing = Seq(
         Button(
           Button.ButtonApi.variant(Button.Variant.Ghost),

@@ -51,7 +51,7 @@ object Main:
 
   /** `/create` owns theme controls in its own header, and the two preview routes are iframed at a real viewport. */
   private def usesSharedChrome(route: Router.Route): Boolean = route match
-    case Router.Route.Create | Router.Route.CreatePreview | Router.Route.BlockPreview(_) | Router.Route.WebComponents =>
+    case Router.Route.Create | Router.Route.CreatePreview | Router.Route.BlockPreview(_) =>
       false
     case _ => true
 
