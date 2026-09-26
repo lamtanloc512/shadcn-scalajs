@@ -2770,12 +2770,58 @@ ToggleGroup.multiple(
               h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
               p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
             ),
-            Button.of(
-              _.variant(Button.Variant.Outline),
-              _.size(Button.Size.Sm),
-              _ => cls := "hidden shrink-0 sm:inline-flex",
-              _ => "Copy page"
-            )
+            {
+              val pageCopied = Var(false)
+              val pageMarkdown =
+                val version = SiteFeatures.cliVersion
+                val pageUrl = dom.window.location.href
+                val install =
+                  if componentName == "typography" then
+                    "Typography is not a registry component. Copy the utility classes from the examples."
+                  else
+                    s"npx shadcn-scalajs@$version add $componentName"
+                s"""---
+library: shadcn-scalajs
+version: $version
+component: $componentName
+url: $pageUrl
+---
+
+# $componentTitle
+
+Source of truth for an assistant. This is shadcn-scalajs $version, a Laminar port of shadcn/ui. Do not substitute React, `@latest`, or a different version.
+
+$componentDescription
+
+## Installation
+
+```shell
+$install
+```
+
+## Usage
+
+```scala
+$usageSource
+```
+"""
+              Button.of(
+                _.variant(Button.Variant.Outline),
+                _.size(Button.Size.Sm),
+                _ => cls := "hidden shrink-0 sm:inline-flex",
+                _ => aria.label := "Copy page",
+                _ => text <-- pageCopied.signal.map(if _ then "Copied" else "Copy page"),
+                _ => onClick --> { _ =>
+                  if js.isUndefined(dom.window.navigator.clipboard) then
+                    dom.console.warn("Clipboard API not available")
+                  else
+                    val _ = dom.window.navigator.clipboard.writeText(pageMarkdown).toFuture.foreach { _ =>
+                      pageCopied.set(true)
+                      setTimeout(2000)(pageCopied.set(false))
+                    }
+                }
+              )
+            }
           ),
           div(
             idAttr := "about",
