@@ -17,7 +17,7 @@ const itemTypes = ["scala:ui", "scala:block", "css:theme"] as const;
 
 function repoRegistry(): string | undefined {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  const candidate = path.resolve(here, "../../../modules/site/public/registry");
+  const candidate = path.resolve(here, "../../../apps/web/public/registry");
   return existsSync(path.join(candidate, "index.json")) ? candidate : undefined;
 }
 

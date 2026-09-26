@@ -22,7 +22,7 @@ export interface Config {
 
 export const CONFIG_FILE_NAME = "shadcn-scalajs.json";
 
-/** Local Vite registry (modules/site `npm run dev` → http://localhost:4300/registry).
+/** Local Vite registry (`apps/web` `npm run dev` → http://localhost:4300/registry).
  * Override with `init --registry` when using a deployed host. */
 export const DEFAULT_REGISTRY = "https://shadcn-scalajs.vercel.app/registry";
 

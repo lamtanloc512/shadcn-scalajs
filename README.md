@@ -99,7 +99,7 @@ From this repository, point the server at the local registry:
 
 ```bash
 node packages/cli/dist/index.js mcp \
-  --registry modules/site/public/registry
+  --registry apps/web/public/registry
 ```
 
 Build the CLI first with `npm run build` inside `packages/cli`. The protocol details are in [apps/docs/src/content/docs/mcp.md](apps/docs/src/content/docs/mcp.md).
@@ -116,12 +116,18 @@ npm run build    # optimized Scala.js and a Vite production build
 
 The production frontend is written to `packages/ui/dist`.
 
+## Repository layout
+
+Runnable apps live in `apps/`. Libraries and the published CLI live in `packages/`. sbt project ids are unchanged (`site` is the project in `apps/web`).
+
+If this site is deployed from Vercel, set the project root directory to `apps/web`.
+
 ## Develop this repository
 
 ```bash
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 sbt core/compile ui/compile blocks/compile site/compile
-cd modules/site && npm install && npm run dev
+cd apps/web && npm install && npm run dev
 ```
 
 Useful routes once the site is up:
@@ -140,15 +146,17 @@ http://localhost:4300/create
 The test script compiles the repo, rebuilds the registry, scaffolds a temporary consumer, installs components and a block, then compiles and builds that project.
 
 ```text
-modules/core            Laminar helpers copied with the components
-modules/ui              component source and registry sidecars
-modules/blocks          page and section compositions
-modules/site            gallery, previews, registry generation
-packages/cli            npm scaffolder, installer, and MCP server
-apps/docs               Starlight documentation
+apps/web                gallery, previews, registry host (sbt project `site`)
+apps/docs               written guide (Astro Starlight)
+packages/cli            published npm scaffolder, installer, and MCP server
+packages/core           Laminar helpers copied with the components
+packages/ui             component source and registry sidecars
+packages/blocks         page and section compositions
+packages/theme          style packs and design tokens
+packages/webcomponents  experimental custom-element wrappers
 ```
 
-Web Component wrappers exist in `modules/webcomponents` as experiments. They are not part of the install flow or the compatibility promise.
+Web Component wrappers in `packages/webcomponents` are experiments. They are not part of the install flow or the compatibility promise.
 
 ## License
 

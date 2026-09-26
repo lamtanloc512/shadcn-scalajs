@@ -24,7 +24,7 @@ export interface RegistryIndexEntry {
 }
 
 /** `registry` is either an http(s) base URL or a local directory path
- * (the latter mainly for testing against `modules/site/public/registry`
+ * (the latter mainly for testing against `apps/web/public/registry`
  * without needing a deployed registry host). */
 async function fetchJson<T>(registry: string, relativePath: string): Promise<T> {
   if (registry.startsWith("http://") || registry.startsWith("https://")) {

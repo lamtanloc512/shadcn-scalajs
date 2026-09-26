@@ -56,7 +56,7 @@ lazy val jsSettings = Seq(
 
 // Design tokens, Variant/Size ADTs shared by every component.
 lazy val core = project
-  .in(file("modules/core"))
+  .in(file("packages/core"))
   .enablePlugins(ScalaJSPlugin)
   .settings(jsSettings)
   .settings(
@@ -68,7 +68,7 @@ lazy val core = project
 // Laminar component source of truth — this is what the CLI/registry serves
 // to consumers as copy-paste-owned .scala files.
 lazy val ui = project
-  .in(file("modules/ui"))
+  .in(file("packages/ui"))
   .enablePlugins(ScalaJSPlugin)
   .settings(jsSettings)
   .settings(noPublish)
@@ -77,7 +77,7 @@ lazy val ui = project
 // Blocks — multi-file page/section compositions built from `ui`, served to
 // consumers as copy-paste-owned .scala files exactly like components.
 lazy val blocks = project
-  .in(file("modules/blocks"))
+  .in(file("packages/blocks"))
   .enablePlugins(ScalaJSPlugin)
   .settings(jsSettings)
   .settings(noPublish)
@@ -86,7 +86,7 @@ lazy val blocks = project
 // Custom-element (Web Component) export layer, so any JS framework or plain
 // HTML page can consume the same components without a Scala toolchain.
 lazy val webcomponents = project
-  .in(file("modules/webcomponents"))
+  .in(file("packages/webcomponents"))
   .enablePlugins(ScalaJSPlugin)
   .settings(jsSettings)
   .settings(noPublish)
@@ -99,7 +99,7 @@ lazy val webcomponents = project
 // page that only loads the compiled Web Component bundle (no Scala.js
 // runtime), plus the static registry JSON built by scripts/build-registry.ts.
 lazy val site = project
-  .in(file("modules/site"))
+  .in(file("apps/web"))
   .enablePlugins(ScalaJSPlugin)
   .settings(jsSettings)
   .settings(noPublish)
@@ -117,7 +117,7 @@ addCommandAlias("uiw", ";~ui/fastLinkJS")
 addCommandAlias("wcw", ";~webcomponents/fastLinkJS")
 addCommandAlias("sitew", ";~site/fastLinkJS")
 // Size-optimized production link (Scala.js minify + FewestModules). Prefer
-// `cd modules/site && npm run build` which runs site/fullLinkJS via the Vite
+// `cd apps/web && npm run build` which runs site/fullLinkJS via the Vite
 // plugin and then minifies/bundles with esbuild.
 addCommandAlias("siteOpt", ";site/fullLinkJS")
 addCommandAlias(

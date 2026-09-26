@@ -21,7 +21,7 @@ Browse names in the [component gallery](https://shadcn-scalajs.vercel.app/compon
 
 ## After the files land
 
-Open the Scala file and use it from your own Laminar view. A button with no variant and no size is unstyled. Pass both:
+Open the Scala file and use it from your own Laminar view. A button with no variant and no size is primary, at the default height. Pass both when you want another look:
 
 ```scala
 Button.of(_.variant(Button.Variant.Primary), _.size(Button.Size.Default), _ => "Save")

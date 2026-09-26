@@ -16,7 +16,7 @@ Pass `--registry` when the components should come from somewhere other than `htt
 
 ```bash
 npx shadcn-scalajs@latest init --no-scaffold \
-  --registry /path/to/shadcn-scalajs/modules/site/public/registry \
+  --registry /path/to/shadcn-scalajs/apps/web/public/registry \
   --source-dir src/main/scala/shadcnscalajs
 ```
 

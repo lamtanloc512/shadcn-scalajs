@@ -1,0 +1,15 @@
+{
+  "name": "shadcn-scalajs",
+  "private": true,
+  "description": "Copy-and-own shadcn/ui for Scala.js and Laminar.",
+  "scripts": {
+    "dev": "./scripts/serve",
+    "build": "./scripts/build",
+    "test": "./scripts/test",
+    "setup": "./scripts/setup",
+    "docs": "npm --prefix apps/docs run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -9,13 +9,13 @@ directly:
 
 - **`vendor/shadcn-source/styles/`** — the shadcn/ui v4 theme presets
   (`style-<pack>.css`, one per style pack). Consumed by
-  `modules/site/scripts/build-style-packs.mjs`, which rewrites each file's `.style-X`
-  selectors to `[data-style-pack="X"]` and writes `modules/site/public/styles/pack-<pack>.css`.
+  `apps/web/scripts/build-style-packs.mjs`, which rewrites each file's `.style-X`
+  selectors to `[data-style-pack="X"]` and writes `apps/web/public/styles/pack-<pack>.css`.
 
 Design tokens and per-component Tailwind utility classes live directly in
-`modules/site/src/styles/globals.css` (hand-written `@theme inline` token map +
+`apps/web/src/styles/globals.css` (hand-written `@theme inline` token map +
 `:root`/`.dark` blocks copied from shadcn/ui's actual output) and in each component's own
-`.scala` file in `modules/ui` (Tailwind utility strings matching the canonical
+`.scala` file in `packages/ui` (Tailwind utility strings matching the canonical
 `button.tsx`/`badge.tsx`/etc. source) — not generated from the vendor snapshots above.
 
 ## Shadow DOM tokens: `globals.css`'s `:root` won't reach a Shadow DOM
@@ -24,7 +24,7 @@ Design tokens and per-component Tailwind utility classes live directly in
 `:root` only ever matches the top-level document's `<html>` element — even from inside a
 stylesheet loaded in a Shadow Root, only `:host` matches the shadow host. This bit the
 project once already in the basecoat-CSS era (see the earlier git history), and it is the
-reason `modules/site/scripts/build-webcomponents.mjs` runs its `sc-shadow-scope` PostCSS
+reason `apps/web/scripts/build-webcomponents.mjs` runs its `sc-shadow-scope` PostCSS
 step over `sc-components.css`: every `:root` rule is duplicated onto `:host`, and the
 baked-pack selector gets a shadow-theme-host fallback, so the tokens resolve inside each
 `Sc*` component's shadow root. Without that rewrite every Web Component renders

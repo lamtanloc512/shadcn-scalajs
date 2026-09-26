@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Start the dev server (modules/site's Vite server).
+# Start the dev server (apps/web's Vite server).
 # Native Laminar demo: http://localhost:4300/
 # Web Component demo:  http://localhost:4300/plain-html-demo.html
 set -euo pipefail
-cd "$(dirname "$0")/../modules/site"
+cd "$(dirname "$0")/../apps/web"
 
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 exec npm run dev

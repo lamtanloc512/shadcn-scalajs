@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install dependencies (idempotent).
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 
 export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 
@@ -13,8 +13,8 @@ if ! command -v sbt >/dev/null 2>&1; then
   "$CS_BIN" install sbt
 fi
 
-echo "setup: modules/site npm deps"
-(cd modules/site && npm install --no-audit --no-fund)
+echo "setup: apps/web npm deps"
+(cd apps/web && npm install --no-audit --no-fund)
 
 echo "setup: packages/cli npm deps"
 (cd packages/cli && npm install --no-audit --no-fund)

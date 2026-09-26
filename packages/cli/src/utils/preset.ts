@@ -1,6 +1,6 @@
 /** Minimal preset decoder for the style-pack field.
  *
- * Must stay aligned with `modules/site/.../create/Preset.scala` field order/bit widths.
+ * Must stay aligned with `apps/web/.../create/Preset.scala` field order/bit widths.
  */
 const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 

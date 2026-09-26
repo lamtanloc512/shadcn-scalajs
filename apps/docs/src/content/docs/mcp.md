@@ -24,7 +24,7 @@ Inside this repository, after `npm run build` in `packages/cli`:
 
 ```bash
 node packages/cli/dist/index.js mcp \
-  --registry modules/site/public/registry
+  --registry apps/web/public/registry
 ```
 
 The process writes protocol messages to stdout. Logs go to stderr. Do not wrap the command in a shell that prints a banner.
