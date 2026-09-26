@@ -4,7 +4,8 @@
   "description": "Copy-and-own shadcn/ui for Scala.js and Laminar.",
   "scripts": {
     "dev": "./scripts/serve",
-    "build": "./scripts/build",
+    "postinstall": "npm install --prefix apps/web",
+    "build": "npm run build --prefix apps/web",
     "test": "./scripts/test",
     "setup": "./scripts/setup",
     "docs": "npm --prefix apps/docs run dev"
