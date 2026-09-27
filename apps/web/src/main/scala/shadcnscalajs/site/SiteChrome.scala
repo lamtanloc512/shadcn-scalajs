@@ -73,12 +73,26 @@ object SiteChrome:
     )
     if SiteFeatures.webComponents then all else all.filterNot(_._1 == Active.WebComponents)
 
+  private def entryLabel(target: Active, label: String): HtmlElement =
+    span(
+      cls := "inline-flex items-center gap-1.5",
+      label,
+      if target == Active.WebComponents then
+        Badge.of(
+          _.variant(Badge.Variant.Outline),
+          _ => cls := "h-4 px-1 text-[9px] uppercase tracking-wide text-muted-foreground",
+          _ => "Alpha"
+        )
+      else emptyNode
+    )
+
   def primaryNav(active: Active): HtmlElement =
     navTag(
       cls := "hidden items-center gap-1 md:flex",
       aria.label := "Primary",
       entries.map { (target, href, label) =>
-        if active == target then navGhostActive(href, label) else navGhost(href, label)
+        if active == target then navGhostActive(href, entryLabel(target, label))
+        else navGhost(href, entryLabel(target, label))
       },
       navGhost(githubHref, target := "_blank", rel := "noopener", "GitHub")
     )
@@ -95,7 +109,7 @@ object SiteChrome:
         cls := "w-full justify-start!",
         onClick --> { _ => isOpen.set(false) },
         mods,
-        label
+        entryLabel(target, label)
       )
 
     div(
@@ -123,7 +137,7 @@ object SiteChrome:
 
   private def activeOf(route: Router.Route): Active = route match
     case Router.Route.Landing                                                            => Active.Home
-    case Router.Route.Docs(_)                                                           => Active.Docs
+    case Router.Route.Docs(_)                                                            => Active.Docs
     case Router.Route.ComponentsIndex | Router.Route.Component(_)                        => Active.Components
     case Router.Route.BlocksIndex | Router.Route.Block(_) | Router.Route.BlockPreview(_) => Active.Blocks
     case Router.Route.Create | Router.Route.CreatePreview                                => Active.Create

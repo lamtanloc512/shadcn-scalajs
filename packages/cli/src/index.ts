@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { initCommand } from "./commands/init.js";
 import { addCommand } from "./commands/add.js";
+import { buildWcCommand } from "./commands/buildWc.js";
 import { mcpCommand } from "./commands/mcp.js";
 
 const program = new Command()
@@ -11,6 +12,7 @@ const program = new Command()
 
 program.addCommand(initCommand);
 program.addCommand(addCommand);
+program.addCommand(buildWcCommand);
 program.addCommand(mcpCommand);
 
 program.parseAsync(process.argv);

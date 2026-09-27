@@ -5,10 +5,10 @@ import org.scalajs.dom
 
 /** shadcn/ui InputGroup — styled with Tailwind CSS utilities matching the canonical new-york-v4 input-group components.
   *
-  * The utility classes must stand alone: `packages/ui` is what the CLI copies into consumer projects, which have neither
-  * the vendored basecoat CSS nor `shadcn-presets.generated.css`. The `cn-input-group*` hook classes and `data-slot`
-  * attributes are additionally what the style-pack presets target — packs are unlayered, so where a pack defines a rule
-  * it overrides the utilities below by design.
+  * The utility classes must stand alone: `packages/ui` is what the CLI copies into consumer projects, which have
+  * neither the vendored basecoat CSS nor `shadcn-presets.generated.css`. The `cn-input-group*` hook classes and
+  * `data-slot` attributes are additionally what the style-pack presets target — packs are unlayered, so where a pack
+  * defines a rule it overrides the utilities below by design.
   */
 object InputGroup:
 
@@ -18,7 +18,7 @@ object InputGroup:
   enum ButtonSize derives CanEqual:
     case Xs, Sm, IconXs, IconSm
 
-  private val base: String =
+  val baseClass: String =
     "group/input-group cn-input-group relative flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto"
 
   private val addonBase: String =
@@ -54,7 +54,7 @@ object InputGroup:
     div(
       dataAttr("slot") := "input-group",
       role := "group",
-      cls := base,
+      cls := baseClass,
       mods
     )
 

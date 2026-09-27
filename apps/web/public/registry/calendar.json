@@ -3,7 +3,10 @@
   "name": "calendar",
   "title": "Calendar",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "button",
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
     {

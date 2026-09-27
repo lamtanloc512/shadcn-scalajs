@@ -70,6 +70,9 @@ object Carousel:
         val nearest = slides.zipWithIndex.minBy((slide, _) => Math.abs(leadingEdge(el, slide) - position))
         selectedIndexVar.set(nearest._2)
 
+    /** Recompute slide count and navigation state after a host updates its slotted slides. */
+    def refresh(): Unit = scroller.now().foreach(measure)
+
     /** Brings a slide to the scroll origin. `jump` skips the animation, as embla's second argument does. */
     def scrollTo(index: Int, jump: Boolean = false): Unit =
       scroller.now().foreach { el =>

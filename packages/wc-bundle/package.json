@@ -1,0 +1,18 @@
+{
+  "name": "@shadcn-scalajs/web-components",
+  "version": "0.1.0",
+  "description": "Standalone shadcn-scalajs Web Components bundle",
+  "type": "module",
+  "files": ["dist"],
+  "exports": {
+    ".": "./dist/index.js",
+    "./sc-components.js": "./dist/sc-components.js",
+    "./sc-components.css": "./dist/sc-components.css",
+    "./sc-document.css": "./dist/sc-document.css",
+    "./styles/pack-nova.css": "./dist/styles/pack-nova.css"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepublishOnly": "npm run build"
+  }
+}

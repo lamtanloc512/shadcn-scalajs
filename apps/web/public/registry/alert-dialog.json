@@ -3,7 +3,10 @@
   "name": "alert-dialog",
   "title": "Alert Dialog",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "dialog",
+    "button"
+  ],
   "scalaDependencies": [],
   "files": [
     {

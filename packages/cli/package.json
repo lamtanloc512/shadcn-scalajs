@@ -23,7 +23,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/sync-webcomponents.mjs",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },

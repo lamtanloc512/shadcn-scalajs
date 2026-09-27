@@ -92,6 +92,23 @@ object WebComponentExamples:
       |  </sc-alert>
       |</div>
       |"""),
+    "alert-dialog" -> entry("sc-alert-dialog", "Open confirmation")("""
+      |<div data-sc-confirm-demo>
+      |  <sc-alert-dialog data-modal><sc-button slot="trigger" variant="destructive">Delete project</sc-button><div class="grid min-w-72 gap-4 p-2">
+      |    <strong>Delete project?</strong><p>This action cannot be undone.</p>
+      |    <div class="flex justify-end gap-2"><sc-button data-close variant="outline">Cancel</sc-button><sc-button data-close variant="destructive">Delete</sc-button></div>
+      |  </div></sc-alert-dialog>
+      |</div>
+      |<script>(() => { const root = document.currentScript?.previousElementSibling;
+      |  const modal = root?.querySelector('[data-modal]');
+      |  root?.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => modal?.removeAttribute('open')));
+      |})()</script>
+      |"""),
+    "aspect-ratio" -> entry("sc-aspect-ratio", "Landscape image")("""
+      |<sc-aspect-ratio ratio="1.7777777778" class="block w-full max-w-sm">
+      |  <div class="flex h-full w-full items-center justify-center rounded-md bg-muted text-sm">Landscape image</div>
+      |</sc-aspect-ratio>
+      |"""),
     "avatar" -> entry("sc-avatar", "LS")("""
       |<sc-avatar>LS</sc-avatar>
       |"""),
@@ -122,6 +139,13 @@ object WebComponentExamples:
       |"""),
     "calendar" -> entry("sc-calendar", "sc-calendar")("""
       |<sc-calendar aria-label="Choose date"></sc-calendar>
+      |"""),
+    "carousel" -> entry("sc-carousel", "Slide 1")("""
+      |<sc-carousel count="3" style="display:block;width:min(18rem,80%);margin-inline:auto">
+      |  <div slot="slide-0" class="flex h-24 items-center justify-center rounded-md border bg-muted">Slide 1</div>
+      |  <div slot="slide-1" class="flex h-24 items-center justify-center rounded-md border bg-muted">Slide 2</div>
+      |  <div slot="slide-2" class="flex h-24 items-center justify-center rounded-md border bg-muted">Slide 3</div>
+      |</sc-carousel>
       |"""),
     "card" -> entry("sc-card", "Project update")("""
       |<sc-card class="w-full max-w-sm">
@@ -172,6 +196,17 @@ object WebComponentExamples:
       |  <div>Billing</div>
       |</sc-command>
       |"""),
+    "context-menu" -> entry("sc-context-menu", "Right-click here")("""
+      |<sc-context-menu items='[{"label":"Copy"},{"label":"Paste"},{"label":"Delete","disabled":true}]'>
+      |  <div slot="trigger" class="flex h-32 w-full max-w-sm items-center justify-center rounded-md border border-dashed text-sm">Right-click here</div>
+      |</sc-context-menu>
+      |"""),
+    "data-table" -> entry("sc-data-table", "Projects")("""
+      |<sc-data-table columns='["name","status"]' rows='[{"name":"Project Alpha","status":"Ready"},{"name":"Project Beta","status":"Building"},{"name":"Project Gamma","status":"Ready"}]' page-size="2" class="w-full max-w-xl"></sc-data-table>
+      |"""),
+    "date-picker" -> entry("sc-date-picker", "Pick a date")("""
+      |<sc-date-picker value="2026-05-23" placeholder="Pick a date"></sc-date-picker>
+      |"""),
     "dialog" -> entry("sc-dialog", "Open dialog")("""
       |<div data-sc-dialog-demo class="grid justify-items-start gap-3">
       |  <sc-button id="open-dialog">Open dialog</sc-button>
@@ -198,6 +233,18 @@ object WebComponentExamples:
       |    cancelBtn?.addEventListener('click', () => dialog?.removeAttribute('open'))
       |  })()
       |</script>
+      |"""),
+    "drawer" -> entry("sc-drawer", "Open drawer")("""
+      |<div data-sc-drawer-demo>
+      |  <sc-drawer data-modal direction="bottom"><sc-button slot="trigger" variant="outline">Open drawer</sc-button><div class="grid gap-4 p-4">
+      |    <strong>Drawer content</strong><p>A panel from the bottom.</p>
+      |    <sc-button data-close variant="outline">Close</sc-button>
+      |  </div></sc-drawer>
+      |</div>
+      |<script>(() => { const root = document.currentScript?.previousElementSibling;
+      |  const modal = root?.querySelector('[data-modal]');
+      |  root?.querySelector('[data-close]')?.addEventListener('click', () => modal?.removeAttribute('open'));
+      |})()</script>
       |"""),
     "dropdown-menu" -> entry("sc-dropdown-menu", "Open menu")("""
       |<sc-dropdown-menu items='[{"label":"Profile"},{"label":"Billing"},{"label":"Status Bar"},{"label":"Log out"}]'>
@@ -242,6 +289,12 @@ object WebComponentExamples:
       |  <sc-button variant="primary">Submit</sc-button>
       |</sc-form>
       |"""),
+    "hover-card" -> entry("sc-hover-card", "Hover over this link")("""
+      |<sc-hover-card>
+      |  <a slot="trigger" href="#hover-card" class="text-sm underline">Hover over this link</a>
+      |  <div slot="content" class="grid gap-2 p-4 text-sm"><strong>shadcn-scalajs</strong><p>Laminar components for your project.</p></div>
+      |</sc-hover-card>
+      |"""),
     "input" -> entry("sc-input", "Type something")("""
       |<sc-input class="max-w-sm" placeholder="Type something…"></sc-input>
       |"""),
@@ -257,6 +310,9 @@ object WebComponentExamples:
       |    <span class="px-3 pb-2 text-xs text-muted-foreground">Markdown supported</span>
       |  </sc-input-group>
       |</div>
+      |"""),
+    "input-otp" -> entry("sc-input-otp", "One-time code")("""
+      |<sc-input-otp length="6" aria-label="One-time code"></sc-input-otp>
       |"""),
     "item" -> entry("sc-item", "Laminar")("""
       |<sc-item class="w-full max-w-sm border">
@@ -279,6 +335,9 @@ object WebComponentExamples:
       |  <sc-input placeholder="you@example.com"></sc-input>
       |</div>
       |"""),
+    "menubar" -> entry("sc-menubar", "File")("""
+      |<sc-menubar menus='[{"label":"File","items":[{"label":"New Tab"},{"label":"Open"}]},{"label":"Edit","items":[{"label":"Copy"},{"label":"Paste"}]}]'></sc-menubar>
+      |"""),
     "native-select" -> entry("sc-native-select", "Choose a plan")("""
       |<sc-native-select class="max-w-sm">
       |  <select aria-label="Plan">
@@ -287,6 +346,12 @@ object WebComponentExamples:
       |    <option>Team</option>
       |  </select>
       |</sc-native-select>
+      |"""),
+    "pagination" -> entry("sc-pagination", "Page 1")("""
+      |<sc-pagination page="1" page-count="12" sibling-count="1" aria-label="Results pages"></sc-pagination>
+      |"""),
+    "navigation-menu" -> entry("sc-navigation-menu", "Components")("""
+      |<sc-navigation-menu items='[{"label":"Components","links":[{"label":"Button","href":"/components/button"},{"label":"Dialog","href":"/components/dialog"}]},{"label":"Documentation","links":[{"label":"Getting started","href":"/components"}]}]'></sc-navigation-menu>
       |"""),
     "popover" -> entry("sc-popover", "Open popover")("""
       |<sc-popover>
@@ -331,10 +396,24 @@ object WebComponentExamples:
       |  items='[{"value":"pro","label":"Pro"},{"value":"team","label":"Team"}]'>
       |</sc-radio-group>
       |"""),
+    "range-calendar" -> entry("sc-range-calendar", "Date range")("""
+      |<sc-range-calendar start="2026-05-20" end="2026-05-23" aria-label="Choose a date range"></sc-range-calendar>
+      |"""),
     "range" -> entry("sc-range", "50")("""
       |<sc-range class="max-w-sm">
       |  <input type="range" min="0" max="100" value="50" aria-label="Range">
       |</sc-range>
+      |"""),
+    "resizable" -> entry("sc-resizable", "Two panes")("""
+      |<sc-resizable split="40" style="display:block;width:min(25rem,100%);height:9rem" class="rounded-md border">
+      |  <div slot="left" class="p-4 text-sm">Left pane</div>
+      |  <div slot="right" class="p-4 text-sm">Right pane</div>
+      |</sc-resizable>
+      |"""),
+    "scroll-area" -> entry("sc-scroll-area", "Scroll to the end")("""
+      |<sc-scroll-area style="display:block;width:min(20rem,100%);height:10rem" class="rounded-md border">
+      |  <div class="p-4 text-sm">Scroll to the end<div style="height:20rem"></div>End of content</div>
+      |</sc-scroll-area>
       |"""),
     "scrollbar" -> entry("sc-scrollbar", "Scrollable content")("""
       |<sc-scrollbar class="h-32 w-full max-w-sm overflow-auto rounded-md border p-3">
@@ -357,6 +436,18 @@ object WebComponentExamples:
       |  <p class="text-sm">Section two</p>
       |</div>
       |"""),
+    "sheet" -> entry("sc-sheet", "Open sheet")("""
+      |<div data-sc-sheet-demo>
+      |  <sc-sheet data-modal side="right"><sc-button slot="trigger" variant="outline">Open sheet</sc-button><div class="grid gap-4 p-6">
+      |    <strong>Sheet content</strong><p>A panel from the right.</p>
+      |    <sc-button data-close variant="outline">Close</sc-button>
+      |  </div></sc-sheet>
+      |</div>
+      |<script>(() => { const root = document.currentScript?.previousElementSibling;
+      |  const modal = root?.querySelector('[data-modal]');
+      |  root?.querySelector('[data-close]')?.addEventListener('click', () => modal?.removeAttribute('open'));
+      |})()</script>
+      |"""),
     "sidebar" -> entry("sc-sidebar", "Overview")("""
       |<sc-sidebar class="h-48 w-full max-w-sm"
       |  menus='[{"label":"Navigation","items":[{"label":"Overview","active":true},{"label":"Settings"}]}]'>
@@ -367,6 +458,14 @@ object WebComponentExamples:
       |"""),
     "slider" -> entry("sc-slider", "sc-slider")("""
       |<sc-slider class="w-full max-w-sm" min="0" max="100" step="1" aria-label="Volume"></sc-slider>
+      |"""),
+    "sonner" -> entry("sc-sonner", "Show toast")("""
+      |<div data-sc-sonner-demo>
+      |  <sc-sonner><sc-button>Show toast</sc-button></sc-sonner>
+      |</div>
+      |<script>(() => { const root = document.currentScript?.previousElementSibling;
+      |  root?.querySelector('sc-button')?.addEventListener('click', () => root?.querySelector('sc-sonner')?.success('Saved successfully'));
+      |})()</script>
       |"""),
     "spinner" -> entry("sc-spinner", "spinner")("""
       |<sc-spinner data-marker="spinner" aria-label="Loading"></sc-spinner>
@@ -428,6 +527,12 @@ object WebComponentExamples:
       |  <div class="text-sm opacity-90">Everything is up to date.</div>
       |</sc-toast>
       |"""),
+    "theme-switcher" -> entry("sc-theme-switcher", "System theme")("""
+      |<sc-theme-switcher aria-label="Choose theme"></sc-theme-switcher>
+      |"""),
+    "toggle" -> entry("sc-toggle", "Bold")("""
+      |<sc-toggle variant="outline" aria-label="Toggle bold">Bold</sc-toggle>
+      |"""),
     "toggle-group" -> entry("sc-toggle-group", "Star")("""
       |<sc-toggle-group type="multiple" variant="outline" size="sm"
       |  items='[{"value":"star","label":"Star"},{"value":"heart","label":"Heart"},{"value":"bookmark","label":"Bookmark"}]'>
@@ -435,7 +540,7 @@ object WebComponentExamples:
       |"""),
     "tooltip" -> entry("sc-tooltip", "Hover me")("""
       |<sc-tooltip text="Helpful context">
-      |  <span>Hover me</span>
+      |  <button type="button">Hover me</button>
       |</sc-tooltip>
       |""")
   )

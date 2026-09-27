@@ -22,7 +22,8 @@ export default defineConfig({
             { label: "Installation", link: "/installation/" },
             { label: "Existing project", link: "/existing-project/" },
             { label: "Project layout", link: "/project-layout/" },
-            { label: "Add components", link: "/add-components/" }
+            { label: "Add components", link: "/add-components/" },
+            { label: "Build Web Components", link: "/web-components/" }
           ]
         },
         {

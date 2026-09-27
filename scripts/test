@@ -35,8 +35,10 @@ test -f packages/ui/src/styles/tokens.css || { echo "test: missing theme tokens.
 ls packages/ui/src/styles/pack-*.css >/dev/null 2>&1 || { echo "test: missing style pack css" >&2; exit 1; }
 grep -q 'tokens.css' packages/ui/src/styles/globals.css || { echo "test: globals.css does not import tokens.css" >&2; exit 1; }
 grep -q 'stylePack' shadcn-scalajs.json || { echo "test: missing stylePack in config" >&2; exit 1; }
-grep -q '~ui/fastLinkJS' package.json || { echo "test: scaffold dev command does not watch Scala sources" >&2; exit 1; }
+grep -q '~ui/fastLinkJS' scripts/run-scalajs-watch.mjs || { echo "test: scaffold dev command does not watch Scala sources" >&2; exit 1; }
 node "$REPO_ROOT/packages/cli/dist/index.js" add button badge dialog accordion dropdown-menu
+# Exercise the composed wrappers and their transitive registry deps in a real consumer build.
+node "$REPO_ROOT/packages/cli/dist/index.js" add alert-dialog carousel data-table input-group navigation-menu sonner
 
 for f in Button Badge Dialog Accordion DropdownMenu; do
   test -f "packages/ui/src/main/scala/shadcnscalajs/ui/$f.scala" || { echo "test: missing $f.scala" >&2; exit 1; }
@@ -61,5 +63,28 @@ echo "test: generated scaffold compiles and links"
 sbt "ui/compile" "services/compile"
 npm install
 npm run build
+
+echo "test: consumer-owned Web Component build"
+node "$REPO_ROOT/packages/cli/dist/index.js" build-wc
+grep -q 'ScCard.register()' packages/webcomponents/src/main/scala/shadcnscalajs/webcomponents/Main.scala || { echo "test: installed card wrapper was not registered" >&2; exit 1; }
+for component in ScAlertDialog ScCarousel ScDataTable ScInput ScInputGroup ScTextarea ScNavigationMenu ScSonner; do
+  grep -q "$component.register()" packages/webcomponents/src/main/scala/shadcnscalajs/webcomponents/Main.scala || { echo "test: missing consumer wrapper $component" >&2; exit 1; }
+done
+for f in packages/ui/public/sc-components.js packages/ui/public/sc-components.css packages/ui/public/sc-document.css packages/ui/public/sc-components-loader.js packages/ui/public/styles/pack-lyra.css; do
+  test -s "$f" || { echo "test: missing Web Component asset $f" >&2; exit 1; }
+done
+# The independent bundle must actually relink the consumer's edited Scala UI source.
+node -e 'const fs = require("node:fs"); const file = "packages/ui/src/main/scala/shadcnscalajs/ui/Badge.scala"; fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("badge cn-badge group/badge", "badge cn-badge consumer-edited-badge group/badge"));'
+npm run build:webcomponents
+grep -q 'consumer-edited-badge' packages/ui/public/sc-components.js || { echo "test: Web Component bundle ignored consumer Badge.scala edit" >&2; exit 1; }
+npm run build
+test -s packages/ui/dist/sc-components.js || { echo "test: Vite did not copy Web Component assets" >&2; exit 1; }
+test -s packages/ui/dist/sc-document.css || { echo "test: Vite did not copy isolated document CSS" >&2; exit 1; }
+
+echo "test: default Web Component bundle packaging"
+(cd "$REPO_ROOT/packages/wc-bundle" && npm run build)
+for f in index.js sc-components.js sc-components.css sc-document.css styles/pack-nova.css; do
+  test -s "$REPO_ROOT/packages/wc-bundle/dist/$f" || { echo "test: missing default bundle asset $f" >&2; exit 1; }
+done
 
 echo "test: OK"

@@ -1,7 +1,7 @@
 {
   "name": "calendar",
   "title": "Calendar",
-  "registryDependencies": [],
+  "registryDependencies": ["button", "icons"],
   "scalaDependencies": [],
   "files": [{ "path": "Calendar.scala", "type": "scala:ui" }]
 }

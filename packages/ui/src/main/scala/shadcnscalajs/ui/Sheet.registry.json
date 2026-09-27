@@ -1,7 +1,7 @@
 {
   "name": "sheet",
   "title": "Sheet",
-  "registryDependencies": ["dialog"],
+  "registryDependencies": ["dialog", "button", "icons"],
   "scalaDependencies": [],
   "files": [{ "path": "Sheet.scala", "type": "scala:ui" }]
 }

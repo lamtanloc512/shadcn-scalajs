@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" data-style-pack="nova">
+  <head>
+    <meta charset="utf-8">
+    <title>Default Web Component theme check</title>
+    <style>
+      :root { --primary: rgb(220 45 55); --primary-foreground: white; --card: rgb(245 246 255); --radius: 1rem; }
+      body { padding: 2rem; font-family: system-ui; }
+      .framework-button { background: rgb(90 30 160); color: white; border: 4px solid rgb(50 20 90); padding: 13px; }
+      :not(:defined) { visibility: hidden; }
+    </style>
+  </head>
+  <body>
+    <button id="native">Native button stays native</button>
+    <button id="framework" class="framework-button">Host framework button</button>
+    <div id="outside" class="cn-card rounded-xl">Unrelated page content</div>
+    <sc-button>Root CSS variables</sc-button>
+    <sc-button style="--primary: rgb(25 100 220)">Host override</sc-button>
+    <sc-card style="display:block;width:18rem;margin-top:1rem"><sc-card-header><sc-card-title>Card</sc-card-title><sc-card-description>Scoped light DOM</sc-card-description></sc-card-header><sc-card-content>Still styled</sc-card-content></sc-card>
+    <sc-alert style="display:block;width:18rem;margin-top:1rem"><sc-alert-title>Alert</sc-alert-title><sc-alert-description>Scoped styles</sc-alert-description></sc-alert>
+    <sc-table style="display:block;width:18rem;margin-top:1rem"><table><tbody><tr><td>Table cell</td></tr></tbody></table></sc-table>
+    <sc-aspect-ratio ratio="2" style="display:block;width:180px;margin-top:1rem"><span>Aspect ratio</span></sc-aspect-ratio>
+    <sc-toggle variant="outline">Toggle</sc-toggle>
+    <sc-pagination page="1" page-count="4"></sc-pagination>
+    <sc-input-otp length="4" aria-label="Verification code"></sc-input-otp>
+    <sc-input-group id="inline-group" style="width:280px;margin-top:12px"><span style="padding:0 8px">https://</span><sc-input placeholder="example.com"></sc-input></sc-input-group>
+    <sc-input-group id="stacked-group" style="width:280px;margin-top:12px"><span style="padding:8px">Description</span><sc-textarea placeholder="Enter a description"></sc-textarea><span style="padding:8px">Markdown supported</span></sc-input-group>
+    <sc-scroll-area style="display:block;width:250px;height:120px;border:1px solid #ddd"><div style="height:360px;padding:8px">Scroll area content</div></sc-scroll-area>
+    <sc-command><div id="slotted" class="grid rounded-xl p-4">Slotted utility styles</div></sc-command>
+    <sc-alert-dialog><button slot="trigger">Confirm</button><strong>Are you sure?</strong></sc-alert-dialog>
+    <sc-sheet side="left"><button slot="trigger">Show sheet</button><strong>Sheet</strong></sc-sheet>
+    <sc-drawer direction="right"><button slot="trigger">Show drawer</button><strong>Drawer</strong></sc-drawer>
+    <sc-date-picker value="2026-05-23"></sc-date-picker>
+    <sc-range-calendar start="2026-05-20" end="2026-05-23"></sc-range-calendar>
+    <sc-hover-card><span slot="trigger">Hover here</span><div slot="content" class="p-4">Portaled hover content</div></sc-hover-card>
+    <sc-resizable split="50" style="display:block;width:280px;height:110px;border:1px solid #ddd"><div slot="left">Left pane</div><div slot="right">Right pane</div></sc-resizable>
+    <sc-theme-switcher></sc-theme-switcher>
+    <sc-sonner></sc-sonner>
+    <sc-context-menu items='[{"label":"Copy"},{"label":"Paste"}]'><button slot="trigger">Right-click me</button></sc-context-menu>
+    <sc-menubar menus='[{"label":"File","items":[{"label":"New"}]},{"label":"Edit","items":[{"label":"Copy"}]}]'></sc-menubar>
+    <sc-navigation-menu items='[{"label":"Components","links":[{"label":"Button","href":"/components/button"}]}]'></sc-navigation-menu>
+    <sc-carousel count="3" style="display:block;width:280px"><div slot="slide-0" style="height:80px">First slide</div><div slot="slide-1" style="height:80px">Second slide</div><div slot="slide-2" style="height:80px">Third slide</div></sc-carousel>
+    <sc-data-table columns='["name","status"]' rows='[{"name":"Alpha","status":"Ready"},{"name":"Beta","status":"Building"},{"name":"Gamma","status":"Ready"}]' page-size="2" style="display:block;width:400px"></sc-data-table>
+    <p id="result">Waiting for CSS</p>
+    <script>
+      const report = message => {
+        document.querySelector("#result").textContent = `Failed: ${message}`;
+        document.body.dataset.error = "true";
+      };
+      window.addEventListener("unhandledrejection", event => report(event.reason?.message || event.reason));
+      window.addEventListener("error", event => report(event.message));
+    </script>
+    <script type="module" src="../dist/index.js"></script>
+    <script type="module">
+      await customElements.whenDefined("sc-button");
+      await new Promise(resolve => setTimeout(resolve, 150));
+      const colors = [...document.querySelectorAll("sc-button")].map(el =>
+        getComputedStyle(el.shadowRoot.querySelector("button")).backgroundColor
+      );
+      const rootButton = document.querySelector("sc-button");
+      const hostButton = document.querySelectorAll("sc-button")[1];
+      const rootTheme = rootButton.shadowRoot.querySelector('[data-slot="sc-theme-host"]');
+      ShadcnScalaJS.setTokens({ primary: "rgb(10 160 80)" });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (!getComputedStyle(rootTheme).getPropertyValue("--primary").includes("10 160 80") ||
+          getComputedStyle(hostButton.shadowRoot.querySelector("button")).backgroundColor !== colors[1])
+        throw new Error("Token API did not update shadows or overrode a host-level token");
+      ShadcnScalaJS.resetTokens();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (getComputedStyle(rootButton.shadowRoot.querySelector("button")).backgroundColor === "rgb(10, 160, 80)")
+        throw new Error("Token API did not reset to root CSS variables");
+      ShadcnScalaJS.setTheme({ stylePack: "vega" });
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (document.documentElement.getAttribute("data-style-pack") !== "nova") throw new Error("Unsupported pack changed the isolated bundle");
+      document.documentElement.setAttribute("data-style-pack", "vega");
+      await new Promise(resolve => setTimeout(resolve, 90));
+      if (document.documentElement.getAttribute("data-style-pack") !== "nova") throw new Error("Direct pack change desynchronized light DOM and shadow roots");
+      const native = getComputedStyle(document.querySelector("#native"));
+      const card = getComputedStyle(document.querySelector("sc-card"));
+      const alert = getComputedStyle(document.querySelector("sc-alert"));
+      const aspect = document.querySelector("sc-aspect-ratio").shadowRoot.querySelector('[data-slot="aspect-ratio"]');
+      const toggle = document.querySelector("sc-toggle");
+      let changes = 0;
+      toggle.addEventListener("sc-change", () => changes++);
+      toggle.shadowRoot.querySelector("button").click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (!toggle.hasAttribute("pressed") || changes !== 1) throw new Error("Toggle click did not emit exactly one change");
+      toggle.removeAttribute("pressed");
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (changes !== 1) throw new Error("External attribute update emitted a change event");
+      const pagination = document.querySelector("sc-pagination");
+      let pageChanges = 0;
+      pagination.addEventListener("sc-change", () => pageChanges++);
+      pagination.shadowRoot.querySelector('[data-slot="pagination-next"]').click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (pagination.getAttribute("page") !== "2" || pageChanges !== 1) throw new Error("Pagination next did not emit one change");
+      pagination.setAttribute("page-count", "1");
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (pagination.getAttribute("page") !== "1" || pageChanges !== 1) throw new Error("Pagination did not clamp external page count silently");
+      const otp = document.querySelector("sc-input-otp");
+      let otpChanges = 0;
+      otp.addEventListener("sc-change", () => otpChanges++);
+      const input = otp.shadowRoot.querySelector('input[data-slot="input-otp-input"]');
+      input.value = "12a3";
+      input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (otp.value !== "123" || otpChanges !== 1) throw new Error("OTP input did not clean and report user input");
+      otp.setAttribute("value", "4321");
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (otp.value !== "4321" || otpChanges !== 1) throw new Error("External OTP value emitted a change event");
+      for (const tag of ["sc-alert-dialog", "sc-sheet", "sc-drawer"]) {
+        const host = document.querySelector(tag);
+        let closes = 0;
+        host.addEventListener("sc-close", () => closes++);
+        host.setAttribute("open", "");
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const dialog = host.shadowRoot.querySelector("dialog");
+        if (!dialog?.open) throw new Error(`${tag} did not open its native dialog`);
+        host.removeAttribute("open");
+        await new Promise(resolve => setTimeout(resolve, 250));
+        if (closes || dialog.open) throw new Error(`${tag} emitted close on external attribute change`);
+        host.setAttribute("open", "");
+        await new Promise(resolve => setTimeout(resolve, 50));
+        dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+        await new Promise(resolve => setTimeout(resolve, 250));
+        if (host.hasAttribute("open") || closes !== 1) throw new Error(`${tag} did not reflect a user cancel`);
+        host.querySelector('[slot="trigger"]').click();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        if (!host.hasAttribute("open") || !dialog.open) throw new Error(`${tag} trigger did not open and reflect state`);
+        host.removeAttribute("open");
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+      const picker = document.querySelector("sc-date-picker");
+      let picked = 0;
+      picker.addEventListener("sc-change", () => picked++);
+      picker.shadowRoot.querySelector('[data-slot="popover-trigger"]').click();
+      await new Promise(resolve => setTimeout(resolve, 80));
+      const day = [...picker.shadowRoot.querySelectorAll('[data-slot="calendar-day"]')].find(el => el.textContent.trim() === "24");
+      if (!day) throw new Error("Date picker calendar failed to open");
+      day.click();
+      await new Promise(resolve => setTimeout(resolve, 70));
+      if (picker.getAttribute("value") !== "2026-05-24" || picked !== 1) throw new Error("Date picker did not reflect one user selection");
+      picker.setAttribute("value", "2026-05-25");
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (picked !== 1) throw new Error("External date picker update emitted a change");
+      const range = document.querySelector("sc-range-calendar");
+      let ranges = 0;
+      range.addEventListener("sc-change", () => ranges++);
+      const rangeDay = [...range.shadowRoot.querySelectorAll('[data-slot="range-calendar-day"]')].find(el => el.textContent.trim() === "24");
+      if (!rangeDay) throw new Error("Range calendar days are missing");
+      rangeDay.click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (range.getAttribute("start") !== "2026-05-24" || range.hasAttribute("end") || ranges !== 1) throw new Error("Range calendar did not reflect user selection");
+      const hover = document.querySelector("sc-hover-card");
+      const hoverTrigger = hover.shadowRoot.querySelector('[data-slot="hover-card-trigger"]');
+      hoverTrigger.dispatchEvent(new PointerEvent("pointerenter"));
+      await new Promise(resolve => setTimeout(resolve, 770));
+      const hoverPanel = hover.shadowRoot.querySelector('[data-slot="hover-card-content"]');
+      if (!hoverPanel || hoverPanel.getBoundingClientRect().width < 100 || getComputedStyle(hoverPanel).borderTopWidth === "0px") throw new Error("Hover card portal lost its shadow-root styling");
+      hoverTrigger.dispatchEvent(new PointerEvent("pointerleave"));
+      await new Promise(resolve => setTimeout(resolve, 350));
+      const resizable = document.querySelector("sc-resizable");
+      let splits = 0;
+      resizable.addEventListener("sc-change", () => splits++);
+      resizable.split = 70;
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (resizable.split !== 70 || splits !== 0) throw new Error("Resizable did not reflect external split silently");
+      const handle = resizable.shadowRoot.querySelector('[data-slot="resizable-handle"]');
+      const box = resizable.getBoundingClientRect();
+      handle.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+      document.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: box.left + box.width * .35 }));
+      document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 50));
+      if (Math.abs(resizable.split - 35) > 2 || splits < 1) throw new Error("Resizable drag did not update its public split");
+      const theme = document.querySelector("sc-theme-switcher");
+      let themeChanges = 0;
+      theme.addEventListener("sc-change", () => themeChanges++);
+      theme.setAttribute("theme", "dark");
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (!document.documentElement.classList.contains("dark") || themeChanges !== 0) throw new Error("External theme update was not silent");
+      const selector = theme.shadowRoot.querySelector("select");
+      selector.value = "light";
+      selector.dispatchEvent(new Event("change", { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (theme.getAttribute("theme") !== "light" || document.documentElement.classList.contains("dark") || themeChanges !== 1) throw new Error("Theme switcher did not apply user selection");
+      const sonner = document.querySelector("sc-sonner");
+      if (typeof sonner.success !== "function") throw new Error("Sonner method is not exported to plain JavaScript");
+      const toastId = sonner.success("Saved");
+      await new Promise(resolve => setTimeout(resolve, 80));
+      const toast = document.querySelector('[data-sc-component] .cn-toast');
+      if (!toast || getComputedStyle(toast).borderTopWidth === "0px") throw new Error("Portaled toast lost scoped styles");
+      sonner.dismiss(toastId);
+      const context = document.querySelector("sc-context-menu");
+      let selectedContext = -1;
+      context.addEventListener("sc-select", event => selectedContext = event.detail);
+      context.querySelector('[slot="trigger"]').dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, composed: true, clientX: 220, clientY: 220 }));
+      await new Promise(resolve => setTimeout(resolve, 70));
+      const contextItem = context.shadowRoot.querySelector('[data-slot="context-menu-item"]');
+      if (!contextItem || !contextItem.getClientRects().length) throw new Error("Context menu did not open on right-click");
+      contextItem.click();
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (selectedContext !== 0) throw new Error("Context menu did not select its first item");
+      const menubar = document.querySelector("sc-menubar");
+      let selectedMenu = null;
+      menubar.addEventListener("sc-select", event => selectedMenu = event.detail);
+      menubar.shadowRoot.querySelector('[data-slot="menubar-trigger"]').click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const menuItem = menubar.shadowRoot.querySelector('[data-slot="menubar-item"]');
+      if (!menuItem || !menuItem.getClientRects().length) throw new Error("Menubar did not open");
+      menuItem.click();
+      await new Promise(resolve => setTimeout(resolve, 40));
+      if (selectedMenu?.menu !== 0 || selectedMenu?.item !== 0) throw new Error("Menubar did not report its selection");
+      const navigation = document.querySelector("sc-navigation-menu");
+      navigation.shadowRoot.querySelector('[data-slot="navigation-menu-trigger"]').click();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const navLink = navigation.shadowRoot.querySelector('[data-slot="navigation-menu-link"]');
+      if (!navLink || !navLink.getClientRects().length) throw new Error("Navigation menu viewport did not open");
+      const carousel = document.querySelector("sc-carousel");
+      let slidesChanged = 0;
+      carousel.addEventListener("sc-change", () => slidesChanged++);
+      carousel.shadowRoot.querySelector('[data-slot="carousel-next"]').click();
+      await new Promise(resolve => setTimeout(resolve, 550));
+      const track = carousel.shadowRoot.querySelector('[data-slot="carousel-content"] > div');
+      if (track.scrollLeft < 100 || slidesChanged < 1) throw new Error("Carousel did not scroll to the next slotted slide");
+      const table = document.querySelector("sc-data-table");
+      if (table.shadowRoot.querySelectorAll('tbody tr').length !== 2) throw new Error("Data table pagination failed");
+      const search = table.shadowRoot.querySelector('input[type="search"]');
+      search.value = "Beta";
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 60));
+      if (table.shadowRoot.querySelectorAll('tbody tr').length !== 1 || !table.shadowRoot.textContent.includes("Beta")) throw new Error("Data table filtering failed");
+      const inlineGroup = document.querySelector("#inline-group");
+      const groupedInput = inlineGroup.querySelector("sc-input");
+      const nativeInput = groupedInput.shadowRoot.querySelector("input");
+      const stackedGroup = document.querySelector("#stacked-group");
+      const groupedTextarea = stackedGroup.querySelector("sc-textarea");
+      const nativeTextarea = groupedTextarea.shadowRoot.querySelector("textarea");
+      if (getComputedStyle(inlineGroup).borderTopWidth !== "1px" ||
+          getComputedStyle(nativeInput).borderTopWidth !== "0px" ||
+          getComputedStyle(nativeTextarea).borderTopWidth !== "0px" ||
+          groupedInput.getBoundingClientRect().height > inlineGroup.getBoundingClientRect().height + 1 ||
+          groupedTextarea.getBoundingClientRect().width > stackedGroup.getBoundingClientRect().width + 1 ||
+          stackedGroup.getBoundingClientRect().height < 95 ||
+          nativeInput.placeholder !== "example.com" || nativeTextarea.placeholder !== "Enter a description")
+        throw new Error("Input Group controls overflow or retained their own chrome");
+      let inputChanges = 0;
+      groupedInput.addEventListener("sc-change", () => inputChanges++);
+      groupedInput.value = "ac";
+      if (nativeInput.value !== "ac" || inputChanges) throw new Error("External Input value emitted a change");
+      nativeInput.setRangeText("b", 1, 1, "end");
+      nativeInput.dispatchEvent(new Event("input", { bubbles: true }));
+      if (groupedInput.value !== "abc" || inputChanges !== 1 || nativeInput.selectionStart !== 2) throw new Error("Input lost its caret or value on change");
+      groupedInput.focus();
+      if (groupedInput.shadowRoot.activeElement !== nativeInput) throw new Error("Input Group control cannot receive focus");
+      nativeInput.blur();
+      inlineGroup.querySelector("span").click();
+      if (groupedInput.shadowRoot.activeElement !== nativeInput) throw new Error("Input Group addon did not focus its control");
+      nativeInput.blur();
+      const moved = document.createElement("sc-input");
+      inlineGroup.append(moved);
+      await new Promise(resolve => setTimeout(resolve, 30));
+      if (getComputedStyle(moved.shadowRoot.querySelector("input")).borderTopWidth !== "0px") throw new Error("New group input kept its own border");
+      document.body.append(moved);
+      await new Promise(resolve => setTimeout(resolve, 30));
+      if (getComputedStyle(moved.shadowRoot.querySelector("input")).borderTopWidth === "0px") throw new Error("Moved input did not restore its own chrome");
+      moved.remove();
+      let textChanges = 0;
+      groupedTextarea.addEventListener("sc-change", () => textChanges++);
+      groupedTextarea.value = "External";
+      if (nativeTextarea.value !== "External" || textChanges) throw new Error("Textarea property write was not silent");
+      nativeTextarea.value = "Edited";
+      nativeTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+      if (groupedTextarea.value !== "Edited" || textChanges !== 1) throw new Error("Textarea input did not reflect one change");
+      const viewport = document.querySelector("sc-scroll-area").shadowRoot.querySelector('[data-slot="scroll-area-viewport"]');
+      if (viewport.clientHeight < 115 || viewport.clientHeight > 125 || viewport.scrollHeight <= viewport.clientHeight) throw new Error("Scroll area did not constrain the slotted viewport");
+      const framework = getComputedStyle(document.querySelector("#framework"));
+      const outside = getComputedStyle(document.querySelector("#outside"));
+      const slotted = getComputedStyle(document.querySelector("#slotted"));
+      if (native.borderTopWidth !== "2px" || framework.borderTopWidth !== "4px" || framework.paddingTop !== "13px" || framework.backgroundColor !== "rgb(90, 30, 160)" || outside.borderRadius !== "0px" || outside.paddingTop !== "0px" || card.borderRadius === "0px" || slotted.paddingTop !== "16px") throw new Error("Document CSS leaked or component light-DOM styles are missing");
+      if (card.backgroundColor !== "rgb(245, 246, 255)") throw new Error("Light-DOM card ignored the root CSS variable");
+      if (Math.abs(aspect.getBoundingClientRect().height - 90) > 2) throw new Error("Aspect ratio was not applied");
+      document.querySelector("#result").textContent =
+        `Buttons: ${colors.join(" / ")}; native border: ${native.borderTopWidth}; card radius: ${card.borderRadius}; toggle events: ${changes}`;
+      document.body.dataset.ready = "true";
+    </script>
+  </body>
+</html>

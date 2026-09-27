@@ -4,7 +4,9 @@
   "title": "Drawer",
   "type": "scala:ui",
   "registryDependencies": [
-    "dialog"
+    "dialog",
+    "button",
+    "icons"
   ],
   "scalaDependencies": [],
   "files": [

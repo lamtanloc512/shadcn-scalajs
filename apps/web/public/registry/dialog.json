@@ -3,7 +3,10 @@
   "name": "dialog",
   "title": "Dialog",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "button",
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
     {

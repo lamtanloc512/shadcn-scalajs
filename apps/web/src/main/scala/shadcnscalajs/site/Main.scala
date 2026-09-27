@@ -69,7 +69,7 @@ object Main:
   private def titleFor(route: Router.Route): String =
     def titleCase(slug: String) = slug.split("-").map(_.capitalize).mkString(" ")
     route match
-      case Router.Route.Docs(slug)        => DocsPage.title(slug)
+      case Router.Route.Docs(slug)         => DocsPage.title(slug)
       case Router.Route.ComponentsIndex    => "Components – shadcn-scalajs"
       case Router.Route.Component(slug)    => s"${titleCase(if slug.isEmpty then "drawer" else slug)} – shadcn-scalajs"
       case Router.Route.BlockPreview(name) => s"${titleCase(name)} preview – shadcn-scalajs"
@@ -754,7 +754,6 @@ object Main:
       else {
         Card(
           cls := s"$rootClass $docsFrame",
-          dataAttr("sc-docs-primary-tabs") := "true",
           // Both previews stay mounted so tab switches never unmount interactive state.
           div(
             dataAttr("preview-type") := "laminar",
@@ -774,6 +773,7 @@ object Main:
             .getOrElse(emptyNode),
           div(
             cls := "border-t bg-muted/20",
+            dataAttr("sc-docs-primary-tabs") := "true",
             Tabs(
               div(
                 cls := "flex min-h-10 items-center justify-between border-b px-2",
@@ -2769,8 +2769,7 @@ ToggleGroup.multiple(
             div(
               h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
               p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
-            ),
-            {
+            ), {
               val pageCopied = Var(false)
               val pageMarkdown =
                 val version = SiteFeatures.cliVersion
@@ -2778,8 +2777,7 @@ ToggleGroup.multiple(
                 val install =
                   if componentName == "typography" then
                     "Typography is not a registry component. Copy the utility classes from the examples."
-                  else
-                    s"npx shadcn-scalajs@$version add $componentName"
+                  else s"npx shadcn-scalajs@$version add $componentName"
                 s"""---
 library: shadcn-scalajs
 version: $version
@@ -2811,15 +2809,16 @@ $usageSource
                 _ => cls := "hidden shrink-0 sm:inline-flex",
                 _ => aria.label := "Copy page",
                 _ => text <-- pageCopied.signal.map(if _ then "Copied" else "Copy page"),
-                _ => onClick --> { _ =>
-                  if js.isUndefined(dom.window.navigator.clipboard) then
-                    dom.console.warn("Clipboard API not available")
-                  else
-                    val _ = dom.window.navigator.clipboard.writeText(pageMarkdown).toFuture.foreach { _ =>
-                      pageCopied.set(true)
-                      setTimeout(2000)(pageCopied.set(false))
-                    }
-                }
+                _ =>
+                  onClick --> { _ =>
+                    if js.isUndefined(dom.window.navigator.clipboard) then
+                      dom.console.warn("Clipboard API not available")
+                    else
+                      val _ = dom.window.navigator.clipboard.writeText(pageMarkdown).toFuture.foreach { _ =>
+                        pageCopied.set(true)
+                        setTimeout(2000)(pageCopied.set(false))
+                      }
+                  }
               )
             }
           ),

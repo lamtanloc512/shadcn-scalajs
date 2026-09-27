@@ -3,7 +3,9 @@
   "name": "navigation-menu",
   "title": "Navigation Menu",
   "type": "scala:ui",
-  "registryDependencies": [],
+  "registryDependencies": [
+    "icons"
+  ],
   "scalaDependencies": [],
   "files": [
     {

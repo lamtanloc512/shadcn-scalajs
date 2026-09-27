@@ -1,7 +1,7 @@
 {
   "name": "dialog",
   "title": "Dialog",
-  "registryDependencies": [],
+  "registryDependencies": ["button", "icons"],
   "scalaDependencies": [],
   "files": [{ "path": "Dialog.scala", "type": "scala:ui" }]
 }
