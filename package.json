@@ -11,6 +11,6 @@
     "docs": "npm --prefix apps/docs run dev"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
   }
 }

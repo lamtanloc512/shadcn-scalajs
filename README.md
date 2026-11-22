@@ -16,7 +16,7 @@ Components use Tailwind CSS v4 utilities aligned with shadcn/ui's `new-york-v4` 
 
 ## Quick start
 
-JDK 21, sbt 1.10 or newer, and Node.js 20 or newer.
+JDK 21, sbt 1.10 or newer, and Node.js 22.12 or newer.
 
 ```bash
 mkdir my-app

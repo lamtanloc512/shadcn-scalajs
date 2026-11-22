@@ -10,7 +10,7 @@ Use an empty directory. `init` refuses to write into a directory that already ha
 ```bash
 java --version    # 21
 sbt --version     # 1.10 or newer
-node --version    # 20 or newer
+node --version    # 22.12 or newer
 ```
 
 sbt installed through Coursier is often missing from a new shell:

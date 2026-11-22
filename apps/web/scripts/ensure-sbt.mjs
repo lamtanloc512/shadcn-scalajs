@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const sbtVersion = "1.10.5";
+const sbtVersion = "1.13.1";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const siteDir = dirname(scriptDir);
 const binDir = join(siteDir, "node_modules", ".bin");

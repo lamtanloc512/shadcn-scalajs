@@ -5,6 +5,7 @@ import org.scalajs.dom
 import shadcnscalajs.ui.*
 
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** Every source listing in the docs: highlighted, laid out, numbered, copyable, and collapsed when long.
   *
@@ -161,7 +162,7 @@ object DocsCode:
   val packageManager: Var[String] =
     val stored =
       try Option(dom.window.localStorage.getItem(packageManagerKey))
-      catch case _: Throwable => None
+      catch case NonFatal(_) => None
     Var(stored.filter(v => managers.exists(_._1 == v)).getOrElse("npm"))
 
   private def runner(manager: String): String = manager match
@@ -176,8 +177,8 @@ object DocsCode:
   // Persist once for the whole site; every install block reads and writes the same Var.
   packageManager.signal.changes.foreach { value =>
     try dom.window.localStorage.setItem(packageManagerKey, value)
-    catch case _: Throwable => ()
-  }(unsafeWindowOwner)
+    catch case NonFatal(_) => ()
+  }(using unsafeWindowOwner)
 
   private var blockCounter = 0
 

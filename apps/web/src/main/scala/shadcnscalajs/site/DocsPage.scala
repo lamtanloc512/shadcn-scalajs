@@ -113,7 +113,7 @@ object DocsPage:
       ),
       h("What you need"),
       p(
-        "JDK 21, sbt 1.10 or newer, and Node.js 20 or newer. The first ",
+        "JDK 21, sbt 1.10 or newer, and Node.js 22.12 or newer. The first ",
         mono("npm run dev"),
         " compiles Scala.js before Vite starts. Later saves reload the browser without restarting sbt."
       ),
@@ -137,7 +137,7 @@ object DocsPage:
         "."
       ),
       h("Prerequisites"),
-      shell("java --version    # 21\nsbt --version     # 1.10 or newer\nnode --version    # 20 or newer"),
+      shell("java --version    # 21\nsbt --version     # 1.10 or newer\nnode --version    # 22.12 or newer"),
       p(
         "sbt installed through Coursier is often missing from a new shell:"
       ),

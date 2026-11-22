@@ -48,8 +48,8 @@ A Scala.js + Laminar application scaffolded with [shadcn-scalajs](https://scalaj
 ## Prerequisites
 
 - JDK 21
-- sbt 1.10+
-- Node.js 20+
+- sbt 1.13+
+- Node.js 22.12+
 
 ## Start the UI
 
@@ -125,12 +125,12 @@ Add your backend library to the \`services\` project in \`build.sbt\`. Put reque
     "build:webcomponents": "node scripts/build-webcomponents.mjs"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.0",
-    "concurrently": "^9.2.1",
-    "esbuild": "^0.25.0",
-    "postcss": "^8.5.0",
-    "tailwindcss": "^4.1.0",
-    "tw-animate-css": "^1.3.0"
+    "@tailwindcss/postcss": "^4.3.5",
+    "concurrently": "^10.0.7",
+    "esbuild": "^0.28.2",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0"
   }
 }
 `,
@@ -138,7 +138,7 @@ Add your backend library to the \`services\` project in \`build.sbt\`. Put reque
 import sbtcrossproject.CrossPlugin.autoImport.*
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 
-ThisBuild / scalaVersion := "3.5.2"
+ThisBuild / scalaVersion := "3.10.1"
 ThisBuild / organization := "${artifactGroup}"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -187,11 +187,11 @@ lazy val root = project
   .aggregate(shared.js, shared.jvm, ui, services)
   .settings(name := "${projectName}", publish / skip := true)
 `,
-    "project/plugins.sbt": `addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
-addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "1.3.2")
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
+    "project/plugins.sbt": `addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.23.0")
+addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "1.4.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.4.0")
 `,
-    "project/build.properties": `sbt.version=1.10.5
+    "project/build.properties": `sbt.version=1.13.1
 `,
     [`packages/shared/src/main/scala/${packagePath}/shared/Shared.scala`]: `package ${scalaPackage}.shared
 
@@ -237,12 +237,12 @@ object Main:
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@scala-js/vite-plugin-scalajs": "^1.0.0",
-    "@tailwindcss/postcss": "^4.1.0",
-    "postcss": "^8.5.0",
-    "tailwindcss": "^4.1.0",
-    "tw-animate-css": "^1.3.0",
-    "vite": "^7.0.0"
+    "@scala-js/vite-plugin-scalajs": "^1.1.0",
+    "@tailwindcss/postcss": "^4.3.5",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
+    "tw-animate-css": "^1.4.0",
+    "vite": "^8.3.8"
   }
 }
 `,
@@ -299,7 +299,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const styles = join(root, "packages/ui/src/styles");
 const output = join(root, "packages/ui/public");
 const pack = JSON.parse(readFileSync(join(root, "shadcn-scalajs.json"), "utf8")).stylePack ?? "nova";
-const linkDir = join(root, "packages/webcomponents/target/scala-3.5.2/webcomponents-opt");
+const linkDir = join(root, "packages/webcomponents/target/scala-3.10.1/webcomponents-opt");
 
 function shadowScope() {
   const selector = '[data-style-pack="' + pack + '"]';
