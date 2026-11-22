@@ -9,6 +9,25 @@ import com.raquo.laminar.api.L.*
   */
 object Attachment:
 
+  // Class lists shared with the light-DOM `sc-*` web component hosts.
+  val contentClass: String =
+    "cn-attachment-content max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1"
+
+  val titleClass: String =
+    "cn-attachment-title block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer"
+
+  val descriptionClass: String =
+    "cn-attachment-description mt-0.5 block max-w-full min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive/80"
+
+  val actionsClass: String =
+    "cn-attachment-actions relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:right-3 group-data-[orientation=vertical]/attachment:gap-1"
+
+  val triggerClass: String =
+    "cn-attachment-trigger absolute inset-0 z-10 outline-none"
+
+  val groupClass: String =
+    "cn-attachment-group flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start"
+
   enum State derives CanEqual:
     case Idle, Uploading, Processing, Error, Done
 
@@ -40,12 +59,17 @@ object Attachment:
     Orientation.Vertical -> "w-24 flex-col has-data-[slot=attachment-content]:w-30"
   )
 
+  def rootClass(size: Size, orientation: Orientation): String =
+    s"$base ${sizeClasses(size)} ${orientationClasses(orientation)}"
+
+  def mediaClass(variant: MediaVariant): String = s"$mediaBase ${mediaVariantClasses(variant)}"
+
   private def frame(size: Size, orientation: Orientation): Modifier[HtmlElement] =
     Seq[Modifier[HtmlElement]](
       dataAttr("slot") := "attachment",
       dataAttr("size") := name(size),
       dataAttr("orientation") := name(orientation),
-      cls := s"$base ${sizeClasses(size)} ${orientationClasses(orientation)}"
+      cls := rootClass(size, orientation)
     )
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement = of()(mods*)
@@ -77,35 +101,35 @@ object Attachment:
     div(
       dataAttr("slot") := "attachment-media",
       dataAttr("variant") := name(variant),
-      cls := s"$mediaBase ${mediaVariantClasses(variant)}",
+      cls := mediaClass(variant),
       mods
     )
 
   def content(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "attachment-content",
-      cls := "cn-attachment-content max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
+      cls := contentClass,
       mods
     )
 
   def title(mods: Modifier[HtmlElement]*): HtmlElement =
     span(
       dataAttr("slot") := "attachment-title",
-      cls := "cn-attachment-title block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer",
+      cls := titleClass,
       mods
     )
 
   def description(mods: Modifier[HtmlElement]*): HtmlElement =
     span(
       dataAttr("slot") := "attachment-description",
-      cls := "cn-attachment-description mt-0.5 block max-w-full min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive/80",
+      cls := descriptionClass,
       mods
     )
 
   def actions(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "attachment-actions",
-      cls := "cn-attachment-actions relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:right-3 group-data-[orientation=vertical]/attachment:gap-1",
+      cls := actionsClass,
       mods
     )
 
@@ -123,13 +147,13 @@ object Attachment:
     button(
       typ := "button",
       dataAttr("slot") := "attachment-trigger",
-      cls := "cn-attachment-trigger absolute inset-0 z-10 outline-none",
+      cls := triggerClass,
       mods
     )
 
   def group(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "attachment-group",
-      cls := "cn-attachment-group flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+      cls := groupClass,
       mods
     )

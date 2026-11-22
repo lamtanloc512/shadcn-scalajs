@@ -10,6 +10,10 @@ import com.raquo.laminar.api.L.*
   */
 object Bubble:
 
+  // Class lists shared with the light-DOM `sc-*` web component hosts.
+  val groupClass: String =
+    "cn-bubble-group flex min-w-0 flex-col gap-2"
+
   enum Variant derives CanEqual:
     case Default, Secondary, Muted, Tinted, Outline, Ghost, Destructive
 
@@ -39,10 +43,12 @@ object Bubble:
       "*:data-[slot=bubble-content]:bg-destructive/10 *:data-[slot=bubble-content]:text-destructive dark:*:data-[slot=bubble-content]:bg-destructive/20 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30"
   )
 
-  private val contentClasses: String =
+  val contentClass: String =
     "cn-bubble-content w-fit max-w-full min-w-0 overflow-hidden rounded-xl border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:transition-colors [button,a]:outline-none [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-3 [button,a]:focus-visible:ring-ring/50"
 
   private def name(value: Any): String = value.toString.toLowerCase
+
+  def rootClass(variant: Variant): String = s"$base cn-bubble-variant-${name(variant)} ${variantClasses(variant)}"
 
   def apply(mods: Modifier[HtmlElement]*): HtmlElement = of(Variant.Default)(mods*)
 
@@ -51,23 +57,23 @@ object Bubble:
       dataAttr("slot") := "bubble",
       dataAttr("variant") := name(variant),
       dataAttr("align") := name(align),
-      cls := s"$base cn-bubble-variant-${name(variant)} ${variantClasses(variant)}",
+      cls := rootClass(variant),
       mods
     )
 
   def group(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(dataAttr("slot") := "bubble-group", cls := "cn-bubble-group flex min-w-0 flex-col gap-2", mods)
+    div(dataAttr("slot") := "bubble-group", cls := groupClass, mods)
 
   def content(mods: Modifier[HtmlElement]*): HtmlElement =
-    div(dataAttr("slot") := "bubble-content", cls := contentClasses, mods)
+    div(dataAttr("slot") := "bubble-content", cls := contentClass, mods)
 
   /** Upstream's `<BubbleContent asChild><button/></BubbleContent>`: a clickable bubble body. */
   def contentButton(mods: Modifier[HtmlElement]*): HtmlElement =
-    button(typ := "button", dataAttr("slot") := "bubble-content", cls := contentClasses, mods)
+    button(typ := "button", dataAttr("slot") := "bubble-content", cls := contentClass, mods)
 
   /** Upstream's `<BubbleContent asChild><a/></BubbleContent>`: a bubble body that navigates. */
   def contentLink(hrefValue: String, mods: Modifier[HtmlElement]*): HtmlElement =
-    a(href := hrefValue, dataAttr("slot") := "bubble-content", cls := contentClasses, mods)
+    a(href := hrefValue, dataAttr("slot") := "bubble-content", cls := contentClass, mods)
 
   private val reactionsSide: Map[Side, String] = Map(
     Side.Top -> "top-0 -translate-y-3/4",
@@ -79,12 +85,15 @@ object Bubble:
     Align.End -> "right-3"
   )
 
+  def reactionsClass(side: Side, align: Align): String =
+    s"cn-bubble-reactions absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm ring-3 ring-card has-[button]:p-0 ${reactionsSide(side)} ${reactionsAlign(align)}"
+
   /** A reaction strip pinned to the bubble's edge. Defaults match upstream: bottom side, end edge. */
   def reactions(side: Side = Side.Bottom, align: Align = Align.End)(mods: Modifier[HtmlElement]*): HtmlElement =
     div(
       dataAttr("slot") := "bubble-reactions",
       dataAttr("align") := name(align),
       dataAttr("side") := name(side),
-      cls := s"cn-bubble-reactions absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm ring-3 ring-card has-[button]:p-0 ${reactionsSide(side)} ${reactionsAlign(align)}",
+      cls := reactionsClass(side, align),
       mods
     )

@@ -68,3 +68,8 @@ object Main:
     ScTableParts.register()
     ScPrimitives.register()
     ScSiteHeader.register()
+    ScChat.register()
+    ScTrace.register()
+    ScCodeBlock.register()
+    ScMessageScroller.register()
+    ScQuestionnaire.register()

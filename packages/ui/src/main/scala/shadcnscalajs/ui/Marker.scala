@@ -8,6 +8,13 @@ import com.raquo.laminar.api.L.*
   */
 object Marker:
 
+  // Class lists shared with the light-DOM `sc-*` web component hosts.
+  val iconClass: String =
+    "cn-marker-icon size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4"
+
+  val contentClass: String =
+    "cn-marker-content min-w-0 wrap-break-word group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground"
+
   enum Variant derives CanEqual:
     case Default, Separator, Border
 
@@ -37,13 +44,13 @@ object Marker:
     span(
       dataAttr("slot") := "marker-icon",
       aria.hidden := true,
-      cls := "cn-marker-icon size-4 shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      cls := iconClass,
       mods
     )
 
   def content(mods: Modifier[HtmlElement]*): HtmlElement =
     span(
       dataAttr("slot") := "marker-content",
-      cls := "cn-marker-content min-w-0 wrap-break-word group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+      cls := contentClass,
       mods
     )
