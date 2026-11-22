@@ -127,9 +127,11 @@ object Main:
     "Alert",
     "Alert Dialog",
     "Aspect Ratio",
+    "Attachment",
     "Avatar",
     "Badge",
     "Breadcrumb",
+    "Bubble",
     "Button",
     "Button Group",
     "Calendar",
@@ -137,6 +139,7 @@ object Main:
     "Carousel",
     "Chart",
     "Checkbox",
+    "Code Block",
     "Collapsible",
     "Combobox",
     "Command",
@@ -144,6 +147,7 @@ object Main:
     "Data Table",
     "Date Picker",
     "Dialog",
+    "Direction",
     "Drawer",
     "Dropdown Menu",
     "Empty",
@@ -156,12 +160,16 @@ object Main:
     "Item",
     "Kbd",
     "Label",
+    "Marker",
     "Menubar",
+    "Message",
+    "Message Scroller",
     "Native Select",
     "Navigation Menu",
     "Pagination",
     "Popover",
     "Progress",
+    "Questionnaire",
     "Radio",
     "Radio Group",
     "Range",
@@ -186,6 +194,7 @@ object Main:
     "Toggle",
     "Toggle Group",
     "Tooltip",
+    "Trace",
     "Typography"
   )
 
@@ -406,10 +415,12 @@ object Main:
           cls := "mx-auto w-full px-2 max-w-[1400px]",
           div(
             cls := "mx-auto flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4",
-            Badge.of(
-              _.variant(Badge.Variant.Secondary),
-              _ => cls := "mb-1 uppercase tracking-wide",
-              _ => "Alpha release"
+            Badge.anchor(
+              "/docs/installation",
+              Badge.BadgeApi.variant(Badge.Variant.Secondary),
+              cls := "mb-1",
+              s"v${SiteFeatures.cliVersion} · 72 components & blocks for Laminar",
+              Icons.arrowRight(svg.cls := "size-3")
             ),
             h1(
               cls := "text-3xl font-semibold tracking-tight text-balance text-primary lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter max-w-4xl",
@@ -558,264 +569,170 @@ object Main:
     val previewTheme = Var(ThemeSwitcher.Theme.System)
     val componentName = if slug.isEmpty then "drawer" else slug
     val componentTitle = componentName.split("-").map(_.capitalize).mkString(" ")
-    val componentDescription = componentName match
-      case "accordion" => "A vertically stacked set of interactive headings that each reveal a section of content."
-      case "drawer"    => "A mobile-first drawer component for Laminar."
-      case "data-table" =>
-        "Pure Scala table-state utilities composing Table — sorting, filtering, pagination, and row selection without TanStack."
-      case "dialog"       => "A modal dialog built with the native HTML dialog element."
-      case "aspect-ratio" => "Displays content within a desired ratio."
-      case "avatar"       => "An image element with a fallback for representing the user."
-      case "badge"        => "Displays a badge or a component that looks like a badge."
-      case "button"       => "A reusable action button with shadcn/ui variants."
-      case "switch"       => "A reactive boolean control backed by a Laminar Var."
-      case "sonner"       => "An opinionated toast component — pure Laminar, no svelte-sonner dependency."
-      case "typography" =>
-        "Styles for headings, paragraphs, lists, and inline code — utility-class recipes, not a registry component."
-      case _ => s"The ${componentTitle.toLowerCase} primitive for shadcn-scalajs."
+    val componentDescription = ComponentDescriptions(componentName, componentTitle)
 
     val navIndex = componentNavList.indexWhere(name => slugify(name) == componentName)
     val prevEntry = if navIndex > 0 then Some(componentNavList(navIndex - 1)) else None
     val nextEntry =
       if navIndex >= 0 && navIndex < componentNavList.length - 1 then Some(componentNavList(navIndex + 1)) else None
 
-    def docsTabTrigger(
-        selected: Var[String],
-        value: String,
-        label: String,
-        controlsId: String,
-        order: List[String] = List("laminar", "web-component")
-    ): HtmlElement =
-      Tabs.trigger(
-        idAttr := s"$controlsId-tab",
-        dataAttr("value") := value,
-        role := "tab",
-        aria.controls := controlsId,
-        tabIndex <-- selected.signal.map(v => if v == value then 0 else -1),
-        inContext { thisNode =>
-          selected.signal --> { v =>
-            if v == value then thisNode.ref.setAttribute("data-active", "true")
-            else thisNode.ref.removeAttribute("data-active")
-          }
-        },
-        aria.selected <-- selected.signal.map(_ == value),
-        onClick --> { _ => selected.set(value) },
-        onKeyDown --> Observer[dom.KeyboardEvent] { ev =>
-          val idx = order.indexOf(selected.now())
-          def activate(next: String): Unit =
-            val current = selected.now()
-            selected.set(next)
-            // Roving tabindex: panel ids are `<slug>-<value>-panel`; tab ids append `-tab`.
-            val nextTabId = controlsId.replace(s"-$current-panel", s"-$next-panel") + "-tab"
-            Option(dom.document.getElementById(nextTabId))
-              .foreach(_.asInstanceOf[dom.HTMLElement].focus())
-          ev.key match
-            case "ArrowRight" if idx >= 0 =>
-              ev.preventDefault()
-              activate(order((idx + 1) % order.length))
-            case "ArrowLeft" if idx >= 0 =>
-              ev.preventDefault()
-              activate(order((idx - 1 + order.length) % order.length))
-            case "Home" if idx >= 0 =>
-              ev.preventDefault()
-              activate(order.head)
-            case "End" if idx >= 0 =>
-              ev.preventDefault()
-              activate(order.last)
-            case _ => ()
-        },
-        label
-      )
-
-    /** The docs frames are `Card`s so their radius, ring, and shadow follow the active style pack, but they stay flush:
-      * the preview canvas and the code block own their own padding. The `!` carries that intent — packs set `py` and
-      * `gap` on `.cn-card` from an unlayered rule, which a plain `py-0` cannot outrank, so without it every pack pushes
-      * a 16–32px band above and below the content.
+    /** The docs frames follow the active style pack's radius but own their padding; packs set `py`/`gap` on `.cn-card`
+      * from an unlayered rule, which is why the docs no longer build these frames from `Card`.
       */
     val docsFrame = "gap-0! overflow-hidden py-0!"
 
-    def copyButton(source: => String): HtmlElement =
-      val copiedVar = Var(false)
-      def copy(text: String): Unit =
-        if js.isUndefined(dom.window.navigator.clipboard) then dom.console.warn("Clipboard API not available")
-        else
-          val _ = dom.window.navigator.clipboard.writeText(text).toFuture.foreach { _ =>
-            copiedVar.set(true)
-            setTimeout(2000)(copiedVar.set(false))
-          }
-
-      button(
-        typ := "button",
-        aria.label := "Copy selected source",
-        dataAttr("sc-copy") := "true",
-        cls := "rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
-        text <-- copiedVar.signal.map(if _ then "Copied" else "Copy"),
-        onClick --> { (_: dom.MouseEvent) => copy(source) }
-      )
-
-    def codePane(
-        language: String,
-        source: String,
-        audience: String = "Scala.js",
-        withCopy: Boolean = true
-    ): HtmlElement =
-      div(
-        cls := "min-w-0",
-        div(
-          cls := "flex h-9 items-center justify-between border-b px-3 text-xs text-muted-foreground",
-          span(language),
-          div(
-            cls := "flex items-center gap-2",
-            span(audience),
-            if withCopy then copyButton(source) else emptyNode
-          )
-        ),
-        div(
-          cls := "sc-doc-code min-w-0 max-w-full overflow-x-auto px-4 py-4 font-mono text-xs leading-6 break-words whitespace-pre-wrap text-foreground",
-          dataAttr("language") := language,
-          onMountCallback { ctx =>
-            js.Dynamic.global.ScDocsHighlight.highlight(ctx.thisNode.ref, language, source)
-          },
-          source
-        )
-      )
-
     def codeBlock(language: String, source: String, audience: String = "Scala.js"): HtmlElement =
-      Card(cls := s"mt-4 $docsFrame", codePane(language, source, audience))
+      DocsCode.block(language, source)
 
     val docExamples = ComponentExamples(componentName)
+
+    /** The newest components have one demo and no recipe list yet; re-rendering that demo as "Composition" would only
+      * mount it twice.
+      */
+    val hasExamplesSection = docExamples.nonEmpty || !NewComponents.slugs.contains(componentName)
+
+    val tocEntries: Seq[(String, String, Boolean)] =
+      Seq(("about", "About", false)) ++
+        (if componentName != "typography" then Seq(("installation", "Installation", false)) else Nil) ++
+        Seq(("usage", "Usage", false)) ++
+        (if hasExamplesSection then Seq(("examples", "Examples", false)) else Nil) ++
+        docExamples.map(example => (example.anchor, example.title, true)) ++
+        (if componentName == "drawer" && docExamples.isEmpty then Seq(("sides", "Sides", true)) else Nil)
+
+    /** Highlights the section being read, as shadcn/ui's own table of contents does. */
+    val activeSection = Var("about")
 
     def tableOfContents: HtmlElement =
       asideTag(
         cls := "hidden xl:block",
         navTag(
-          cls := "sticky top-20 space-y-1 border-l pl-4 text-sm",
+          cls := "sticky top-20 flex max-h-[calc(100svh-6rem)] flex-col gap-2 overflow-y-auto px-4 py-10 text-sm [scrollbar-width:none]",
           aria.label := "On this page",
-          p(cls := "mb-3 text-xs font-medium text-muted-foreground", "ON THIS PAGE"),
-          a(href := "#about", cls := "block text-muted-foreground hover:text-foreground", "About"),
-          a(href := "#installation", cls := "block text-muted-foreground hover:text-foreground", "Installation"),
-          a(href := "#usage", cls := "block text-muted-foreground hover:text-foreground", "Usage"),
-          a(href := "#examples", cls := "block text-muted-foreground hover:text-foreground", "Examples"),
-          docExamples.map { example =>
+          p(cls := "mb-1 text-xs font-medium text-muted-foreground", "On This Page"),
+          tocEntries.map { (anchor, label, nested) =>
+            val active = activeSection.signal.map(_ == anchor)
             a(
-              href := s"#${example.anchor}",
-              cls := "block pl-3 text-muted-foreground hover:text-foreground",
-              example.title
+              href := s"#$anchor",
+              dataAttr("toc") := anchor,
+              cls := "block text-[0.8rem] text-muted-foreground no-underline transition-colors hover:text-foreground data-[active=true]:font-medium data-[active=true]:text-foreground",
+              cls("ps-3") := nested,
+              dataAttr("active") <-- active.map(_.toString),
+              aria.current <-- active.map(if _ then "location" else "false"),
+              label
             )
-          },
-          if componentName == "drawer" then
-            a(href := "#sides", cls := "block text-muted-foreground hover:text-foreground", "Sides")
-          else emptyNode
-        )
+          }
+        ),
+        // The active entry is the last section whose top has scrolled past the sticky header.
+        windowEvents(_.onScroll) --> { _ =>
+          val current = tocEntries
+            .flatMap((anchor, _, _) => Option(dom.document.getElementById(anchor)).map(anchor -> _))
+            .filter((_, el) => el.getBoundingClientRect().top <= 140)
+            .lastOption
+            .map(_._1)
+            .getOrElse("about")
+          if activeSection.now() != current then activeSection.set(current)
+        }
       )
 
-    /** Wide demos (tables, sidebars, nav) need more than the prose `max-w-2xl` column. */
+    /** Wide demos (tables, sidebars, nav) need more than the prose column. */
     val articleWidthCls =
       componentName match
         case "data-table" | "sidebar" | "chart" | "navigation-menu" | "carousel" | "resizable" | "table" =>
           "mx-auto max-w-5xl"
-        case _ => "mx-auto max-w-2xl"
+        case _ => "mx-auto max-w-3xl"
 
     def previewCanvas(content: Modifier[HtmlElement]*): HtmlElement =
-      div(cls := "flex min-h-[450px] w-full items-center justify-center gap-3 p-10", content)
+      div(cls := "flex min-h-[400px] w-full items-center justify-center gap-3 p-6 sm:p-10", content)
 
     val webComponentExample = WebComponentExamples(componentName)
+    var previewCounter = 0
 
-    /** Demo frame with a live preview and code language tabs below (Laminar | Web Component). */
+    /** shadcn/ui's ComponentPreview: the live demo on a dotted canvas, and the source attached below it — collapsed
+      * when long, highlighted, numbered, with Laminar | Web Component tabs when the bundle is enabled.
+      */
     def previewTabs(
         preview: HtmlElement,
         source: String,
         rootClass: String,
         wcPreview: Boolean = true
     ): HtmlElement =
+      previewCounter += 1
       val tab = Var("laminar")
-      val codeOrder = List("laminar", "web-component")
-      val ids = Map(
-        "laminar" -> s"$componentName-laminar-panel",
-        "web-component" -> s"$componentName-web-component-panel"
-      )
+      val idPrefix = s"$componentName-code-$previewCounter"
+      val formatted = DocsCode.format("scala", source)
       val wcSource = webComponentExample
         .map(_.source)
         .getOrElse(s"<!-- ${WebComponentExamples.unsupportedMessage(componentName)} -->")
-      if !SiteFeatures.webComponents then
-        Card(
-          cls := s"$rootClass $docsFrame",
-          div(dataAttr("preview-type") := "laminar", preview),
-          div(
-            cls := "border-t bg-muted/20",
-            div(
-              cls := "flex min-h-10 items-center justify-between border-b px-3",
-              span(cls := "text-sm font-medium", "Laminar"),
-              copyButton(source)
-            ),
-            codePane("scala", source, "Scala.js", withCopy = false)
-          )
+      val showTabs = SiteFeatures.webComponents
+      def panel(value: String, body: HtmlElement): HtmlElement =
+        div(
+          idAttr := s"$idPrefix-$value-panel",
+          role := "tabpanel",
+          aria.labelledBy := s"$idPrefix-$value-tab",
+          display <-- tab.signal.map(v => if v == value then "block" else "none"),
+          body
         )
-      else {
-        Card(
-          cls := s"$rootClass $docsFrame",
-          // Both previews stay mounted so tab switches never unmount interactive state.
-          div(
-            dataAttr("preview-type") := "laminar",
-            display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
-            preview
+      div(
+        cls := s"$rootClass group/preview overflow-hidden rounded-xl border",
+        // Both previews stay mounted so tab switches never unmount interactive state.
+        div(
+          dataAttr("preview-type") := "laminar",
+          cls := "sc-preview-canvas bg-background",
+          display <-- tab.signal.map(v =>
+            if v == "web-component" && wcPreview && webComponentExample.nonEmpty then "none" else "block"
           ),
-          Option
-            .when(wcPreview)(webComponentExample)
-            .flatten
-            .map { wcExample =>
-              div(
-                dataAttr("preview-type") := "web-component",
-                display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
-                previewCanvas(WebComponentExamples.preview(wcExample))
-              )
-            }
-            .getOrElse(emptyNode),
+          preview
+        ),
+        Option
+          .when(wcPreview && showTabs)(webComponentExample)
+          .flatten
+          .map { wcExample =>
+            div(
+              dataAttr("preview-type") := "web-component",
+              cls := "sc-preview-canvas bg-background",
+              display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
+              previewCanvas(WebComponentExamples.preview(wcExample))
+            )
+          }
+          .getOrElse(emptyNode),
+        div(
+          cls := "sc-doc-code border-t",
+          dataAttr("sc-docs-primary-tabs") := "true",
           div(
-            cls := "border-t bg-muted/20",
-            dataAttr("sc-docs-primary-tabs") := "true",
-            Tabs(
+            cls := "flex min-h-10 items-center justify-between gap-2 border-b ps-4 pe-2",
+            if showTabs then
+              DocsCode.tabRow(tab, Seq("laminar" -> "Laminar", "web-component" -> "Web Component"), idPrefix)
+            else
               div(
-                cls := "flex min-h-10 items-center justify-between border-b px-2",
-                Tabs.list(
-                  Tabs.ListVariant.Default,
-                  role := "tablist",
-                  docsTabTrigger(tab, "laminar", "Laminar", ids("laminar"), codeOrder),
-                  docsTabTrigger(tab, "web-component", "Web Component", ids("web-component"), codeOrder)
-                ),
-                copyButton(if tab.now() == "web-component" then wcSource else source)
-              ),
-              Tabs.content(
-                idAttr := ids("laminar"),
-                role := "tabpanel",
-                aria.labelledBy := s"${ids("laminar")}-tab",
-                display <-- tab.signal.map(v => if v == "laminar" then "block" else "none"),
-                codePane("scala", source, "Scala.js", withCopy = false)
-              ),
-              Tabs.content(
-                idAttr := ids("web-component"),
-                role := "tabpanel",
-                aria.labelledBy := s"${ids("web-component")}-tab",
-                display <-- tab.signal.map(v => if v == "web-component" then "block" else "none"),
-                div(
-                  codePane("html", wcSource, "HTML", withCopy = false),
-                  webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
-                )
+                cls := "flex items-center gap-2 text-xs text-muted-foreground [&_svg]:size-3.5",
+                Icons.fileText(),
+                "Laminar · Scala.js"
+              )
+            ,
+            CodeBlock.copyButton(if tab.now() == "web-component" then wcSource else formatted)
+          ),
+          panel("laminar", DocsCode.listing("scala", formatted)),
+          if showTabs then
+            panel(
+              "web-component",
+              div(
+                DocsCode.listing("html", wcSource),
+                webComponentExample.map(ex => dataAttr("sc-wc-source") := ex.source).getOrElse(emptyNode)
               )
             )
-          )
+          else emptyNode
         )
-      }
+      )
 
     def exampleBlock(example: DocExample): HtmlElement =
       div(
         idAttr := example.anchor,
-        cls := "mt-8 scroll-mt-24",
-        h3(cls := "text-base font-semibold", example.title),
+        cls := "mt-10 scroll-mt-24",
+        h3(cls := "text-lg font-semibold tracking-tight", example.title),
         example.description match
           case Some(text) => p(cls := "mt-2 text-sm leading-6 text-muted-foreground", text)
           case None       => emptyNode,
-        previewTabs(previewCanvas(example.preview), example.code, "mt-4 gap-4", wcPreview = false)
+        previewTabs(previewCanvas(example.preview), example.code, "mt-4", wcPreview = false)
       )
 
     def liveExample(): HtmlElement = componentName match
@@ -1968,6 +1885,7 @@ object Main:
             )
           )
         )
+      case other if NewComponents.slugs.contains(other) => NewComponentExamples(other).get.preview
       case _ =>
         previewCanvas(
           Alert(
@@ -2756,33 +2674,20 @@ ToggleGroup.multiple(
     cls := "data-[state=on]:bg-transparent! data-[state=on]:[&>svg]:fill-blue-500 data-[state=on]:[&>svg]:stroke-blue-500"
   )
 )"""
-      case _ => s"""$componentTitle(/* Laminar modifiers */)"""
+      case other if NewComponents.slugs.contains(other) => NewComponentExamples(other).get.source
+      case _                                            => s"""$componentTitle(/* Laminar modifiers */)"""
 
-    div(
-      cls := "contents",
-      mainTag(
-        cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10",
-        articleTag(
-          cls := articleWidthCls,
-          div(
-            cls := "mb-8 flex items-start justify-between gap-4",
-            div(
-              h1(cls := "text-3xl font-semibold tracking-tight", componentTitle),
-              p(cls := "mt-2 text-base text-muted-foreground", componentDescription)
-            ), {
-              val pageCopied = Var(false)
-              val pageMarkdown =
-                val version = SiteFeatures.cliVersion
-                val pageUrl = dom.window.location.href
-                val install =
-                  if componentName == "typography" then
-                    "Typography is not a registry component. Copy the utility classes from the examples."
-                  else s"npx shadcn-scalajs@$version add $componentName"
-                s"""---
+    val pageMarkdown =
+      val version = SiteFeatures.cliVersion
+      val install =
+        if componentName == "typography" then
+          "Typography is not a registry component. Copy the utility classes from the examples."
+        else s"npx shadcn-scalajs@$version add $componentName"
+      s"""---
 library: shadcn-scalajs
 version: $version
 component: $componentName
-url: $pageUrl
+url: ${dom.window.location.href}
 ---
 
 # $componentTitle
@@ -2800,108 +2705,193 @@ $install
 ## Usage
 
 ```scala
-$usageSource
+${DocsCode.format("scala", usageSource)}
 ```
 """
-              Button.of(
-                _.variant(Button.Variant.Outline),
-                _.size(Button.Size.Sm),
-                _ => cls := "hidden shrink-0 sm:inline-flex",
-                _ => aria.label := "Copy page",
-                _ => text <-- pageCopied.signal.map(if _ then "Copied" else "Copy page"),
-                _ =>
-                  onClick --> { _ =>
-                    if js.isUndefined(dom.window.navigator.clipboard) then
-                      dom.console.warn("Clipboard API not available")
-                    else
-                      val _ = dom.window.navigator.clipboard.writeText(pageMarkdown).toFuture.foreach { _ =>
-                        pageCopied.set(true)
-                        setTimeout(2000)(pageCopied.set(false))
-                      }
-                  }
-              )
-            }
-          ),
+
+    def copyPageButton: HtmlElement =
+      val pageCopied = Var(false)
+      Button.of(
+        _.variant(Button.Variant.Secondary),
+        _.size(Button.Size.Sm),
+        _ => cls := "hidden shrink-0 sm:inline-flex",
+        _ => aria.label := "Copy page as Markdown",
+        _ => child <-- pageCopied.signal.map(if _ then Icons.check() else Icons.copy()),
+        _ => span(text <-- pageCopied.signal.map(if _ then "Copied" else "Copy page")),
+        _ =>
+          onClick --> { _ =>
+            if js.isUndefined(dom.window.navigator.clipboard) then dom.console.warn("Clipboard API not available")
+            else
+              val _ = dom.window.navigator.clipboard.writeText(pageMarkdown).toFuture.foreach { _ =>
+                pageCopied.set(true)
+                setTimeout(2000)(pageCopied.set(false))
+              }
+          }
+      )
+
+    def neighbourIcon(entry: Option[String], label: String, icon: => SvgElement): HtmlElement =
+      entry match
+        case Some(name) =>
+          Button.anchor(
+            s"/components/${slugify(name)}",
+            Button.ButtonApi.variant(Button.Variant.Secondary),
+            Button.ButtonApi.size(Button.Size.IconSm),
+            aria.label := s"$label: $name",
+            title := name,
+            icon
+          )
+        case None =>
+          Button.of(
+            _.variant(Button.Variant.Secondary),
+            _.size(Button.Size.IconSm),
+            _ => disabled := true,
+            _ => aria.label := label,
+            _ => icon
+          )
+
+    def sectionHeading(anchor: String, text: String): HtmlElement =
+      h2(
+        cls := "group/heading scroll-mt-24 text-xl font-semibold tracking-tight",
+        a(
+          href := s"#$anchor",
+          cls := "inline-flex items-center gap-2 no-underline",
+          text,
+          span(
+            aria.hidden := true,
+            cls := "text-muted-foreground opacity-0 transition-opacity group-hover/heading:opacity-100",
+            "#"
+          )
+        )
+      )
+
+    def section(anchor: String, heading: String, mods: Modifier[HtmlElement]*): HtmlElement =
+      sectionTag(idAttr := anchor, cls := "mt-14 scroll-mt-24", sectionHeading(anchor, heading), mods)
+
+    div(
+      cls := "contents",
+      mainTag(
+        cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-12",
+        articleTag(
+          cls := articleWidthCls,
+          // ── Header ──
           div(
             idAttr := "about",
             cls := "scroll-mt-24",
-            h2(cls := "text-xl font-semibold", "About"),
+            navTag(
+              aria.label := "Breadcrumb",
+              cls := "mb-4 flex items-center gap-1.5 text-sm text-muted-foreground",
+              a(href := "/docs", cls := "hover:text-foreground", "Docs"),
+              Icons.chevronRight(svg.cls := "size-3.5!"),
+              a(href := "/components", cls := "hover:text-foreground", "Components"),
+              Icons.chevronRight(svg.cls := "size-3.5!"),
+              span(cls := "text-foreground", componentTitle)
+            ),
+            div(
+              cls := "flex items-start justify-between gap-4",
+              h1(cls := "scroll-m-24 text-3xl font-semibold tracking-tight sm:text-4xl", componentTitle),
+              div(
+                cls := "flex shrink-0 items-center gap-2 pt-1.5",
+                copyPageButton,
+                neighbourIcon(prevEntry, "Previous component", Icons.chevronRight(svg.cls := "rotate-180")),
+                neighbourIcon(nextEntry, "Next component", Icons.chevronRight())
+              )
+            ),
+            p(cls := "mt-3 text-base text-balance text-muted-foreground sm:text-[1.05rem]", componentDescription),
+            div(
+              cls := "mt-4 flex flex-wrap items-center gap-2",
+              if componentName != "typography" then
+                Seq(
+                  Badge.anchor(
+                    s"/registry/$componentName.json",
+                    Badge.BadgeApi.variant(Badge.Variant.Secondary),
+                    target := "_blank",
+                    rel := "noopener",
+                    "Registry JSON"
+                  ),
+                  Badge.anchor(
+                    s"https://ui.shadcn.com/docs/components/$componentName",
+                    Badge.BadgeApi.variant(Badge.Variant.Outline),
+                    target := "_blank",
+                    rel := "noopener",
+                    "shadcn/ui reference ↗"
+                  )
+                )
+              else Seq(Badge.of(_.variant(Badge.Variant.Secondary), _ => "Recipe — no registry item")),
+              if NewComponents.slugs.contains(componentName) then Badge.of(_.variant(Badge.Variant.Primary), _ => "New")
+              else emptyNode
+            )
+          ),
+          previewTabs(liveExample(), usageSource, "mt-8"),
+          // ── Installation ──
+          if componentName != "typography" then
+            section(
+              "installation",
+              "Installation",
+              div(cls := "mt-4", DocsCode.installation(componentName, componentTitle))
+            )
+          else emptyNode,
+          // ── Usage ──
+          section(
+            "usage",
+            "Usage",
             p(
               cls := "mt-3 text-sm leading-6 text-muted-foreground",
-              if componentName == "typography" then
-                "We do not ship typography styles by default. This page shows utility-class recipes you can copy into your Laminar elements."
-              else s"${componentTitle} is available as a direct Laminar component and through the generated registry."
-            )
+              if componentName == "typography" then "Apply the utility classes directly to Laminar elements."
+              else
+                Seq[Modifier[HtmlElement]](
+                  "Import the package, then compose the parts with ordinary Laminar modifiers. ",
+                  code(cls := "sc-inline-code", "import shadcnscalajs.ui.*")
+                )
+            ),
+            DocsCode.block("scala", usageSource, title = Some(s"${componentTitle.replace(" ", "")}Example.scala"))
           ),
-          previewTabs(liveExample(), usageSource, "mt-8 gap-4"),
-          if componentName != "typography" then
-            div(
-              idAttr := "installation",
-              cls := "mt-12 scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "Installation"),
-              p(cls := "mt-3 text-sm text-muted-foreground", "Add the component through the local registry CLI."),
-              codeBlock("shell", s"npx shadcn-scalajs add $componentName")
-            )
+          // ── Examples ──
+          if !hasExamplesSection then emptyNode
           else
-            div(
-              idAttr := "installation",
-              cls := "mt-12 scroll-mt-24",
-              h2(cls := "text-xl font-semibold", "Installation"),
-              p(
-                cls := "mt-3 text-sm text-muted-foreground",
-                "No registry component — upstream shadcn/ui documents typography as Tailwind utility recipes. Copy the class strings from the preview below."
-              )
+            section(
+              "examples",
+              "Examples",
+              if docExamples.nonEmpty then docExamples.map(exampleBlock)
+              else
+                Seq(
+                  h3(
+                    idAttr := "sides",
+                    cls := "mt-6 scroll-mt-24 text-lg font-semibold tracking-tight",
+                    if componentName == "drawer" then "Sides" else "Composition"
+                  ),
+                  p(
+                    cls := "mt-2 text-sm leading-6 text-muted-foreground",
+                    if componentName == "drawer" then
+                      "The native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
+                    else "Compose this primitive with Card, Field, Button, and the other Laminar components."
+                  ),
+                  div(cls := "sc-preview-canvas mt-4 overflow-hidden rounded-xl border", liveExample())
+                )
             )
           ,
+          // ── Prev / next ──
           div(
-            idAttr := "usage",
-            cls := "mt-12 scroll-mt-24",
-            h2(cls := "text-xl font-semibold", "Usage"),
-            p(
-              cls := "mt-3 text-sm text-muted-foreground",
-              "Import the primitive and compose it with Laminar modifiers."
-            ),
-            codeBlock("scala", usageSource)
-          ),
-          div(
-            idAttr := "examples",
-            cls := "mt-12 scroll-mt-24",
-            h2(cls := "text-xl font-semibold", "Examples"),
-            if docExamples.nonEmpty then docExamples.map(exampleBlock)
-            else
-              Seq(
-                h3(
-                  idAttr := "sides",
-                  cls := "mt-6 text-base font-semibold",
-                  if componentName == "drawer" then "Sides" else "Composition"
-                ),
-                p(
-                  cls := "mt-2 text-sm leading-6 text-muted-foreground",
-                  if componentName == "drawer" then
-                    "The current native Drawer defaults to a bottom sheet. The same composition API is ready for top, right, bottom, and left variants."
-                  else "Compose this primitive with Card, Field, Button, and the other Laminar components."
-                ),
-                Card(cls := s"mt-4 $docsFrame", liveExample())
-              )
-          ),
-          div(
-            cls := "mt-14 flex items-center justify-between border-t pt-6 text-sm",
+            cls := "mt-16 flex items-center justify-between gap-4 border-t pt-6",
             prevEntry match
               case Some(name) =>
-                a(
-                  href := s"/components/${slugify(name)}",
-                  cls := "text-muted-foreground hover:text-foreground",
-                  s"← $name"
+                Button.anchor(
+                  s"/components/${slugify(name)}",
+                  Button.ButtonApi.variant(Button.Variant.Secondary),
+                  Button.ButtonApi.size(Button.Size.Sm),
+                  Icons.chevronRight(svg.cls := "rotate-180"),
+                  name
                 )
-              case None => emptyNode,
+              case None => span(),
             nextEntry match
               case Some(name) =>
-                a(
-                  href := s"/components/${slugify(name)}",
-                  cls := "text-muted-foreground hover:text-foreground",
-                  s"$name →"
+                Button.anchor(
+                  s"/components/${slugify(name)}",
+                  Button.ButtonApi.variant(Button.Variant.Secondary),
+                  Button.ButtonApi.size(Button.Size.Sm),
+                  name,
+                  Icons.chevronRight()
                 )
-              case None => emptyNode
+              case None => span()
           )
         )
       ),

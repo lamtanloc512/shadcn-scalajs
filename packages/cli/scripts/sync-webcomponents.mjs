@@ -7,10 +7,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const source = join(root, "packages/webcomponents/src/main/scala/shadcnscalajs/webcomponents");
 const dest = join(root, "packages/cli/assets/webcomponents");
 const names = [
-  "LightPrimitive", "ScElementBase", "ScElements", "ScStyles", "ScThemeApi", "ScThemeState",
+  "LightPrimitive", "LightVariantPrimitive", "ScElementBase", "ScElements", "ScStyles", "ScThemeApi", "ScThemeState",
   "ScAccordion", "ScAlertDialog", "ScAspectRatio", "ScBadge", "ScButton", "ScCalendar", "ScCarousel", "ScCard", "ScChart",
   "ScCheckbox", "ScCombobox", "ScContextMenu", "ScDataTable", "ScDatePicker", "ScDialog", "ScDrawer", "ScDropdownMenu", "ScHoverCard", "ScInput", "ScInputGroup", "ScInputOTP", "ScItem", "ScMenubar", "ScNavigationMenu",
-  "ScPagination", "ScProgress", "ScRangeCalendar", "ScResizable", "ScScrollArea", "ScSelect", "ScSheet", "ScSidebar", "ScSlider", "ScSonner", "ScSwitch", "ScTabs", "ScTextarea", "ScThemeSwitcher", "ScToggle"
+  "ScPagination", "ScProgress", "ScRangeCalendar", "ScResizable", "ScScrollArea", "ScSelect", "ScSheet", "ScSidebar", "ScSlider", "ScSonner", "ScSwitch", "ScTabs", "ScTextarea", "ScThemeSwitcher", "ScToggle",
+  "ScAttachment", "ScBubble", "ScCodeBlock", "ScDirection", "ScMarker", "ScMessage", "ScMessageScroller", "ScQuestionnaire", "ScTrace"
 ];
 mkdirSync(dest, { recursive: true });
 for (const name of names) copyFileSync(join(source, `${name}.scala`), join(dest, `${name}.scala`));

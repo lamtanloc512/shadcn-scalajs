@@ -56,6 +56,159 @@ object WebComponentExamples:
     )
 
   private val entries: Map[String, WebComponentExample] = Map(
+    "attachment" -> entry("sc-attachment", "quarterly-report.pdf")("""
+      |<sc-attachment-group class="w-full max-w-xl">
+      |  <sc-attachment>
+      |    <sc-attachment-media>
+      |      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+      |    </sc-attachment-media>
+      |    <sc-attachment-content>
+      |      <sc-attachment-title>landscape.jpg</sc-attachment-title>
+      |      <sc-attachment-description>2.4 MB</sc-attachment-description>
+      |    </sc-attachment-content>
+      |  </sc-attachment>
+      |  <sc-attachment state="uploading">
+      |    <sc-attachment-media><sc-spinner></sc-spinner></sc-attachment-media>
+      |    <sc-attachment-content>
+      |      <sc-attachment-title>quarterly-report.pdf</sc-attachment-title>
+      |      <sc-attachment-description>Uploading…</sc-attachment-description>
+      |    </sc-attachment-content>
+      |  </sc-attachment>
+      |  <sc-attachment state="error">
+      |    <sc-attachment-content>
+      |      <sc-attachment-title>archive.zip</sc-attachment-title>
+      |      <sc-attachment-description>File is too large</sc-attachment-description>
+      |    </sc-attachment-content>
+      |  </sc-attachment>
+      |</sc-attachment-group>
+      |"""),
+    "bubble" -> entry("sc-bubble", "Release notes")("""
+      |<div class="flex w-full max-w-md flex-col gap-6">
+      |  <sc-message>
+      |    <sc-message-content>
+      |      <sc-bubble variant="muted"><sc-bubble-content>Can you summarise the release notes?</sc-bubble-content></sc-bubble>
+      |    </sc-message-content>
+      |  </sc-message>
+      |  <sc-message align="end">
+      |    <sc-message-content>
+      |      <sc-bubble>
+      |        <sc-bubble-content>Release notes: nine new components and RTL support.</sc-bubble-content>
+      |        <sc-bubble-reactions>🎉</sc-bubble-reactions>
+      |      </sc-bubble>
+      |    </sc-message-content>
+      |  </sc-message>
+      |  <sc-bubble variant="tinted"><sc-bubble-content>Tinted follows the primary color.</sc-bubble-content></sc-bubble>
+      |</div>
+      |"""),
+    "code-block" -> entry("sc-code-block", "Button.scala")("""
+      |<div class="flex w-full max-w-lg flex-col gap-4">
+      |  <sc-code-block filename="Button.scala" line-numbers highlight="3">
+      |    object Button:
+      |      def apply(mods: Modifier[HtmlElement]*): HtmlElement =
+      |        button(typ := "button", mods)
+      |  </sc-code-block>
+      |  <sc-code-block size="sm" line-numbers removed="1" added="2">
+      |    val theme = Var(Theme.Dark)
+      |    val theme = Var(Theme.Light)
+      |  </sc-code-block>
+      |</div>
+      |"""),
+    "direction" -> entry("sc-direction", "تسجيل الدخول")("""
+      |<sc-direction dir="rtl" class="w-full max-w-sm">
+      |  <sc-card>
+      |    <sc-card-header>
+      |      <sc-card-title>تسجيل الدخول</sc-card-title>
+      |      <sc-card-description>أدخل بريدك الإلكتروني للمتابعة.</sc-card-description>
+      |    </sc-card-header>
+      |    <sc-card-content class="flex justify-end gap-2">
+      |      <sc-button variant="outline">إلغاء</sc-button>
+      |      <sc-button>متابعة</sc-button>
+      |    </sc-card-content>
+      |  </sc-card>
+      |</sc-direction>
+      |"""),
+    "marker" -> entry("sc-marker", "Today")("""
+      |<div class="flex w-full max-w-md flex-col gap-6">
+      |  <sc-marker variant="separator"><sc-marker-content>Today</sc-marker-content></sc-marker>
+      |  <sc-marker>
+      |    <sc-marker-icon><sc-spinner></sc-spinner></sc-marker-icon>
+      |    <sc-marker-content><span class="shimmer">Thinking…</span></sc-marker-content>
+      |  </sc-marker>
+      |  <sc-marker variant="border">
+      |    <sc-marker-content>Answer generated from <a href="#">3 sources</a></sc-marker-content>
+      |  </sc-marker>
+      |</div>
+      |"""),
+    "message" -> entry("sc-message", "Ada Lovelace")("""
+      |<div class="flex w-full max-w-md flex-col gap-6">
+      |  <sc-message>
+      |    <sc-message-avatar><sc-avatar>AL</sc-avatar></sc-message-avatar>
+      |    <sc-message-content>
+      |      <sc-message-header>Ada Lovelace</sc-message-header>
+      |      <sc-bubble variant="muted"><sc-bubble-content>Has the registry been rebuilt?</sc-bubble-content></sc-bubble>
+      |      <sc-message-footer>09:41</sc-message-footer>
+      |    </sc-message-content>
+      |  </sc-message>
+      |  <sc-message align="end">
+      |    <sc-message-avatar><sc-avatar>ME</sc-avatar></sc-message-avatar>
+      |    <sc-message-content>
+      |      <sc-bubble><sc-bubble-content>Yes — 93 items.</sc-bubble-content></sc-bubble>
+      |      <sc-message-footer>09:42 · Read</sc-message-footer>
+      |    </sc-message-content>
+      |  </sc-message>
+      |</div>
+      |"""),
+    "message-scroller" -> entry("sc-message-scroller", "Newest message")("""
+      |<div class="flex w-full max-w-md flex-col gap-3">
+      |  <sc-message-scroller id="chat" class="rounded-xl border bg-card" style="height: 18rem">
+      |    <sc-message><sc-message-content><sc-bubble variant="muted"><sc-bubble-content>Scroll up — new messages will not pull you down.</sc-bubble-content></sc-bubble></sc-message-content></sc-message>
+      |    <sc-message align="end"><sc-message-content><sc-bubble><sc-bubble-content>Got it.</sc-bubble-content></sc-bubble></sc-message-content></sc-message>
+      |    <sc-message><sc-message-content><sc-bubble variant="muted"><sc-bubble-content>The jump button appears once you leave the end.</sc-bubble-content></sc-bubble></sc-message-content></sc-message>
+      |    <sc-message align="end"><sc-message-content><sc-bubble><sc-bubble-content>Newest message</sc-bubble-content></sc-bubble></sc-message-content></sc-message>
+      |  </sc-message-scroller>
+      |  <sc-button variant="outline" id="add-message">Add a message</sc-button>
+      |</div>
+      |<script>
+      |  document.getElementById("add-message").addEventListener("click", () => {
+      |    const chat = document.getElementById("chat");
+      |    const end = chat.children.length % 2 === 1;
+      |    chat.insertAdjacentHTML("beforeend",
+      |      `<sc-message${end ? ' align="end"' : ""}><sc-message-content><sc-bubble${end ? "" : ' variant="muted"'}>` +
+      |      `<sc-bubble-content>Message ${chat.children.length + 1}</sc-bubble-content></sc-bubble></sc-message-content></sc-message>`);
+      |  });
+      |</script>
+      |"""),
+    "questionnaire" -> entry("sc-questionnaire", "Which backend should the scaffold use?")("""
+      |<div class="w-full max-w-md rounded-xl border bg-card p-5">
+      |  <sc-questionnaire questions='[
+      |    {"id":"stack","title":"Which backend should the scaffold use?","choices":[
+      |      {"value":"http4s","label":"http4s","description":"Typelevel, pure functional","shortcut":"1"},
+      |      {"value":"zio-http","label":"ZIO HTTP","description":"ZIO effects end to end","shortcut":"2"}]},
+      |    {"id":"extras","title":"What else should be set up?","kind":"multiple","required":false,"skippable":true,
+      |     "choices":[{"value":"ci","label":"GitHub Actions CI"},{"value":"docker","label":"Dockerfile"}]},
+      |    {"id":"name","title":"What should the project be called?","kind":"text","placeholder":"my-app"}]'>
+      |    <p slot="done" class="text-sm">Thanks — check the console for the answers.</p>
+      |  </sc-questionnaire>
+      |</div>
+      |<script>
+      |  document.querySelector("sc-questionnaire").addEventListener("sc-submit", (e) => console.log(e.detail));
+      |</script>
+      |"""),
+    "trace" -> entry("sc-trace", "Searched the registry")("""
+      |<sc-trace class="w-full max-w-md">
+      |  <sc-trace-line>
+      |    <sc-trace-title>Searched the registry</sc-trace-title>
+      |    <sc-trace-description>93 items</sc-trace-description>
+      |  </sc-trace-line>
+      |  <sc-trace-collapsible open>
+      |    <sc-trace-collapsible-trigger><sc-trace-line><sc-trace-title>Read 3 files</sc-trace-title></sc-trace-line></sc-trace-collapsible-trigger>
+      |    <sc-trace-collapsible-content>Bubble.scala, Message.scala, docs-highlight.js</sc-trace-collapsible-content>
+      |  </sc-trace-collapsible>
+      |  <sc-trace-line status="error"><sc-trace-title>npm test failed</sc-trace-title><sc-trace-description>1 of 12</sc-trace-description></sc-trace-line>
+      |  <sc-trace-line status="running"><sc-trace-title>Fixing the failing test…</sc-trace-title></sc-trace-line>
+      |  <sc-trace-line status="pending"><sc-trace-title>Commit and push</sc-trace-title></sc-trace-line>
+      |</sc-trace>
+      |"""),
     "accordion" -> entry("sc-accordion", "What are your shipping options?")("""
       |<div class="w-full max-w-sm">
       |  <sc-accordion

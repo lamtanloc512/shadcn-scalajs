@@ -1,0 +1,17 @@
+{
+  "name": "attachment",
+  "title": "Attachment",
+  "description": "A file chip for composers and messages, with media, title, status, and actions.",
+  "registryDependencies": [
+    "button",
+    "icons",
+    "theme"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Attachment.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

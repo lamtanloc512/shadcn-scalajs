@@ -23,7 +23,9 @@ object Icons:
     "activity",
     "alert-circle",
     "arrow-left-right",
+    "arrow-down",
     "arrow-right",
+    "arrow-up",
     "audio-lines",
     "badge-check",
     "bell",
@@ -96,7 +98,11 @@ object Icons:
     "user",
     "volume-2",
     "wallet",
-    "x"
+    "x",
+    "circle-x",
+    "file",
+    "paperclip",
+    "terminal"
   )
 
   private val sources: Map[String, IconDataSource] = Map(
@@ -245,3 +251,9 @@ object Icons:
   def volume2(mods: Modifier[SvgElement]*): SvgElement = icon("volume-2")(mods*)
   def wallet(mods: Modifier[SvgElement]*): SvgElement = icon("wallet")(mods*)
   def x(mods: Modifier[SvgElement]*): SvgElement = icon("x")(mods*)
+  def arrowDown(mods: Modifier[SvgElement]*): SvgElement = icon("arrow-down")(mods*)
+  def arrowUp(mods: Modifier[SvgElement]*): SvgElement = icon("arrow-up")(mods*)
+  def circleX(mods: Modifier[SvgElement]*): SvgElement = icon("circle-x")(mods*)
+  def file(mods: Modifier[SvgElement]*): SvgElement = icon("file")(mods*)
+  def paperclip(mods: Modifier[SvgElement]*): SvgElement = icon("paperclip")(mods*)
+  def terminal(mods: Modifier[SvgElement]*): SvgElement = icon("terminal")(mods*)

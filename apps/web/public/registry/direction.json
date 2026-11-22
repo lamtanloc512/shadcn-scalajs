@@ -1,0 +1,16 @@
+{
+  "$schema": "https://scalajs.auvyx.org/schema/registry-item.json",
+  "name": "direction",
+  "title": "Direction",
+  "type": "scala:ui",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "content": "package shadcnscalajs.ui\n\nimport com.raquo.laminar.api.L\nimport com.raquo.laminar.api.L.*\n\n/** shadcn/ui Direction — sets the text direction for a subtree.\n  *\n  * Upstream wraps Radix's `DirectionProvider` so primitives read `ltr`/`rtl` from React context. Laminar has no\n  * context, and none is needed: the components use logical utilities (`ms-*`, `ps-*`, `start-*`, `rtl:`) that follow\n  * the DOM's own `dir` attribute. A `provider` is therefore just an element carrying `dir`, and [[current]] reads the\n  * direction that is in effect for any mounted element.\n  */\nobject Direction:\n\n  enum Dir derives CanEqual:\n    case Ltr, Rtl\n\n  def name(dir: Dir): String = dir.toString.toLowerCase\n\n  /** Wraps children in a `div` with `dir` set. Use `display: contents` styling via `cls` if the wrapper must not box.\n    */\n  def provider(dir: Dir)(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(dataAttr(\"slot\") := \"direction-provider\", L.dir := name(dir), mods)\n\n  /** The same, driven by a signal, for a toggle that flips a live preview. */\n  def provider(dir: Signal[Dir])(mods: Modifier[HtmlElement]*): HtmlElement =\n    div(\n      dataAttr(\"slot\") := \"direction-provider\",\n      L.dir <-- dir.map(name),\n      mods\n    )\n\n  /** Upstream's `useDirection()`: the computed direction of a mounted element. */\n  def current(el: org.scalajs.dom.Element): Dir =\n    if org.scalajs.dom.window.getComputedStyle(el).direction == \"rtl\" then Dir.Rtl else Dir.Ltr\n",
+      "type": "scala:ui",
+      "target": "ui/Direction.scala"
+    }
+  ],
+  "description": "Sets the text direction of a subtree so logical utilities flip for RTL."
+}

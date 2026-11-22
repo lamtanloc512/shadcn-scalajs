@@ -1,0 +1,13 @@
+{
+  "name": "direction",
+  "title": "Direction",
+  "description": "Sets the text direction of a subtree so logical utilities flip for RTL.",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Direction.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

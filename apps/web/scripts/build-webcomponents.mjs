@@ -24,7 +24,8 @@ const projectRoot = resolve(here, "../../..");
 const siteRoot = join(projectRoot, "apps/web");
 const stylesDir = join(siteRoot, "src/styles");
 const outDir = join(siteRoot, "public");
-const scalaVersion = "3.5.2";
+// Single source of truth for the Scala version, so the link directory follows a bump in project/Versions.scala.
+const scalaVersion = readFileSync(join(projectRoot, "project/Versions.scala"), "utf8").match(/Scala_3\s*=\s*"([^"]+)"/)[1];
 
 const fast = process.env.SC_WC_MODE === "fast";
 const linkTask = fast ? "webcomponents/fastLinkJS" : "webcomponents/fullLinkJS";

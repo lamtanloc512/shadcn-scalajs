@@ -10,7 +10,7 @@ Use an empty directory. `init` refuses to write into a directory that already ha
 ```bash
 java --version    # 21
 sbt --version     # 1.10 or newer
-node --version    # 20 or newer
+node --version    # 22.12 or newer
 ```
 
 sbt installed through Coursier is often missing from a new shell:
@@ -41,7 +41,7 @@ npx shadcn-scalajs@latest init \
 
 ### Style pack
 
-A preset code from the [customizer](https://shadcn-scalajs.vercel.app/create) picks the style pack and theme tokens:
+A preset code from the [customizer](https://scalajs.auvyx.org/create) picks the style pack and theme tokens:
 
 ```bash
 npx shadcn-scalajs@latest init \

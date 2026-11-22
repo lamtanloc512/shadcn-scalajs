@@ -23,7 +23,7 @@ From this repository, run `cd packages/wc-bundle && npm run build`. Copy its com
 
 The entry locates its CSS and pack file relative to itself. CSS variables on `:root` control the page theme; inline variables on an individual `sc-*` tag override them for that element. `ShadcnScalaJS.setTokens({ primary: "#..." })` updates existing elements at runtime.
 
-This is a **preview bundle**. All 63 catalog examples render in the browser QA, but that does not establish complete behavioral parity or compatibility with every host stylesheet. Its loader installs a document sheet scoped to Web Component light-DOM trees (including slotted content); full Tailwind CSS remains inside shadow roots. The scoped sheet uses CSS `@scope`, so check target browser support and host styles. Only Nova is packaged; selecting another pack requires a source build. Compound controls use JSON attributes or named slots rather than exposing every Laminar composition API. Try their editable examples in the app's `/web-components` playground: modal triggers use `slot="trigger"`, Carousel slides use `slide-0`, `slide-1`, and so on, and Sonner exposes `toast()`/`success()` on a single mounted `<sc-sonner>`. Drawer does not provide swipe gestures or snap points; Carousel does not include Embla plugins. Package details are in [`packages/wc-bundle/README.md`](https://github.com/lamtanloc512/shadcn-scalajs/blob/main/packages/wc-bundle/README.md).
+All 72 catalog examples pass the browser QA in both the playground and the component pages. Compound controls keep a narrower contract than Laminar, and host stylesheets differ, so test against yours. Its loader installs a document sheet scoped to Web Component light-DOM trees (including slotted content); full Tailwind CSS remains inside shadow roots. The scoped sheet uses CSS `@scope`, so check target browser support and host styles. Only Nova is packaged; selecting another pack requires a source build. Compound controls use JSON attributes or named slots rather than exposing every Laminar composition API. Try their editable examples in the app's `/web-components` playground: modal triggers use `slot="trigger"`, Carousel slides use `slide-0`, `slide-1`, and so on, and Sonner exposes `toast()`/`success()` on a single mounted `<sc-sonner>`. Drawer does not provide swipe gestures or snap points; Carousel does not include Embla plugins. Package details are in [`packages/wc-bundle/README.md`](https://github.com/lamtanloc512/shadcn-scalajs/blob/main/packages/wc-bundle/README.md).
 
 ## Build from your own Scala source
 
@@ -33,7 +33,7 @@ npm install
 npx shadcn-scalajs@latest build-wc button badge
 ```
 
-`build-wc` copies the available wrappers into `packages/webcomponents/src/main/scala/shadcnscalajs/webcomponents`, then builds the selected components. Omit the names to include all installed components that have independent wrappers. Unsupported components are rejected by name; the current wrappers do not cover the whole UI catalog. Your copies of the wrapper source are not overwritten when you run the command again.
+`build-wc` copies the available wrappers into `packages/webcomponents/src/main/scala/shadcnscalajs/webcomponents`, then builds the selected components. Omit the names to include all installed components that have independent wrappers. Components without an independent wrapper are rejected by name. Your copies of the wrapper source are not overwritten when you run the command again.
 
 The output is:
 

@@ -24,6 +24,96 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+/* Utilities used by the chat-oriented components (attachment, code block, message scroller, trace), named as in
+   shadcn/ui's own stylesheet. Kept in plain CSS so a copied component renders without any plugin. */
+@utility shimmer {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 35%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 65%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: sc-shimmer 2.2s linear infinite;
+}
+
+@utility shimmer-none {
+  color: inherit;
+  background-image: none;
+  animation: none;
+}
+
+@keyframes sc-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+
+@property --sc-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --sc-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Edge fades that only appear on a side that has more to scroll to. Where scroll-driven animations are missing the
+   content simply is not faded. */
+@utility scroll-fade-x {
+  --sc-fade-size: 1.5rem;
+  mask-image: linear-gradient(to right, transparent, #000 var(--sc-fade-start), #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+
+@utility scroll-fade-y {
+  --sc-fade-size: 1.5rem;
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--sc-fade-start), #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self block);
+  }
+}
+
+@utility scroll-fade-b {
+  --sc-fade-size: 2rem;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self block);
+  }
+}
+
+@keyframes sc-scroll-fade {
+  0% { --sc-fade-start: 0px; --sc-fade-end: var(--sc-fade-size); }
+  8%, 92% { --sc-fade-start: var(--sc-fade-size); --sc-fade-end: var(--sc-fade-size); }
+  100% { --sc-fade-start: var(--sc-fade-size); --sc-fade-end: 0px; }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent) transparent;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
 @theme inline {
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading-token);
@@ -2509,32 +2599,102 @@
   color: var(--foreground);
 }
 /* Read-only docs source (highlight.js), scoped to the site theme. */
-.sc-doc-code { background: var(--muted); color: var(--foreground); }
+/* ── Docs code surfaces ──────────────────────────────────────────────────────────────────────────
+   Token colors follow GitHub's light/dark palettes, which is what shadcn/ui's own docs use through Shiki. The
+   surface is a touch off the page background so a listing reads as a separate plane in every style pack. */
+:root {
+  --sc-code: color-mix(in oklch, var(--muted) 55%, var(--background));
+  --sc-code-foreground: var(--foreground);
+  --sc-code-highlight: color-mix(in oklch, var(--foreground) 6%, transparent);
+  --sc-tok-comment: #6e7781;
+  --sc-tok-keyword: #cf222e;
+  --sc-tok-string: #0a3069;
+  --sc-tok-number: #0550ae;
+  --sc-tok-title: #8250df;
+  --sc-tok-type: #953800;
+  --sc-tok-tag: #116329;
+  --sc-tok-attr: #0550ae;
+  --sc-tok-meta: #57606a;
+}
+.dark {
+  --sc-code: color-mix(in oklch, var(--muted) 35%, var(--background));
+  --sc-code-highlight: color-mix(in oklch, var(--foreground) 8%, transparent);
+  --sc-tok-comment: #8b949e;
+  --sc-tok-keyword: #ff7b72;
+  --sc-tok-string: #a5d6ff;
+  --sc-tok-number: #79c0ff;
+  --sc-tok-title: #d2a8ff;
+  --sc-tok-type: #ffa657;
+  --sc-tok-tag: #7ee787;
+  --sc-tok-attr: #79c0ff;
+  --sc-tok-meta: #8b949e;
+}
+
+.sc-doc-code { background: var(--sc-code); color: var(--sc-code-foreground); }
 .sc-doc-code.hljs,
 .sc-doc-code .hljs { background: transparent; color: inherit; }
 .sc-doc-code .hljs-comment,
-.sc-doc-code .hljs-quote { color: #64748b; }
-.sc-doc-code .hljs-string,
-.sc-doc-code .hljs-meta .hljs-string { color: #a16207; }
-.sc-doc-code .hljs-number { color: #0f766e; }
+.sc-doc-code .hljs-quote { color: var(--sc-tok-comment); font-style: italic; }
 .sc-doc-code .hljs-keyword,
+.sc-doc-code .hljs-selector-tag,
+.sc-doc-code .hljs-doctag { color: var(--sc-tok-keyword); }
+.sc-doc-code .hljs-string,
+.sc-doc-code .hljs-regexp,
+.sc-doc-code .hljs-meta .hljs-string { color: var(--sc-tok-string); }
+.sc-doc-code .hljs-number,
 .sc-doc-code .hljs-literal,
-.sc-doc-code .hljs-built_in { color: #7c3aed; }
+.sc-doc-code .hljs-variable,
+.sc-doc-code .hljs-template-variable { color: var(--sc-tok-number); }
+.sc-doc-code .hljs-title,
+.sc-doc-code .hljs-title.function_,
+.sc-doc-code .hljs-section { color: var(--sc-tok-title); }
+.sc-doc-code .hljs-type,
+.sc-doc-code .hljs-built_in,
+.sc-doc-code .hljs-title.class_,
+.sc-doc-code .hljs-params { color: var(--sc-tok-type); }
 .sc-doc-code .hljs-tag,
 .sc-doc-code .hljs-name,
-.sc-doc-code .hljs-selector-tag { color: #be185d; }
+.sc-doc-code .hljs-selector-id,
+.sc-doc-code .hljs-selector-class { color: var(--sc-tok-tag); }
 .sc-doc-code .hljs-attr,
-.sc-doc-code .hljs-attribute { color: #0369a1; }
-.sc-doc-code .hljs-title,
-.sc-doc-code .hljs-type { color: #1d4ed8; }
-.dark .sc-doc-code .hljs-comment,
-.dark .sc-doc-code .hljs-quote { color: #94a3b8; }
-.dark .sc-doc-code .hljs-string { color: #fbbf24; }
-.dark .sc-doc-code .hljs-number { color: #5eead4; }
-.dark .sc-doc-code .hljs-keyword,
-.dark .sc-doc-code .hljs-literal,
-.dark .sc-doc-code .hljs-built_in { color: #c4b5fd; }
-.dark .sc-doc-code .hljs-tag,
-.dark .sc-doc-code .hljs-name { color: #f9a8d4; }
-.dark .sc-doc-code .hljs-attr { color: #7dd3fc; }
-.dark .sc-doc-code .hljs-title { color: #93c5fd; }
+.sc-doc-code .hljs-attribute,
+.sc-doc-code .hljs-property { color: var(--sc-tok-attr); }
+.sc-doc-code .hljs-meta,
+.sc-doc-code .hljs-symbol,
+.sc-doc-code .hljs-punctuation { color: var(--sc-tok-meta); }
+.sc-doc-code .hljs-params { color: inherit; }
+
+/* The docs listings are CodeBlocks; inside the docs they take the code surface rather than the input tint. */
+.sc-doc-code[data-slot="code-block"],
+.sc-doc-code [data-slot="code-block"] { background: var(--sc-code); }
+.sc-doc-code [data-slot="code-block-line"][data-variant="highlighted"] { background: var(--sc-code-highlight); }
+
+/* Collapsed listings fade into the surface under the expand button. */
+.sc-code-collapsed { position: relative; }
+.sc-code-collapsed::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 6rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--sc-code) 85%);
+}
+
+/* Preview canvas: a faint dot grid, like shadcn/ui's block previews, so light components on a light page still read
+   as sitting on a surface. */
+.sc-preview-canvas {
+  background-image: radial-gradient(color-mix(in oklch, var(--foreground) 9%, transparent) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: center;
+}
+
+/* Inline code in docs prose. */
+.sc-inline-code {
+  border-radius: calc(var(--radius) * 0.6);
+  background: var(--muted);
+  padding: 0.15rem 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}

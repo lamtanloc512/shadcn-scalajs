@@ -4,6 +4,7 @@ import org.scalajs.dom
 
 import scala.collection.mutable
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** The stylesheets every shadow root adopts, so the ~330 kB Tailwind output is parsed once rather than cloned per
   * instance. Sharing also lets the CSS arrive after the elements are defined — `use` restyles everything.
@@ -68,7 +69,7 @@ sc-progress{padding-block:0.25rem}
     if js.isUndefined(js.Dynamic.global.CSSStyleSheet) then None
     else
       try Some(js.Dynamic.newInstance(js.Dynamic.global.CSSStyleSheet)())
-      catch case _: Throwable => None
+      catch case NonFatal(_) => None
 
   def adopt(root: dom.ShadowRoot): Unit =
     installHostLayout()

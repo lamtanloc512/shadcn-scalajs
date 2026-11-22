@@ -17,7 +17,7 @@ Theme CSS is installed from files bundled in the CLI, into `packages/ui/src/styl
 npx shadcn-scalajs@latest add button --style lyra
 ```
 
-Browse names in the [component gallery](https://shadcn-scalajs.vercel.app/components) and the [block gallery](https://shadcn-scalajs.vercel.app/blocks).
+Browse names in the [component gallery](https://scalajs.auvyx.org/components) and the [block gallery](https://scalajs.auvyx.org/blocks).
 
 ## After the files land
 

@@ -24,7 +24,7 @@ packages/core/            CommonAttrs (openAttr), Tags (slot). Copied with compo
 packages/ui/              Laminar component source of truth — what the CLI copies; one .scala + one .registry.json per component.
 packages/blocks/          Page/section compositions built from packages/ui. Package-legal dir (`login01/`) plus a hyphenated `<name>.registry.json` sidecar.
 packages/theme/           Style-pack CSS and tokens installed by `add`.
-packages/webcomponents/   Experimental custom-element wrappers. Bundle built by apps/web/scripts/build-webcomponents.mjs.
+packages/webcomponents/   Custom-element wrappers for every component. Bundle built by apps/web/scripts/build-webcomponents.mjs.
 vendor/                   shadcn/ui style-pack snapshots consumed by build-style-packs.mjs — see vendor/NOTICE.md.
 docs/                     Contributor design notes. Not the published guide.
 ```

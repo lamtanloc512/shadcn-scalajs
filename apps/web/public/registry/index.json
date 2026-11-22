@@ -29,6 +29,17 @@
     "registryDependencies": []
   },
   {
+    "name": "attachment",
+    "title": "Attachment",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "button",
+      "icons",
+      "theme"
+    ],
+    "description": "A file chip for composers and messages, with media, title, status, and actions."
+  },
+  {
     "name": "avatar",
     "title": "Avatar",
     "type": "scala:ui",
@@ -45,6 +56,13 @@
     "title": "Breadcrumb",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "bubble",
+    "title": "Bubble",
+    "type": "scala:ui",
+    "registryDependencies": [],
+    "description": "A chat bubble with variants, alignment, and reactions."
   },
   {
     "name": "button",
@@ -93,6 +111,17 @@
     "title": "Checkbox",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "code-block",
+    "title": "Code Block",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "button",
+      "icons",
+      "theme"
+    ],
+    "description": "A framed source listing with a header, copy button, line numbers, and diff lines."
   },
   {
     "name": "collapsible",
@@ -160,6 +189,13 @@
       "button",
       "icons"
     ]
+  },
+  {
+    "name": "direction",
+    "title": "Direction",
+    "type": "scala:ui",
+    "registryDependencies": [],
+    "description": "Sets the text direction of a subtree so logical utilities flip for RTL."
   },
   {
     "name": "drawer",
@@ -267,6 +303,13 @@
     "registryDependencies": []
   },
   {
+    "name": "marker",
+    "title": "Marker",
+    "type": "scala:ui",
+    "registryDependencies": [],
+    "description": "An inline status line or divider inside a conversation."
+  },
+  {
     "name": "menu",
     "title": "Menu",
     "type": "scala:ui",
@@ -284,6 +327,24 @@
       "menu",
       "dropdown-menu"
     ]
+  },
+  {
+    "name": "message",
+    "title": "Message",
+    "type": "scala:ui",
+    "registryDependencies": [],
+    "description": "Lays out one chat turn: avatar, header, content, and footer."
+  },
+  {
+    "name": "message-scroller",
+    "title": "Message Scroller",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "button",
+      "icons",
+      "theme"
+    ],
+    "description": "A chat viewport that sticks to the newest message and offers a jump-to-end button."
   },
   {
     "name": "native-select",
@@ -322,6 +383,16 @@
     "title": "Progress",
     "type": "scala:ui",
     "registryDependencies": []
+  },
+  {
+    "name": "questionnaire",
+    "title": "Questionnaire",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "button",
+      "icons"
+    ],
+    "description": "Asks one question at a time with choices or free text, progress, and validation."
   },
   {
     "name": "radio",
@@ -497,6 +568,17 @@
     "registryDependencies": [
       "floating"
     ]
+  },
+  {
+    "name": "trace",
+    "title": "Trace",
+    "type": "scala:ui",
+    "registryDependencies": [
+      "collapsible",
+      "icons",
+      "theme"
+    ],
+    "description": "A compact, collapsible log of an agent's steps."
   },
   {
     "name": "calendar-01",

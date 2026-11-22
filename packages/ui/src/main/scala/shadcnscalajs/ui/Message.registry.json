@@ -1,0 +1,13 @@
+{
+  "name": "message",
+  "title": "Message",
+  "description": "Lays out one chat turn: avatar, header, content, and footer.",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Message.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

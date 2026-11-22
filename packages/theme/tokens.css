@@ -107,3 +107,93 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.439 0 0);
 }
+
+/* Utilities used by the chat-oriented components (attachment, code block, message scroller, trace), named as in
+   shadcn/ui's own stylesheet. Kept in plain CSS so a copied component renders without any plugin. */
+@utility shimmer {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 35%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 65%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: sc-shimmer 2.2s linear infinite;
+}
+
+@utility shimmer-none {
+  color: inherit;
+  background-image: none;
+  animation: none;
+}
+
+@keyframes sc-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+
+@property --sc-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --sc-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Edge fades that only appear on a side that has more to scroll to. Where scroll-driven animations are missing the
+   content simply is not faded. */
+@utility scroll-fade-x {
+  --sc-fade-size: 1.5rem;
+  mask-image: linear-gradient(to right, transparent, #000 var(--sc-fade-start), #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+
+@utility scroll-fade-y {
+  --sc-fade-size: 1.5rem;
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--sc-fade-start), #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self block);
+  }
+}
+
+@utility scroll-fade-b {
+  --sc-fade-size: 2rem;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sc-fade-end)), transparent);
+  @supports (animation-timeline: scroll()) {
+    animation: sc-scroll-fade linear both;
+    animation-timeline: scroll(self block);
+  }
+}
+
+@keyframes sc-scroll-fade {
+  0% { --sc-fade-start: 0px; --sc-fade-end: var(--sc-fade-size); }
+  8%, 92% { --sc-fade-start: var(--sc-fade-size); --sc-fade-end: var(--sc-fade-size); }
+  100% { --sc-fade-start: var(--sc-fade-size); --sc-fade-end: 0px; }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent) transparent;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}

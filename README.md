@@ -9,14 +9,14 @@ Components use Tailwind CSS v4 utilities aligned with shadcn/ui's `new-york-v4` 
 
 | | |
 | --- | --- |
-| Live gallery | [shadcn-scalajs.vercel.app/components](https://shadcn-scalajs.vercel.app/components) |
-| Blocks | [shadcn-scalajs.vercel.app/blocks](https://shadcn-scalajs.vercel.app/blocks) |
-| Customizer | [shadcn-scalajs.vercel.app/create](https://shadcn-scalajs.vercel.app/create) |
+| Live gallery | [scalajs.auvyx.org/components](https://scalajs.auvyx.org/components) |
+| Blocks | [scalajs.auvyx.org/blocks](https://scalajs.auvyx.org/blocks) |
+| Customizer | [scalajs.auvyx.org/create](https://scalajs.auvyx.org/create) |
 | Written docs | [`apps/docs`](apps/docs) (Astro Starlight) |
 
 ## Quick start
 
-JDK 21, sbt 1.10 or newer, and Node.js 20 or newer.
+JDK 21, sbt 1.10 or newer, and Node.js 22.12 or newer.
 
 ```bash
 mkdir my-app
@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-`init` asks for a project name and an sbt group when those flags are omitted. A preset code from the [customizer](https://shadcn-scalajs.vercel.app/create) selects the style pack and theme tokens. Without `--preset`, the project starts on the Nova pack.
+`init` asks for a project name and an sbt group when those flags are omitted. A preset code from the [customizer](https://scalajs.auvyx.org/create) selects the style pack and theme tokens. Without `--preset`, the project starts on the Nova pack.
 
 ```bash
 npx shadcn-scalajs@latest add button card dialog
@@ -153,11 +153,11 @@ packages/core           Laminar helpers copied with the components
 packages/ui             component source and registry sidecars
 packages/blocks         page and section compositions
 packages/theme          style packs and design tokens
-packages/webcomponents  experimental custom-element wrappers
-packages/wc-bundle      preview npm bundle built from those wrappers
+packages/webcomponents  custom-element wrappers for every component
+packages/wc-bundle      standalone browser bundle built from those wrappers
 ```
 
-Web Component wrappers in `packages/webcomponents` are experimental; all 63 catalog examples have a wrapper, but compound APIs have narrower JSON/named-slot contracts than Laminar. A [preview default bundle](packages/wc-bundle/README.md) can be hosted as JS/CSS and themed with CSS variables. Scaffolded consumers can instead compile their copied UI sources with `npx shadcn-scalajs@latest build-wc button badge`, then rebuild with `npm run build:webcomponents`. See [the Web Components guide](apps/docs/src/content/docs/web-components.md). Neither route is yet part of the compatibility promise. Their loaders scope document CSS to component light-DOM trees; the full Tailwind sheet stays inside shadow roots. This uses CSS `@scope` and still needs testing against your host stylesheet.
+Every one of the 72 components has a Web Component wrapper in `packages/webcomponents`; compound APIs use JSON attributes or named slots rather than the full Laminar composition API. Try them in the [playground](https://scalajs.auvyx.org/web-components). The [default bundle](packages/wc-bundle/README.md) can be hosted as JS/CSS and themed with CSS variables. Scaffolded consumers can instead compile their copied UI sources with `npx shadcn-scalajs@latest build-wc button badge`, then rebuild with `npm run build:webcomponents`. See [the Web Components guide](apps/docs/src/content/docs/web-components.md). Their loaders scope document CSS to component light-DOM trees; the full Tailwind sheet stays inside shadow roots. This uses CSS `@scope` and still needs testing against your host stylesheet.
 
 ## License
 

@@ -52,7 +52,7 @@ function failure(message: string) {
 }
 
 async function startServer(registry: string): Promise<void> {
-  const server = new McpServer({ name: "shadcn-scalajs", version: "0.3.2" });
+  const server = new McpServer({ name: "shadcn-scalajs", version: "1.0.0" });
 
   server.registerTool(
     "list_items",

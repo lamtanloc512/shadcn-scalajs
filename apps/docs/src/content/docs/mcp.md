@@ -18,7 +18,7 @@ description: Let a coding agent list, read, and install shadcn-scalajs component
 }
 ```
 
-The server uses the registry in `shadcn-scalajs.json` when that file is in the working directory. Otherwise it uses `https://shadcn-scalajs.vercel.app/registry`.
+The server uses the registry in `shadcn-scalajs.json` when that file is in the working directory. Otherwise it uses `https://scalajs.auvyx.org/registry`.
 
 Inside this repository, after `npm run build` in `packages/cli`:
 

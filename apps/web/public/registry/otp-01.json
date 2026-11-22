@@ -1,5 +1,5 @@
 {
-  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "$schema": "https://scalajs.auvyx.org/schema/registry-item.json",
   "name": "otp-01",
   "title": "OTP 01",
   "type": "scala:block",

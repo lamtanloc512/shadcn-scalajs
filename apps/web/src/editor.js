@@ -11,10 +11,19 @@ const scTags = [
   "sc-label", "sc-native-select", "sc-popover", "sc-progress", "sc-radio", "sc-radio-group", "sc-range", "sc-scrollbar",
   "sc-select", "sc-separator", "sc-sidebar", "sc-skeleton", "sc-slider", "sc-spinner", "sc-switch", "sc-table", "sc-tabs",
   "sc-textarea", "sc-toast", "sc-toggle-group", "sc-tooltip",
+  "sc-attachment", "sc-attachment-group", "sc-attachment-media", "sc-attachment-content", "sc-attachment-title",
+  "sc-attachment-description", "sc-attachment-actions", "sc-bubble", "sc-bubble-group", "sc-bubble-content",
+  "sc-bubble-reactions", "sc-code-block", "sc-direction", "sc-marker", "sc-marker-icon", "sc-marker-content",
+  "sc-message", "sc-message-group", "sc-message-avatar", "sc-message-content", "sc-message-header", "sc-message-footer",
+  "sc-message-scroller", "sc-message-scroller-item", "sc-questionnaire", "sc-trace", "sc-trace-line", "sc-trace-icon",
+  "sc-trace-title", "sc-trace-description", "sc-trace-collapsible", "sc-trace-collapsible-trigger",
+  "sc-trace-collapsible-content",
 ];
 const scAttrs = [
   "variant", "size", "disabled", "checked", "indeterminate", "value", "min", "max", "step", "placeholder", "options",
   "items", "sections", "menus", "data", "name", "type", "open", "slot", "text", "orientation",
+  "align", "side", "state", "status", "dir", "direction", "questions", "filename", "line-numbers", "wrap", "highlight",
+  "added", "removed", "start-line", "no-copy", "code", "button-variant",
 ];
 
 monaco.languages.registerCompletionItemProvider("html", {

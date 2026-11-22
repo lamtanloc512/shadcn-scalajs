@@ -1,6 +1,6 @@
 # shadcn-scalajs Web Components
 
-An experimental browser ESM bundle of the currently registered `sc-*` elements. It includes Tailwind styles and the Nova style pack. Install the site build dependencies with `cd apps/web && npm install`, then run `cd packages/wc-bundle && npm run build` from the repository root. `prepublishOnly` runs the same build. This directory is packaging for a future release; it has not been published to npm.
+A browser ESM bundle of every registered `sc-*` element. It includes Tailwind styles and the Nova style pack. Install the site build dependencies with `cd apps/web && npm install`, then run `cd packages/wc-bundle && npm run build` from the repository root. `prepublishOnly` runs the same build. It is not on npm yet: build it here and host `dist/` yourself.
 
 ```html
 <html data-style-pack="nova">

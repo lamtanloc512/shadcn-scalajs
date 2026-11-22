@@ -9,9 +9,9 @@ The components are Laminar views styled with Tailwind CSS v4 utilities, followin
 
 Live previews stay on the component site, because they are a Scala.js application:
 
-- [Components](https://shadcn-scalajs.vercel.app/components)
-- [Blocks](https://shadcn-scalajs.vercel.app/blocks)
-- [Customizer](https://shadcn-scalajs.vercel.app/create)
+- [Components](https://scalajs.auvyx.org/components)
+- [Blocks](https://scalajs.auvyx.org/blocks)
+- [Customizer](https://scalajs.auvyx.org/create)
 
 ## What you own
 
@@ -19,6 +19,6 @@ After `add`, a button is a Scala file under `packages/ui/src/main/scala/shadcnsc
 
 ## What you need
 
-JDK 21, sbt 1.10 or newer, and Node.js 20 or newer. The first `npm run dev` compiles Scala.js before Vite starts, so that run takes longer than a typical JavaScript dev server. Later saves reload the browser without restarting sbt.
+JDK 21, sbt 1.10 or newer, and Node.js 22.12 or newer. The first `npm run dev` compiles Scala.js before Vite starts, so that run takes longer than a typical JavaScript dev server. Later saves reload the browser without restarting sbt.
 
 Continue with [Installation](/installation/).

@@ -1,0 +1,17 @@
+{
+  "name": "message-scroller",
+  "title": "Message Scroller",
+  "description": "A chat viewport that sticks to the newest message and offers a jump-to-end button.",
+  "registryDependencies": [
+    "button",
+    "icons",
+    "theme"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "MessageScroller.scala",
+      "type": "scala:ui"
+    }
+  ]
+}
