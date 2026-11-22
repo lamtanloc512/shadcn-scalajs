@@ -68,7 +68,8 @@ object DocsShell:
           item(
             s"/components/$slug",
             name,
-            route.map {
+            isNew = NewComponents.slugs.contains(slug),
+            active = route.map {
               case Router.Route.Component(active) =>
                 (if active.isEmpty then "drawer" else active) == slug
               case _ => false
@@ -81,11 +82,18 @@ object DocsShell:
   private val itemClass =
     "mb-0.5 flex h-[30px] w-fit items-center rounded-md border border-transparent px-2 text-[0.8rem] font-medium text-foreground hover:bg-muted"
 
-  private def item(hrefValue: String, label: String, active: Signal[Boolean]): HtmlElement =
+  private def item(hrefValue: String, label: String, active: Signal[Boolean], isNew: Boolean = false): HtmlElement =
     a(
       href := hrefValue,
       cls := itemClass,
       cls("border-accent", "bg-accent") <-- active,
       aria.current <-- active.map(on => if on then "page" else "false"),
-      label
+      label,
+      if isNew then
+        span(
+          cls := "ms-2 inline-flex size-1.5 rounded-full bg-sky-500",
+          title := "New",
+          span(cls := "sr-only", " (new)")
+        )
+      else emptyNode
     )

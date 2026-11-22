@@ -1,0 +1,16 @@
+{
+  "name": "questionnaire",
+  "title": "Questionnaire",
+  "description": "Asks one question at a time with choices or free text, progress, and validation.",
+  "registryDependencies": [
+    "button",
+    "icons"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Questionnaire.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

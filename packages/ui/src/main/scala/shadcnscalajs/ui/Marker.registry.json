@@ -1,0 +1,13 @@
+{
+  "name": "marker",
+  "title": "Marker",
+  "description": "An inline status line or divider inside a conversation.",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Marker.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

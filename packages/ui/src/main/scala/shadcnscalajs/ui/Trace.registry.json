@@ -1,0 +1,17 @@
+{
+  "name": "trace",
+  "title": "Trace",
+  "description": "A compact, collapsible log of an agent's steps.",
+  "registryDependencies": [
+    "collapsible",
+    "icons",
+    "theme"
+  ],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Trace.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

@@ -39,6 +39,12 @@ grep -q '~ui/fastLinkJS' scripts/run-scalajs-watch.mjs || { echo "test: scaffold
 node "$REPO_ROOT/packages/cli/dist/index.js" add button badge dialog accordion dropdown-menu
 # Exercise the composed wrappers and their transitive registry deps in a real consumer build.
 node "$REPO_ROOT/packages/cli/dist/index.js" add alert-dialog carousel data-table input-group navigation-menu sonner
+# The chat-oriented components and their utilities (shimmer, scroll-fade-*) from tokens.css.
+node "$REPO_ROOT/packages/cli/dist/index.js" add attachment bubble code-block direction marker message message-scroller questionnaire trace
+for f in Attachment Bubble CodeBlock Direction Marker Message MessageScroller Questionnaire Trace Collapsible; do
+  test -f "packages/ui/src/main/scala/shadcnscalajs/ui/$f.scala" || { echo "test: missing $f.scala" >&2; exit 1; }
+done
+grep -q '@utility shimmer' packages/ui/src/styles/tokens.css || { echo "test: tokens.css lacks the shimmer utility" >&2; exit 1; }
 
 for f in Button Badge Dialog Accordion DropdownMenu; do
   test -f "packages/ui/src/main/scala/shadcnscalajs/ui/$f.scala" || { echo "test: missing $f.scala" >&2; exit 1; }

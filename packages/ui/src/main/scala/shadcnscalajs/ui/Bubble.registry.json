@@ -1,0 +1,13 @@
+{
+  "name": "bubble",
+  "title": "Bubble",
+  "description": "A chat bubble with variants, alignment, and reactions.",
+  "registryDependencies": [],
+  "scalaDependencies": [],
+  "files": [
+    {
+      "path": "Bubble.scala",
+      "type": "scala:ui"
+    }
+  ]
+}

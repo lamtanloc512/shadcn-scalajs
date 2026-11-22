@@ -22,15 +22,20 @@ object DocsPage:
   def apply(slug: String): HtmlElement =
     val page = pages.find(_.slug == slug)
     mainTag(
-      cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-10 xl:col-span-2",
+      cls := "min-w-0 px-5 py-10 sm:px-8 lg:px-12 xl:col-span-2",
       articleTag(
-        cls := "mx-auto max-w-2xl",
+        cls := "mx-auto max-w-3xl",
         page match
           case Some(found) =>
             Seq(
-              h1(cls := "text-3xl font-semibold tracking-tight", found.title),
-              p(cls := "mt-2 text-base text-muted-foreground", found.description),
-              div(cls := "mt-10 space-y-10 text-sm leading-7 text-muted-foreground", body(found.slug))
+              p(cls := "mb-3 text-sm text-muted-foreground", "Docs"),
+              h1(cls := "text-3xl font-semibold tracking-tight sm:text-4xl", found.title),
+              p(cls := "mt-3 text-base text-balance text-muted-foreground sm:text-[1.05rem]", found.description),
+              div(
+                cls := "mt-10 space-y-10 text-[0.9375rem] leading-7 text-muted-foreground [&_h2]:mt-12 [&_h2]:scroll-mt-24",
+                body(found.slug)
+              ),
+              pager(found.slug)
             )
           case None =>
             Seq(
@@ -38,6 +43,30 @@ object DocsPage:
               p(cls := "mt-2 text-base text-muted-foreground", s"There is no docs page named $slug.")
             )
       )
+    )
+
+  /** Previous / next guide page, like the component pages' footer. */
+  private def pager(slug: String): HtmlElement =
+    val index = pages.indexWhere(_.slug == slug)
+    def link(page: Page, forward: Boolean): HtmlElement =
+      a(
+        href := (if page.slug == "index" then "/docs" else s"/docs/${page.slug}"),
+        cls := "flex flex-col gap-1 rounded-lg border px-4 py-3 text-sm transition-colors hover:bg-muted/50",
+        cls(if forward then "items-end text-end" else "items-start"),
+        span(cls := "text-xs text-muted-foreground", if forward then "Next" else "Previous"),
+        span(cls := "font-medium text-foreground", page.title)
+      )
+    div(
+      cls := "mt-16 grid grid-cols-2 gap-4 border-t pt-6",
+      if index > 0 then link(pages(index - 1), forward = false) else div(),
+      if index >= 0 && index < pages.size - 1 then link(pages(index + 1), forward = true)
+      else
+        a(
+          href := "/components",
+          cls := "flex flex-col items-end gap-1 rounded-lg border px-4 py-3 text-sm hover:bg-muted/50",
+          span(cls := "text-xs text-muted-foreground", "Next"),
+          span(cls := "font-medium text-foreground", "Components")
+        )
     )
 
   private def body(slug: String): HtmlElement = slug match
@@ -51,14 +80,17 @@ object DocsPage:
   private def h(text: String): HtmlElement =
     h2(cls := "text-xl font-semibold tracking-tight text-foreground", text)
 
+  /** Commands and file trees render through the same CodeBlock listing as the component pages. JSON gets its own
+    * highlighting; a tree or multi-line command stays a terminal listing without line numbers.
+    */
   private def shell(source: String): HtmlElement =
-    pre(
-      cls := "mt-3 overflow-x-auto rounded-lg border bg-muted/40 p-4 text-sm text-foreground",
-      code(cls := "font-mono", source)
-    )
+    val language = if source.trim.startsWith("{") then "json" else "shell"
+    if source.contains("\n") || language == "json" then
+      DocsCode.block(language, source, lineNumbers = language == "json", collapsible = false, margin = "mt-3")
+    else DocsCode.command(source, margin = "mt-3")
 
   private def mono(value: String): HtmlElement =
-    code(cls := "rounded bg-muted px-1.5 py-0.5 font-mono text-foreground", value)
+    code(cls := "sc-inline-code", value)
 
   private def introduction: HtmlElement =
     div(
