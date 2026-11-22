@@ -9,9 +9,9 @@ Components use Tailwind CSS v4 utilities aligned with shadcn/ui's `new-york-v4` 
 
 | | |
 | --- | --- |
-| Live gallery | [shadcn-scalajs.vercel.app/components](https://shadcn-scalajs.vercel.app/components) |
-| Blocks | [shadcn-scalajs.vercel.app/blocks](https://shadcn-scalajs.vercel.app/blocks) |
-| Customizer | [shadcn-scalajs.vercel.app/create](https://shadcn-scalajs.vercel.app/create) |
+| Live gallery | [scalajs.auvyx.org/components](https://scalajs.auvyx.org/components) |
+| Blocks | [scalajs.auvyx.org/blocks](https://scalajs.auvyx.org/blocks) |
+| Customizer | [scalajs.auvyx.org/create](https://scalajs.auvyx.org/create) |
 | Written docs | [`apps/docs`](apps/docs) (Astro Starlight) |
 
 ## Quick start
@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-`init` asks for a project name and an sbt group when those flags are omitted. A preset code from the [customizer](https://shadcn-scalajs.vercel.app/create) selects the style pack and theme tokens. Without `--preset`, the project starts on the Nova pack.
+`init` asks for a project name and an sbt group when those flags are omitted. A preset code from the [customizer](https://scalajs.auvyx.org/create) selects the style pack and theme tokens. Without `--preset`, the project starts on the Nova pack.
 
 ```bash
 npx shadcn-scalajs@latest add button card dialog

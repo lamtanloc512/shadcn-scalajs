@@ -41,7 +41,7 @@ npx shadcn-scalajs@latest init \
 
 ### Style pack
 
-A preset code from the [customizer](https://shadcn-scalajs.vercel.app/create) picks the style pack and theme tokens:
+A preset code from the [customizer](https://scalajs.auvyx.org/create) picks the style pack and theme tokens:
 
 ```bash
 npx shadcn-scalajs@latest init \

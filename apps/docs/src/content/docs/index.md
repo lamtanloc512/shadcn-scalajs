@@ -9,9 +9,9 @@ The components are Laminar views styled with Tailwind CSS v4 utilities, followin
 
 Live previews stay on the component site, because they are a Scala.js application:
 
-- [Components](https://shadcn-scalajs.vercel.app/components)
-- [Blocks](https://shadcn-scalajs.vercel.app/blocks)
-- [Customizer](https://shadcn-scalajs.vercel.app/create)
+- [Components](https://scalajs.auvyx.org/components)
+- [Blocks](https://scalajs.auvyx.org/blocks)
+- [Customizer](https://scalajs.auvyx.org/create)
 
 ## What you own
 

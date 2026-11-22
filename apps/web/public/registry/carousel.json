@@ -1,5 +1,5 @@
 {
-  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "$schema": "https://scalajs.auvyx.org/schema/registry-item.json",
   "name": "carousel",
   "title": "Carousel",
   "type": "scala:ui",

@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/lamtanloc512/shadcn-scalajs.git"
   },
-  "homepage": "https://shadcn-scalajs.vercel.app",
+  "homepage": "https://scalajs.auvyx.org",
   "bin": {
     "shadcn-scalajs": "dist/index.js"
   },

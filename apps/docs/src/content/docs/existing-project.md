@@ -12,7 +12,7 @@ npx shadcn-scalajs@latest init --no-scaffold \
 
 `--source-dir` is the directory that already matches the `shadcnscalajs` package. `add` writes `ui/Button.scala` under that directory and does not rewrite package declarations. The folder name has to stay `shadcnscalajs`.
 
-Pass `--registry` when the components should come from somewhere other than `https://shadcn-scalajs.vercel.app/registry`. A local checkout can use the generated files directly:
+Pass `--registry` when the components should come from somewhere other than `https://scalajs.auvyx.org/registry`. A local checkout can use the generated files directly:
 
 ```bash
 npx shadcn-scalajs@latest init --no-scaffold \

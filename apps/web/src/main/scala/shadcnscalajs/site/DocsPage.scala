@@ -213,7 +213,7 @@ object DocsPage:
         "Pass ",
         mono("--registry"),
         " when the components should come from somewhere other than ",
-        mono("https://shadcn-scalajs.vercel.app/registry"),
+        mono("https://scalajs.auvyx.org/registry"),
         "."
       ),
       p(
@@ -339,7 +339,7 @@ object DocsPage:
         "The server uses the registry in ",
         mono("shadcn-scalajs.json"),
         " when that file is in the working directory. Otherwise it uses ",
-        mono("https://shadcn-scalajs.vercel.app/registry"),
+        mono("https://scalajs.auvyx.org/registry"),
         "."
       ),
       p(

@@ -85,7 +85,7 @@ async function main() {
       );
 
       const registryItem = {
-        $schema: "https://shadcn-scalajs.dev/schema/registry-item.json",
+        $schema: "https://scalajs.auvyx.org/schema/registry-item.json",
         name: sidecar.name,
         title: sidecar.title,
         type: sidecar.type ?? root.type,

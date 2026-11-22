@@ -43,7 +43,7 @@ function files(options: ScaffoldOptions): Record<string, string> {
   return {
     "README.md": `# ${projectName}
 
-A Scala.js + Laminar application scaffolded with [shadcn-scalajs](https://shadcn-scalajs.vercel.app).
+A Scala.js + Laminar application scaffolded with [shadcn-scalajs](https://scalajs.auvyx.org).
 
 ## Prerequisites
 

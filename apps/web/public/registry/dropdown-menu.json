@@ -1,5 +1,5 @@
 {
-  "$schema": "https://shadcn-scalajs.dev/schema/registry-item.json",
+  "$schema": "https://scalajs.auvyx.org/schema/registry-item.json",
   "name": "dropdown-menu",
   "title": "Dropdown Menu",
   "type": "scala:ui",
