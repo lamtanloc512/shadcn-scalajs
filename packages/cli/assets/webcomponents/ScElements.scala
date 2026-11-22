@@ -3,6 +3,7 @@ package shadcnscalajs.webcomponents
 import org.scalajs.dom
 
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** Registers a custom element and declares the attributes it reacts to.
   *
@@ -32,5 +33,5 @@ object ScElements:
     else if js.Array.isArray(value) then Some(value.asInstanceOf[js.Array[js.Dynamic]])
     else if js.typeOf(value) == "string" then
       try Some(js.JSON.parse(value.asInstanceOf[String]).asInstanceOf[js.Array[js.Dynamic]])
-      catch case _: Throwable => None
+      catch case NonFatal(_) => None
     else None

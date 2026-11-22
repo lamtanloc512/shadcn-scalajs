@@ -11,18 +11,22 @@ const wrappers: Record<string, string> = {
   accordion: "ScAccordion",
   "alert-dialog": "ScAlertDialog",
   "aspect-ratio": "ScAspectRatio",
+  attachment: "ScAttachment",
   badge: "ScBadge",
+  bubble: "ScBubble",
   button: "ScButton",
   calendar: "ScCalendar",
   carousel: "ScCarousel",
   card: "ScCard",
   chart: "ScChart",
   checkbox: "ScCheckbox",
+  "code-block": "ScCodeBlock",
   combobox: "ScCombobox",
   "context-menu": "ScContextMenu",
   "data-table": "ScDataTable",
   "date-picker": "ScDatePicker",
   dialog: "ScDialog",
+  direction: "ScDirection",
   drawer: "ScDrawer",
   "dropdown-menu": "ScDropdownMenu",
   "hover-card": "ScHoverCard",
@@ -30,10 +34,14 @@ const wrappers: Record<string, string> = {
   "input-group": "ScInputGroup",
   "input-otp": "ScInputOTP",
   item: "ScItem",
+  marker: "ScMarker",
   menubar: "ScMenubar",
+  message: "ScMessage",
+  "message-scroller": "ScMessageScroller",
   "navigation-menu": "ScNavigationMenu",
   pagination: "ScPagination",
   progress: "ScProgress",
+  questionnaire: "ScQuestionnaire",
   "range-calendar": "ScRangeCalendar",
   resizable: "ScResizable",
   "scroll-area": "ScScrollArea",
@@ -46,9 +54,10 @@ const wrappers: Record<string, string> = {
   tabs: "ScTabs",
   "theme-switcher": "ScThemeSwitcher",
   textarea: "ScTextarea",
-  toggle: "ScToggle"
+  toggle: "ScToggle",
+  trace: "ScTrace"
 };
-const runtime = ["LightPrimitive", "ScElementBase", "ScElements", "ScStyles", "ScThemeApi", "ScThemeState"];
+const runtime = ["LightPrimitive", "LightVariantPrimitive", "ScElementBase", "ScElements", "ScStyles", "ScThemeApi", "ScThemeState"];
 const uiName = (name: string): string => name.split("-").map(part => part[0].toUpperCase() + part.slice(1)).join("");
 const exists = (file: string): Promise<boolean> => access(file).then(() => true, () => false);
 

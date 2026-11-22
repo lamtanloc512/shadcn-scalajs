@@ -5,6 +5,7 @@ import shadcnscalajs.core.Tags.slotTag
 import shadcnscalajs.ui.Questionnaire
 
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** `<sc-questionnaire>` — the questions come as JSON (attribute or `questions` property); answers leave as an
   * `sc-submit` event whose `detail` maps each question id to an array of values.
@@ -72,7 +73,7 @@ object ScQuestionnaire:
     val parsed =
       if value != null && js.typeOf(value) == "string" then
         try js.JSON.parse(value.asInstanceOf[String])
-        catch case _: Throwable => null
+        catch case NonFatal(_) => null
       else value
     if parsed != null && js.Array.isArray(parsed) then parsed.asInstanceOf[js.Array[js.Dynamic]].toSeq else Nil
 

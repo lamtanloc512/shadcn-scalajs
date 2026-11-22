@@ -29,8 +29,7 @@ class ScMessageScroller extends ScElementBase:
       case Some("outline") => Button.Variant.Outline
       case Some("default") => Button.Variant.Primary
       case Some("ghost")   => Button.Variant.Ghost
-      case _               => Button.Variant.Secondary
-    )
+      case _               => Button.Variant.Secondary)
   )
   stringProperty("button-variant")
 

@@ -3,6 +3,7 @@ package shadcnscalajs.webcomponents
 import org.scalajs.dom
 
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** The site's persisted theme, read and written from the Web Component bundle.
   *
@@ -81,7 +82,7 @@ private[webcomponents] object ScThemeState:
         val parsed = js.JSON.parse(raw)
         if js.typeOf(parsed) == "object" && parsed != null then parsed.asInstanceOf[js.Dynamic]
         else js.Dynamic.literal()
-    catch case _: Throwable => js.Dynamic.literal()
+    catch case NonFatal(_) => js.Dynamic.literal()
 
   private def stringField(cfg: js.Dynamic, field: String): Option[String] =
     val value = cfg.selectDynamic(field)
@@ -92,4 +93,4 @@ private[webcomponents] object ScThemeState:
     val cfg = stored()
     update(cfg)
     try dom.window.localStorage.setItem(storageKey, js.JSON.stringify(cfg))
-    catch case _: Throwable => ()
+    catch case NonFatal(_) => ()

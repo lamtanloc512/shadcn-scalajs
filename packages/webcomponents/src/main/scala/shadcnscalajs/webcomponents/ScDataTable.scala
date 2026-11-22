@@ -5,6 +5,7 @@ import org.scalajs.dom
 import shadcnscalajs.ui.{Button, DataTable, Input}
 
 import scala.scalajs.js
+import scala.util.control.NonFatal
 
 /** JSON columns are field names; rows are objects whose field values are displayed as text. */
 class ScDataTable extends ScElementBase:
@@ -31,7 +32,7 @@ object ScDataTable:
     val parsed =
       if value != null && js.typeOf(value) == "string" then
         try js.JSON.parse(value.asInstanceOf[String])
-        catch case _: Throwable => null
+        catch case NonFatal(_) => null
       else value
     if parsed != null && js.Array.isArray(parsed) then parsed.asInstanceOf[js.Array[js.Dynamic]].toSeq
     else Seq.empty

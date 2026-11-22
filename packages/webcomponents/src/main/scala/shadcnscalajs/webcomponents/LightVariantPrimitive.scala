@@ -41,3 +41,8 @@ abstract class LightVariantPrimitive(slotName: String) extends dom.HTMLElement:
 
   def attributeChangedCallback(name: String, oldValue: js.Any, newValue: js.Any): Unit =
     if oldValue != newValue then sync()
+
+object LightVariantPrimitive:
+  /** Picks the option whose attribute value matches, else the default. */
+  def one[A](raw: Option[String], options: (String, A)*)(default: A): A =
+    raw.flatMap(value => options.collectFirst { case (`value`, a) => a }).getOrElse(default)
