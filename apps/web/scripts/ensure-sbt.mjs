@@ -1,4 +1,5 @@
-import { access, chmod, mkdir, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { execFileSync, spawnSync } from "node:child_process";
 import { constants } from "node:fs";
 import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,6 +49,70 @@ try {
   await writeFile(launcherPath, Buffer.from(await response.arrayBuffer()));
 }
 
+// Scala 3.8+ runs only on JDK 17 or newer. Vercel's build image ships Java 11, so when the JVM on PATH is older this
+// fetches a Temurin JDK into node_modules/.cache (kept between builds by the dependency cache) and the wrapper uses it.
+const minimumJava = 17;
+const jdkFeature = 21;
+const jdkDir = join(cacheDir, `jdk-${jdkFeature}`);
+
+function parseMajor(text) {
+  const match = text.match(/version "(\d+)(?:\.(\d+))?/);
+  if (!match) return 0;
+  const first = Number(match[1]);
+  return first === 1 ? Number(match[2] ?? 0) : first;
+}
+
+function javaVersionOutput(javaBin) {
+  const result = spawnSync(javaBin, ["-version"], { encoding: "utf8" });
+  return `${result.stdout ?? ""}${result.stderr ?? ""}`;
+}
+
+async function findJdkJava() {
+  try {
+    for (const entry of await readdir(jdkDir)) {
+      const candidate = join(jdkDir, entry, "bin", "java");
+      if (await isExecutable(candidate)) return candidate;
+    }
+  } catch {}
+  return null;
+}
+
+async function ensureJava() {
+  if (parseMajor(javaVersionOutput("java")) >= minimumJava) return "java";
+  const cached = await findJdkJava();
+  if (cached && parseMajor(javaVersionOutput(cached)) >= minimumJava) return cached;
+
+  const arch = { x64: "x64", arm64: "aarch64" }[process.arch];
+  const os = { linux: "linux", darwin: "mac" }[process.platform];
+  if (!arch || !os) throw new Error(`Java ${minimumJava}+ is required; install a JDK for ${process.platform}/${process.arch}.`);
+  console.log(`Java ${minimumJava}+ was not found; downloading Temurin JDK ${jdkFeature} for this build...`);
+  const url = `https://api.adoptium.net/v3/binary/latest/${jdkFeature}/ga/${os}/${arch}/jdk/hotspot/normal/eclipse`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not download a JDK: ${response.status} ${response.statusText}`);
+  await rm(jdkDir, { recursive: true, force: true });
+  await mkdir(jdkDir, { recursive: true });
+  const archive = join(cacheDir, `jdk-${jdkFeature}.tar.gz`);
+  await writeFile(archive, Buffer.from(await response.arrayBuffer()));
+  execFileSync("tar", ["-xzf", archive, "-C", jdkDir]);
+  await rm(archive, { force: true });
+  // macOS archives nest the runtime under Contents/Home.
+  const found = (await findJdkJava()) ?? (await findMacJava());
+  if (!found) throw new Error("Downloaded JDK has no bin/java");
+  return found;
+}
+
+async function findMacJava() {
+  try {
+    for (const entry of await readdir(jdkDir)) {
+      const candidate = join(jdkDir, entry, "Contents", "Home", "bin", "java");
+      if (await isExecutable(candidate)) return candidate;
+    }
+  } catch {}
+  return null;
+}
+
+const javaBin = await ensureJava();
+
 const wrapper = `#!/bin/sh
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 JAVA_ARGS=""
@@ -57,7 +122,7 @@ NO_COLORS=""
 # launcher jar itself does not understand them, so handle them before exec.
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --batch) shift ;;
+    --batch|-batch) shift ;;
     -no-colors) NO_COLORS="-Dsbt.log.noformat=true"; shift ;;
     -D*) JAVA_ARGS="$JAVA_ARGS $1"; shift ;;
     *) break ;;
@@ -66,7 +131,7 @@ done
 
 # JAVA_ARGS contains only JVM -D properties supplied by the trusted build tool.
 # shellcheck disable=SC2086
-exec java -Xms512m -Xmx2048m $JAVA_ARGS $NO_COLORS -jar "$SCRIPT_DIR/../.cache/sbt-launch-${sbtVersion}.jar" "$@"
+exec "${javaBin}" -Xms512m -Xmx2048m $JAVA_ARGS $NO_COLORS -jar "$SCRIPT_DIR/../.cache/sbt-launch-${sbtVersion}.jar" "$@"
 `;
 await writeFile(sbtPath, wrapper);
 await chmod(sbtPath, 0o755);
