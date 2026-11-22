@@ -8,7 +8,7 @@ import { mcpCommand } from "./commands/mcp.js";
 const program = new Command()
   .name("shadcn-scalajs")
   .description("Scaffold Scala.js + Laminar projects and add shadcn/ui-style components")
-  .version("0.3.2");
+  .version("1.0.0");
 
 program.addCommand(initCommand);
 program.addCommand(addCommand);

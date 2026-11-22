@@ -7,5 +7,16 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(sc-components\\.js|sc-components\\.css|wc-mosaic\\.css|styles/(.*)|registry/(.*))",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
   ]
 }

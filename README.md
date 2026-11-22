@@ -153,11 +153,11 @@ packages/core           Laminar helpers copied with the components
 packages/ui             component source and registry sidecars
 packages/blocks         page and section compositions
 packages/theme          style packs and design tokens
-packages/webcomponents  experimental custom-element wrappers
-packages/wc-bundle      preview npm bundle built from those wrappers
+packages/webcomponents  custom-element wrappers for every component
+packages/wc-bundle      standalone browser bundle built from those wrappers
 ```
 
-Web Component wrappers in `packages/webcomponents` are experimental; all 63 catalog examples have a wrapper, but compound APIs have narrower JSON/named-slot contracts than Laminar. A [preview default bundle](packages/wc-bundle/README.md) can be hosted as JS/CSS and themed with CSS variables. Scaffolded consumers can instead compile their copied UI sources with `npx shadcn-scalajs@latest build-wc button badge`, then rebuild with `npm run build:webcomponents`. See [the Web Components guide](apps/docs/src/content/docs/web-components.md). Neither route is yet part of the compatibility promise. Their loaders scope document CSS to component light-DOM trees; the full Tailwind sheet stays inside shadow roots. This uses CSS `@scope` and still needs testing against your host stylesheet.
+Every one of the 72 components has a Web Component wrapper in `packages/webcomponents`; compound APIs use JSON attributes or named slots rather than the full Laminar composition API. Try them in the [playground](https://scalajs.auvyx.org/web-components). The [default bundle](packages/wc-bundle/README.md) can be hosted as JS/CSS and themed with CSS variables. Scaffolded consumers can instead compile their copied UI sources with `npx shadcn-scalajs@latest build-wc button badge`, then rebuild with `npm run build:webcomponents`. See [the Web Components guide](apps/docs/src/content/docs/web-components.md). Their loaders scope document CSS to component light-DOM trees; the full Tailwind sheet stays inside shadow roots. This uses CSS `@scope` and still needs testing against your host stylesheet.
 
 ## License
 

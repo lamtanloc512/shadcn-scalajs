@@ -31,11 +31,6 @@ object SiteChrome:
       aria.label := "shadcn-scalajs home",
       span(cls := "[&_svg]:size-4", foreignHtmlElement(Main.logoEl)),
       span(cls := "truncate font-semibold", "shadcn-scalajs"),
-      Badge.of(
-        _.variant(Badge.Variant.Outline),
-        _ => cls := "h-5 px-1.5 text-[10px] uppercase tracking-wide text-muted-foreground",
-        _ => "Alpha"
-      ),
       mods
     )
 
@@ -74,17 +69,7 @@ object SiteChrome:
     if SiteFeatures.webComponents then all else all.filterNot(_._1 == Active.WebComponents)
 
   private def entryLabel(target: Active, label: String): HtmlElement =
-    span(
-      cls := "inline-flex items-center gap-1.5",
-      label,
-      if target == Active.WebComponents then
-        Badge.of(
-          _.variant(Badge.Variant.Outline),
-          _ => cls := "h-4 px-1 text-[9px] uppercase tracking-wide text-muted-foreground",
-          _ => "Alpha"
-        )
-      else emptyNode
-    )
+    span(cls := "inline-flex items-center gap-1.5", label)
 
   def primaryNav(active: Active): HtmlElement =
     navTag(

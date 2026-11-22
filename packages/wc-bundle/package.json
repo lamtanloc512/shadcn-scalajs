@@ -1,6 +1,6 @@
 {
   "name": "@shadcn-scalajs/web-components",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Standalone shadcn-scalajs Web Components bundle",
   "type": "module",
   "files": ["dist"],

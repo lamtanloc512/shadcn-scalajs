@@ -9,7 +9,8 @@ inject()
 // `Cannot read properties of undefined (reading 'startTime')` on every
 // client-side navigation. The gallery is an SPA, so leave it unloaded.
 
-const webComponentsEnabled = import.meta.env.VITE_ENABLE_WEB_COMPONENTS === "true"
+// On unless a deployment opts out with VITE_ENABLE_WEB_COMPONENTS=false.
+const webComponentsEnabled = import.meta.env.VITE_ENABLE_WEB_COMPONENTS !== "false"
 globalThis.__SHADCN_SCALAJS_ENABLE_WEB_COMPONENTS__ = webComponentsEnabled
 
 if (webComponentsEnabled) {

@@ -343,9 +343,7 @@ object DocsPage:
         "."
       ),
       p(
-        "Protocol messages go to stdout. Logs go to stderr. The published ",
-        mono("mcp"),
-        " command is available after the next CLI release. From this repository, build ",
+        "Protocol messages go to stdout. Logs go to stderr. To try an unreleased registry from this repository, build ",
         mono("packages/cli"),
         " and run:"
       ),
